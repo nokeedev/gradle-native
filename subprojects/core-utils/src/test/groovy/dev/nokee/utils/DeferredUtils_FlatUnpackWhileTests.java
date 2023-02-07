@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import dev.nokee.util.Executable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class DeferredUtils_FlatUnpackWhileTests {
 	@Nested
 	class GivenSubject {
 		@Mock Predicate<Object> predicate;
-		DeferredUtils.Executable<List<MyType>> subject;
+		Executable<List<MyType>> subject;
 
 		@BeforeEach
 		void createSubject() {

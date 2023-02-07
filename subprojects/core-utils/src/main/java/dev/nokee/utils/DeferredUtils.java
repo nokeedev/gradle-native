@@ -16,6 +16,7 @@
 package dev.nokee.utils;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.util.Executable;
 import dev.nokee.util.Unpacker;
 import dev.nokee.util.internal.CallableUnpacker;
 import dev.nokee.util.internal.CompositeUnpacker;
@@ -189,10 +190,6 @@ public final class DeferredUtils {
 			List<T> result = (List<T>) flatUnpackWhile(obj, flattener, unpacker, it -> nestableDeferred().canUnpack(it) || DeferredUtils.isFlattenableType(it));
 			return result;
 		}
-	}
-
-	public interface Executable<R> {
-		R execute(@Nullable Object obj);
 	}
 
 	@EqualsAndHashCode

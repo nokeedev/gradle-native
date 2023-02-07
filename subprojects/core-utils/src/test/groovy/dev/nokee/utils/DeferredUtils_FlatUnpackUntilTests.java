@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import dev.nokee.util.Executable;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.mock;
 class DeferredUtils_FlatUnpackUntilTests {
 	@Nested
 	class GivenSubject {
-		DeferredUtils.Executable<List<MyType>> subject = flatUnpackUntil(MyType.class);
+		Executable<List<MyType>> subject = flatUnpackUntil(MyType.class);
 
 		@Nested
 		class WhenTargetIsNull {
