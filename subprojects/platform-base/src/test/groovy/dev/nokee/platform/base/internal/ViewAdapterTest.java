@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.internal.testing.invocations.InvocationMatchers;
 import dev.nokee.internal.testing.reflect.Invokable;
 import dev.nokee.internal.testing.reflect.MethodCallable;
 import dev.nokee.internal.testing.testdoubles.TestDouble;
@@ -45,6 +44,7 @@ import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newSpy;
 import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
 import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
@@ -142,7 +142,7 @@ class ViewAdapterTest {
 
 	@Test
 	void throwsExceptionIfConfigureEachByClosureSpecIsNull() {
-		assertThrows(NullPointerException.class, () -> subject.configureEach((Spec<MyType>) null, newMock(ofClosure(MyType.class)).instance()));
+		assertThrows(NullPointerException.class, () -> subject.configureEach((Spec<MyType>) null, newSpy(ofClosure(MyType.class)).instance()));
 	}
 
 	@Test

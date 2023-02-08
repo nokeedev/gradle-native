@@ -38,6 +38,7 @@ import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDele
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateOf;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newSpy;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.externalDependency;
@@ -106,7 +107,7 @@ public interface DependencyBucketTester<T> {
 	@ParameterizedTest(name = "canConfigureDependencyViaTypeSafeMethodUsingClosure()")
 	@MethodSource("provideDependencyNotations")
 	default void canConfigureDependencyViaTypeSafeMethodUsingClosure(DependencyUnderTest dependency) {
-		val closure = newMock(ofClosure(ModuleDependency.class));
+		val closure = newSpy(ofClosure(ModuleDependency.class));
 		addDependency(subject(), dependency.asNotation(), closure.instance());
 		assertThat(DependencyBuckets.finalize(get(subject()).getAsConfiguration()).getDependencies(), hasSize(1)); // force realize
 		assertAll(

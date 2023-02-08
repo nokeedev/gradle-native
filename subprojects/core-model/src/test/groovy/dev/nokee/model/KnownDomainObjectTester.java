@@ -28,6 +28,7 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newSpy;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofProvider;
@@ -81,7 +82,7 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 	default void returnsThisKnownObjectOnConfigure() {
 		assertAll(
 			() -> assertSame(subject(), subject().configure(newMock(ofAction(Object.class)).instance())),
-			() -> assertSame(subject(), subject().configure(newMock(ofClosure(type())).instance()))
+			() -> assertSame(subject(), subject().configure(newSpy(ofClosure(type())).instance()))
 		);
 	}
 
@@ -93,7 +94,7 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 
 	@Test
 	default void doesNotThrowWhenConfigureUsingClosure() {
-		val closure = newMock(ofClosure(type())).instance();
+		val closure = newSpy(ofClosure(type())).instance();
 		assertDoesNotThrow(() -> subject().configure(closure));
 	}
 

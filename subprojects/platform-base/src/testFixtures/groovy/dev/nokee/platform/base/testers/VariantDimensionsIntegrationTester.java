@@ -47,6 +47,7 @@ import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDele
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateOf;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newSpy;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofType;
@@ -95,7 +96,7 @@ public abstract class VariantDimensionsIntegrationTester {
 	@Test
 	@SuppressWarnings("rawtypes")
 	void callsClosureWithBuilder() {
-		val closure = newMock(ofClosure(VariantDimensionBuilder.class));
+		val closure = newSpy(ofClosure(VariantDimensionBuilder.class));
 		subject().getDimensions().newAxis(MyAxis.class, closure.instance());
 		assertThat(closure.to(method(TestClosure<Object, VariantDimensionBuilder>::execute)), calledOnce(withClosureArguments(isA(VariantDimensionBuilder.class))));
 		assertThat(closure.to(method(TestClosure<Object, VariantDimensionBuilder>::execute)), calledOnce(allOf(withDelegateFirstStrategy(), withDelegateOf(isA(VariantDimensionBuilder.class)))));

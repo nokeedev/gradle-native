@@ -47,6 +47,7 @@ import static dev.nokee.internal.testing.invocations.InvocationMatchers.with;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.withClosureArguments;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newSpy;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.language.base.testing.LanguageSourceSetMatchers.sourceSetOf;
@@ -88,8 +89,8 @@ public interface ComponentSourcesTester<T extends ComponentSources> {
 	@ParameterizedTest
 	@MethodSource("provideSourceSetUnderTest")
 	default void canConfigureSourceSetViaTypeSafeMethodUsingClosure(SourceSetUnderTest sourceSet) {
-		TestDouble<TestClosure<Void, LanguageSourceSet>> closure = newMock(ofClosure(LanguageSourceSet.class));
-		assertThat(closure.executeWith(sourceSet.typeSafeConfigureUsingClosure(createSubject())).to(method(TestClosure<Void, LanguageSourceSet>::execute)),
+		TestDouble<TestClosure<Object, LanguageSourceSet>> closure = newSpy(ofClosure(LanguageSourceSet.class));
+		assertThat(closure.executeWith(sourceSet.typeSafeConfigureUsingClosure(createSubject())).to(method(TestClosure<Object, LanguageSourceSet>::execute)),
 			allOf(called(anyOf(equalTo(1), equalTo(2))), lastInvocation(withClosureArguments(sourceSet.asMatcher()))));
 	}
 
@@ -156,7 +157,7 @@ public interface ComponentSourcesTester<T extends ComponentSources> {
 		}
 
 		@SneakyThrows
-		Consumer<Closure<Void>> typeSafeConfigureUsingClosure(ComponentSources target) {
+		Consumer<Closure<?>> typeSafeConfigureUsingClosure(ComponentSources target) {
 			assumeSourceSetNameIsNotJavaKeyword("it cannot have a type safe configuration method using closure");
 			val method = target.getClass().getMethod(getName(), Closure.class);
 
