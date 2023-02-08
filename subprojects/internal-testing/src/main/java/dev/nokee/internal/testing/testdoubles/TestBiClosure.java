@@ -30,5 +30,6 @@ public abstract class TestBiClosure<R, T, U> extends Closure<R> {
 		return execute(getDelegate(), getResolveStrategy(), new Object[] { firstArgument, secondArgument });
 	}
 
-	public abstract R execute(Object delegate, int strategy, Object[] arguments);
+	// Note: We use Integer instead of primitive int because of a limitation in MethodReference implementations
+	public abstract R execute(Object delegate, Integer strategy, Object[] arguments);
 }
