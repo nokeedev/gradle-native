@@ -62,7 +62,7 @@ public interface MethodInformation<ReceiverType, ReturnType extends ReturnInform
 		return new ByProxyMethodInformation<>(new InvokeMethodCallableConsumer<>(callable));
 	}
 
-	static <ReceiverType> MethodInformation<ReceiverType, ?> method(String name) {
+	static <ReceiverType, ReturnInfoType extends ReturnInformation> MethodInformation<ReceiverType, ReturnInfoType> method(String name) {
 		return new ByNameMethodInformation<>(name);
 	}
 }
