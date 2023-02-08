@@ -18,6 +18,10 @@ package dev.nokee.internal.testing.testdoubles;
 import groovy.lang.Closure;
 
 public abstract class TestClosure<R, T> extends Closure<R> {
+	public TestClosure() {
+		super(new Object());
+	}
+
 	public TestClosure(Object owner, Object thisObject) {
 		super(owner, thisObject);
 	}
