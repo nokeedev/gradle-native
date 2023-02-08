@@ -153,6 +153,12 @@ public final class InvocationMatchers {
 		return with(any(Object.class), any(Integer.class), arrayContaining(instances));
 	}
 
+	@SafeVarargs
+	@SuppressWarnings({"varargs", "unchecked"})
+	public static <A extends ArgumentInformation.Arg3<Object, Integer, Object[]>, E> Matcher<InvocationResult<A>> withClosureArguments(Matcher<? super E>... matchers) {
+		return with(any(Object.class), any(Integer.class), arrayContaining(ImmutableList.copyOf((Matcher<Object>[]) matchers)));
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <A extends ArgumentInformation.Arg3<Object, Integer, Object[]>, T> Matcher<InvocationResult<A>> withDelegateOf(Matcher<T> matcher) {
 		return with((Matcher<Object>) matcher, any(Integer.class), any(Object[].class));
