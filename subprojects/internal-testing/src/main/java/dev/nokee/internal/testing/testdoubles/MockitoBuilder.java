@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 
 public final class MockitoBuilder<T> implements TestDouble<T> {
 	private final Class<T> classToMock;
-	private final List<StubCall<T>> stubs = new ArrayList<>();
+	private final List<StubCall<? super T>> stubs = new ArrayList<>();
 	private MockSettings settings = Mockito.withSettings();
 	private T instance;
 	private final Multimap<Method, List<Object>> captured = ArrayListMultimap.create();
@@ -59,11 +59,12 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 		return new AnyStubArgs<>();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public MockitoBuilder<T> when(StubCall<T> result) {
+	public MockitoBuilder<T> when(StubCall<? super T> result) {
 		stubs.add(result);
 		if (instance != null) {
-			applyStub(result, instance);
+			applyStub((StubCall<T>) result, instance);
 		}
 		return this;
 	}
@@ -182,13 +183,14 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public T instance() {
 		if (instance == null) {
 			final T instance = newInstance();
 			// TODO: merge stubs for the same method together
 			stubs.forEach(it -> {
-				applyStub(it, instance);
+				applyStub((StubCall<T>) it, instance);
 			});
 			this.instance = instance;
 		}

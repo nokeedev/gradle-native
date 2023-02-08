@@ -30,7 +30,7 @@ public interface TestDouble<T> {
 		return new OngoingStubBuilder<>(method);
 	}
 
-	TestDouble<T> when(StubCall<T> result);
+	TestDouble<T> when(StubCall<? super T> result);
 
 	TestDouble<T> alwaysThrows();
 
