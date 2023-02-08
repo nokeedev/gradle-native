@@ -44,9 +44,11 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	private MockSettings settings = Mockito.withSettings();
 	private T instance;
 	private final Multimap<Method, List<Object>> captured = ArrayListMultimap.create();
+	private final boolean isSpy; // always throws doesn't make much sense anymore
 
-	private MockitoBuilder(Class<T> classToMock) {
+	private MockitoBuilder(Class<T> classToMock, boolean isSpy) {
 		this.classToMock = classToMock;
+		this.isSpy = isSpy;
 	}
 
 	public static <THIS, R extends ReturnInformation, A extends ArgumentInformation> StubBuilder<THIS, R> any(StubBuilder.WithArguments<THIS, R, A> stub) {
@@ -172,10 +174,18 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 		}
 	}
 
+	private T newInstance() {
+		if (isSpy) {
+			return Mockito.spy(classToMock);
+		} else {
+			return Mockito.mock(classToMock, settings);
+		}
+	}
+
 	@Override
 	public T instance() {
 		if (instance == null) {
-			final T instance = Mockito.mock(classToMock, settings);
+			final T instance = newInstance();
 			// TODO: merge stubs for the same method together
 			stubs.forEach(it -> {
 				applyStub(it, instance);
@@ -187,7 +197,12 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 
 	@SuppressWarnings("unchecked")
 	public static <T, R extends T> TestDouble<R> newMock(Class<T> classToMock) {
-		return new MockitoBuilder<>((Class<R>) classToMock);
+		return new MockitoBuilder<>((Class<R>) classToMock, false);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, R extends T> TestDouble<R> newSpy(Class<T> classToMock) {
+		return new MockitoBuilder<>((Class<R>) classToMock, true);
 	}
 
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
