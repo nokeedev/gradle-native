@@ -29,6 +29,7 @@ import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDele
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateOf;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newSpy;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -53,11 +54,11 @@ public interface ConfigurableSourceSetTester extends SourceSetTester {
 
 	@Test
 	default void canConfigureFilterUsingClosure() {
-		TestDouble<TestClosure<Void, PatternFilterable>> closure = newMock(ofClosure(PatternFilterable.class));
+		TestDouble<TestClosure<Object, PatternFilterable>> closure = newSpy(ofClosure(PatternFilterable.class));
 		subject().filter(closure.instance());
-		assertThat(closure.to(method(TestClosure<Void, PatternFilterable>::execute)),
+		assertThat(closure.to(method(TestClosure<Object, PatternFilterable>::execute)),
 			calledOnce(withClosureArguments(subject().getFilter())));
-		assertThat(closure.to(method(TestClosure<Void, PatternFilterable>::execute)),
+		assertThat(closure.to(method(TestClosure<Object, PatternFilterable>::execute)),
 			calledOnce(allOf(withDelegateOf(subject().getFilter()), withDelegateFirstStrategy())));
 	}
 
