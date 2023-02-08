@@ -30,5 +30,6 @@ public abstract class TestClosure<R, T> extends Closure<R> {
 		return execute(getDelegate(), getResolveStrategy(), new Object[] { argument });
 	}
 
-	public abstract R execute(Object delegate, int strategy, Object[] arguments);
+	// Note: We use Integer instead of primitive int because of a limitation in MethodReference implementations
+	public abstract R execute(Object delegate, Integer strategy, Object[] arguments);
 }
