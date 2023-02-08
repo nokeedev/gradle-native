@@ -27,6 +27,10 @@ final class ByProxyMethodInformation<ReceiverType, ReturnInfoType extends Return
 
 	@Override
 	public Method resolve(Class<ReceiverType> type) {
-		return ReflectionProxyMethodReference.on(type).to(methodProxy);
+		try {
+			return ReflectionProxyMethodReference.on(type).to(methodProxy);
+		} catch (Throwable e) {
+			return MockitoMethodReference.on(type).to(methodProxy);
+		}
 	}
 }
