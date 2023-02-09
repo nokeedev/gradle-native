@@ -89,7 +89,11 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 
 			@Override
 			public List<MyInvocationResult<ArgumentInformation.None>> getAllInvocations() {
-				return Streams.zip(delegate.getAllInvocations().stream(), data.stream(), (a, b) -> {
+				Stream<List<Object>> dataStream = Stream.generate(ImmutableList::of);
+				if (!data.isEmpty()) {
+					dataStream = data.stream();
+				}
+				return Streams.zip(delegate.getAllInvocations().stream(), dataStream, (a, b) -> {
 					return new MyInvocationResult<ArgumentInformation.None>() {
 						@Override
 						public Iterator<Object> iterator() {
