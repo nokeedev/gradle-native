@@ -24,14 +24,14 @@ import java.util.Set;
 
 @EqualsAndHashCode
 final class AndSpec implements Spec<DomainObjectIdentity>, ModelSpec {
-	@EqualsAndHashCode.Include private final Set<ModelSpec> specs;
+	@EqualsAndHashCode.Include private final ModelSpec[] specs;
 
 	public AndSpec(ModelSpec first, ModelSpec second) {
 		this(consolidate(first, second));
 	}
 
 	public AndSpec(Set<ModelSpec> specs) {
-		this.specs = specs;
+		this.specs = specs.toArray(new ModelSpec[0]);
 	}
 
 	@Override
@@ -42,13 +42,13 @@ final class AndSpec implements Spec<DomainObjectIdentity>, ModelSpec {
 	private static Set<ModelSpec> consolidate(ModelSpec first, ModelSpec second) {
 		val builder = ImmutableSet.<ModelSpec>builder();
 		if (first instanceof AndSpec) {
-			builder.addAll(((AndSpec) first).specs);
+			builder.add(((AndSpec) first).specs);
 		} else {
 			builder.add(first);
 		}
 
 		if (second instanceof AndSpec) {
-			builder.addAll(((AndSpec) second).specs);
+			builder.add(((AndSpec) second).specs);
 		} else {
 			builder.add(second);
 		}
