@@ -50,7 +50,7 @@ class ModelAction_ConfigureEachTest {
 
 		@Test
 		void usesIntersectionOfSpecifiedTypeAndStateInComponent() {
-			assertThat(subject.getComponents(), hasItem(new ModelSpecComponent(subtypeOf(of(MyType.class)).and(stateAtLeast(ModelState.Realized)))));
+			assertThat(subject.getComponents(), hasItem(new ModelSpecComponent(stateAtLeast(ModelState.Realized).and(subtypeOf(of(MyType.class))))));
 		}
 
 		@Test
@@ -77,7 +77,7 @@ class ModelAction_ConfigureEachTest {
 
 		@Test
 		void usesIntersectionOfSpecifiedSpec_Type_AndStateInComponent() {
-			assertThat(subject.getComponents(), hasItem(new ModelSpecComponent(subtypeOf(of(MyType.class)).and(stateAtLeast(ModelState.Realized)).and(spec))));
+			assertThat(subject.getComponents(), hasItem(new ModelSpecComponent(stateAtLeast(ModelState.Realized).and(subtypeOf(of(MyType.class))).and(spec))));
 		}
 
 		@Test

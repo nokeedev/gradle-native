@@ -51,7 +51,7 @@ class ModelAction_WhenElementKnownTest {
 
 		@Test
 		void usesIntersectionOfSpecifiedSpec_Type_AndStateInComponent() {
-			assertThat(subject.getComponents(), hasItem(new ModelSpecComponent(subtypeOf(of(MyType.class)).and(stateAtLeast(ModelState.Registered)))));
+			assertThat(subject.getComponents(), hasItem(new ModelSpecComponent(stateAtLeast(ModelState.Registered).and(subtypeOf(of(MyType.class))))));
 		}
 
 		@Test
@@ -78,7 +78,7 @@ class ModelAction_WhenElementKnownTest {
 
 		@Test
 		void usesIntersectionOfSpecifiedSpecAndTypeAndStateInComponent() {
-			assertThat(subject.getComponents(), hasItem(new ModelSpecComponent(subtypeOf(of(MyType.class)).and(stateAtLeast(ModelState.Registered)).and(spec))));
+			assertThat(subject.getComponents(), hasItem(new ModelSpecComponent(stateAtLeast(ModelState.Registered).and(subtypeOf(of(MyType.class))).and(spec))));
 		}
 
 		@Test
