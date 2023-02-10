@@ -15,31 +15,30 @@
  */
 package dev.nokee.model.internal.actions;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.SetMultimap;
 import lombok.val;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 /**
  * Represent what an entity is all about in terms of projection actions
  */
 final class DomainObjectIdentity {
-	private static final DomainObjectIdentity EMPTY = new DomainObjectIdentity(ImmutableSetMultimap.of());
-	private final SetMultimap<Class<?>, Object> values;
+	private static final DomainObjectIdentity EMPTY = new DomainObjectIdentity(ImmutableMap.of());
+	private final Map<Class<?>, Object> values;
 
-	private DomainObjectIdentity(SetMultimap<Class<?>, Object> values) {
+	private DomainObjectIdentity(Map<Class<?>, Object> values) {
 		this.values = values;
 	}
 
 	public static DomainObjectIdentity of(Object value) {
-		return new DomainObjectIdentity(ImmutableSetMultimap.of(value.getClass(), value));
+		return new DomainObjectIdentity(ImmutableMap.of(value.getClass(), value));
 	}
 
 	public static DomainObjectIdentity of(Iterable<?> value) {
@@ -47,15 +46,15 @@ final class DomainObjectIdentity {
 			return EMPTY;
 		}
 		val firstElement = Iterables.getFirst(value, null);
-		return new DomainObjectIdentity(ImmutableSetMultimap.<Class<?>, Object>builder().putAll(firstElement.getClass(), value).build());
+		return new DomainObjectIdentity(ImmutableMap.<Class<?>, Object>builder().put(firstElement.getClass(), value).build());
 	}
 
 	@Nullable
 	public <T> T get(Class<T> type) {
 		Objects.requireNonNull(type);
 		@SuppressWarnings("unchecked")
-		T value = (T) Iterables.getOnlyElement(values.get(type), null);
-		return value;
+		final T result = (T) values.get(type);
+		return result;
 	}
 
 	public <T> Set<T> getAll(Class<T> type) {
@@ -70,8 +69,8 @@ final class DomainObjectIdentity {
 		if (value instanceof Iterable) {
 			return with((Iterable<? extends Object>) value);
 		} else {
-			val result = MultimapBuilder.hashKeys().hashSetValues().build(values);
-			result.replaceValues(value.getClass(), ImmutableSet.of(value));
+			val result = new HashMap<Class<?>, Object>(values);
+			result.put(value.getClass(), value);
 			return new DomainObjectIdentity(result);
 		}
 	}
@@ -82,15 +81,21 @@ final class DomainObjectIdentity {
 			return this;
 		}
 		val firstElement = Iterables.getFirst(value, null);
-		val result = MultimapBuilder.hashKeys().hashSetValues().build(values);
-		result.replaceValues(firstElement.getClass(), value);
+		val result = new HashMap<Class<?>, Object>(values);
+		result.put(firstElement.getClass(), value);
 		return new DomainObjectIdentity(result);
 	}
 
 	public <T> DomainObjectIdentity plus(T value) {
 		Objects.requireNonNull(value);
-		val result = MultimapBuilder.hashKeys().hashSetValues().build(values);
-		result.put(value.getClass(), value);
+		val result = new HashMap<Class<?>, Object>(values);
+		result.compute(value.getClass(), (k, v) -> {
+			if (v == null) {
+				return ImmutableSet.of(value);
+			} else {
+				return ImmutableSet.<Object>builder().addAll((Iterable<?>) v).add(value).build();
+			}
+		});
 		return new DomainObjectIdentity(result);
 	}
 
