@@ -18,9 +18,7 @@ package dev.nokee.model.internal.actions;
 import com.google.common.testing.NullPointerTester;
 import org.junit.jupiter.api.Test;
 
-import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
-import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyIterable;
@@ -40,11 +38,6 @@ class DomainObjectIdentityTest {
 	}
 
 	@Test
-	void returnsSingleElementSetWhenValueExists() {
-		assertThat(subject.getAll(MyValue.class), containsInAnyOrder(VALUE));
-	}
-
-	@Test
 	void returnsEmptyWhenValueDoesNotExists() {
 		assertThat(subject.get(MyOtherValue.class), nullValue());
 	}
@@ -56,13 +49,13 @@ class DomainObjectIdentityTest {
 
 	@Test
 	void canSetMultipleValuesUsingIterableAsObject() {
-		assertThat(subject.with((Object) singletonList(ALTERNATE_VALUE)).getAll(MyValue.class),
+		assertThat(subject.with((Object) singleton(ALTERNATE_VALUE)).getAll(MyValue.class),
 			containsInAnyOrder(ALTERNATE_VALUE));
 	}
 
 	@Test
 	void canSetMultipleValuesUsingIterable() {
-		assertThat(subject.with(singletonList(ALTERNATE_VALUE)).getAll(MyValue.class),
+		assertThat(subject.with(singleton(ALTERNATE_VALUE)).getAll(MyValue.class),
 			containsInAnyOrder(ALTERNATE_VALUE));
 	}
 
@@ -101,7 +94,6 @@ class DomainObjectIdentityTest {
 
 	@Test
 	void canAddValueToNonExistentValue() {
-		assertThat(subject.plus(OTHER_VALUE).get(MyOtherValue.class), equalTo(OTHER_VALUE));
 		assertThat(subject.plus(OTHER_VALUE).getAll(MyOtherValue.class), containsInAnyOrder(OTHER_VALUE));
 	}
 
@@ -109,7 +101,6 @@ class DomainObjectIdentityTest {
 	void doesNotChangeOriginalSubjectWhenAddMoreValues() {
 		subject.plus(ALTERNATE_VALUE);
 		assertThat(subject.get(MyValue.class), equalTo(VALUE));
-		assertThat(subject.getAll(MyValue.class), containsInAnyOrder(VALUE));
 	}
 
 	@Test

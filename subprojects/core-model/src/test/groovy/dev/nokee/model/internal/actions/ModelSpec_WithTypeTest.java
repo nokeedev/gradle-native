@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.actions;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
@@ -30,12 +31,12 @@ class ModelSpec_WithTypeTest implements ModelSpecTester<WithTypeSpec> {
 
 	@Override
 	public DomainObjectIdentity satisfyingInput() {
-		return DomainObjectIdentity.of(of(MyType.class));
+		return DomainObjectIdentity.of(ImmutableSet.of(of(MyType.class)));
 	}
 
 	@Override
 	public DomainObjectIdentity notSatisfyingInput() {
-		return DomainObjectIdentity.of(of(WrongType.class));
+		return DomainObjectIdentity.of(ImmutableSet.of(of(WrongType.class)));
 	}
 
 	@Test

@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.actions;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
 import com.google.common.testing.NullPointerTester;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -70,7 +71,7 @@ interface ModelSpecTester<T extends ModelSpec & Spec<DomainObjectIdentity>> {
 	}
 
 	default DomainObjectIdentity emptyIdentity() {
-		return DomainObjectIdentity.of(new Object());
+		return DomainObjectIdentity.of(ImmutableSet.of());
 	}
 
 	enum TestSpec implements Spec<DomainObjectIdentity>, ModelSpec {

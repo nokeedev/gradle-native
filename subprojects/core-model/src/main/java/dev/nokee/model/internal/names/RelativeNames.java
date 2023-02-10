@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.core.ModelNode;
 import lombok.ToString;
-import org.gradle.api.Namer;
 
 import java.util.Arrays;
 import java.util.Collections;

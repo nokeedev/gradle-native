@@ -30,6 +30,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.utils.DeferredUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.ExtensionAware;
@@ -44,7 +45,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
@@ -165,7 +165,7 @@ public final class ModelActionSystem<T extends ExtensionAware & PluginAware> imp
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.plus(projection.getType()))
-			.orElseGet(() -> DomainObjectIdentity.of(projection.getType()))));
+			.orElseGet(() -> DomainObjectIdentity.of(ImmutableSet.of(projection.getType())))));
 	}
 
 	// ComponentFromEntity<ParentComponent> read-only all
@@ -230,10 +230,11 @@ public final class ModelActionSystem<T extends ExtensionAware & PluginAware> imp
 			}
 
 			private Object valueOf(T component) {
-				if (component instanceof Supplier) {
-					return ((Supplier<?>) component).get();
+				val unpacked = DeferredUtils.nestableDeferred().unpack(component);
+				if (unpacked instanceof Iterable) {
+					return ImmutableSet.copyOf((Iterable<?>) unpacked);
 				} else {
-					return component;
+					return unpacked;
 				}
 			}
 		});
