@@ -19,9 +19,9 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public final class XCStringDelayedParse implements XCString {
-	private XCStringParser parser;
-	private String rawString;
-	private XCString parsedString;
+	@EqualsAndHashCode.Exclude private XCStringParser parser;
+	@EqualsAndHashCode.Exclude private String rawString;
+	@EqualsAndHashCode.Exclude private XCString parsedString;
 
 	public XCStringDelayedParse(XCStringParser parser, String rawString) {
 		assert parser != null;
@@ -35,6 +35,7 @@ public final class XCStringDelayedParse implements XCString {
 		return parsedString().resolve(context);
 	}
 
+	@EqualsAndHashCode.Include
 	private XCString parsedString() {
 		if (parsedString == null) {
 			parsedString = parser.parse(rawString);

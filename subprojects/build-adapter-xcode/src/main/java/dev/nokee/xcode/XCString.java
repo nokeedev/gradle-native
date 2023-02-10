@@ -29,7 +29,7 @@ public interface XCString {
 	}
 
 	static XCString empty() {
-		return new XCStringEmpty();
+		return XCStringInstances.EMPTY;
 	}
 
 	static XCString literal(String s) {
@@ -49,7 +49,7 @@ public interface XCString {
 	}
 
 	static XCString of(String s) {
-		return new XCStringDelayedParse(new AntlrMacroExpansionParser(), s);
+		return XCStringInstances.CACHE.getUnchecked(s);
 	}
 
 	static XCStringVariableOperator.Operator operator(String name) {
