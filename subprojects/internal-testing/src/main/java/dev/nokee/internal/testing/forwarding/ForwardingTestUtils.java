@@ -79,9 +79,7 @@ public final class ForwardingTestUtils {
 					} else {
 						item.methodUnderTest().invoke(Mockito.verify(item.delegate()), item.expectedParameters());
 					}
-				} catch (
-					InvocationTargetException |
-					IllegalAccessException e) {
+				} catch (InvocationTargetException | IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}
 				return true;
@@ -101,9 +99,7 @@ public final class ForwardingTestUtils {
 						Arrays.fill(anyParams, Mockito.any());
 						item.methodUnderTest().invoke(Mockito.verify(item.delegate(), mode), anyParams);
 					}
-				} catch (
-					InvocationTargetException |
-					IllegalAccessException e) {
+				} catch (InvocationTargetException | IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}
 
