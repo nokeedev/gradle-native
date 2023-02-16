@@ -17,26 +17,22 @@ package dev.nokee.internal.testing.forwarding;
 
 import java.util.function.Function;
 
-public final class ForwardingWrapper<T> implements ForwardingWrapperEx<T, T> {
-	private final Class<T> interfaceType;
-	private final Function<? super T, ? extends T> wrapperFactory;
+final class DefaultForwardingWrapper<DelegateType, ObjectType> implements ForwardingWrapperEx<DelegateType, ObjectType> {
+	private final Class<DelegateType> interfaceType;
+	private final Function<? super DelegateType, ? extends ObjectType> wrapperFactory;
 
-	private ForwardingWrapper(Class<T> interfaceType, Function<? super T, ? extends T> wrapperFactory) {
+	public DefaultForwardingWrapper(Class<DelegateType> interfaceType, Function<? super DelegateType, ? extends ObjectType> wrapperFactory) {
 		this.interfaceType = interfaceType;
 		this.wrapperFactory = wrapperFactory;
 	}
 
 	@Override
-	public T wrap(T proxy) {
+	public ObjectType wrap(DelegateType proxy) {
 		return wrapperFactory.apply(proxy);
 	}
 
-	public static <T> ForwardingWrapper<T> forwarding(Class<T> interfaceType, Function<? super T, ? extends T> wrapperFactory) {
-		return new ForwardingWrapper<>(interfaceType, wrapperFactory);
-	}
-
 	@Override
-	public Class<T> getForwardType() {
+	public Class<DelegateType> getForwardType() {
 		return interfaceType;
 	}
 }

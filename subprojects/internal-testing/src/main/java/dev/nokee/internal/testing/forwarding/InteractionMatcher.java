@@ -25,35 +25,43 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static org.hamcrest.Matchers.allOf;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-final class InteractionMatcher<T> extends FeatureMatcher<ForwardingWrapper<T>, InteractionResult> {
-	private final MethodInformation<T, ?> methodInformation;
+final class InteractionMatcher<ObjectType, DelegateType> extends FeatureMatcher<ForwardingWrapperEx<DelegateType, ObjectType>, InteractionResult> {
+	private final MethodInformation<ObjectType, ?> fromMethodInformation;
+	private final MethodInformation<DelegateType, ?> toMethodInformation;
 
-	public InteractionMatcher(MethodInformation<T, ?> methodInformation) {
-		super(allOf(ForwardingTestUtils.returnValueForwarded(), ForwardingTestUtils.calledMethodOnceWithPassedParameters()/*calledMethod(methodName), calledOnce(), */), "an interaction with " + methodInformation, "interaction with " + methodInformation);
-		this.methodInformation = methodInformation;
+	public InteractionMatcher(MethodInformation<ObjectType, ?> fromMethodInformation, MethodInformation<DelegateType, ?> toMethodInformation) {
+		super(allOf(ForwardingTestUtils.returnValueForwarded(), ForwardingTestUtils.calledMethodOnceWithPassedParameters()/*calledMethod(methodName), calledOnce(), */), "an interaction with " + toMethodInformation, "interaction with " + toMethodInformation);
+		this.fromMethodInformation = fromMethodInformation;
+		this.toMethodInformation = toMethodInformation;
 	}
 
 	@Override
-	protected InteractionResult featureValueOf(ForwardingWrapper<T> actual) {
-		Method method = methodInformation.resolve(actual.getForwardType());
-		Object[] passedArgs = ForwardingTestUtils.getParameterValues(method);
+	protected InteractionResult featureValueOf(ForwardingWrapperEx<DelegateType, ObjectType> actual) {
+		Method toMethod = toMethodInformation.resolve(actual.getForwardType());
+		Object[] passedArgs = ForwardingTestUtils.getParameterValues(toMethod);
 
+		Object returnValue = new FreshValueGenerator().generateFresh(toMethod.getReturnType());
 
-		Object returnValue = new FreshValueGenerator().generateFresh(method.getReturnType());
-
-		T proxy = Mockito.mock(actual.getForwardType(), new Answer<Object>() {
+		DelegateType proxy = Mockito.mock(actual.getForwardType(), new Answer<Object>() {
 			@Override
 			public Object answer(InvocationOnMock invocation) throws Throwable {
-				assertEquals(method, invocation.getMethod());
+				assertEquals(toMethod, invocation.getMethod());
 				return returnValue;
 			}
 		});
-		T wrapper = actual.wrap(proxy);
-		boolean isPossibleChainingCall = actual.getForwardType().isAssignableFrom(method.getReturnType());
+		final ObjectType wrapper = actual.wrap(proxy);
+
+		@SuppressWarnings("unchecked")
+		Class<ObjectType> objectType = (Class<ObjectType>) wrapper.getClass();
+		final Method fromMethod = fromMethodInformation.resolve(objectType);
+		assertArrayEquals(fromMethod.getParameterTypes(), toMethod.getParameterTypes());
+
+		boolean isPossibleChainingCall = fromMethod.getDeclaringClass().isAssignableFrom(fromMethod.getReturnType());
 		try {
-			Object actualReturnValue = method.invoke(wrapper, passedArgs);
+			Object actualReturnValue = fromMethod.invoke(wrapper, passedArgs);
 			return new InteractionResult() {
 				@Override
 				public boolean isPossibleChainingCall() {
@@ -82,7 +90,7 @@ final class InteractionMatcher<T> extends FeatureMatcher<ForwardingWrapper<T>, I
 
 				@Override
 				public Method methodUnderTest() {
-					return method;
+					return toMethod;
 				}
 
 				@Override
@@ -126,7 +134,7 @@ final class InteractionMatcher<T> extends FeatureMatcher<ForwardingWrapper<T>, I
 
 				@Override
 				public Method methodUnderTest() {
-					return method;
+					return toMethod;
 				}
 
 				@Override
