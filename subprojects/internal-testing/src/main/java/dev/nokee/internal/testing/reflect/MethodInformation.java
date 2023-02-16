@@ -43,22 +43,22 @@ public interface MethodInformation<ReceiverType, ReturnType extends ReturnInform
 	}
 
 	@SuppressWarnings("overloads")
-	static <ReceiverType, ReturnInfoType, ExceptionType extends Throwable> MethodInformation<ReceiverType, ReturnInformation.Return<ReturnInfoType>> method(MethodCallable.WithReturn.ForArg0<ReceiverType, ExceptionType, ReturnInfoType> callable) {
+	static <ReceiverType, ReturnType, ExceptionType extends Throwable> MethodInformation<ReceiverType, ReturnInformation.Return<ReturnType>> method(MethodCallable.WithReturn.ForArg0<ReceiverType, ExceptionType, ReturnType> callable) {
 		return new ByProxyMethodInformation<>(new InvokeMethodCallableConsumer<>(callable));
 	}
 
 	@SuppressWarnings("overloads")
-	static <ReceiverType, ReturnInfoType, A0, ExceptionType extends Throwable> MethodInformation.WithArguments<ReceiverType, ReturnInformation.Return<ReturnInfoType>, ArgumentInformation.Arg1<A0>> method(MethodCallable.WithReturn.ForArg1<ReceiverType, ReturnInfoType, A0, ExceptionType> callable) {
+	static <ReceiverType, ReturnType, A0, ExceptionType extends Throwable> MethodInformation.WithArguments<ReceiverType, ReturnInformation.Return<ReturnType>, ArgumentInformation.Arg1<A0>> method(MethodCallable.WithReturn.ForArg1<ReceiverType, ReturnType, A0, ExceptionType> callable) {
 		return new ByProxyMethodInformation<>(new InvokeMethodCallableConsumer<>(callable));
 	}
 
 	@SuppressWarnings("overloads")
-	static <ReceiverType, ReturnInfoType, A0, A1, ExceptionType extends Throwable> MethodInformation.WithArguments<ReceiverType, ReturnInformation.Return<ReturnInfoType>, ArgumentInformation.Arg2<A0, A1>> method(MethodCallable.WithReturn.ForArg2<ReceiverType, ReturnInfoType, A0, A1, ExceptionType> callable) {
+	static <ReceiverType, ReturnType, A0, A1, ExceptionType extends Throwable> MethodInformation.WithArguments<ReceiverType, ReturnInformation.Return<ReturnType>, ArgumentInformation.Arg2<A0, A1>> method(MethodCallable.WithReturn.ForArg2<ReceiverType, ReturnType, A0, A1, ExceptionType> callable) {
 		return new ByProxyMethodInformation<>(new InvokeMethodCallableConsumer<>(callable));
 	}
 
 	@SuppressWarnings("overloads")
-	static <ReceiverType, ReturnInfoType, A0, A1, A2, ExceptionType extends Throwable> MethodInformation.WithArguments<ReceiverType, ReturnInformation.Return<ReturnInfoType>, ArgumentInformation.Arg3<A0, A1, A2>> method(MethodCallable.WithReturn.ForArg3<ReceiverType, ReturnInfoType, A0, A1, A2, ExceptionType> callable) {
+	static <ReceiverType, ReturnType, A0, A1, A2, ExceptionType extends Throwable> MethodInformation.WithArguments<ReceiverType, ReturnInformation.Return<ReturnType>, ArgumentInformation.Arg3<A0, A1, A2>> method(MethodCallable.WithReturn.ForArg3<ReceiverType, ReturnType, A0, A1, A2, ExceptionType> callable) {
 		return new ByProxyMethodInformation<>(new InvokeMethodCallableConsumer<>(callable));
 	}
 
