@@ -16,6 +16,10 @@
 package dev.nokee.internal.testing.reflect;
 
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 final class ByProxyMethodInformation<ReceiverType, ReturnInfoType extends ReturnInformation, ArgumentInfoType extends ArgumentInformation> implements MethodInformation.WithArguments<ReceiverType, ReturnInfoType, ArgumentInfoType> {
@@ -27,6 +31,26 @@ final class ByProxyMethodInformation<ReceiverType, ReturnInfoType extends Return
 
 	@Override
 	public Method resolve(Class<ReceiverType> type) {
+		final Deque<Class<?>> queue = new ArrayDeque<>();
+		queue.add(type);
+		Method result = null;
+		while (!queue.isEmpty()) {
+			@SuppressWarnings("unchecked")
+			final Class<ReceiverType> candidate = (Class<ReceiverType>) queue.pop();
+			try {
+				result = resolve(candidate, methodProxy);
+			} catch (Throwable t) {
+				// ignore for now...
+				if (!candidate.equals(Object.class)) {
+					queue.addAll(Arrays.asList(candidate.getInterfaces()));
+					queue.add(candidate.getSuperclass());
+				}
+			}
+		}
+		return Objects.requireNonNull(result);
+	}
+
+	private static <ReceiverType> Method resolve(Class<ReceiverType> type, Consumer<ReceiverType> methodProxy) {
 		try {
 			return ReflectionProxyMethodReference.on(type).to(methodProxy);
 		} catch (Throwable e) {
