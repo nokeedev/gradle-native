@@ -39,9 +39,6 @@ import java.util.RandomAccess;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static com.google.common.base.Predicates.instanceOf;
-import static com.google.common.base.Predicates.not;
-
 public final class DeferredUtils {
 	public static final Unpacker IDENTITY_UNPACKER = new IdentityUnpacker();
 	private static final Unpacker NESTABLE_DEFERRED = new NestableUnpacker(new CallableUnpacker(new SupplierUnpacker(new KotlinFunction0Unpacker(IDENTITY_UNPACKER))));
@@ -111,7 +108,7 @@ public final class DeferredUtils {
 	}
 
 	public static <T> Executable<List<T>> flatUnpackUntil(Class<T> type) {
-		return new FlatUnpackWhileExecutable<>(DEFAULT_FLATTENER, DEFAULT_UNPACKER, until(type));
+		return new FlatUnpackWhileExecutable<>(DEFAULT_FLATTENER, DEFAULT_UNPACKER, PredicateUtils.until(type));
 	}
 
 	public static <T> Executable<List<T>> flatUnpackWhile(Predicate<Object> predicate) {
@@ -138,7 +135,7 @@ public final class DeferredUtils {
 
 		@Override
 		public Executable<List<Object>> until(Class<?> type) {
-			return new FlatUnpackWhileExecutable<>(flattener, IDENTITY_UNPACKER, DeferredUtils.until(type));
+			return new FlatUnpackWhileExecutable<>(flattener, IDENTITY_UNPACKER, PredicateUtils.until(type));
 		}
 
 		@Override
@@ -176,7 +173,7 @@ public final class DeferredUtils {
 
 		@Override
 		public Executable<List<T>> until(Class<?> type) {
-			return new FlatUnpackWhileExecutable<>(flattener, unpacker, DeferredUtils.until(type));
+			return new FlatUnpackWhileExecutable<>(flattener, unpacker, PredicateUtils.until(type));
 		}
 
 		@Override
@@ -210,10 +207,6 @@ public final class DeferredUtils {
 			final List<T> result = (List<T>) flatUnpackWhile(obj, flattener, unpacker, predicate);
 			return result;
 		}
-	}
-
-	private static Predicate<Object> until(Class<?> type) {
-		return not(instanceOf(type));
 	}
 
 	private static List<Object> flatUnpackWhile(@Nullable Object deferred, Flattener flattener, Unpacker unpacker, Predicate<Object> predicate) {
