@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @SuppressWarnings({"unchecked", "UnstableApiUsage"})
 public final class TestDoubleTypes {
@@ -74,6 +75,12 @@ public final class TestDoubleTypes {
 
 	public static <T> Class<Spec<T>> ofSpec(Class<T> type) {
 		return (Class<Spec<T>>) new TypeToken<Spec<T>>() {} //
+			.where(new TypeParameter<T>() {}, type) //
+			.getRawType();
+	}
+
+	public static <T> Class<Predicate<T>> ofPredicate(Class<T> type) {
+		return (Class<Predicate<T>>) new TypeToken<Predicate<T>>() {} //
 			.where(new TypeParameter<T>() {}, type) //
 			.getRawType();
 	}
