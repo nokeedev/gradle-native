@@ -20,6 +20,7 @@ import dev.nokee.util.Executable;
 import dev.nokee.util.Unpacker;
 import dev.nokee.util.internal.CallableUnpacker;
 import dev.nokee.util.internal.CompositeUnpacker;
+import dev.nokee.util.internal.DefaultUnpackingBuilder;
 import dev.nokee.util.internal.IdentityUnpacker;
 import dev.nokee.util.internal.KotlinFunction0Unpacker;
 import dev.nokee.util.internal.NestableUnpacker;
@@ -62,6 +63,10 @@ public final class DeferredUtils {
 	@Nullable
 	public static Object unpack(@Nullable Object deferred) {
 		return deferred().unpack(deferred);
+	}
+
+	public static <T> UnpackingBuilder<T> unpack(Unpacker unpacker) {
+		return new DefaultUnpackingBuilder<>(unpacker);
 	}
 
 	public interface Flattener {

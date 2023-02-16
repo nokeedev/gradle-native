@@ -13,33 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.util.internal;
+package dev.nokee.utils;
 
 import dev.nokee.util.Unpacker;
-import lombok.EqualsAndHashCode;
+import dev.nokee.util.internal.DefaultUnpackingBuilder;
+import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nullable;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-@EqualsAndHashCode
-public final class NestableUnpacker implements Unpacker {
-	private final Unpacker delegate;
+class DeferredUtils_UnpackTests {
+	Unpacker unpacker = newAlwaysThrowingMock(Unpacker.class);
 
-	public NestableUnpacker(Unpacker delegate) {
-		this.delegate = delegate;
-	}
-
-	@Nullable
-	@Override
-	public Object unpack(@Nullable Object deferred) {
-		Object current = deferred;
-		while (delegate.canUnpack(current)) {
-			current = delegate.unpack(current);
-		}
-		return current;
-	}
-
-	@Override
-	public boolean canUnpack(@Nullable Object target) {
-		return delegate.canUnpack(target);
+	@Test
+	void canBuildUnpackingExecutable() {
+		assertThat(DeferredUtils.unpack(unpacker), equalTo(new DefaultUnpackingBuilder<>(unpacker)));
 	}
 }
