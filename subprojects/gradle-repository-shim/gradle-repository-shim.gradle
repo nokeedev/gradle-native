@@ -6,17 +6,19 @@ plugins {
 }
 
 sourceSets {
+	'v6.2' {}
 	'v6.6' {}
 	'v7.6' {}
 }
 
 dependencies {
 	api project(':publishingCore')
+	v62Implementation "commons-io:commons-io:${commonsIoVersion}"
 	v66Implementation "commons-io:commons-io:${commonsIoVersion}"
 	v76Implementation "commons-io:commons-io:${commonsIoVersion}"
 }
 
 test {
-	testedGradleVersions.set(['6.6', '6.7', '6.8', '6.9', '7.0', '7.1', '7.2', '7.3', '7.4', '7.5', '7.6'])
+	testedGradleVersions.set(['6.2', '6.3', '6.4', '6.5', '6.6', '6.7', '6.8', '6.9', '7.0', '7.1', '7.2', '7.3', '7.4', '7.5', '7.6'])
 	testedOsFamilies.set([it.osFamilies.agnostic])
 }
