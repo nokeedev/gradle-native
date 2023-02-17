@@ -213,7 +213,7 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
 	public static <T> TestDouble<T> newMock(TypeToken<T> classToMock) {
-		return new MockitoBuilder<>((Class<T>) classToMock.getRawType());
+		return new MockitoBuilder<>((Class<T>) classToMock.getRawType(), false);
 	}
 
 	public static <T> T newAlwaysThrowingMock(Class<T> classToMock) {
