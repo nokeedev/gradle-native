@@ -18,6 +18,8 @@ package dev.nokee.platform.jni
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.platform.jni.fixtures.KotlinJniCppGreeterLib
 
+import static dev.nokee.utils.VersionNumber.parse
+
 class KotlinCppJniLibraryFunctionalTest extends AbstractJniLibraryFunctionalTest implements CppTaskNames {
 	def setup() {
 		settingsFile << """
@@ -30,7 +32,7 @@ class KotlinCppJniLibraryFunctionalTest extends AbstractJniLibraryFunctionalTest
 				resolutionStrategy {
 					eachPlugin {
 						if (requested.id.id == 'org.jetbrains.kotlin.jvm') {
-							useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+							useVersion("${kotlinVersion}")
 						}
 					}
 				}
@@ -46,7 +48,14 @@ class KotlinCppJniLibraryFunctionalTest extends AbstractJniLibraryFunctionalTest
 	}
 
 	private static String getKotlinVersion() {
-		return '1.6.21'
+		def gradleVersionUnderTest = parse(System.getProperty("dev.gradleplugins.defaultGradleVersion"));
+		if (parse("6.8.3") <= gradleVersionUnderTest) {
+			return "1.8.10"
+		} else if (parse("6.7.1").compareTo(gradleVersionUnderTest) <= 0) {
+			return "1.7.20"
+		} else {
+			return '1.6.21'
+		}
 	}
 
 	@Override

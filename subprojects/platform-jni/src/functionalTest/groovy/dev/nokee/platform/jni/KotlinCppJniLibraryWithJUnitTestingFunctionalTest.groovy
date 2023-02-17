@@ -19,6 +19,8 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.nokee.platform.jni.fixtures.KotlinJniCppGreeterLib
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 
+import static dev.nokee.utils.VersionNumber.parse
+
 class KotlinCppJniLibraryWithJUnitTestingFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def setup() {
 		settingsFile << """
@@ -31,7 +33,7 @@ class KotlinCppJniLibraryWithJUnitTestingFunctionalTest extends AbstractInstalle
 				resolutionStrategy {
 					eachPlugin {
 						if (requested.id.id == 'org.jetbrains.kotlin.jvm') {
-							useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+							useVersion("${kotlinVersion}")
 						}
 					}
 				}
@@ -83,6 +85,13 @@ class KotlinCppJniLibraryWithJUnitTestingFunctionalTest extends AbstractInstalle
 	}
 
 	private static String getKotlinVersion() {
-		return '1.6.21'
+		def gradleVersionUnderTest = parse(System.getProperty("dev.gradleplugins.defaultGradleVersion"));
+		if (parse("6.8.3") <= gradleVersionUnderTest) {
+			return "1.8.10"
+		} else if (parse("6.7.1").compareTo(gradleVersionUnderTest) <= 0) {
+			return "1.7.20"
+		} else {
+			return '1.6.21'
+		}
 	}
 }

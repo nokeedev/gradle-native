@@ -29,6 +29,8 @@ import spock.lang.Ignore
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 
+import static dev.nokee.utils.VersionNumber.parse
+
 abstract class AbstractNativeCompilationAwareComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "can compile native sources using objects lifecycle tasks"() {
 		given:
@@ -237,7 +239,14 @@ class NativeCompilationJavaObjectiveCppJniLibraryFunctionalTest extends Abstract
 
 class NativeCompilationKotlinCppJniLibraryFunctionalTest extends AbstractNativeCompilationAwareComponentFunctionalTest implements CppTaskNames {
 	private static String getKotlinVersion() {
-		return '1.6.21'
+		def gradleVersionUnderTest = parse(System.getProperty("dev.gradleplugins.defaultGradleVersion"));
+		if (parse("6.8.3") <= gradleVersionUnderTest) {
+			return "1.8.10"
+		} else if (parse("6.7.1").compareTo(gradleVersionUnderTest) <= 0) {
+			return "1.7.20"
+		} else {
+			return '1.6.21'
+		}
 	}
 
 	protected void makeSingleProject() {
@@ -267,7 +276,7 @@ class NativeCompilationKotlinCppJniLibraryFunctionalTest extends AbstractNativeC
 				resolutionStrategy {
 					eachPlugin {
 						if (requested.id.id == 'org.jetbrains.kotlin.jvm') {
-							useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+							useVersion("${kotlinVersion}")
 						}
 					}
 				}

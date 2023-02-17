@@ -26,7 +26,7 @@ import spock.lang.Requires
 import spock.lang.Unroll
 import spock.util.environment.OperatingSystem
 
-import static dev.nokee.internal.testing.junit.jupiter.VersionNumber.parse
+import static dev.nokee.utils.VersionNumber.parse
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem
 
 abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
@@ -330,7 +330,14 @@ class VariantAwareComponentJavaObjectiveCppJniLibraryFunctionalTest extends Abst
 
 class VariantAwareComponentKotlinCppJniLibraryFunctionalTest extends AbstractVariantAwareComponentFunctionalTest {
 	private static String getKotlinVersion() {
-		return '1.6.21'
+		def gradleVersionUnderTest = parse(System.getProperty("dev.gradleplugins.defaultGradleVersion"));
+		if (parse("6.8.3") <= gradleVersionUnderTest) {
+			return "1.8.10"
+		} else if (parse("6.7.1").compareTo(gradleVersionUnderTest) <= 0) {
+			return "1.7.20"
+		} else {
+			return '1.6.21'
+		}
 	}
 
 	protected void makeSingleProject() {
@@ -361,7 +368,7 @@ class VariantAwareComponentKotlinCppJniLibraryFunctionalTest extends AbstractVar
 				resolutionStrategy {
 					eachPlugin {
 						if (requested.id.id == 'org.jetbrains.kotlin.jvm') {
-							useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+							useVersion("${kotlinVersion}")
 						}
 					}
 				}
