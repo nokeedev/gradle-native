@@ -43,7 +43,7 @@ public class ContextualGradleRunnerParameterResolver implements ParameterResolve
 				System.out.println("Using Gradle v" + System.getProperty("dev.gradleplugins.defaultGradleVersion") + " in '" + it.getWorkingDirectory().getAbsolutePath() + "'");
 				return it;
 			});
-		if (getGradleVersion().compareTo(VersionNumber.parse("7.6")) >= 0) {
+		if (getGradleVersion().compareTo(VersionNumber.parse("7.6")) >= 0 && getGradleVersion().compareTo(VersionNumber.parse("8.0")) < 0) {
 			result = result.withArgument("-Dorg.gradle.kotlin.dsl.precompiled.accessors.strict=true");
 		}
 		return result;
