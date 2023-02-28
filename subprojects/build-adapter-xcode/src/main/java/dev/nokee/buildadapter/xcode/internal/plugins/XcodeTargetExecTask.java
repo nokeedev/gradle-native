@@ -176,28 +176,12 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		});
 	}
 
-	interface IsolationParameters {
-		DirectoryProperty getOriginalProjectLocation();
-		DirectoryProperty getIsolatedProjectLocation();
-		Property<String> getTargetNameToIsolate();
-	}
-
-	interface ExecutionParameters {
-		Property<CommandLineToolInvocation> getInvocation();
-	}
-
-	interface DerivedDataParameters {
-		ConfigurableFileCollection getIncomingDerivedDataPaths();
-		DirectoryProperty getXcodeDerivedDataPath();
-		DirectoryProperty getOutgoingDerivedDataPath();
-	}
-
 	public static final class DerivedDataAssemblingRunnable implements Runnable {
 		private final FileSystemOperations fileOperations;
-		private final DerivedDataParameters parameters;
+		private final Parameters parameters;
 		private final Runnable delegate;
 
-		public DerivedDataAssemblingRunnable(FileSystemOperations fileOperations, DerivedDataParameters parameters, Runnable delegate) {
+		public DerivedDataAssemblingRunnable(FileSystemOperations fileOperations, Parameters parameters, Runnable delegate) {
 			this.fileOperations = fileOperations;
 			this.parameters = parameters;
 			this.delegate = delegate;
@@ -218,14 +202,20 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				spec.into(parameters.getOutgoingDerivedDataPath());
 			});
 		}
+
+		public interface Parameters {
+			ConfigurableFileCollection getIncomingDerivedDataPaths();
+			DirectoryProperty getXcodeDerivedDataPath();
+			DirectoryProperty getOutgoingDerivedDataPath();
+		}
 	}
 
 	public static final class XcodeProjectIsolationRunnable implements Runnable {
 		private final FileSystemOperations fileOperations;
-		private final IsolationParameters parameters;
+		private final Parameters parameters;
 		private final Runnable delegate;
 
-		public XcodeProjectIsolationRunnable(FileSystemOperations fileOperations, IsolationParameters parameters, Runnable delegate) {
+		public XcodeProjectIsolationRunnable(FileSystemOperations fileOperations, Parameters parameters, Runnable delegate) {
 			this.fileOperations = fileOperations;
 			this.parameters = parameters;
 			this.delegate = delegate;
@@ -279,13 +269,19 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 			delegate.run();
 		}
+
+		public interface Parameters {
+			DirectoryProperty getOriginalProjectLocation();
+			DirectoryProperty getIsolatedProjectLocation();
+			Property<String> getTargetNameToIsolate();
+		}
 	}
 
 	public static final class ProcessExecutionRunnable implements Runnable {
 		private final ExecOperations execOperations;
-		private final ExecutionParameters parameters;
+		private final Parameters parameters;
 
-		public ProcessExecutionRunnable(ExecOperations execOperations, ExecutionParameters parameters) {
+		public ProcessExecutionRunnable(ExecOperations execOperations, Parameters parameters) {
 			this.execOperations = execOperations;
 			this.parameters = parameters;
 		}
@@ -294,10 +290,14 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		public void run() {
 			parameters.getInvocation().get().submitTo(execOperations(execOperations)).result().assertNormalExitValue();
 		}
+
+		public interface Parameters {
+			Property<CommandLineToolInvocation> getInvocation();
+		}
 	}
 
 	public static abstract class XcodebuildExec implements WorkAction<XcodebuildExec.Parameters> {
-		interface Parameters extends WorkParameters, DerivedDataParameters, ExecutionParameters, IsolationParameters {}
+		interface Parameters extends WorkParameters, DerivedDataAssemblingRunnable.Parameters, ProcessExecutionRunnable.Parameters, XcodeProjectIsolationRunnable.Parameters {}
 
 		@Inject
 		protected abstract ExecOperations getExecOperations();
