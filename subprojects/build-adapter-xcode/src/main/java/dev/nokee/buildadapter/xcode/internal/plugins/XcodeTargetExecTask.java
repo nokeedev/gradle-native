@@ -66,7 +66,6 @@ import static dev.nokee.buildadapter.xcode.internal.plugins.XCBuildSettingsUtils
 import static dev.nokee.core.exec.CommandLineToolExecutionEngine.execOperations;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toFile;
-import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toNullStream;
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toStandardStream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
@@ -193,28 +192,50 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		DirectoryProperty getOutgoingDerivedDataPath();
 	}
 
-	public static abstract class XcodebuildExec implements WorkAction<XcodebuildExec.Parameters> {
-		interface Parameters extends WorkParameters, DerivedDataParameters, ExecutionParameters, IsolationParameters {}
+	public static final class DerivedDataAssemblingRunnable implements Runnable {
+		private final FileSystemOperations fileOperations;
+		private final DerivedDataParameters parameters;
+		private final Runnable delegate;
 
-		@Inject
-		protected abstract ExecOperations getExecOperations();
-
-		@Inject
-		protected abstract FileSystemOperations getFileOperations();
-
-		@Override
-		public void execute() {
-			derivedDataPath(getParameters(), () -> {
-				isolateProject(getParameters(), () -> {
-					getParameters().getInvocation().get().submitTo(execOperations(getExecOperations())).result().assertNormalExitValue();
-				});
-			});
+		public DerivedDataAssemblingRunnable(FileSystemOperations fileOperations, DerivedDataParameters parameters, Runnable delegate) {
+			this.fileOperations = fileOperations;
+			this.parameters = parameters;
+			this.delegate = delegate;
 		}
 
-		private void isolateProject(IsolationParameters parameters, Runnable action) {
+		@Override
+		public void run() {
+			fileOperations.sync(spec -> {
+				spec.from(parameters.getIncomingDerivedDataPaths());
+				spec.into(parameters.getXcodeDerivedDataPath());
+				spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE);
+			});
+
+			delegate.run();
+
+			fileOperations.sync(spec -> {
+				spec.from(parameters.getXcodeDerivedDataPath(), it -> it.include("Build/Products/**/*"));
+				spec.into(parameters.getOutgoingDerivedDataPath());
+			});
+		}
+	}
+
+	public static final class XcodeProjectIsolationRunnable implements Runnable {
+		private final FileSystemOperations fileOperations;
+		private final IsolationParameters parameters;
+		private final Runnable delegate;
+
+		public XcodeProjectIsolationRunnable(FileSystemOperations fileOperations, IsolationParameters parameters, Runnable delegate) {
+			this.fileOperations = fileOperations;
+			this.parameters = parameters;
+			this.delegate = delegate;
+		}
+
+		@Override
+		public void run() {
 			val originalProjectLocation = parameters.getOriginalProjectLocation().get().getAsFile().toPath();
 			val isolatedProjectLocation = parameters.getIsolatedProjectLocation().get().getAsFile().toPath();
-			getFileOperations().sync(spec -> {
+			fileOperations.sync(spec -> {
 				spec.from(originalProjectLocation);
 				spec.into(isolatedProjectLocation);
 			});
@@ -256,22 +277,49 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				throw new UncheckedIOException(e);
 			}
 
-			action.run();
+			delegate.run();
+		}
+	}
+
+	public static final class ProcessExecutionRunnable implements Runnable {
+		private final ExecOperations execOperations;
+		private final ExecutionParameters parameters;
+
+		public ProcessExecutionRunnable(ExecOperations execOperations, ExecutionParameters parameters) {
+			this.execOperations = execOperations;
+			this.parameters = parameters;
 		}
 
-		private void derivedDataPath(DerivedDataParameters parameters, Runnable action) {
-			getFileOperations().sync(spec -> {
-				spec.from(parameters.getIncomingDerivedDataPaths());
-				spec.into(parameters.getXcodeDerivedDataPath());
-				spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE);
-			});
+		@Override
+		public void run() {
+			parameters.getInvocation().get().submitTo(execOperations(execOperations)).result().assertNormalExitValue();
+		}
+	}
 
-			action.run();
+	public static abstract class XcodebuildExec implements WorkAction<XcodebuildExec.Parameters> {
+		interface Parameters extends WorkParameters, DerivedDataParameters, ExecutionParameters, IsolationParameters {}
 
-			getFileOperations().sync(spec -> {
-				spec.from(parameters.getXcodeDerivedDataPath(), it -> it.include("Build/Products/**/*"));
-				spec.into(parameters.getOutgoingDerivedDataPath());
-			});
+		@Inject
+		protected abstract ExecOperations getExecOperations();
+
+		@Inject
+		protected abstract FileSystemOperations getFileOperations();
+
+		@Override
+		public void execute() {
+			derivedDataPath(isolateProject(executeBuild())).run();
+		}
+
+		private Runnable executeBuild() {
+			return new ProcessExecutionRunnable(getExecOperations(), getParameters());
+		}
+
+		private Runnable isolateProject(Runnable action) {
+			return new XcodeProjectIsolationRunnable(getFileOperations(), getParameters(), action);
+		}
+
+		private Runnable derivedDataPath(Runnable action) {
+			return new DerivedDataAssemblingRunnable(getFileOperations(), getParameters(), action);
 		}
 	}
 
