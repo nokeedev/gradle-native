@@ -16,9 +16,7 @@
 package dev.nokee.buildadapter.xcode.internal;
 
 import dev.nokee.buildadapter.xcode.internal.plugins.XcodeTargetExecTask;
-import dev.nokee.internal.testing.FileSystemMatchers;
 import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
-import dev.nokee.internal.testing.util.ProjectTestUtils;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,10 +28,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.google.common.collect.ImmutableList.of;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.anExistingFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.hasRelativeDescendants;
+import static dev.nokee.internal.testing.FileSystemMatchers.ofLines;
+import static dev.nokee.internal.testing.FileSystemMatchers.withTextContent;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.fileSystemOperations;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static java.nio.file.Files.createDirectory;
+import static java.nio.file.Files.createFile;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(TestDirectoryExtension.class)
@@ -55,13 +59,77 @@ class DerivedDataAssemblingRunnableIntegrationTests {
 	}
 
 	@Nested
+	class WithInitialDerivedDataDirectory {
+		Path inputDirectory;
+
+		@BeforeEach
+		void givenDerivedDataDirectory() throws IOException {
+			parameters.getIncomingDerivedDataPaths().from(inputDirectory = createDirectory(testDirectory.resolve("input")));
+
+			createFile(inputDirectory.resolve("a.txt"));
+			createDirectory(inputDirectory.resolve("dir"));
+			createFile(inputDirectory.resolve("dir/b.txt"));
+
+			subject.run();
+		}
+
+		@Nested
+		class WhenInputFileChanged {
+			@BeforeEach
+			void givenChangedInputFile() throws IOException {
+				Files.write(inputDirectory.resolve("a.txt"), of("some changes"));
+
+				subject.run();
+			}
+
+			@Test // https://github.com/nokeedev/gradle-native/issues/774
+			void syncChangesToDerivedDataDirectory() {
+				assertThat(derivedDataDirectory, hasRelativeDescendants("a.txt", "dir/b.txt"));
+				assertThat(derivedDataDirectory.resolve("a.txt"), aFile(withTextContent(ofLines("some changes"))));
+			}
+		}
+
+		@Nested
+		class WhenDerivedDataFilesRemoved {
+			@BeforeEach
+			void givenRemovedDerivedDataFile() throws IOException {
+				Files.delete(derivedDataDirectory.resolve("dir/b.txt"));
+				Files.delete(derivedDataDirectory.resolve("dir"));
+
+				subject.run();
+			}
+
+			@Test // https://github.com/nokeedev/gradle-native/issues/774
+			void restoresDeletedFiles() {
+				assertThat(derivedDataDirectory, hasRelativeDescendants("a.txt", "dir/b.txt"));
+			}
+		}
+
+		@Nested
+		class WhenInputFilesAdded {
+			@BeforeEach
+			void givenAddedInputFile() throws IOException {
+				Files.createFile(inputDirectory.resolve("dir/c.txt"));
+				Files.createFile(inputDirectory.resolve("d.txt"));
+
+				subject.run();
+			}
+
+			@Test // https://github.com/nokeedev/gradle-native/issues/774
+			void syncNewFilesToDerivedDataDirectory() {
+				assertThat(derivedDataDirectory, hasRelativeDescendants("a.txt", "dir/b.txt", "dir/c.txt", "d.txt"));
+			}
+		}
+	}
+
+	@Nested
 	class WhenDerivedDataContainsAdditionalIntermediateFiles {
 		Path anIntermediateFile;
 
 		@BeforeEach
 		void givenDerivedDataWithIntermediateFiles() throws IOException {
 			createDirectory(derivedDataDirectory);
-			anIntermediateFile = Files.createFile(derivedDataDirectory.resolve("intermediate.txt"));
+			anIntermediateFile = createFile(derivedDataDirectory.resolve("intermediate.txt"));
 
 			subject.run();
 		}
