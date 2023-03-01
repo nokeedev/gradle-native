@@ -22,11 +22,13 @@ import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.testfixtures.ProjectBuilder;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -86,6 +88,20 @@ public final class ProjectTestUtils {
 	 */
 	public static ProviderFactory providerFactory() {
 		return project().getProviders();
+	}
+
+	/**
+	 * Returns a functional {@link FileSystemOperations} instance.
+	 *
+	 * @return a {@link FileSystemOperations} instance, never null
+	 */
+	public static FileSystemOperations fileSystemOperations() {
+		return project().getObjects().newInstance(GradleServiceProvider.class).getFileOperations();
+	}
+
+	interface GradleServiceProvider {
+		@Inject
+		FileSystemOperations getFileOperations();
 	}
 
 	/**
