@@ -189,7 +189,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		@Override
 		public void run() {
-			fileOperations.sync(spec -> {
+			fileOperations.copy(spec -> {
 				spec.from(parameters.getIncomingDerivedDataPaths());
 				spec.into(parameters.getXcodeDerivedDataPath());
 				spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE);
