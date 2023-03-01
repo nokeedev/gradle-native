@@ -27,10 +27,24 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
+import static com.google.common.collect.ImmutableList.copyOf;
+import static java.nio.file.Files.walkFileTree;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -53,6 +67,8 @@ public final class FileSystemMatchers {
 					return (File) actual;
 				} else if (actual instanceof Path) {
 					return ((Path) actual).toFile();
+				} else if (actual instanceof DescendantFile) {
+					return ((DescendantFile) actual).getFile();
 				} else if (actual instanceof Provider) {
 					throw new IllegalArgumentException("Please make sure there is not confusion between Provider#map vs Provider#flatMap. Otherwise, use GradleProviderMatchers#providerOf.");
 				} else {
@@ -162,5 +178,97 @@ public final class FileSystemMatchers {
 				}
 			}
 		};
+	}
+
+	public static Matcher<String> ofLines(String... lines) {
+		return new FeatureMatcher<String, Iterable<String>>(contains(lines), "", "") {
+			@Override
+			protected Iterable<String> featureValueOf(String actual) {
+				return Arrays.asList(actual.split("\r?\n"));
+			}
+		};
+	}
+
+	/**
+	 * Matches a directory contains exactly the given set of descendants relative to the base directory.
+	 */
+	public static Matcher<Object> hasRelativeDescendants(String... descendants) {
+		return allOf(anExistingDirectory(), hasDescendants(stream(descendants).map(FileSystemMatchers::withRelativePath).collect(toList())));
+	}
+
+	/**
+	 * Matches a directory contains exactly the given set of descendant files.
+	 *
+	 * @param descendantMatchers  a list of matchers, each of which must be satisfied by a {@link DescendantFile}
+	 * @return a matcher satisfied by all descendant files of a base directory, never null
+	 */
+	@SafeVarargs
+	@SuppressWarnings("varargs")
+	public static Matcher<Object> hasDescendants(Matcher<? super DescendantFile>... descendantMatchers) {
+		return hasDescendants(copyOf(descendantMatchers));
+	}
+
+	/**
+	 * Matches a directory contains exactly the given set of descendant files.
+	 *
+	 * @param descendantMatchers  a list of matchers, each of which must be satisfied by a {@link DescendantFile}
+	 * @return a matcher satisfied by all descendant files of a base directory, never null
+	 */
+	public static Matcher<Object> hasDescendants(Collection<Matcher<? super DescendantFile>> descendantMatchers) {
+		return allOf(anExistingDirectory(), aFile(new DescendantsFeature(containsInAnyOrder(descendantMatchers))));
+	}
+
+	public static Matcher<DescendantFile> withRelativePath(String path) {
+		return new FeatureMatcher<DescendantFile, String>(equalTo(path), "", "") {
+			@Override
+			protected String featureValueOf(DescendantFile actual) {
+				return actual.getRelativePath();
+			}
+		};
+	}
+
+	private static Set<DescendantFile> descendants(File self) {
+		final Set<DescendantFile> result = new LinkedHashSet<>();
+		try {
+			walkFileTree(self.toPath(), new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					result.add(new DescendantFile(self, file.toFile()));
+					return FileVisitResult.CONTINUE;
+				}
+			});
+			return result;
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	private static final class DescendantsFeature extends FeatureMatcher<File, Iterable<DescendantFile>> {
+		public DescendantsFeature(Matcher<? super Iterable<DescendantFile>> subMatcher) {
+			super(subMatcher, "", "");
+		}
+
+		@Override
+		protected Iterable<DescendantFile> featureValueOf(File actual) {
+			return descendants(actual);
+		}
+	}
+
+	public static final class DescendantFile {
+		private final File baseDirectory;
+		private final File actualFile;
+
+		public DescendantFile(File baseDirectory, File actualFile) {
+			this.baseDirectory = baseDirectory;
+			this.actualFile = actualFile;
+		}
+
+		public String getRelativePath() {
+			return baseDirectory.toURI().relativize(actualFile.toURI()).toString();
+		}
+
+		public File getFile() {
+			return actualFile;
+		}
 	}
 }
