@@ -15,6 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode;
 
+import dev.nokee.buildadapter.xcode.internal.XcodeConfigurationParameter;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
 import dev.nokee.buildadapter.xcode.internal.rules.XCTargetVariantDiscoveryRule;
 import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
@@ -38,11 +39,13 @@ import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class XCTargetVariantDiscoveryRuleTests {
 	@Mock XCLoader<Iterable<String>, XCTargetReference> configurationLoader;
+	@Mock XcodeConfigurationParameter configuration;
 	@InjectMocks XCTargetVariantDiscoveryRule subject;
 	ModelNode target = new ModelNode();
 
@@ -53,9 +56,40 @@ class XCTargetVariantDiscoveryRuleTests {
 		target.addComponent(tag(IsComponent.class));
 	}
 
-	@Test
-	void createsKnownVariantInformationForEachLoadedConfiguration() {
-		subject.execute(target);
-		assertThat(target.getComponent(typeOf(KnownVariantInformationElement.class)), contains(named("Debug"), named("Release")));
+	@Nested
+	class WhenNoSpecificConfigurationRequested {
+		@Test
+		void createsKnownVariantInformationForEachLoadedConfiguration() {
+			subject.execute(target);
+			assertThat(target.getComponent(typeOf(KnownVariantInformationElement.class)), contains(named("Debug"), named("Release")));
+		}
+	}
+
+	@Nested
+	class WhenSpecificConfigurationRequestedExists {
+		@BeforeEach
+		void givenRequestConfiguration() {
+			Mockito.when(configuration.get()).thenReturn("Release");
+		}
+
+		@Test
+		void createsKnownVariantInformationForRequestedConfigurationOnly() {
+			subject.execute(target);
+			assertThat(target.getComponent(typeOf(KnownVariantInformationElement.class)), contains(named("Release")));
+		}
+	}
+
+	@Nested
+	class WhenSpecificConfigurationRequestedDoesNotExists {
+		@BeforeEach
+		void givenRequestConfiguration() {
+			Mockito.when(configuration.get()).thenReturn("rEleAse");
+		}
+
+		@Test
+		void createsKnownVariantInformationForNoConfiguration() {
+			subject.execute(target);
+			assertThat(target.getComponent(typeOf(KnownVariantInformationElement.class)), emptyIterable());
+		}
 	}
 }

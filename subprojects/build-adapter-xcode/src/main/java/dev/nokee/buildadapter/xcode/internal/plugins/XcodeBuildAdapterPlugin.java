@@ -102,6 +102,7 @@ import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
+import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 import static dev.nokee.utils.TransformerUtils.Transformer.of;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;
@@ -161,6 +162,11 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		return Path::toFile;
 	}
 
+	private static Provider<String> fromCommandLine(ProviderFactory providers, String name) {
+		// TODO: I'm not convince forUseAtConfigurationTime is required here
+		return forUseAtConfigurationTime(providers.systemProperty(name)).orElse(forUseAtConfigurationTime(providers.gradleProperty(name)));
+	}
+
 	public static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
 		return project -> {
 			project.getPluginManager().apply(ComponentModelBasePlugin.class);
@@ -183,7 +189,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					});
 			}));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new XCTargetVariantDiscoveryRule(buildInputs.capture("loads target configurations", (Transformer<Iterable<String>, XCTargetReference> & Serializable) it -> XCLoaders.targetConfigurationsLoader().load(it))::transform)));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new XCTargetVariantDiscoveryRule(buildInputs.capture("loads target configurations", (Transformer<Iterable<String>, XCTargetReference> & Serializable) it -> XCLoaders.targetConfigurationsLoader().load(it))::transform, fromCommandLine(project.getProviders(), "configuration")::getOrNull)));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachXCTargetToVariantRule());
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new TransitionLinkedVariantToRegisterStateRule());
 
