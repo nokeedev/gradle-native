@@ -16,6 +16,7 @@
 package dev.nokee.buildadapter.xcode.internal.rules;
 
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.buildadapter.xcode.internal.XcodeConfigurationParameter;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
 import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
 import dev.nokee.model.internal.buffers.ModelBuffers;
@@ -29,16 +30,21 @@ import lombok.val;
 
 public final class XCTargetVariantDiscoveryRule extends ModelActionWithInputs.ModelAction2<ModelComponentTag<IsComponent>, XCTargetComponent> {
 	private final XCLoader<Iterable<String>, XCTargetReference> loader;
+	private final XcodeConfigurationParameter configurationParameter;
 
-	public XCTargetVariantDiscoveryRule(XCLoader<Iterable<String>, XCTargetReference> loader) {
+	public XCTargetVariantDiscoveryRule(XCLoader<Iterable<String>, XCTargetReference> loader, XcodeConfigurationParameter configurationParameter) {
 		this.loader = loader;
+		this.configurationParameter = configurationParameter;
 	}
 
 	@Override
 	protected void execute(ModelNode entity, ModelComponentTag<IsComponent> ignored1, XCTargetComponent target) {
 		val builder = ImmutableSet.<KnownVariantInformationElement>builder();
+		val requestedConfiguration = configurationParameter.get();
 		target.get().load(loader).forEach(configuration -> {
-			builder.add(new KnownVariantInformationElement(configuration));
+			if (requestedConfiguration == null || configuration.equals(requestedConfiguration)) {
+				builder.add(new KnownVariantInformationElement(configuration));
+			}
 		});
 		entity.addComponent(ModelBuffers.of(KnownVariantInformationElement.class, builder.build()));
 	}
