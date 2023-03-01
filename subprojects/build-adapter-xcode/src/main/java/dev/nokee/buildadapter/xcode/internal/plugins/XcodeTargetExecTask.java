@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import dev.nokee.buildadapter.xcode.internal.files.PreserveLastModifiedFileSystemOperation;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.utils.FileSystemLocationUtils;
@@ -189,7 +190,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		@Override
 		public void run() {
-			fileOperations.copy(spec -> {
+			new PreserveLastModifiedFileSystemOperation(fileOperations::copy).execute(spec -> {
 				spec.from(parameters.getIncomingDerivedDataPaths());
 				spec.into(parameters.getXcodeDerivedDataPath());
 				spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE);
@@ -197,7 +198,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 			delegate.run();
 
-			fileOperations.sync(spec -> {
+			new PreserveLastModifiedFileSystemOperation(fileOperations::sync).execute(spec -> {
 				spec.from(parameters.getXcodeDerivedDataPath(), it -> it.include("Build/Products/**/*"));
 				spec.into(parameters.getOutgoingDerivedDataPath());
 			});
