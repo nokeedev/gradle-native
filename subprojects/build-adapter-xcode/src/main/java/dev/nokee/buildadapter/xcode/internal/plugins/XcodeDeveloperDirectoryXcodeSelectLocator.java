@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,24 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.CommandLineToolExecutionEngine;
 import dev.nokee.core.exec.CommandLineToolExecutionHandle;
-import dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
 
-public final class DefaultXcodeSelect implements XcodeSelect {
+public final class XcodeDeveloperDirectoryXcodeSelectLocator implements XcodeDeveloperDirectoryLocator {
 	private final CommandLineToolExecutionEngine<? extends CommandLineToolExecutionHandle.Waitable> engine;
 
-	public DefaultXcodeSelect(CommandLineToolExecutionEngine<? extends CommandLineToolExecutionHandle.Waitable> engine) {
+	public XcodeDeveloperDirectoryXcodeSelectLocator(CommandLineToolExecutionEngine<? extends CommandLineToolExecutionHandle.Waitable> engine) {
 		this.engine = engine;
 	}
 
 	@Override
-	public Path developerDirectory() {
-		return CommandLine.of("xcode-select", "--print-path").newInvocation().withEnvironmentVariables(inherit("PATH", "DEVELOPER_DIR")).buildAndSubmit(engine).waitFor().getOutput()
-			.parse(this::parsePrintedPath);
+	public Path locate() {
+		return CommandLine.of("xcode-select", "--print-path").newInvocation()
+			.withEnvironmentVariables(inherit("PATH", "DEVELOPER_DIR")).buildAndSubmit(engine).waitFor()
+			.getOutput().parse(this::parsePrintedPath);
 	}
 
 	private Path parsePrintedPath(String output) {

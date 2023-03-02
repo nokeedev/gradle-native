@@ -104,6 +104,15 @@ public final class FileSystemMatchers {
 		}
 	}
 
+	public static Matcher<Path> absolutePath(Matcher<String> matcher) {
+		return new FeatureMatcher<Path, String>(matcher, "a path with absolute", "path") {
+			@Override
+			protected String featureValueOf(Path actual) {
+				return FilenameUtils.separatorsToUnix(actual.toAbsolutePath().toString());
+			}
+		};
+	}
+
 	public static Matcher<Object> aFileNamed(String fileName) {
 		return aFile(FileMatchers.aFileNamed(equalTo(fileName)));
 	}
