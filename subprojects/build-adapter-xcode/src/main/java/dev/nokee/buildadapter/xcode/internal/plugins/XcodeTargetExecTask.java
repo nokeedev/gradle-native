@@ -20,11 +20,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.nokee.buildadapter.xcode.internal.files.PreserveLastModifiedFileSystemOperation;
+import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildPlan;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
+import dev.nokee.xcode.XCBuildSettings;
+import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
 import dev.nokee.xcode.project.PBXObjectReference;
@@ -36,6 +39,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.DuplicatesStrategy;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
@@ -45,6 +49,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
@@ -58,7 +63,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Iterables.concat;
@@ -75,6 +82,7 @@ import static dev.nokee.utils.ProviderUtils.ifPresent;
 public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask, HasConfigurableXcodeInstallation, HasXcodeTargetReference {
 	private final WorkerExecutor workerExecutor;
 	private final Provider<XCTargetReference> targetReference;
+	private final Provider<XCBuildPlan> buildSpec;
 
 	@Inject
 	protected abstract ExecOperations getExecOperations();
@@ -84,9 +92,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@Input
 	public abstract Property<String> getTargetName();
-
-	@InputFiles
-	public abstract ConfigurableFileCollection getInputFiles();
 
 	@InputFiles
 	public abstract ConfigurableFileCollection getInputDerivedData();
@@ -104,6 +109,11 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	@Internal
 	public Provider<XCTargetReference> getTargetReference() {
 		return targetReference;
+	}
+
+	@Nested
+	public Provider<XCBuildPlan> getBuildPlan() {
+		return buildSpec;
 	}
 
 	@Inject
@@ -138,6 +148,51 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		}))));
 
 		this.targetReference = ProviderUtils.zip(() -> objects.listProperty(Object.class), getXcodeProject(), getTargetName(), XCProjectReference::ofTarget);
+		this.buildSpec = finalizeValueOnRead(objects.property(XCBuildPlan.class).value(getXcodeInstallation().map(xcodeInstallation -> {
+			final XCBuildSettings buildSettings = new XCBuildSettings() {
+				@Override
+				public String get(String name) {
+					switch (name) {
+						case "BUILT_PRODUCT_DIR":
+							// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
+							// TODO: Guard against the missing derived data path
+							// TODO: We should map derived data path as a collection of build settings via helper method
+							return getDerivedDataPath().dir("Build/Products/" + getConfiguration().get() + "-" + getSdk().get()).get().getAsFile().getAbsolutePath();
+						case "DEVELOPER_DIR":
+							// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
+							return xcodeInstallation.getDeveloperDirectory().toString();
+						case "SDKROOT":
+							// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
+							return getSdk().map(it -> {
+									if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
+										return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toString();
+									} else if (it.toLowerCase(Locale.ENGLISH).equals("macosx")) {
+										return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString();
+									} else if (it.toLowerCase(Locale.ENGLISH).equals("iphonesimulator")) {
+										return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk").toString();
+									}
+									return null;
+								})
+								// FIXME: Use -showBuildSettings to get default SDKROOT
+								.orElse(xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString()).get();
+						case "SOURCE_ROOT":
+							return getXcodeProject().get().getLocation().getParent().toString();
+						default:
+							return new File(getAllBuildSettings().get().get(name)).getAbsolutePath();
+					}
+				}
+			};
+			val context = new BuildSettingsResolveContext(buildSettings);
+			FileCollection inputLocations = objects.fileCollection().from(getTargetReference().get().load().getInputFiles().stream()
+				.filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT)
+				.map(it -> it.resolve(context)).collect(Collectors.toList()));
+			return new XCBuildPlan() {
+				@InputFiles
+				public FileCollection getInputFiles() {
+					return inputLocations;
+				}
+			};
+		})));
 	}
 
 	private static final class ShowBuildSettingsEntry {
