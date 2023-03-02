@@ -15,34 +15,39 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.core.exec.LoggingEngine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class CurrentXcodeInstallationValueSource implements ValueSource<XcodeInstallation, CurrentXcodeInstallationValueSource.Parameters> {
-	private final XcodeSelect xcodeSelect;
-	private final Xcodebuild xcodebuild;
+	private final XcodeDeveloperDirectoryLocator developerDirLocator;
+	private final XcodeVersionFinder versionFinder;
 
 	public interface Parameters extends ValueSourceParameters {}
 
 	@Inject
 	public CurrentXcodeInstallationValueSource() {
-		this(new DefaultXcodeSelect(new ProcessBuilderEngine()), new DefaultXcodebuild(new ProcessBuilderEngine()));
+		this(new XcodeDeveloperDirectoryEnvironmentVariableLocator(FileSystems.getDefault(), () -> System.getenv("DEVELOPER_DIR"), new XcodeDeveloperDirectorySystemApplicationsLocator(FileSystems.getDefault(), new XcodeDeveloperDirectoryXcodeSelectLocator(LoggingEngine.wrap(new ProcessBuilderEngine())))), new XcodeVersionPropertyListFinder());
 	}
 
-	public CurrentXcodeInstallationValueSource(XcodeSelect xcodeSelect, Xcodebuild xcodebuild) {
-		this.xcodeSelect = xcodeSelect;
-		this.xcodebuild = xcodebuild;
+	public CurrentXcodeInstallationValueSource(XcodeDeveloperDirectoryLocator developerDirLocator, XcodeVersionFinder versionFinder) {
+		this.developerDirLocator = developerDirLocator;
+		this.versionFinder = versionFinder;
 	}
 
 	@Nullable
 	@Override
 	public XcodeInstallation obtain() {
-		return new DefaultXcodeInstallation(xcodebuild.version(), xcodeSelect.developerDirectory());
+		final Path developerDir = developerDirLocator.locate();
+		final String version = versionFinder.find(developerDir);
+		return new DefaultXcodeInstallation(version, developerDir);
 	}
 
 }

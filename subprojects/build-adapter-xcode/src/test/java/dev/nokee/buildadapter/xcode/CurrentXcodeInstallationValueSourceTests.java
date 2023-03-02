@@ -17,32 +17,39 @@ package dev.nokee.buildadapter.xcode;
 
 import dev.nokee.buildadapter.xcode.internal.plugins.CurrentXcodeInstallationValueSource;
 import dev.nokee.buildadapter.xcode.internal.plugins.DefaultXcodeInstallation;
-import dev.nokee.buildadapter.xcode.internal.plugins.XcodeSelect;
-import dev.nokee.buildadapter.xcode.internal.plugins.Xcodebuild;
+import dev.nokee.buildadapter.xcode.internal.plugins.XcodeDeveloperDirectoryLocator;
+import dev.nokee.buildadapter.xcode.internal.plugins.XcodeVersionFinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Paths;
 
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @ExtendWith(MockitoExtension.class)
 class CurrentXcodeInstallationValueSourceTests {
-	@Mock Xcodebuild xcodebuild;
-	@Mock XcodeSelect xcodeSelect;
+	XcodeDeveloperDirectoryLocator developerDirLocator = newMock(XcodeDeveloperDirectoryLocator.class) //
+		.when(callTo(method(XcodeDeveloperDirectoryLocator::locate)).then(doReturn(Paths.get("/opt/Xcode_13.2.1.app/Contents/Developer")))) //
+		.instance();
+	XcodeVersionFinder versionFinder = newMock(XcodeVersionFinder.class) //
+		.when(any(callTo(method(XcodeVersionFinder::find))).then(doReturn("13.2.1"))) //
+		.instance();
 	CurrentXcodeInstallationValueSource.Parameters parameters;
 	CurrentXcodeInstallationValueSource subject;
 
 	@BeforeEach
 	void createSubject() {
 		parameters = objectFactory().newInstance(CurrentXcodeInstallationValueSource.Parameters.class);
-		subject = new CurrentXcodeInstallationValueSource(xcodeSelect, xcodebuild) {
+		subject = new CurrentXcodeInstallationValueSource(developerDirLocator, versionFinder) {
 			@Override
 			public Parameters getParameters() {
 				return parameters;
@@ -52,8 +59,6 @@ class CurrentXcodeInstallationValueSourceTests {
 
 	@Test
 	void returnsXcodeInstallationWithQueriedVersionAndDeveloperDirectory() {
-		Mockito.when(xcodeSelect.developerDirectory()).thenReturn(Paths.get("/opt/Xcode_13.2.1.app/Contents/Developer"));
-		Mockito.when(xcodebuild.version()).thenReturn("13.2.1");
 		assertThat(subject.obtain(),
 			equalTo(new DefaultXcodeInstallation("13.2.1", Paths.get("/opt/Xcode_13.2.1.app/Contents/Developer"))));
 	}
