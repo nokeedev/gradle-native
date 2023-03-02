@@ -19,9 +19,7 @@ import dev.nokee.xcode.PropertyListVersion;
 import dev.nokee.xcode.XmlPropertyListWriter;
 import lombok.val;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,11 +33,9 @@ public final class XcodeTestUtils {
 
 	public static Path createValidXcodeInstallation(Path location, String version) {
 		try {
-			Files.createDirectories(location.resolve("Content/Developer"));
+			Files.createDirectories(location.resolve("Contents/Developer"));
 
-//			val outStream = new ByteArrayOutputStream();
-			try (val writer = new XmlPropertyListWriter(Files.newBufferedWriter(location.resolve("Content/version.plist")))) {
-//			try (val writer = new XmlPropertyListWriter(new OutputStreamWriter(outStream))) {
+			try (val writer = new XmlPropertyListWriter(Files.newBufferedWriter(location.resolve("Contents/version.plist")))) {
 				writer.writeStartDocument(PropertyListVersion.VERSION_10);
 				writer.writeStartDictionary(1);
 				writer.writeDictionaryKey("CFBundleShortVersionString");
@@ -47,7 +43,6 @@ public final class XcodeTestUtils {
 				writer.writeEndDictionary();
 				writer.writeEndDocument();
 			}
-//			System.out.println(outStream.toString());
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}

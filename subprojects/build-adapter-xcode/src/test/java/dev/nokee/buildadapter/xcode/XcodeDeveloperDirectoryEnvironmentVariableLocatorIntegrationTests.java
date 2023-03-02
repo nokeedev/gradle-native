@@ -80,7 +80,7 @@ class XcodeDeveloperDirectoryEnvironmentVariableLocatorIntegrationTests {
 
 			@Test
 			void returnsDeveloperDirectoryFrom() {
-				assertThat(result, aFile(withAbsolutePath(endsWith("/Xcode_13.2.app/Content/Developer"))));
+				assertThat(result, aFile(withAbsolutePath(endsWith("/Xcode_13.2.app/Contents/Developer"))));
 			}
 		}
 
@@ -103,7 +103,7 @@ class XcodeDeveloperDirectoryEnvironmentVariableLocatorIntegrationTests {
 		@TestDirectory Path testDirectory;
 		TestDouble<XcodeDeveloperDirectoryLocator> delegate = newMock(XcodeDeveloperDirectoryLocator.class);
 		TestDouble<DeveloperDirEnvironmentVariable> developerDirEnvVar = newMock(DeveloperDirEnvironmentVariable.class)
-			.when(callTo(method(DeveloperDirEnvironmentVariable::get)).then(doReturn(() -> testDirectory.resolve("Xcode_12.5.app/Content/Developer").toString())));
+			.when(callTo(method(DeveloperDirEnvironmentVariable::get)).then(doReturn(() -> testDirectory.resolve("Xcode_12.5.app/Contents/Developer").toString())));
 		XcodeDeveloperDirectoryEnvironmentVariableLocator subject = new XcodeDeveloperDirectoryEnvironmentVariableLocator(getDefault(), developerDirEnvVar.instance(), delegate.instance());
 		Path result;
 
@@ -117,7 +117,7 @@ class XcodeDeveloperDirectoryEnvironmentVariableLocatorIntegrationTests {
 
 			@Test
 			void returnsDeveloperDirectoryFrom() {
-				assertThat(result, aFile(withAbsolutePath(endsWith("/Xcode_12.5.app/Content/Developer"))));
+				assertThat(result, aFile(withAbsolutePath(endsWith("/Xcode_12.5.app/Contents/Developer"))));
 			}
 		}
 

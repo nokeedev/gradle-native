@@ -37,14 +37,14 @@ public final class XcodeDeveloperDirectoryEnvironmentVariableLocator implements 
 			return delegate.locate();
 		}
 
-		// Assume DEVELOPER_DIR points to `Xcode.app/Content/Developer`
+		// Assume DEVELOPER_DIR points to `Xcode.app/Contents/Developer`
 		Path developerDirPath = fileSystem.getPath(value);
-		if (developerDirPath.endsWith("Content/Developer") && Files.isDirectory(developerDirPath)) {
+		if (developerDirPath.endsWith("Contents/Developer") && Files.isDirectory(developerDirPath)) {
 			return developerDirPath;
 		}
 
 		// Assume DEVELOPER_DIR points to `Xcode.app`, check for the `Content/Developer` path
-		developerDirPath = developerDirPath.resolve("Content/Developer");
+		developerDirPath = developerDirPath.resolve("Contents/Developer");
 		if (Files.isDirectory(developerDirPath)) {
 			return developerDirPath;
 		}
