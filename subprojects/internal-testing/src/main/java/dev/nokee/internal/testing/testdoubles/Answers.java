@@ -71,6 +71,10 @@ public final class Answers {
 		};
 	}
 
+	public static <ReceiverType, ReturnType> Answer<ReceiverType, ReturnInformation.Return<ReturnType>> doAlwaysReturnNull() {
+		return invocation -> null;
+	}
+
 	public static <ReceiverType, ReturnInfoType extends ReturnInformation> Answer<ReceiverType, ReturnInfoType> doThrow(Throwable... throwables) {
 		return new Answer<ReceiverType, ReturnInfoType>() {
 			private int i = 0;

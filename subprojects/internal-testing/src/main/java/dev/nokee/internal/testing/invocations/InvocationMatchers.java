@@ -18,6 +18,7 @@ package dev.nokee.internal.testing.invocations;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import dev.nokee.internal.testing.testdoubles.MethodVerifier;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
 import groovy.lang.Closure;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -59,6 +60,10 @@ public final class InvocationMatchers {
 		return calledOnceWith(equalTo(expectedValue));
 	}
 
+	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation.Arg1<A0>, A0> Matcher<T> calledOnceWith(TestDouble<A0> expectedValue) {
+		return calledOnceWith(equalTo(expectedValue.instance()));
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation.Arg1<A0>, A0> Matcher<T> calledOnceWith(Matcher<? super A0> matcher) {
 		return allOf(calledOnce(), lastInvocation(contains((Matcher<Object>) matcher)));
@@ -66,6 +71,18 @@ public final class InvocationMatchers {
 
 	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation.Arg2<A0, A1>, A0, A1> Matcher<T> calledOnceWith(A0 instance0, A1 instance1) {
 		return calledOnceWith(equalTo(instance0), equalTo(instance1));
+	}
+
+	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation.Arg2<A0, A1>, A0, A1> Matcher<T> calledOnceWith(A0 instance0, TestDouble<A1> instance1) {
+		return calledOnceWith(equalTo(instance0), equalTo(instance1.instance()));
+	}
+
+	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation.Arg2<A0, A1>, A0, A1> Matcher<T> calledOnceWith(TestDouble<A0> instance0, A1 instance1) {
+		return calledOnceWith(equalTo(instance0.instance()), equalTo(instance1));
+	}
+
+	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation.Arg2<A0, A1>, A0, A1> Matcher<T> calledOnceWith(TestDouble<A0> instance0, TestDouble<A1> instance1) {
+		return calledOnceWith(equalTo(instance0.instance()), equalTo(instance1.instance()));
 	}
 
 	@SuppressWarnings("unchecked")

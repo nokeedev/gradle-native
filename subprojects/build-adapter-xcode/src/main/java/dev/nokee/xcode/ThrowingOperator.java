@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.buildsettings;
+package dev.nokee.xcode;
 
-import org.junit.jupiter.api.Test;
+import lombok.EqualsAndHashCode;
 
-class SpecificationTests {
+@EqualsAndHashCode
+public final class ThrowingOperator implements XCStringVariableOperator.Operator {
+	private final String operator;
 
-	@Test
-	void bob() {
-		String v = "value $(NON_EXISTENT)";
+	public ThrowingOperator(String operator) {
+		this.operator = operator;
 	}
 
-	@Test
-	void bob2() {
-		String v = "value $(EXIST)";
+	@Override
+	public String transform(String s) {
+		throw new UnsupportedOperationException(String.format("operator '%s' not supported", operator));
 	}
 
-	@Test
-	void bob3() {
-		String v = "value $(inherit)";
+	@Override
+	public String toString() {
+		return operator;
 	}
 }
