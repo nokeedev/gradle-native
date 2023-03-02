@@ -18,11 +18,13 @@ package dev.nokee.xcode;
 import dev.nokee.util.internal.NotPredicate;
 import lombok.EqualsAndHashCode;
 
-import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 public abstract class XCFileReference {
 	public abstract Path resolve(ResolveContext context);
@@ -58,20 +60,23 @@ public abstract class XCFileReference {
 	}
 
 	public static XCFileReference fromBuildSetting(String buildSetting, String path) {
-		return new BuildSettingFileReference(Objects.requireNonNull(buildSetting), Objects.requireNonNull(path));
+		return new BuildSettingFileReference(requireNonNull(buildSetting), requireNonNull(path));
 	}
 
 	@EqualsAndHashCode(callSuper = false)
 	private static final class AbsoluteFileReference extends XCFileReference {
-		private final String path;
+		private final XCString path;
 
 		private AbsoluteFileReference(String path) {
-			this.path = path;
+			this.path = XCString.of(path);
 		}
 
 		@Override
 		public Path resolve(ResolveContext context) {
-			return new File(path).toPath();
+			return Paths.get(requireNonNull(path.resolve(variableName -> {
+				// FIXME: the resolve context for XCFileReference is opinionated to return Path
+				return context.get(variableName).toString();
+			})));
 		}
 
 		@Override
@@ -81,21 +86,24 @@ public abstract class XCFileReference {
 
 		@Override
 		public String toString() {
-			return path;
+			return path.toString();
 		}
 	}
 
 	@EqualsAndHashCode(callSuper = false)
 	private static final class BuiltProductReference extends XCFileReference {
-		private final String path;
+		private final XCString path;
 
 		private BuiltProductReference(String path) {
-			this.path = path;
+			this.path = XCString.of(path);
 		}
 
 		@Override
 		public Path resolve(ResolveContext context) {
-			return context.getBuiltProductsDirectory().resolve(path);
+			return context.getBuiltProductsDirectory().resolve(requireNonNull(path.resolve(variableName -> {
+				// FIXME: the resolve context for XCFileReference is opinionated to return Path
+				return context.get(variableName).toString();
+			})));
 		}
 
 		@Override
@@ -107,7 +115,7 @@ public abstract class XCFileReference {
 		public String toString() {
 			final StringBuilder builder = new StringBuilder();
 			builder.append("$(BUILT_PRODUCT_DIR)");
-			if (!path.isEmpty()) {
+			if (!path.toString().isEmpty()) {
 				builder.append('/').append(path);
 			}
 			return builder.toString();
@@ -117,16 +125,19 @@ public abstract class XCFileReference {
 	@EqualsAndHashCode(callSuper = false)
 	private static final class BuildSettingFileReference extends XCFileReference {
 		private final String buildSetting;
-		private final String path;
+		private final XCString path;
 
 		private BuildSettingFileReference(String buildSetting, String path) {
 			this.buildSetting = buildSetting;
-			this.path = path;
+			this.path = XCString.of(path);
 		}
 
 		@Override
 		public Path resolve(ResolveContext context) {
-			return context.get(buildSetting).resolve(path);
+			return context.get(buildSetting).resolve(requireNonNull(path.resolve(variableName -> {
+				// FIXME: the resolve context for XCFileReference is opinionated to return Path
+				return context.get(variableName).toString();
+			})));
 		}
 
 		@Override
