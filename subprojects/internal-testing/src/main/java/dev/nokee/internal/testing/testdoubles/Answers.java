@@ -18,6 +18,8 @@ package dev.nokee.internal.testing.testdoubles;
 import dev.nokee.internal.testing.reflect.Invokable;
 import dev.nokee.internal.testing.reflect.ReturnInformation;
 
+import java.util.function.Supplier;
+
 public final class Answers {
 	@SafeVarargs
 	public static <ReceiverType, ReturnType> Answer<ReceiverType, ReturnInformation.Return<ReturnType>> doReturn(ReturnType... values) {
@@ -30,6 +32,22 @@ public final class Answers {
 					return null;
 				} else {
 					return values[i++];
+				}
+			}
+		};
+	}
+
+	@SafeVarargs
+	public static <ReceiverType, ReturnType> Answer<ReceiverType, ReturnInformation.Return<ReturnType>> doReturn(Supplier<ReturnType>... values) {
+		return new Answer<ReceiverType, ReturnInformation.Return<ReturnType>>() {
+			private int i = 0;
+
+			@Override
+			public ReturnType answer(InvocationOnTestDouble<ReceiverType> invocation) throws Throwable {
+				if (i >= values.length) {
+					return null;
+				} else {
+					return values[i++].get();
 				}
 			}
 		};
