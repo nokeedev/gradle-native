@@ -46,7 +46,6 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
@@ -90,7 +89,8 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	@Internal
 	public abstract Property<XCProjectReference> getXcodeProject();
 
-	@Input
+	//	@Input // FIXME: switch to internal because covered by build spec
+	@Internal
 	public abstract Property<String> getTargetName();
 
 	@InputFiles
@@ -102,7 +102,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	@Internal
 	public abstract ListProperty<String> getAllArguments();
 
-	@Internal
+	@Internal // FIXME: Should snapshot the props
 	public abstract MapProperty<String, String> getAllBuildSettings();
 
 	@Override
@@ -194,6 +194,173 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			};
 		})));
 	}
+
+//	private static final class ProcessTransformerAdapter<OUT, IN> implements Transformer<Provider<OUT>, IN> {
+//		private final String displayName;
+//		private final ProviderFactory providers;
+//		private final Transformer<? extends OUT, ? super IN> delegate;
+//
+//		private ProcessTransformerAdapter(String displayName, ProviderFactory providers, Transformer<? extends OUT, ? super IN> delegate) {
+//			this.displayName = displayName;
+//			this.providers = providers;
+//			this.delegate = delegate;
+//		}
+//
+//		@Override
+//		public Provider<OUT> transform(IN in) {
+//			@SuppressWarnings("unchecked") final Provider<OUT> result = (Provider<OUT>) providers.of(ValueSourceTransformerAdapter.class, forParameters(it -> {
+//				it.getInput().set(in);
+//				it.getDisplayName().set(displayName);
+//				it.getTransformer().set(delegate);
+//			}));
+//			return result;
+//		}
+//	}
+//
+//	private static final class Bob implements ProviderUtils.Combiner11<XCFileReferencesLoader.XCFileReferences, XCBuildSpec, List<String>, XcodeInstallation, Directory, Path, Directory, Directory, String, String, String, XCBuildPlan>, Serializable {
+//		private final String taskName;
+//		private final ObjectFactory objects;
+//
+//		public Bob(String taskName, ObjectFactory objects) {
+//			this.taskName = taskName;
+//			this.objects = objects;
+//		}
+//
+//		@Override
+//		public XCBuildPlan apply(XCFileReferencesLoader.XCFileReferences fileRefs, XCBuildSpec buildSpec, List<String> allArguments, XcodeInstallation xcodeInstallation, Directory workingDirectory, Path projectLocation, Directory derivedDataPath, Directory outputDirectory, String configuration, String sdk, String targetName) {
+//			final XCBuildSettings buildSettings = new XCBuildSettings() {
+//				private Map<String, String> allBuildSettings;
+//
+//				@Override
+//				public String get(String name) {
+//					switch (name) {
+//						case "BUILT_PRODUCT_DIR":
+//							// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
+//							// TODO: Guard against the missing derived data path
+//							// TODO: We should map derived data path as a collection of build settings via helper method
+//							return derivedDataPath.dir("Build/Products/" + configuration + "-" + sdk).getAsFile().getAbsolutePath();
+//						case "DEVELOPER_DIR":
+//							// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
+//							return xcodeInstallation.getDeveloperDirectory().toString();
+//						case "SDKROOT":
+//							// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
+//							switch (sdk.toLowerCase(Locale.ENGLISH)) {
+//								case "iphoneos":
+//									return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toString();
+//								case "macosx":
+//									return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString();
+//								case "iphonesimulator":
+//									return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk").toString();
+//								default:
+//									return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString();
+//							}
+//						case "SOURCE_ROOT":
+//							return projectLocation.getParent().toString();
+////								return reference.getLocation().getParent().toString();
+//						case "DERIVED_SOURCES_DIR":
+//							return derivedDataPath.dir("Build/Intermediates.noindex/.build/" + configuration + "-" + sdk + "/" + targetName + ".build/DerivedSources").getAsFile().getAbsolutePath();
+//						default:
+//							if (allBuildSettings == null) {
+////								val start = System.currentTimeMillis();
+////								try {
+//								allBuildSettings = CommandLineTool.of("xcodebuild").withArguments(it -> {
+//										it.args(allArguments);
+//										it.args("-showBuildSettings", "-json");
+//									}).newInvocation(it -> {
+//										it.withEnvironmentVariables(inherit("PATH").putOrReplace("DEVELOPER_DIR", xcodeInstallation.getDeveloperDirectory()));
+//										it.workingDirectory(workingDirectory);
+////						ifPresent(getWorkingDirectory(), it::workingDirectory);
+////					}).submitTo(execOperations(getExecOperations())).result()
+//									}).submitTo(processBuilder()).waitFor()
+//									.getStandardOutput().parse(output -> {
+//										@SuppressWarnings("unchecked")
+//										val parsedOutput = (List<ShowBuildSettingsEntry>) new Gson().fromJson(output, new TypeToken<List<ShowBuildSettingsEntry>>() {
+//										}.getType());
+//										return parsedOutput.get(0).getBuildSettings();
+//									});
+////								} finally {
+////									System.out.println("build settings... " + /*XcodeTargetExecTask.this +*/ " -- " + (System.currentTimeMillis() - start) + " ms");
+////					new Throwable("build settings... " + /*XcodeTargetExecTask.this +*/ " -- " + (System.currentTimeMillis() - start) + " ms").printStackTrace();
+////								}
+//							}
+////							System.out.println("RESOLVING all build settings for " + taskName + " of " + name);
+//							return new File(allBuildSettings.get(name)).getAbsolutePath();
+//					}
+//				}
+//			};
+//			val context = new BuildSettingsResolveContext(buildSettings);
+//			val spec = buildSpec.resolve(new XCBuildSpec.ResolveContext() {
+//				private Path resolveex(PBXReference reference) {
+//					return fileRefs.get(reference).resolve(context);
+////					return fileRefs.get(reference).resolve(new XCFileReference.ResolveContext() {
+////						@Override
+////						public Path getBuiltProductsDirectory() {
+////							return Paths.get(buildSettings.get("BUILT_PRODUCTS_DIR"));
+////						}
+////
+////						@Override
+////						public Path get(String name) {
+////							return Paths.get(buildSettings.get(name));
+////						}
+////					});
+//				}
+//
+//				@Override
+//				public FileCollection inputs(PBXReference reference) {
+//					final Path path = resolveex(reference); // TODO: capture path
+//					return objects.fileCollection().from((Callable<Object>) () -> {
+//						if (Files.isDirectory(path)) {
+//							return objects.fileTree().setDir(path);
+//						} else {
+//							return path;
+//						}
+//					});
+//					// TODO: decide if path is appropriate to use as input
+//					// TODO: Also remove paths that are within the global output location...
+//				}
+//
+//				@Override
+//				public FileCollection outputs(PBXReference reference) {
+//					final Path path = resolveex(reference);
+//					return objects.fileCollection().from((Callable<Object>) () -> {
+//						if (path.normalize().startsWith(outputDirectory.getAsFile().toPath().normalize())) {
+//							return Collections.emptyList();
+//						}
+//						if (Files.isDirectory(path)) {
+//							return objects.fileTree().setDir(path);
+//						} else {
+//							return path;
+//						}
+//					});
+//				}
+//			});
+////			flatten(spec).forEach((k, v) -> System.out.println(k + " ==> " + v));
+//			return spec;
+//		}
+//	}
+//
+//	private static Map<String, ?> flatten(XCBuildSpec spec) {
+//		ImmutableMap.Builder<String, Object> result = ImmutableMap.builder();
+//		spec.visit(new XCBuildSpec.Visitor() {
+//			private final Deque<String> contexts = new ArrayDeque<>();
+//
+//			@Override
+//			public void visitValue(Object value) {
+//				result.put(String.join(".", contexts), value);
+//			}
+//
+//			@Override
+//			public void enterContext(String namespace) {
+//				contexts.addLast(namespace);
+//			}
+//
+//			@Override
+//			public void exitContext() {
+//				contexts.removeLast();
+//			}
+//		});
+//		return result.build();
+//	}
 
 	private static final class ShowBuildSettingsEntry {
 		private final Map<String, String> buildSettings;
