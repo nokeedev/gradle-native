@@ -60,8 +60,6 @@ import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.TransformerUtils;
-import dev.nokee.xcode.XCBuildSettings;
-import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
@@ -92,13 +90,12 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import static dev.nokee.util.internal.OutOfDateReasonSpec.because;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
+import static dev.nokee.util.internal.OutOfDateReasonSpec.because;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
@@ -243,46 +240,6 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getInputDerivedData().from(derivedData);
 						task.getConfiguration().set(variantInfo.getName());
-						task.getInputFiles().from(task.getXcodeInstallation().map(xcodeInstallation -> {
-							final XCBuildSettings buildSettings = new XCBuildSettings() {
-								@Override
-								public String get(String name) {
-									switch (name) {
-										case "BUILT_PRODUCT_DIR":
-											// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
-											// TODO: Guard against the missing derived data path
-											// TODO: We should map derived data path as a collection of build settings via helper method
-											return task.getDerivedDataPath().dir("Build/Products/" + task.getConfiguration().get() + "-" + task.getSdk().get()).get().getAsFile().getAbsolutePath();
-										case "DEVELOPER_DIR":
-											// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
-											return xcodeInstallation.getDeveloperDirectory().toString();
-										case "SDKROOT":
-											// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
-											return task.getSdk().map(it -> {
-													if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
-														return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toString();
-													} else if (it.toLowerCase(Locale.ENGLISH).equals("macosx")) {
-														return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString();
-													} else if (it.toLowerCase(Locale.ENGLISH).equals("iphonesimulator")) {
-														return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk").toString();
-													}
-													return null;
-												})
-												// FIXME: Use -showBuildSettings to get default SDKROOT
-												.orElse(xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString()).get();
-										case "SOURCE_ROOT":
-											return reference.getLocation().getParent().toString();
-										default:
-											return new File(task.getAllBuildSettings().get().get(name)).getAbsolutePath();
-									}
-								}
-							};
-							val context = new BuildSettingsResolveContext(buildSettings);
-							return target.load().getInputFiles().stream()
-								.filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT)
-								.map(it -> it.resolve(context)).collect(Collectors.toList());
-						}));
-						task.getInputFiles().finalizeValueOnRead();
 						action.execute(task);
 					});
 				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetTask)));
