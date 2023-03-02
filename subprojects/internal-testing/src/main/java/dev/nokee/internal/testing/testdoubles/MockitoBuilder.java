@@ -61,12 +61,12 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public MockitoBuilder<T> when(StubCall<? super T> result) {
-		stubs.add(result);
+	public <R extends T> MockitoBuilder<R> when(StubCall<? super R> result) {
+		stubs.add((StubCall<? super T>) result);
 		if (instance != null) {
 			applyStub((StubCall<T>) result, instance);
 		}
-		return this;
+		return (MockitoBuilder<R>) this;
 	}
 
 	@SuppressWarnings("rawtypes")
