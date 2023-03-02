@@ -20,6 +20,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 final class ByProxyMethodInformation<ReceiverType, ReturnInfoType extends ReturnInformation, ArgumentInfoType extends ArgumentInformation> implements MethodInformation.WithArguments<ReceiverType, ReturnInfoType, ArgumentInfoType> {
@@ -43,7 +44,7 @@ final class ByProxyMethodInformation<ReceiverType, ReturnInfoType extends Return
 				// ignore for now...
 				if (!candidate.equals(Object.class)) {
 					queue.addAll(Arrays.asList(candidate.getInterfaces()));
-					queue.add(candidate.getSuperclass());
+					Optional.ofNullable(candidate.getSuperclass()).ifPresent(queue::add);
 				}
 			}
 		}
