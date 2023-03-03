@@ -25,6 +25,8 @@ import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.val;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
@@ -36,6 +38,7 @@ import java.util.Map;
 import static dev.nokee.core.exec.CommandLineToolExecutionEngine.processBuilder;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
 
+@EnabledOnOs(OS.MAC)
 @ExtendWith(TestDirectoryExtension.class)
 class MacroExpansionXcodeIntegrationTests extends MacroExpansionIntegrationTester {
 	@TestDirectory Path testDirectory;
