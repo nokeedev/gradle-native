@@ -31,15 +31,15 @@ import java.util.Iterator;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 
 public class ModelRegistryTestUtils {
-	private static final DefaultModelRegistry TEST_MODEL_REGISTRY = new DefaultModelRegistry(objectFactory()::newInstance, null);
+	private static final DefaultModelRegistry TEST_MODEL_REGISTRY = new DefaultModelRegistry(objectFactory()::newInstance);
 	private static int count = 0;
 
 	public static DefaultModelRegistry registry(File baseDirectory) {
-		return new DefaultModelRegistry(ProjectTestUtils.createRootProject(baseDirectory).getObjects()::newInstance, null);
+		return new DefaultModelRegistry(ProjectTestUtils.createRootProject(baseDirectory).getObjects()::newInstance);
 	}
 
 	public static DefaultModelRegistry registry(ObjectFactory objectFactory) {
-		return new DefaultModelRegistry(objectFactory::newInstance, null);
+		return new DefaultModelRegistry(objectFactory::newInstance);
 	}
 
 	public static DomainObjectIdentifier identifier(String path) {

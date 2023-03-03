@@ -62,9 +62,4 @@ public final class OnDiscover implements ModelAction, HasInputs {
 			}
 		}
 	}
-
-	@Override
-	public String toString() {
-		return "discovering " + delegate;
-	}
 }
