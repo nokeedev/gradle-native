@@ -224,9 +224,13 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 	}
 
 	private static String unescapeString(String s) {
-		final StringBuilder builder = new StringBuilder();
-		new CodePointIterator(s).forEachRemaining(builder::appendCodePoint);
-		return builder.toString();
+		if (s.contains("\\")) {
+			final StringBuilder builder = new StringBuilder();
+			new CodePointIterator(s).forEachRemaining(builder::appendCodePoint);
+			return builder.toString();
+		} else {
+			return s;
+		}
 	}
 
 	private static final class CodePointIterator implements Iterator<Integer> {
