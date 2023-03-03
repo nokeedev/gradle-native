@@ -36,11 +36,10 @@ public final class CrossProjectReferencesLoader implements XCLoader<Iterable<XCP
 	@Override
 	public Iterable<XCProjectReference> load(XCProjectReference reference) {
 		val project = pbxLoader.load(reference);
-		val fileReferences = fileReferencesLoader.load(reference);
 
 		return project.getProjectReferences().stream()
 			.map(PBXProject.ProjectReference::getProjectReference)
-			.map(it -> fileReferences.get(it))
+			.map(it -> fileReferencesLoader.load(reference).get(it))
 			.map(it -> it.resolve(new XCFileReference.ResolveContext() {
 				@Override
 				public Path getBuiltProductsDirectory() {
