@@ -196,6 +196,8 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 							return getTargetName().get();
 						case "PODS_CONFIGURATION_BUILD_DIR":
 							return getDerivedDataPath().dir("Build/Products/" + getConfiguration().get() + "-" + getSdk().get()).get().getAsFile().getAbsolutePath();
+						case "DERIVED_SOURCES_DIR":
+							return getDerivedDataPath().dir("Build/Intermediates.noindex/" + getXcodeProject().get().getName() + ".build/" + getConfiguration().get() + "-" + getSdk().get() + "/" + getTargetName().get() + ".build/DerivedSources").get().getAsFile().getAbsolutePath();
 						default:
 							return new File(getAllBuildSettings().get().get(name)).getAbsolutePath();
 					}
