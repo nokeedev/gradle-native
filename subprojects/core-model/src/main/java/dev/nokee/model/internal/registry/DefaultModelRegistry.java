@@ -48,6 +48,10 @@ import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
+import org.gradle.internal.operations.BuildOperationContext;
+import org.gradle.internal.operations.BuildOperationDescriptor;
+import org.gradle.internal.operations.BuildOperationExecutor;
+import org.gradle.internal.operations.RunnableBuildOperation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -65,14 +69,16 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final List<ModelAction> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
 	private final BindManagedProjectionService bindingService;
+	private final BuildOperationExecutor buildOperationExecutor;
 	private final ModelNode rootNode;
 	private final ModelElementFactory elementFactory;
 	private final Multimap<ModelComponentType<?>, ModelAction> config = ArrayListMultimap.create();
 
-	public DefaultModelRegistry(Instantiator instantiator) {
+	public DefaultModelRegistry(Instantiator instantiator, BuildOperationExecutor buildOperationExecutor) {
 		this.instantiator = instantiator;
 		this.elementFactory = new ModelElementFactory(instantiator);
 		this.bindingService = new BindManagedProjectionService(instantiator);
+		this.buildOperationExecutor = buildOperationExecutor;
 		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
 			private final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
 
@@ -196,7 +202,17 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val size = entities.size();
 		for (int i = 0; i < size; i++) {
 			val node = entities.get(i);
-			configuration.execute(node);
+			buildOperationExecutor.run(new RunnableBuildOperation() {
+				@Override
+				public void run(BuildOperationContext context) {
+					configuration.execute(node);
+				}
+
+				@Override
+				public BuildOperationDescriptor.Builder description() {
+					return BuildOperationDescriptor.displayName("rule " + configuration);
+				}
+			});
 		}
 	}
 
@@ -216,7 +232,17 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			for (int i = 0; i < c.size(); ++i) {
 				val configuration = c.get(i);
 				if (newComponentBits.intersects(((HasInputs) configuration).getInputBits())) { // recheck condition in case something changes
-					configuration.execute(node);
+					buildOperationExecutor.run(new RunnableBuildOperation() {
+						@Override
+						public void run(BuildOperationContext context) {
+							configuration.execute(node);
+						}
+
+						@Override
+						public BuildOperationDescriptor.Builder description() {
+							return BuildOperationDescriptor.displayName("rule " + configuration);
+						}
+					});
 				}
 			}
 		}

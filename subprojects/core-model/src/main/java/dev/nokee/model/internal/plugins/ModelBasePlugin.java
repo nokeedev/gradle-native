@@ -38,6 +38,7 @@ import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
+import org.gradle.internal.operations.BuildOperationExecutor;
 
 import javax.inject.Inject;
 
@@ -50,7 +51,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	private final ObjectFactory objects;
 
 	@Inject
-	ModelBasePlugin(ObjectFactory objects) {
+	public ModelBasePlugin(ObjectFactory objects) {
 		this.objects = objects;
 	}
 
@@ -60,7 +61,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	}
 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
-		val modelRegistry = new DefaultModelRegistry(objects::newInstance);
+		val modelRegistry = new DefaultModelRegistry(objects::newInstance, getBuildOperationExecutor());
 		target.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
 		target.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
 		target.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
@@ -76,6 +77,11 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		target.getPluginManager().apply(NamesCapabilityPlugin.class);
 
 		modelRegistry.get(ModelPath.root()).addComponent(new DisplayNameComponent(target.toString()));
+	}
+
+	@Inject
+	protected BuildOperationExecutor getBuildOperationExecutor() {
+		throw new UnsupportedOperationException();
 	}
 
 	private void applyToSettings(Settings settings) {
