@@ -27,7 +27,6 @@ import java.util.Iterator;
 final class AntlrParserIterator implements Iterator<AntlrParserIterator.AntlrEvent> {
 	private final Deque<AntlrChildIterator> contexts = new ArrayDeque<>();
 	private AntlrEvent next = null;
-	private final AntlrEvent result = new AntlrEvent();
 
 	public AntlrParserIterator(ParseTree t) {
 		next = AntlrEvent.enter(t);
@@ -41,7 +40,7 @@ final class AntlrParserIterator implements Iterator<AntlrParserIterator.AntlrEve
 
 	@Override
 	public AntlrEvent next() {
-		result.copyFrom(next);
+		final AntlrEvent result = next;
 		next = findNext();
 		return result;
 	}
@@ -83,29 +82,20 @@ final class AntlrParserIterator implements Iterator<AntlrParserIterator.AntlrEve
 	}
 
 	public static final class AntlrEvent {
-		private static final AntlrEvent INSTANCE = new AntlrEvent();
-		private boolean entering;
-		private ParseTree node;
+		private final boolean entering;
+		private final ParseTree node;
 
-//		private AntlrEvent() {}
-//
-//		private AntlrEvent(boolean entering, ParseTree node) {
-//			this.entering = entering;
-//			this.node = node;
-//		}
+		private AntlrEvent(boolean entering, ParseTree node) {
+			this.entering = entering;
+			this.node = node;
+		}
 
 		public static AntlrEvent enter(ParseTree node) {
-			INSTANCE.entering = true;
-			INSTANCE.node = node;
-			return INSTANCE;
-//			return new AntlrEvent(true, node);
+			return new AntlrEvent(true, node);
 		}
 
 		public static AntlrEvent exit(ParseTree node) {
-			INSTANCE.entering = false;
-			INSTANCE.node = node;
-			return INSTANCE;
-//			return new AntlrEvent(false, node);
+			return new AntlrEvent(false, node);
 		}
 
 		public boolean isRuleNode() {
@@ -122,11 +112,6 @@ final class AntlrParserIterator implements Iterator<AntlrParserIterator.AntlrEve
 
 		public boolean isEntering() {
 			return entering;
-		}
-
-		public void copyFrom(AntlrEvent other) {
-			this.node = other.node;
-			this.entering = other.entering;
 		}
 	}
 }
