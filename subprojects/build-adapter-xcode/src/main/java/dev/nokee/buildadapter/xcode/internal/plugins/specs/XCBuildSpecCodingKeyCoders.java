@@ -19,7 +19,6 @@ import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
-import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.project.Codeable;
 import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
@@ -39,12 +38,6 @@ import dev.nokee.xcode.project.CodeablePBXSourcesBuildPhase;
 import dev.nokee.xcode.project.CodeablePBXTargetDependency;
 import dev.nokee.xcode.project.CodeablePBXVariantGroup;
 import dev.nokee.xcode.project.CodeableProjectReference;
-import dev.nokee.xcode.project.CodeableVersionRequirementBranch;
-import dev.nokee.xcode.project.CodeableVersionRequirementExact;
-import dev.nokee.xcode.project.CodeableVersionRequirementRange;
-import dev.nokee.xcode.project.CodeableVersionRequirementRevision;
-import dev.nokee.xcode.project.CodeableVersionRequirementUpToNextMajorVersion;
-import dev.nokee.xcode.project.CodeableVersionRequirementUpToNextMinorVersion;
 import dev.nokee.xcode.project.CodeableXCBuildConfiguration;
 import dev.nokee.xcode.project.CodeableXCConfigurationList;
 import dev.nokee.xcode.project.CodeableXCRemoteSwiftPackageReference;
@@ -70,7 +63,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.KeyedCoders.ISA;
 import static dev.nokee.xcode.project.coders.DictionaryEncoder.newDictionaryEncoder;
 import static dev.nokee.xcode.project.coders.StringEncoder.newStringEncoder;
 
@@ -88,21 +80,21 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 	};
 
 	private static final Map<CodingKey, KeyedCoder<?>> coders = Collections.unmodifiableMap(new HashMap<CodingKey, KeyedCoder<?>>() {{
-		put(ISA, forKey("isa", input(string())));
+//		put(ISA, forKey("isa", input(string())));
 
 		// PBXAggregateTarget
-		put(CodeablePBXAggregateTarget.CodingKeys.name, forKey("name", input(string())));
-		put(CodeablePBXAggregateTarget.CodingKeys.productName, forKey("productName", input(string())));
-		put(CodeablePBXAggregateTarget.CodingKeys.productType, forKey("productType", input(productType())));
-		put(CodeablePBXAggregateTarget.CodingKeys.productReference, forKey("productReference", outputLocation()));
+//		put(CodeablePBXAggregateTarget.CodingKeys.name, forKey("name", input(string())));
+//		put(CodeablePBXAggregateTarget.CodingKeys.productName, forKey("productName", input(string())));
+//		put(CodeablePBXAggregateTarget.CodingKeys.productType, forKey("productType", input(productType())));
+//		put(CodeablePBXAggregateTarget.CodingKeys.productReference, forKey("productReference", outputLocation()));
 		put(CodeablePBXAggregateTarget.CodingKeys.buildPhases, forKey("buildPhases", listOf(buildPhaseObject())));
 		put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, forKey("buildConfigurationList", object(XCConfigurationList.class)));
 		put(CodeablePBXAggregateTarget.CodingKeys.dependencies, null);
 
 		// PBXBuildFile
 		put(CodeablePBXBuildFile.CodingKeys.fileRef, forKey("fileRef", inputLocation()));
-		put(CodeablePBXBuildFile.CodingKeys.settings, forKey("settings", input(dictionary())));
-		put(CodeablePBXBuildFile.CodingKeys.productRef, forKey("productRef", object(XCSwiftPackageProductDependency.class)));
+//		put(CodeablePBXBuildFile.CodingKeys.settings, forKey("settings", input(dictionary())));
+//		put(CodeablePBXBuildFile.CodingKeys.productRef, forKey("productRef", object(XCSwiftPackageProductDependency.class)));
 
 		// PBXContainerItemProxy
 		put(CodeablePBXContainerItemProxy.CodingKeys.containerPortal, null);
@@ -114,7 +106,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, forKey("files", listOf(object(PBXBuildFile.class))));
 		put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, null);
 		put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, null);
-		put(DESTINATION, forKey("destination", listOf(outputLocation())));
+//		put(DESTINATION, forKey("destination", listOf(outputLocation())));
 
 		// PBXFrameworksBuildPhase
 		put(CodeablePBXFrameworksBuildPhase.CodingKeys.files, forKey("files", listOf(object(PBXBuildFile.class))));
@@ -129,23 +121,23 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXHeadersBuildPhase.CodingKeys.files, forKey("files", listOf(object(PBXBuildFile.class))));
 
 		// PBXLegacyTarget
-		put(CodeablePBXLegacyTarget.CodingKeys.name, forKey("name", input(string())));
-		put(CodeablePBXLegacyTarget.CodingKeys.productName, forKey("productName", input(string())));
-		put(CodeablePBXLegacyTarget.CodingKeys.productType, forKey("productType", input(productType())));
-		put(CodeablePBXLegacyTarget.CodingKeys.productReference, forKey("productReference", outputLocation()));
+//		put(CodeablePBXLegacyTarget.CodingKeys.name, forKey("name", input(string())));
+//		put(CodeablePBXLegacyTarget.CodingKeys.productName, forKey("productName", input(string())));
+//		put(CodeablePBXLegacyTarget.CodingKeys.productType, forKey("productType", input(productType())));
+//		put(CodeablePBXLegacyTarget.CodingKeys.productReference, forKey("productReference", outputLocation()));
 		put(CodeablePBXLegacyTarget.CodingKeys.dependencies, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, forKey("buildConfigurationList", object(XCConfigurationList.class)));
 		put(CodeablePBXLegacyTarget.CodingKeys.buildPhases, forKey("buildPhases", listOf(buildPhaseObject())));
-		put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, forKey("buildArgumentsString", input(string())));
-		put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, forKey("buildToolPath", input(string())));
-		put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, forKey("buildWorkingDirectory", input(string()))); // TODO: capture resolved working directory PATH only
-		put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, forKey("passBuildSettingsInEnvironment", input(trueFalseBoolean())));
+//		put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, forKey("buildArgumentsString", input(string())));
+//		put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, forKey("buildToolPath", input(string())));
+//		put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, forKey("buildWorkingDirectory", input(string()))); // TODO: capture resolved working directory PATH only
+//		put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, forKey("passBuildSettingsInEnvironment", input(trueFalseBoolean())));
 
 		// PBXNativeTarget
-		put(CodeablePBXNativeTarget.CodingKeys.name, forKey("name", input(string())));
-		put(CodeablePBXNativeTarget.CodingKeys.productName, forKey("productName", input(string())));
-		put(CodeablePBXNativeTarget.CodingKeys.productType, forKey("productType", input(productType())));
-		put(CodeablePBXNativeTarget.CodingKeys.productReference, forKey("productReference", outputLocation()));
+//		put(CodeablePBXNativeTarget.CodingKeys.name, forKey("name", input(string())));
+//		put(CodeablePBXNativeTarget.CodingKeys.productName, forKey("productName", input(string())));
+//		put(CodeablePBXNativeTarget.CodingKeys.productType, forKey("productType", input(productType())));
+//		put(CodeablePBXNativeTarget.CodingKeys.productReference, forKey("productReference", outputLocation()));
 		put(CodeablePBXNativeTarget.CodingKeys.dependencies, null);
 		put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, forKey("buildConfigurationList", object(XCConfigurationList.class)));
 		put(CodeablePBXNativeTarget.CodingKeys.buildPhases, forKey("buildPhases", listOf(buildPhaseObject())));
@@ -170,13 +162,13 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXResourcesBuildPhase.CodingKeys.files, forKey("files", listOf(object(PBXBuildFile.class))));
 
 		// PBXShellScriptBuildPhase
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, forKey("name", input(string())));
+//		put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, forKey("name", input(string())));
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.files, forKey("files", listOf(object(PBXBuildFile.class))));
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, forKey("shellPath", input(string())));
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, forKey("shellScript", input(string())));
+//		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, forKey("shellPath", input(string())));
+//		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, forKey("shellScript", input(string())));
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, forKey("inputPaths", listOf(inputLocation())));
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, null);
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, forKey("outputPaths", listOf(outputLocation())));
+//		put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, forKey("outputPaths", listOf(outputLocation())));
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, null);
 
 		// PBXSourcesBuildPhase
@@ -198,32 +190,32 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeableProjectReference.CodingKeys.ProductGroup, null);
 
 		// VersionRequirement.Branch
-		put(CodeableVersionRequirementBranch.CodingKeys.kind, forKey("kind", input(kind())));
-		put(CodeableVersionRequirementBranch.CodingKeys.branch, forKey("branch", input(string())));
+//		put(CodeableVersionRequirementBranch.CodingKeys.kind, forKey("kind", input(kind())));
+//		put(CodeableVersionRequirementBranch.CodingKeys.branch, forKey("branch", input(string())));
 
 		// VersionRequirement.Exact
-		put(CodeableVersionRequirementExact.CodingKeys.kind, forKey("kind", input(kind())));
-		put(CodeableVersionRequirementExact.CodingKeys.version, forKey("version", input(string())));
+//		put(CodeableVersionRequirementExact.CodingKeys.kind, forKey("kind", input(kind())));
+//		put(CodeableVersionRequirementExact.CodingKeys.version, forKey("version", input(string())));
 
 		// VersionRequirement.Range
-		put(CodeableVersionRequirementRange.CodingKeys.kind, forKey("kind", input(kind())));
-		put(CodeableVersionRequirementRange.CodingKeys.minimumVersion, forKey("minimumVersion", input(string())));
-		put(CodeableVersionRequirementRange.CodingKeys.maximumVersion, forKey("maximumVersion", input(string())));
+//		put(CodeableVersionRequirementRange.CodingKeys.kind, forKey("kind", input(kind())));
+//		put(CodeableVersionRequirementRange.CodingKeys.minimumVersion, forKey("minimumVersion", input(string())));
+//		put(CodeableVersionRequirementRange.CodingKeys.maximumVersion, forKey("maximumVersion", input(string())));
 
 		// VersionRequirement.Revision
-		put(CodeableVersionRequirementRevision.CodingKeys.kind, forKey("kind", input(kind())));
-		put(CodeableVersionRequirementRevision.CodingKeys.revision, forKey("revision", input(string())));
+//		put(CodeableVersionRequirementRevision.CodingKeys.kind, forKey("kind", input(kind())));
+//		put(CodeableVersionRequirementRevision.CodingKeys.revision, forKey("revision", input(string())));
 
 		// VersionRequirement.UpToNextMajorVersion
-		put(CodeableVersionRequirementUpToNextMajorVersion.CodingKeys.kind, forKey("kind", input(kind())));
-		put(CodeableVersionRequirementUpToNextMajorVersion.CodingKeys.minimumVersion, forKey("minimumVersion", input(string())));
+//		put(CodeableVersionRequirementUpToNextMajorVersion.CodingKeys.kind, forKey("kind", input(kind())));
+//		put(CodeableVersionRequirementUpToNextMajorVersion.CodingKeys.minimumVersion, forKey("minimumVersion", input(string())));
 
 		// VersionRequirement.UpToNextMinorVersion
-		put(CodeableVersionRequirementUpToNextMinorVersion.CodingKeys.kind, forKey("kind", input(kind())));
-		put(CodeableVersionRequirementUpToNextMinorVersion.CodingKeys.minimumVersion, forKey("minimumVersion", input(string())));
+//		put(CodeableVersionRequirementUpToNextMinorVersion.CodingKeys.kind, forKey("kind", input(kind())));
+//		put(CodeableVersionRequirementUpToNextMinorVersion.CodingKeys.minimumVersion, forKey("minimumVersion", input(string())));
 
 		// XCBuildConfiguration
-		put(CodeableXCBuildConfiguration.CodingKeys.name, forKey("name", input(string())));
+//		put(CodeableXCBuildConfiguration.CodingKeys.name, forKey("name", input(string())));
 		put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, null);
 		put(CodeableXCBuildConfiguration.CodingKeys.baseConfigurationReference, null);
 
@@ -234,11 +226,11 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, null);
 
 		// XCRemoteSwiftPackageReference
-		put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, forKey("repositoryURL", input(string())));
+//		put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, forKey("repositoryURL", input(string())));
 		put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, forKey("requirement", object(XCRemoteSwiftPackageReference.VersionRequirement.class)));
 
 		// XCSwiftPackageProductDependency
-		put(CodeableXCSwiftPackageProductDependency.CodingKeys.productName, forKey("productName", input(string())));
+//		put(CodeableXCSwiftPackageProductDependency.CodingKeys.productName, forKey("productName", input(string())));
 		put(CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference, forKey("package", object(XCRemoteSwiftPackageReference.class)));
 
 		// XCVersionGroup
@@ -251,7 +243,8 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 	}});
 
 	private static <IN extends PBXBuildPhase & Encodeable> ValueEncoder<XCBuildSpec, IN> buildPhaseObject() {
-		return new NestedObjectSpecEncoder<>(new FixPBXCopyFileBuildPhaseEncoder<>());
+//		return new NestedObjectSpecEncoder<>(new FixPBXCopyFileBuildPhaseEncoder<>());
+		return new NestedObjectSpecEncoder<>(new NoOpEncoder<>());
 	}
 
 	@Override
@@ -275,9 +268,9 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		return new FalseTrueBooleanEncoder();
 	}
 
-	private static <IN> ValueEncoder<XCBuildSpec, IN> input(ValueEncoder<?, IN> encoder) {
-		return new InputSpecEncoder<>(encoder);
-	}
+//	private static <IN> ValueEncoder<XCBuildSpec, IN> input(ValueEncoder<?, IN> encoder) {
+//		return new InputSpecEncoder<>(encoder);
+//	}
 
 	private static ValueEncoder<String, ProductType> productType() {
 		return new ProductTypeEncoder();
@@ -295,9 +288,9 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		return new InputLocationSpecEncoder<>(new NormalizeStringAsPBXReferenceEncoder(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder()));
 	}
 
-	private static ValueEncoder<XCBuildSpec, Object> outputLocation() {
-		return new OutputLocationSpecEncoder<>(new NormalizeStringAsPBXReferenceEncoder(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder()));
-	}
+//	private static ValueEncoder<XCBuildSpec, Object> outputLocation() {
+//		return new OutputLocationSpecEncoder<>(new NormalizeStringAsPBXReferenceEncoder(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder()));
+//	}
 
 	private static <T> ValueEncoder<XCBuildSpec, List<T>> listOf(ValueEncoder<XCBuildSpec, T> elementEncoder) {
 		return new CompositeSpecEncoder<>(new ListEncoder<>(elementEncoder));

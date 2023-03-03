@@ -70,6 +70,11 @@ public final class XCLoaders {
 		return DEFAULT_TARGET_CONFIGURATION_LOADER;
 	}
 
+	// FIXME: Do now use
+	public static XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferences() {
+		return FILE_REFERENCES_LOADER;
+	}
+
 	public static XCLoader<XCBuildSpec, XCTargetReference> buildSpecLoader() {
 		return BUILD_SPEC_LOADER;
 	}

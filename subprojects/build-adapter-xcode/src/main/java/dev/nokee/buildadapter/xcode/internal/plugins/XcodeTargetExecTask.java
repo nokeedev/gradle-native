@@ -21,15 +21,17 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.nokee.buildadapter.xcode.internal.files.PreserveLastModifiedFileSystemOperation;
 import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildPlan;
+import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildSpec;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.XCBuildSettings;
-import dev.nokee.xcode.XCFileReference;
+import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.project.PBXObjectReference;
 import dev.nokee.xcode.project.PBXProj;
 import dev.nokee.xcode.project.PBXProjReader;
@@ -61,10 +63,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.Callable;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Iterables.concat;
@@ -148,7 +151,8 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		}))));
 
 		this.targetReference = ProviderUtils.zip(() -> objects.listProperty(Object.class), getXcodeProject(), getTargetName(), XCProjectReference::ofTarget);
-		this.buildSpec = finalizeValueOnRead(objects.property(XCBuildPlan.class).value(getXcodeInstallation().map(xcodeInstallation -> {
+		this.buildSpec = finalizeValueOnRead(objects.property(XCBuildPlan.class).value(getTargetReference().map(XCLoaders.buildSpecLoader()::load).map(spec -> {
+			val xcodeInstallation = getXcodeInstallation().get();
 			final XCBuildSettings buildSettings = new XCBuildSettings() {
 				@Override
 				public String get(String name) {
@@ -182,16 +186,44 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 					}
 				}
 			};
+
 			val context = new BuildSettingsResolveContext(buildSettings);
-			FileCollection inputLocations = objects.fileCollection().from(getTargetReference().get().load().getInputFiles().stream()
-				.filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT)
-				.map(it -> it.resolve(context)).collect(Collectors.toList()));
-			return new XCBuildPlan() {
-				@InputFiles
-				public FileCollection getInputFiles() {
-					return inputLocations;
+			val fileRefs = XCLoaders.fileReferences().load(getXcodeProject().get()); // FIXME: Do no use
+			return spec.resolve(new XCBuildSpec.ResolveContext() {
+				private Path resolveex(PBXReference reference) {
+					return fileRefs.get(reference).resolve(context);
 				}
-			};
+
+				@Override
+				public FileCollection inputs(PBXReference reference) {
+					final Path path = resolveex(reference); // TODO: capture path
+					System.out.println("INPUT " + path);
+					return objects.fileCollection().from((Callable<Object>) () -> {
+						if (Files.isDirectory(path)) {
+							return objects.fileTree().setDir(path);
+						} else {
+							return path;
+						}
+					});
+					// TODO: decide if path is appropriate to use as input
+					// TODO: Also remove paths that are within the global output location...
+				}
+
+				@Override
+				public FileCollection outputs(PBXReference reference) {
+					throw new UnsupportedOperationException();
+				}
+			});
+
+//			FileCollection inputLocations = objects.fileCollection().from(getTargetReference().get().load().getInputFiles().stream()
+//				.filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT)
+//				.map(it -> it.resolve(context)).collect(Collectors.toList()));
+//			return new XCBuildPlan() {
+//				@InputFiles
+//				public FileCollection getInputFiles() {
+//					return inputLocations;
+//				}
+//			};
 		})));
 	}
 
