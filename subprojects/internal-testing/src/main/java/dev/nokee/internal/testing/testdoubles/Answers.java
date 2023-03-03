@@ -53,15 +53,6 @@ public final class Answers {
 		};
 	}
 
-	public static <ReceiverType, ReturnType> Answer<ReceiverType, ReturnInformation.Return<ReturnType>> doAlwaysReturnNull() {
-		return new Answer<ReceiverType, ReturnInformation.Return<ReturnType>>() {
-			@Override
-			public ReturnType answer(InvocationOnTestDouble<ReceiverType> invocation) throws Throwable {
-				return null;
-			}
-		};
-	}
-
 	public static <ReceiverType, ReturnType> Answer<ReceiverType, ReturnInformation.Return<ReturnType>> doReturn(Invokable<ReceiverType, ReturnType, ?> function) {
 		return new Answer<ReceiverType, ReturnInformation.Return<ReturnType>>() {
 			@Override
