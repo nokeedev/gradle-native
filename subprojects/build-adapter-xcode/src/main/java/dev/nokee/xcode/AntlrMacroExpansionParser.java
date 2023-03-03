@@ -45,7 +45,7 @@ public final class AntlrMacroExpansionParser implements XCStringParser {
 
 		private static XCString newInstance(List<XCString> macroList) {
 			if (macroList.isEmpty()) {
-				return new XCStringEmpty();
+				return XCString.empty();
 			} else {
 				return new XCStringList(macroList);
 			}
@@ -53,7 +53,7 @@ public final class AntlrMacroExpansionParser implements XCStringParser {
 
 		private static XCString newInstance(String literal) {
 			if (literal.isEmpty()) {
-				return new XCStringEmpty();
+				return XCString.empty();
 			} else {
 				return new XCStringLiteral(literal);
 			}
@@ -61,7 +61,7 @@ public final class AntlrMacroExpansionParser implements XCStringParser {
 
 		@Override
 		public XCString visitErrorNode(ErrorNode node) {
-			return new XCStringEmpty();
+			return XCString.empty();
 		}
 
 		private final class MacroListVisitor extends dev.nokee.xcode.MacroExpansionParserBaseVisitor<List<XCString>> {
