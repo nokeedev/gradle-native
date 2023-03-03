@@ -114,8 +114,13 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		return targetReference;
 	}
 
+	int i = 0;
+
 	@Nested
 	public Provider<XCBuildPlan> getBuildPlan() {
+		if (i++ < 2) {
+			return getProject().provider(() -> new XCBuildPlan() {});
+		}
 		return buildSpec;
 	}
 
