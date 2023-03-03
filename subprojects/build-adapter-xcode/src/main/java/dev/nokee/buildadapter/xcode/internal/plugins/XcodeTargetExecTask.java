@@ -497,12 +497,13 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		public void run() {
 			val originalProjectLocation = parameters.getOriginalProjectLocation().get().getAsFile().toPath();
 			val isolatedProjectLocation = parameters.getIsolatedProjectLocation().get().getAsFile().toPath();
-			fileOperations.sync(spec -> {
+			new PreserveLastModifiedFileSystemOperation(fileOperations::sync).execute(spec -> {
 				spec.from(originalProjectLocation);
 				spec.into(isolatedProjectLocation);
 			});
 
 			try {
+				val lastModTime = Files.getLastModifiedTime(isolatedProjectLocation.resolve("project.pbxproj"));
 				PBXProj proj;
 				try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(isolatedProjectLocation.resolve("project.pbxproj"))))) {
 					proj = reader.read();
@@ -535,6 +536,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				try (val writer = new PBXProjWriter(Files.newBufferedWriter(isolatedProjectLocation.resolve("project.pbxproj")))) {
 					writer.write(isolatedProject);
 				}
+				Files.setLastModifiedTime(isolatedProjectLocation.resolve("project.pbxproj"), lastModTime);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
