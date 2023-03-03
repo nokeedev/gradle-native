@@ -71,6 +71,13 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 		}
 	}
 
+	private static final StartDocumentContext START_DOCUMENT = new StartDocumentContext();
+	private static final EndDocumentContext END_DOCUMENT = new EndDocumentContext();
+	private static final StartArrayContext START_ARRAY = new StartArrayContext();
+	private static final EndArrayContext END_ARRAY = new EndArrayContext();
+	private static final StartDictContext START_DICT = new StartDictContext();
+	private static final EndDictContext END_DICT = new EndDictContext();
+
 	@Nullable
 	private Context findNext() {
 		while (iterator.hasNext()) {
@@ -79,15 +86,15 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 				final RuleNode rule = (RuleNode) next.getNode();
 				if (next.isEntering()) {
 					if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_document) {
-						return new StartDocumentContext();
+						return START_DOCUMENT;
 					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_string) {
 						return new StringContext((AsciiPropertyListGrammarParser.StringContext) rule);
 					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_value) {
 						// skip this rule and find the actual value
 					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_array) {
-						return new StartArrayContext();
+						return START_ARRAY;
 					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_dict) {
-						return new StartDictContext();
+						return START_DICT;
 					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_dictKey) {
 						return new DictKeyContext((AsciiPropertyListGrammarParser.DictKeyContext) rule);
 					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_data) {
@@ -95,11 +102,11 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 					}
 				} else {
 					if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_document) {
-						return new EndDocumentContext();
+						return END_DOCUMENT;
 					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_array) {
-						return new EndArrayContext();
+						return END_ARRAY;
 					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_dict) {
-						return new EndDictContext();
+						return END_DICT;
 					}
 				}
 			}
