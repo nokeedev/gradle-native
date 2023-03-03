@@ -181,6 +181,16 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 								.orElse(xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString()).get();
 						case "SOURCE_ROOT":
 							return getXcodeProject().get().getLocation().getParent().toString();
+						case "PODS_ROOT":
+							return getXcodeProject().get().getLocation().getParent().resolve("Pods").toString();
+						case "PODS_XCFRAMEWORKS_BUILD_DIR":
+							return getDerivedDataPath().dir("Build/Products/" + getConfiguration().get() + "-" + getSdk().get() + "/XCFrameworkIntermediates").get().getAsFile().getAbsolutePath();
+						case "PODS_PODFILE_DIR_PATH":
+							return getProject().getRootDir().getAbsolutePath();
+						case "PRODUCT_MODULE_NAME":
+							return getTargetName().get();
+						case "PODS_CONFIGURATION_BUILD_DIR":
+							return getDerivedDataPath().dir("Build/Products/" + getConfiguration().get() + "-" + getSdk().get()).get().getAsFile().getAbsolutePath();
 						default:
 							return new File(getAllBuildSettings().get().get(name)).getAbsolutePath();
 					}
