@@ -15,11 +15,10 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
-import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.tasks.Nested;
 
-import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Map;
 
 @EqualsAndHashCode
@@ -32,9 +31,11 @@ public final class NestedSpec implements XCBuildSpec {
 
 	@Override
 	public XCBuildPlan resolve(ResolveContext context) {
+		final Map<String, XCBuildPlan> values = new HashMap<>(this.values.size());
+		for (Map.Entry<String, XCBuildSpec> entry : this.values.entrySet()) {
+			values.put(entry.getKey(), entry.getValue().resolve(context));
+		}
 		return new XCBuildPlan() {
-			private final Map<String, XCBuildPlan> values = NestedSpec.this.values.entrySet().stream().map(it -> new AbstractMap.SimpleImmutableEntry<>(it.getKey(), it.getValue().resolve(context))).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
-
 			@Nested
 			public Map<String, XCBuildPlan> getValue() {
 				return values;

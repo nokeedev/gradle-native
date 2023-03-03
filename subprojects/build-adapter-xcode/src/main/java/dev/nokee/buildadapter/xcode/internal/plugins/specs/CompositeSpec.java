@@ -15,6 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +34,11 @@ public final class CompositeSpec implements XCBuildSpec, Iterable<XCBuildSpec> {
 
 	@Override
 	public XCBuildPlan resolve(ResolveContext context) {
-		return new CompositeXCBuildPlan(specs.stream().map(it -> it.resolve(context)).collect(Collectors.toList()));
+		final List<XCBuildPlan> values = new ArrayList<>(specs.size());
+		for (XCBuildSpec spec : specs) {
+			values.add(spec.resolve(context));
+		}
+		return new CompositeXCBuildPlan(values);
 	}
 
 	@Override
