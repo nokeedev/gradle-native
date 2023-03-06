@@ -221,12 +221,12 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.configure(configuration -> {
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
 								return target.load().getInputFiles().stream().map(it::forFile).filter(Objects::nonNull).collect(Collectors.toList());
-							}).map(transformEach(asDependency(project)))
-						)).orElse(Collections.emptyList()));
+							}).map(transformEach(asDependency(project))).orElse(Collections.emptyList())
+						)));
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
 								return target.load().getDependencies().stream().map(it::forTarget).filter(Objects::nonNull).collect(Collectors.toList());
-							}).map(transformEach(asDependency(project)))
-						)).orElse(Collections.emptyList()));
+							}).map(transformEach(asDependency(project))).orElse(Collections.emptyList()))
+						));
 					});
 
 				val targetTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetExecTask.class, it -> it.ownedBy(entity)))
