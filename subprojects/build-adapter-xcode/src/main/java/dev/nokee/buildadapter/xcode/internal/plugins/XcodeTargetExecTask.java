@@ -39,8 +39,8 @@ import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.val;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.model.ObjectFactory;
@@ -52,6 +52,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
@@ -99,8 +100,10 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	@InputFiles
 	public abstract ConfigurableFileCollection getInputDerivedData();
 
-	@OutputDirectory
-	public abstract DirectoryProperty getOutputDirectory();
+//	@OutputDirectory
+//	public abstract DirectoryProperty getOutputDirectory();
+	@OutputFiles
+	public abstract ConfigurableFileTree getOutputFiles();
 
 	@Internal
 	public abstract ListProperty<String> getAllArguments();
@@ -118,6 +121,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@Nested
 	public Provider<XCBuildPlan> getBuildPlan() {
+//		new Throwable(this + " called " + i).printStackTrace();
 		if (i++ < 2) {
 			return getProject().provider(() -> new XCBuildPlan() {});
 		}
@@ -127,6 +131,9 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	@Inject
 	public XcodeTargetExecTask(WorkerExecutor workerExecutor, ObjectFactory objects) {
 		this.workerExecutor = workerExecutor;
+
+		getOutputFiles().setDir(getDerivedDataPath());
+		getOutputFiles().include("Build/Products/**/*");
 
 		getAllArguments().addAll(getXcodeProject().map(it -> of("-project", it.getLocation().toString())));
 		getAllArguments().addAll(getTargetName().map(it -> of("-target", it)));
@@ -199,6 +206,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 						case "DERIVED_SOURCES_DIR":
 							return getDerivedDataPath().dir("Build/Intermediates.noindex/" + getXcodeProject().get().getName() + ".build/" + getConfiguration().get() + "-" + getSdk().get() + "/" + getTargetName().get() + ".build/DerivedSources").get().getAsFile().getAbsolutePath();
 						default:
+							System.out.println("====> " + name + " --> " + getAllBuildSettings().get().get(name));
 							return new File(getAllBuildSettings().get().get(name)).getAbsolutePath();
 					}
 				}
@@ -214,7 +222,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				@Override
 				public FileCollection inputs(PBXReference reference) {
 					final Path path = resolveex(reference); // TODO: capture path
-					System.out.println("INPUT " + path);
+//					System.out.println("INPUT " + path);
 					return objects.fileCollection().from((Callable<Object>) () -> {
 						if (Files.isDirectory(path)) {
 							return objects.fileTree().setDir(path);
@@ -425,10 +433,10 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@TaskAction
 	private void doExec() {
-		val isolatedProjectLocation = new File(getTemporaryDir(), getXcodeProject().get().getLocation().getFileName().toString());
+//		val isolatedProjectLocation = new File(getTemporaryDir(), getXcodeProject().get().getLocation().getFileName().toString());
 
 		val invocation = CommandLineTool.of("xcodebuild").withArguments(it -> {
-			it.args(getAllArguments().map(allArguments -> concat(of("-project", isolatedProjectLocation.getAbsolutePath()), skip(allArguments, 2))));
+			it.args(getAllArguments().map(allArguments -> concat(of("-project", getXcodeProject().get().getLocation()), skip(allArguments, 2))));
 		}).newInvocation(it -> {
 			it.withEnvironmentVariables(inherit("PATH").putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
 			ifPresent(getWorkingDirectory(), it::workingDirectory);
@@ -436,12 +444,12 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			it.redirectErrorOutput(toStandardStream());
 		});
 		workerExecutor.noIsolation().submit(XcodebuildExec.class, spec -> {
-			spec.getOutgoingDerivedDataPath().set(getOutputDirectory());
+//			spec.getOutgoingDerivedDataPath().set(getOutputDirectory());
 			spec.getXcodeDerivedDataPath().set(getDerivedDataPath());
-			spec.getIncomingDerivedDataPaths().setFrom(getInputDerivedData());
+//			spec.getIncomingDerivedDataPaths().setFrom(getInputDerivedData());
 
 			spec.getOriginalProjectLocation().set(getXcodeProject().get().getLocation().toFile());
-			spec.getIsolatedProjectLocation().set(isolatedProjectLocation);
+			spec.getIsolatedProjectLocation().set(getXcodeProject().get().getLocation().toFile());
 			spec.getTargetNameToIsolate().set(getTargetName());
 
 			spec.getInvocation().set(invocation);
@@ -461,22 +469,22 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		@Override
 		public void run() {
-			new PreserveLastModifiedFileSystemOperation(fileOperations::copy).execute(spec -> {
-				spec.from(parameters.getIncomingDerivedDataPaths());
-				spec.into(parameters.getXcodeDerivedDataPath());
-				spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE);
-			});
+//			new PreserveLastModifiedFileSystemOperation(fileOperations::copy).execute(spec -> {
+//				spec.from(parameters.getIncomingDerivedDataPaths());
+//				spec.into(parameters.getXcodeDerivedDataPath());
+//				spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE);
+//			});
 
 			delegate.run();
 
-			new PreserveLastModifiedFileSystemOperation(fileOperations::sync).execute(spec -> {
-				spec.from(parameters.getXcodeDerivedDataPath(), it -> it.include("Build/Products/**/*"));
-				spec.into(parameters.getOutgoingDerivedDataPath());
-			});
+//			new PreserveLastModifiedFileSystemOperation(fileOperations::sync).execute(spec -> {
+//				spec.from(parameters.getXcodeDerivedDataPath(), it -> it.include("Build/Products/**/*"));
+//				spec.into(parameters.getOutgoingDerivedDataPath());
+//			});
 		}
 
 		public interface Parameters {
-			ConfigurableFileCollection getIncomingDerivedDataPaths();
+//			ConfigurableFileCollection getIncomingDerivedDataPaths();
 			DirectoryProperty getXcodeDerivedDataPath();
 			DirectoryProperty getOutgoingDerivedDataPath();
 		}
@@ -495,51 +503,51 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		@Override
 		public void run() {
-			val originalProjectLocation = parameters.getOriginalProjectLocation().get().getAsFile().toPath();
-			val isolatedProjectLocation = parameters.getIsolatedProjectLocation().get().getAsFile().toPath();
-			new PreserveLastModifiedFileSystemOperation(fileOperations::sync).execute(spec -> {
-				spec.from(originalProjectLocation);
-				spec.into(isolatedProjectLocation);
-			});
-
-			try {
-				val lastModTime = Files.getLastModifiedTime(isolatedProjectLocation.resolve("project.pbxproj"));
-				PBXProj proj;
-				try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(isolatedProjectLocation.resolve("project.pbxproj"))))) {
-					proj = reader.read();
-				}
-				val builder = PBXProj.builder();
-				val isolatedProject = builder.rootObject(proj.getRootObject()).objects(o -> {
-					for (PBXObjectReference object : proj.getObjects()) {
-						if (ImmutableSet.of("PBXNativeTarget", "PBXAggregateTarget", "PBXLegacyTarget").contains(object.isa()) && parameters.getTargetNameToIsolate().get().equals(object.getFields().get("name"))) {
-							o.add(PBXObjectReference.of(object.getGlobalID(), entryBuilder -> {
-								for (Map.Entry<String, Object> entry : object.getFields().entrySet()) {
-									if (!entry.getKey().equals("dependencies")) {
-										entryBuilder.putField(entry.getKey(), entry.getValue());
-									}
-								}
-							}));
-						} else if ("PBXProject".equals(object.isa())) {
-							o.add(PBXObjectReference.of(object.getGlobalID(), entryBuilder -> {
-								entryBuilder.putField("projectDirPath", originalProjectLocation.getParent().toString());
-								for (Map.Entry<String, Object> entry : object.getFields().entrySet()) {
-									if (!entry.getKey().equals("projectDirPath")) {
-										entryBuilder.putField(entry.getKey(), entry.getValue());
-									}
-								}
-							}));
-						} else {
-							o.add(object);
-						}
-					}
-				}).build();
-				try (val writer = new PBXProjWriter(Files.newBufferedWriter(isolatedProjectLocation.resolve("project.pbxproj")))) {
-					writer.write(isolatedProject);
-				}
-				Files.setLastModifiedTime(isolatedProjectLocation.resolve("project.pbxproj"), lastModTime);
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
+//			val originalProjectLocation = parameters.getOriginalProjectLocation().get().getAsFile().toPath();
+//			val isolatedProjectLocation = parameters.getIsolatedProjectLocation().get().getAsFile().toPath();
+//			new PreserveLastModifiedFileSystemOperation(fileOperations::sync).execute(spec -> {
+//				spec.from(originalProjectLocation);
+//				spec.into(isolatedProjectLocation);
+//			});
+//
+//			try {
+//				val lastModTime = Files.getLastModifiedTime(originalProjectLocation.resolve("project.pbxproj"));
+//				PBXProj proj;
+//				try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(isolatedProjectLocation.resolve("project.pbxproj"))))) {
+//					proj = reader.read();
+//				}
+//				val builder = PBXProj.builder();
+//				val isolatedProject = builder.rootObject(proj.getRootObject()).objects(o -> {
+//					for (PBXObjectReference object : proj.getObjects()) {
+//						if (ImmutableSet.of("PBXNativeTarget", "PBXAggregateTarget", "PBXLegacyTarget").contains(object.isa()) && parameters.getTargetNameToIsolate().get().equals(object.getFields().get("name"))) {
+//							o.add(PBXObjectReference.of(object.getGlobalID(), entryBuilder -> {
+//								for (Map.Entry<String, Object> entry : object.getFields().entrySet()) {
+//									if (!entry.getKey().equals("dependencies")) {
+//										entryBuilder.putField(entry.getKey(), entry.getValue());
+//									}
+//								}
+//							}));
+//						} else if ("PBXProject".equals(object.isa())) {
+//							o.add(PBXObjectReference.of(object.getGlobalID(), entryBuilder -> {
+//								entryBuilder.putField("projectDirPath", originalProjectLocation.getParent().toString());
+//								for (Map.Entry<String, Object> entry : object.getFields().entrySet()) {
+//									if (!entry.getKey().equals("projectDirPath")) {
+//										entryBuilder.putField(entry.getKey(), entry.getValue());
+//									}
+//								}
+//							}));
+//						} else {
+//							o.add(object);
+//						}
+//					}
+//				}).build();
+//				try (val writer = new PBXProjWriter(Files.newBufferedWriter(isolatedProjectLocation.resolve("project.pbxproj")))) {
+//					writer.write(isolatedProject);
+//				}
+//				Files.setLastModifiedTime(isolatedProjectLocation.resolve("project.pbxproj"), lastModTime);
+//			} catch (IOException e) {
+//				throw new UncheckedIOException(e);
+//			}
 
 			delegate.run();
 		}
@@ -562,7 +570,12 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		@Override
 		public void run() {
-			parameters.getInvocation().get().submitTo(execOperations(execOperations)).result().assertNormalExitValue();
+			long start = System.currentTimeMillis();
+			try {
+				parameters.getInvocation().get().submitTo(execOperations(execOperations)).result().assertNormalExitValue();
+			} finally {
+				System.out.println("EXEC " + (System.currentTimeMillis() - start));
+			}
 		}
 
 		public interface Parameters {

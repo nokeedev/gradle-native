@@ -88,6 +88,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
@@ -95,12 +96,10 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.tags.ModelTags.tag;
-import static dev.nokee.util.internal.OutOfDateReasonSpec.because;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
-import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 import static dev.nokee.utils.TransformerUtils.Transformer.of;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
@@ -194,6 +193,11 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				entity.addComponent(new DisplayNameComponent(String.format("target variant '%s:%s' of %s", target.get().getName(), variantInfo.getName(), project)));
 			}));
 
+			val isolateTask = project.getTasks().register("isolateTargets", IsolateTargetTask.class, task -> {
+				task.getProjectReference().set(reference);
+				task.getIsolatedProjectLocation().set(project.getLayout().getBuildDirectory().dir(reference.getLocation().getFileName().toString()));
+			});
+
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), ModelTags.referenceOf(IsComponent.class), (entity, target, ignored1) -> {
 				val targetLifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetLifecycleTask.class, it -> it.ownedBy(entity)))
 					.as(XcodeTargetLifecycleTask.class)
@@ -229,20 +233,47 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						));
 					});
 
+				val derivedDataTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("assemble", "derivedDataDir"), AssembleDerivedDataDirectoryTask.class, it -> it.ownedBy(entity)))
+					.as(AssembleDerivedDataDirectoryTask.class)
+					.configure(task -> {
+						task.getDerivedDataDirectory().set(project.getLayout().getBuildDirectory().dir("tmp-derived-data/" + target.getName()));
+						task.getInputFiles().from(derivedData.map(it -> it.getAsFileTree().matching(p -> p.include("Build/Products/**/*"))));
+					});
+
 				val targetTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetExecTask.class, it -> it.ownedBy(entity)))
 					.as(XcodeTargetExecTask.class)
 					.configure(task -> {
-						task.getXcodeProject().set(reference);
+						task.dependsOn(isolateTask);
+//						task.getXcodeProject().set(reference);
+						task.getXcodeProject().set(isolateTask.flatMap(IsolateTargetTask::getIsolatedProjectReference));
 						task.getTargetName().set(target.getName());
-						task.getOutputs().upToDateWhen(because(String.format("a shell script build phase of %s has no inputs or outputs defined", reference.ofTarget(target.getName())), everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs()));
-						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
-						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
+//						task.getOutputs().upToDateWhen(because(String.format("a shell script build phase of %s has no inputs or outputs defined", reference.ofTarget(target.getName())), everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs()));
+						task.getInputs().property("alwaysOutOfDate", project.provider(() -> {
+							if (everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs().isSatisfiedBy(task)) {
+								return "42";
+							} else {
+								return LocalDateTime.now().toString(); // always out-of-date
+							}
+						}));
+						task.getDerivedDataPath().set(derivedDataTask.map(it -> it.getDerivedDataDirectory().get()));
+//						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
+//						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
-						task.getInputDerivedData().from(derivedData);
+						task.getInputDerivedData().from(derivedDataTask.map(AssembleDerivedDataDirectoryTask::getOutputFiles));
+//						task.getInputDerivedData().from(derivedData);
 						task.getConfiguration().set(variantInfo.getName());
 						action.execute(task);
 					});
 				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetTask)));
+
+//				val syncTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("sync", "derivedDataDir"), AssembleDerivedDataDirectoryTask.class, it -> it.ownedBy(entity)))
+//					.as(AssembleDerivedDataDirectoryTask.class)
+//					.configure(task -> {
+//						task.getInputFiles().from(targetTask.map(it -> it.getOutputFiles()));
+//						task.getDerivedDataDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
+////						task.setDestinationDir(project.file(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName())));
+////						task.from(targetTask.map(it -> it.getOutputFiles()));
+//					});
 
 				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("DerivedDataElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
 					.as(Configuration.class)
@@ -255,7 +286,9 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.configure(configuration -> {
 						configuration.outgoing(outgoing -> {
 							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
-							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
+//							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
+							outgoing.artifact(targetTask.map(it -> it.getDerivedDataPath().get()));
+//							outgoing.artifact(syncTask.map(it -> it.getDerivedDataDirectory().get()));
 						});
 					});
 			})));
