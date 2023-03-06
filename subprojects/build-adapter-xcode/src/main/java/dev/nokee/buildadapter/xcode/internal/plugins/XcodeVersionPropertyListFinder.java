@@ -27,6 +27,7 @@ import java.nio.file.Path;
 public final class XcodeVersionPropertyListFinder implements XcodeVersionFinder {
 	@Override
 	public String find(Path developerDir) {
+		// version.plist is located side-by-side with Developer directory
 		final Path versionPlist = developerDir.getParent().resolve("version.plist");
 		try (val reader = new XmlPropertyListReader(Files.newBufferedReader(versionPlist))) {
 			while (reader.hasNext()) {
