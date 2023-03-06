@@ -30,7 +30,7 @@ public final class XcodeDeveloperDirectorySystemApplicationsLocator implements X
 
 	@Override
 	public Path locate() {
-		final Path developerDirPath = fileSystem.getPath("/Applications/Xcode.app/Content/Developer");
+		final Path developerDirPath = fileSystem.getPath("/Applications/Xcode.app/Contents/Developer");
 		if (Files.isDirectory(developerDirPath)) {
 			return developerDirPath;
 		} else {
