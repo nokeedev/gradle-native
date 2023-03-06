@@ -61,7 +61,7 @@ class XcodeDeveloperDirectorySystemApplicationsLocatorTests {
 
 		@Test
 		void returnsSystemXcodeApplicationPackageContentDeveloper() {
-			assertThat(result, absolutePath(equalTo("/Applications/Xcode.app/Content/Developer")));
+			assertThat(result, absolutePath(equalTo("/Applications/Xcode.app/Contents/Developer")));
 		}
 	}
 

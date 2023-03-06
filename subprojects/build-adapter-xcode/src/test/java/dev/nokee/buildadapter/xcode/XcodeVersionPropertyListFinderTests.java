@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 class XcodeVersionPropertyListFinderTests {
 	FileSystem fileSystem = Jimfs.newFileSystem(Configuration.osX());
-	Path developerDir = createValidXcodeInstallation(fileSystem.getPath("/opt/Xcode.app"), "13.4.1").resolve("Content/Developer");
+	Path developerDir = createValidXcodeInstallation(fileSystem.getPath("/opt/Xcode.app"), "13.4.1").resolve("Contents/Developer");
 	XcodeVersionPropertyListFinder subject = new XcodeVersionPropertyListFinder();
 	String result = subject.find(developerDir);
 
