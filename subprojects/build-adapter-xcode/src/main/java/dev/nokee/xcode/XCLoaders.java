@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode;
 
+import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildSpec;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.workspace.XCWorkspaceData;
@@ -34,6 +35,8 @@ public final class XCLoaders {
 	private static final XCLoader<Set<String>, XCTargetReference> TARGET_CONFIGURATION_LOADER = new XCCacheLoader<>(new ConfigurationsLoader(PBXPROJECT_LOADER));
 
 	private static final XCLoader<String, XCTargetReference> DEFAULT_TARGET_CONFIGURATION_LOADER = new XCCacheLoader<>(new DefaultTargetConfigurationLoader(PBXPROJECT_LOADER));
+
+	private static final XCLoader<XCBuildSpec, XCTargetReference> BUILD_SPEC_LOADER = new XCCacheLoader<>(new XCBuildSpecLoader(PBXTARGET_LOADER));
 
 	public static XCLoader<Iterable<XCProjectReference>, XCProjectReference> crossProjectReferencesLoader() {
 		return CROSS_PROJECT_REFERENCES_LOADER;
@@ -65,5 +68,13 @@ public final class XCLoaders {
 
 	public static XCLoader<String, XCTargetReference> defaultTargetConfigurationLoader() {
 		return DEFAULT_TARGET_CONFIGURATION_LOADER;
+	}
+
+	public static XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferences() {
+		return FILE_REFERENCES_LOADER;
+	}
+
+	public static XCLoader<XCBuildSpec, XCTargetReference> buildSpecLoader() {
+		return BUILD_SPEC_LOADER;
 	}
 }
