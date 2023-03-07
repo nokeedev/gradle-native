@@ -60,6 +60,12 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 		return PBXFileReference.builder().name(FilenameUtils.getBaseName(path)).path(path).sourceTree(PBXSourceTree.SOURCE_ROOT).build();
 	}
 
+	static PBXFileReference ofGroup(String path) {
+		path = FilenameUtils.normalizeNoEndSeparator(path);
+		path = FilenameUtils.separatorsToUnix(path);
+		return PBXFileReference.builder().name(FilenameUtils.getBaseName(path)).path(path).sourceTree(PBXSourceTree.GROUP).build();
+	}
+
 	static PBXFileReference ofBuiltProductsDir(String path) {
 		path = FilenameUtils.normalizeNoEndSeparator(path);
 		path = FilenameUtils.separatorsToUnix(path);
