@@ -70,6 +70,11 @@ public final class CodeablePBXGroup implements PBXGroup, Codeable {
 	}
 
 	@Override
+	public Builder toBuilder() {
+		return new Builder(delegate);
+	}
+
+	@Override
 	public String toString() {
 		return String.format(
 			"%s isa=%s name=%s path=%s sourceTree=%s children=%s",

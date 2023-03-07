@@ -22,6 +22,7 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.project.CodeablePBXLegacyTarget;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.KeyedObject;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,14 +41,26 @@ public interface PBXLegacyTarget extends PBXTarget {
 
 	boolean isPassBuildSettingsInEnvironment();
 
+	@Override
+	Builder toBuilder();
+
 	static Builder builder() {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXLegacyTarget>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXLegacyTarget>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder>, PBXTarget.Builder {
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
+			this(new DefaultKeyedObject.Builder());
+		}
+
+		public Builder(KeyedObject parent) {
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder;
 			builder.put(KeyedCoders.ISA, "PBXLegacyTarget");
 
 			// Default values

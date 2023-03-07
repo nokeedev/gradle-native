@@ -49,6 +49,11 @@ public final class CodeablePBXFrameworksBuildPhase implements PBXFrameworksBuild
 	}
 
 	@Override
+	public Builder toBuilder() {
+		return new Builder(delegate);
+	}
+
+	@Override
 	public String toString() {
 		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
 	}

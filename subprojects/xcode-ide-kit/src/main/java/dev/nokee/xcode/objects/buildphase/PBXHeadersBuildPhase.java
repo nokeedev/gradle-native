@@ -19,20 +19,33 @@ import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXHeadersBuildPhase;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.KeyedObject;
 
 public interface PBXHeadersBuildPhase extends PBXBuildPhase {
 	// Xcode maps Public/Private/Project headers via {@link PBXBuildFile#getSettings()}
 	//   i.e. settings = {ATTRIBUTES = (Project, Public)}
 	//   We can use utility methods to extract the "project" vs "public" vs "private" headers.
 
+	@Override
+	Builder toBuilder();
+
 	static Builder builder() {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXHeadersBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXHeadersBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder>, PBXBuildPhase.Builder {
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
+			this(new DefaultKeyedObject.Builder());
+		}
+
+		public Builder(KeyedObject parent) {
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder;
 			builder.put(KeyedCoders.ISA, "PBXHeadersBuildPhase");
 		}
 

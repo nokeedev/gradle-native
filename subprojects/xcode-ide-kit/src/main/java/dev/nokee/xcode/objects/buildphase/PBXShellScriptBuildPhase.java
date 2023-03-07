@@ -19,6 +19,7 @@ import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.KeyedObject;
 
 import java.util.List;
 import java.util.Optional;
@@ -75,17 +76,29 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 	 */
 	String getShellScript();
 
+	@Override
+	Builder toBuilder();
+
 	static Builder builder() {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXShellScriptBuildPhase>, LenientAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXShellScriptBuildPhase>, LenientAwareBuilder<Builder>, PBXBuildPhase.Builder {
 		private static final String DEFAULT_SHELL_PATH = "/bin/sh";
 		private static final String DEFAULT_SHELL_SCRIPT = "";
 
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
+			this(new DefaultKeyedObject.Builder());
+		}
+
+		public Builder(KeyedObject parent) {
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder;
 			builder.put(KeyedCoders.ISA, "PBXShellScriptBuildPhase");
 
 			// Default values

@@ -40,4 +40,10 @@ public interface PBXTarget extends PBXProjectItem {
 	Optional<String> getProductName();
 
 	Optional<PBXFileReference> getProductReference();
+
+	Builder toBuilder();
+
+	interface Builder {
+		PBXTarget build();
+	}
 }
