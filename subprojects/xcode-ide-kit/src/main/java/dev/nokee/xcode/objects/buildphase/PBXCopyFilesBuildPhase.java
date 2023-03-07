@@ -15,11 +15,11 @@
  */
 package dev.nokee.xcode.objects.buildphase;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.KeyedObject;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -101,14 +101,26 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 
 	SubFolder getDstSubfolderSpec();
 
+	@Override
+	Builder toBuilder();
+
 	static Builder builder() {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXCopyFilesBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXCopyFilesBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder>, PBXBuildPhase.Builder {
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
+			this(new DefaultKeyedObject.Builder());
+		}
+
+		public Builder(KeyedObject parent) {
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder;
 			builder.put(KeyedCoders.ISA, "PBXCopyFilesBuildPhase");
 			builder.requires(key(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath));
 			builder.requires(key(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec));

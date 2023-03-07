@@ -24,6 +24,7 @@ import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.KeyedObject;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,14 +36,26 @@ import static dev.nokee.xcode.project.DefaultKeyedObject.key;
  * Target backed by shell scripts or nothing (only specifying dependencies).
  */
 public interface PBXAggregateTarget extends PBXTarget {
+	@Override
+	Builder toBuilder();
+
 	static Builder builder() {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXAggregateTarget>, BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXAggregateTarget>, BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder>, PBXTarget.Builder {
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
+			this(new DefaultKeyedObject.Builder());
+		}
+
+		public Builder(KeyedObject parent) {
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder;
 			builder.put(KeyedCoders.ISA, "PBXAggregateTarget");
 			builder.requires(key(CodeablePBXAggregateTarget.CodingKeys.name));
 			builder.requires(key(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList));

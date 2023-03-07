@@ -91,6 +91,11 @@ public final class CodeablePBXAggregateTarget implements PBXAggregateTarget, Cod
 	}
 
 	@Override
+	public Builder toBuilder() {
+		return new Builder(delegate);
+	}
+
+	@Override
 	public String isa() {
 		return delegate.isa();
 	}

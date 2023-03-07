@@ -21,6 +21,7 @@ import dev.nokee.xcode.project.CodeablePBXGroup;
 import dev.nokee.xcode.project.CodeableXCVersionGroup;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.KeyedObject;
 
 import java.util.List;
 
@@ -36,14 +37,25 @@ public interface PBXGroup extends GroupChild {
 
 	List<GroupChild> getChildren();
 
+	Builder toBuilder();
+
 	static Builder builder() {
 		return new Builder();
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXGroup>,  LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
+			this(new DefaultKeyedObject.Builder());
+		}
+
+		public Builder(KeyedObject parent) {
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder;
 			builder.put(KeyedCoders.ISA, "PBXGroup");
 			builder.requires(key(CodeablePBXGroup.CodingKeys.sourceTree));
 			// mainGroup can have both null name and path

@@ -103,6 +103,11 @@ public final class CodeablePBXNativeTarget implements PBXNativeTarget, Codeable 
 	}
 
 	@Override
+	public Builder toBuilder() {
+		return new Builder(delegate);
+	}
+
+	@Override
 	public String isa() {
 		return delegate.isa();
 	}

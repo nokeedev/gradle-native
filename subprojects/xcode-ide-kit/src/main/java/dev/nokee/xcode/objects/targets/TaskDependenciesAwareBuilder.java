@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.objects.buildphase;
+package dev.nokee.xcode.objects.targets;
 
-import dev.nokee.xcode.objects.PBXProjectItem;
+import java.util.function.Consumer;
 
-import java.util.List;
+public interface TaskDependenciesAwareBuilder<SELF> {
+	SELF dependency(PBXTargetDependency dependency);
 
-/**
- * Superclass of build phases. Each build phase represents one step in building a target.
- */
-public interface PBXBuildPhase extends PBXProjectItem {
-	List<PBXBuildFile> getFiles();
+	SELF dependencies(Iterable<? extends PBXTargetDependency> dependencies);
 
-	Builder toBuilder();
-
-	interface Builder {
-		PBXBuildPhase build();
+	default SELF dependency(Consumer<? super PBXTargetDependency.Builder> action) {
+		final PBXTargetDependency.Builder builder = PBXTargetDependency.builder();
+		action.accept(builder);
+		return dependency(builder.build());
 	}
 }
