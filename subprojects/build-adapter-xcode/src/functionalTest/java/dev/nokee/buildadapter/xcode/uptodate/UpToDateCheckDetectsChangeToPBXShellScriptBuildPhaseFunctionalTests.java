@@ -18,6 +18,8 @@ package dev.nokee.buildadapter.xcode.uptodate;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,6 +41,7 @@ import static dev.nokee.xcode.objects.files.PBXFileReference.ofGroup;
 import static java.nio.file.Files.delete;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXShellScriptBuildPhaseFunctionalTests extends UpToDateCheckSpec {
 	void setup(Path location) {
 		mutateProject(targetNamed("App", buildPhases(add(PBXShellScriptBuildPhase.builder().shellScript("echo \"dummy-result\" > \"$DERIVED_FILE_DIR/App-result.txt\"").inputPath("$(SRCROOT)/App/AppDelegate.swift").inputPath("$(SRCROOT)/App/ViewController.swift").outputPath("$(DERIVED_FILE_DIR)/App-result.txt").build())))).accept(location);

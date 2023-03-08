@@ -18,6 +18,8 @@ package dev.nokee.buildadapter.xcode.uptodate;
 import dev.gradleplugins.runnerkit.TaskOutcome;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -32,6 +34,7 @@ import static java.nio.file.Files.delete;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+@EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXHeadersBuildPhaseFunctionalTests extends UpToDateCheckSpec {
 	void setup(Path location) {
 		mutateProject(targetNamed("App", dependencies(add(targetDependencyTo("Common"))))).accept(location);

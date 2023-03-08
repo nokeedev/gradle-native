@@ -21,8 +21,6 @@ import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterR
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
@@ -36,7 +34,6 @@ import static dev.nokee.internal.testing.GradleRunnerMatchers.skipped;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.everyItem;
 
-@EnabledOnOs(OS.MAC)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 public abstract class UpToDateCheckSpec {
 	GradleRunner executer;
