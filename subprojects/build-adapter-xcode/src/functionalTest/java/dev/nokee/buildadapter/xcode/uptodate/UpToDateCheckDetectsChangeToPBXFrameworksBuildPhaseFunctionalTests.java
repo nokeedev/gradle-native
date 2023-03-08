@@ -18,6 +18,8 @@ package dev.nokee.buildadapter.xcode.uptodate;
 import dev.nokee.xcode.objects.buildphase.PBXFrameworksBuildPhase;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -36,6 +38,7 @@ import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static java.nio.file.Files.delete;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXFrameworksBuildPhaseFunctionalTests extends UpToDateCheckSpec {
 	void setup(Path location) {
 		mutateProject(targetNamed("App", dependencies(add(targetDependencyTo("Common"))))).accept(location);

@@ -22,6 +22,8 @@ import dev.nokee.xcode.objects.files.PBXGroup;
 import lombok.val;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,6 +42,7 @@ import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static java.nio.file.Files.delete;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXCopyFilesBuildPhaseFunctionalTests extends UpToDateCheckSpec {
 	void setup(Path location) {
 		embedCommonFrameworkIntoApp().accept(location);

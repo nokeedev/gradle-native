@@ -16,6 +16,8 @@
 package dev.nokee.buildadapter.xcode.uptodate;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,6 +36,7 @@ import static dev.nokee.internal.testing.GradleRunnerMatchers.upToDate;
 import static dev.nokee.xcode.objects.files.PBXFileReference.ofGroup;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXSourcesBuildPhaseFunctionalTests extends UpToDateCheckSpec {
 	@Test
 	void outOfDateWhenInputSourceFileChange() throws IOException {
