@@ -17,6 +17,8 @@ package dev.nokee.buildadapter.xcode.uptodate;
 
 import dev.gradleplugins.runnerkit.GradleRunner;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +34,7 @@ import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static java.nio.file.attribute.PosixFilePermissions.fromString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXLegacyTargetFunctionalTests extends UpToDateCheckSpec {
 	@Override
 	void setup(Path location) throws IOException {

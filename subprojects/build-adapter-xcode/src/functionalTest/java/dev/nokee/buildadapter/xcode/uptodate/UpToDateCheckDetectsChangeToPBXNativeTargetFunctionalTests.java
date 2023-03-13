@@ -18,6 +18,8 @@ package dev.nokee.buildadapter.xcode.uptodate;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.nio.file.Path;
 
@@ -29,6 +31,7 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetNamed;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXNativeTargetFunctionalTests extends UpToDateCheckSpec {
 	@Nested
 	class BuildPhasesField {
