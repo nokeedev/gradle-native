@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.of;
 
 @EqualsAndHashCode
-public class CodeableVersionRequirementUpToNextMajorVersion implements XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMajorVersion, Codeable {
+public final class CodeableVersionRequirementUpToNextMajorVersion implements XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMajorVersion, Codeable {
 	public enum CodingKeys implements CodingKey {
 		kind,
 		minimumVersion,
