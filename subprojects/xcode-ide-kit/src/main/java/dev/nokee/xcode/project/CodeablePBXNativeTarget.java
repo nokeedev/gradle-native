@@ -31,6 +31,7 @@ import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXNativeTarget implements PBXNativeTarget, Codeable {
@@ -134,6 +135,6 @@ public final class CodeablePBXNativeTarget implements PBXNativeTarget, Codeable 
 	}
 
 	public static CodeablePBXNativeTarget newInstance(KeyedObject delegate) {
-		return new CodeablePBXNativeTarget(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXNativeTarget(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

@@ -16,21 +16,26 @@
 package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import lombok.EqualsAndHashCode;
-import lombok.val;
 
 import javax.annotation.Nullable;
 import java.util.AbstractMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.google.common.collect.Streams.stream;
+
+
 @EqualsAndHashCode
 public final class RecodeableKeyedObject implements KeyedObject {
 	private final KeyedObject delegate;
-	private final Set<CodingKey> knownKeys;
+	private final KnownCodingKeys knownKeys;
 
-	public RecodeableKeyedObject(KeyedObject delegate, Set<CodingKey> knownKeys) {
+	public RecodeableKeyedObject(KeyedObject delegate, KnownCodingKeys knownKeys) {
 		this.delegate = delegate;
 		this.knownKeys = knownKeys;
 	}
@@ -54,7 +59,7 @@ public final class RecodeableKeyedObject implements KeyedObject {
 	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
-		context.tryEncode(knownKeys.stream().flatMap(key -> {
+		context.tryEncode(stream(knownKeys).flatMap(key -> {
 			final Object value = delegate.tryDecode(key);
 			if (value != null) {
 				return Stream.of(new AbstractMap.SimpleImmutableEntry<>(key, value));
@@ -62,5 +67,29 @@ public final class RecodeableKeyedObject implements KeyedObject {
 				return Stream.empty();
 			}
 		}).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
+	}
+
+	public interface KnownCodingKeys extends Iterable<CodingKey> {}
+
+	public static KnownCodingKeys ofIsaAnd(CodingKey[] values) {
+		return new DefaultKnownCodingKeys(ImmutableSet.<CodingKey>builder().add(KeyedCoders.ISA).add(values).build());
+	}
+
+	public static KnownCodingKeys of(CodingKey[] values) {
+		return new DefaultKnownCodingKeys(ImmutableSet.copyOf(values));
+	}
+
+	@EqualsAndHashCode
+	private static final class DefaultKnownCodingKeys implements KnownCodingKeys {
+		private final Set<CodingKey> knownKeys;
+
+		private DefaultKnownCodingKeys(Set<CodingKey> knownKeys) {
+			this.knownKeys = knownKeys;
+		}
+
+		@Override
+		public Iterator<CodingKey> iterator() {
+			return knownKeys.iterator();
+		}
 	}
 }

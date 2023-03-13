@@ -15,9 +15,11 @@
  */
 package dev.nokee.xcode.project;
 
+import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.configuration.BuildSettings;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import lombok.val;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -57,5 +59,11 @@ class CodeableXCBuildConfigurationTests extends CodeableAdapterTester<CodeableXC
 		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(buildSettings)).then(doReturn(expectedValue))));
 
 		assertThat(subject.getBuildSettings(), matchesObject(expectedValue));
+	}
+
+	@Test
+	void encodesIsaCodingKeyOnNewInstance() {
+		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
+		assertThat(newSubjectInstance(delegate), encodeIsaCodingKeys(delegate));
 	}
 }

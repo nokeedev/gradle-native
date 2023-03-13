@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.configuration.BuildSettings;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -25,6 +24,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeableXCBuildConfiguration implements XCBuildConfiguration, Codeable {
@@ -93,6 +93,6 @@ public final class CodeableXCBuildConfiguration implements XCBuildConfiguration,
 	}
 
 	public static CodeableXCBuildConfiguration newInstance(KeyedObject delegate) {
-		return new CodeableXCBuildConfiguration(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeableXCBuildConfiguration(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXTargetDependency implements PBXTargetDependency, Codeable {
@@ -93,6 +94,6 @@ public final class CodeablePBXTargetDependency implements PBXTargetDependency, C
 	}
 
 	public static CodeablePBXTargetDependency newInstance(KeyedObject delegate) {
-		return new CodeablePBXTargetDependency(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXTargetDependency(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

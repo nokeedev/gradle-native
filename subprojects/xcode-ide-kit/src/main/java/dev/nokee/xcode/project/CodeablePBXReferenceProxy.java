@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXReferenceProxy implements PBXReferenceProxy, Codeable {
@@ -112,6 +113,6 @@ public final class CodeablePBXReferenceProxy implements PBXReferenceProxy, Codea
 	}
 
 	public static CodeablePBXReferenceProxy newInstance(KeyedObject delegate) {
-		return new CodeablePBXReferenceProxy(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXReferenceProxy(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

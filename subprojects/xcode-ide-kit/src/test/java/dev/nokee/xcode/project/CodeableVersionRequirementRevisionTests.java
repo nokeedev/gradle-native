@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -57,5 +58,11 @@ class CodeableVersionRequirementRevisionTests extends CodeableAdapterTester<Code
 		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(revision)).then(doReturn("dab283904400358dd403bffb0d735f344608c7ea"))));
 
 		assertThat(subject, hasToString("require revision 'dab283904400358dd403bffb0d735f344608c7ea'"));
+	}
+
+	@Test
+	void encodesKnownCodingKeyOnNewInstance() {
+		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
+		assertThat(newSubjectInstance(delegate), encodeKnownCodingKeys(delegate));
 	}
 }

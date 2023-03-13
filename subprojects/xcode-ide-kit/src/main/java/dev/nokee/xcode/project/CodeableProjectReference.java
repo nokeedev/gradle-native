@@ -15,13 +15,14 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+
+import static dev.nokee.xcode.project.RecodeableKeyedObject.of;
 
 @EqualsAndHashCode
 public final class CodeableProjectReference implements PBXProject.ProjectReference, Codeable {
@@ -75,6 +76,6 @@ public final class CodeableProjectReference implements PBXProject.ProjectReferen
 	}
 
 	public static CodeableProjectReference newInstance(KeyedObject delegate) {
-		return new CodeableProjectReference(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeableProjectReference(new RecodeableKeyedObject(delegate, of(CodingKeys.values())));
 	}
 }

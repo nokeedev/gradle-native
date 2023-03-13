@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import lombok.EqualsAndHashCode;
@@ -25,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXFileReference implements PBXFileReference, Codeable {
@@ -112,6 +112,6 @@ public final class CodeablePBXFileReference implements PBXFileReference, Codeabl
 	}
 
 	public static CodeablePBXFileReference newInstance(KeyedObject delegate) {
-		return new CodeablePBXFileReference(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXFileReference(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

@@ -15,8 +15,10 @@
  */
 package dev.nokee.xcode.project;
 
+import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import lombok.val;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -61,5 +63,11 @@ class CodeableXCConfigurationListTests extends CodeableAdapterTester<CodeableXCC
 		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(defaultConfigurationIsVisible)).then(doReturn(expectedValue))));
 
 		assertThat(subject.isDefaultConfigurationIsVisible(), matchesBoolean(expectedValue, false));
+	}
+
+	@Test
+	void encodesIsaCodingKeyOnNewInstance() {
+		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
+		assertThat(newSubjectInstance(delegate), encodeIsaCodingKeys(delegate));
 	}
 }

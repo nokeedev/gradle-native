@@ -15,11 +15,12 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+
+import static dev.nokee.xcode.project.RecodeableKeyedObject.of;
 
 @EqualsAndHashCode
 public class CodeableVersionRequirementUpToNextMinorVersion implements XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMinorVersion, Codeable {
@@ -81,6 +82,6 @@ public class CodeableVersionRequirementUpToNextMinorVersion implements XCRemoteS
 	}
 
 	public static CodeableVersionRequirementUpToNextMinorVersion newInstance(KeyedObject delegate) {
-		return new CodeableVersionRequirementUpToNextMinorVersion(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeableVersionRequirementUpToNextMinorVersion(new RecodeableKeyedObject(delegate, of(CodingKeys.values())));
 	}
 }

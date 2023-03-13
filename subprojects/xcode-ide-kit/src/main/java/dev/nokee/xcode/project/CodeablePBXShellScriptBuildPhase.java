@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXShellScriptBuildPhase implements PBXShellScriptBuildPhase, Codeable {
@@ -124,6 +125,6 @@ public final class CodeablePBXShellScriptBuildPhase implements PBXShellScriptBui
 	}
 
 	public static CodeablePBXShellScriptBuildPhase newInstance(KeyedObject delegate) {
-		return new CodeablePBXShellScriptBuildPhase(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXShellScriptBuildPhase(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }
