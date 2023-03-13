@@ -19,6 +19,8 @@ import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
@@ -28,6 +30,7 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetNamed;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXAggregateTargetFunctionalTests extends UpToDateCheckSpec {
 	@Override
 	GradleRunner configure(GradleRunner runner) {
