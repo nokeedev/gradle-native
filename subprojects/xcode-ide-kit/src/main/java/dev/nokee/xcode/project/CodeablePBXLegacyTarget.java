@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -31,6 +30,7 @@ import java.util.Optional;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.PBXTypeSafety.orFalse;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXLegacyTarget implements PBXLegacyTarget, Codeable {
@@ -151,6 +151,6 @@ public final class CodeablePBXLegacyTarget implements PBXLegacyTarget, Codeable 
 	}
 
 	public static CodeablePBXLegacyTarget newInstance(KeyedObject delegate) {
-		return new CodeablePBXLegacyTarget(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXLegacyTarget(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

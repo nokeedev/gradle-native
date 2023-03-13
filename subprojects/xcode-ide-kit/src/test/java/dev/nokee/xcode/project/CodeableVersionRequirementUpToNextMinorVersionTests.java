@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -57,5 +58,11 @@ class CodeableVersionRequirementUpToNextMinorVersionTests extends CodeableAdapte
 		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(minimumVersion)).then(doReturn("3.4"))));
 
 		assertThat(subject, hasToString("require minimum version '3.4' up to next minor version"));
+	}
+
+	@Test
+	void encodesKnownCodingKeyOnNewInstance() {
+		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
+		assertThat(newSubjectInstance(delegate), encodeKnownCodingKeys(delegate));
 	}
 }

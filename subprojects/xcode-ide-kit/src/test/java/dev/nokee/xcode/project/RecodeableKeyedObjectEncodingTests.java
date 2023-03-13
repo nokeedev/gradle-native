@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static dev.nokee.internal.testing.MockitoMethodWrapper.method;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
@@ -41,7 +41,7 @@ class RecodeableKeyedObjectEncodingTests {
 
 	@BeforeEach
 	void givenSubject() {
-		subject = new RecodeableKeyedObject(delegate, ImmutableSet.of(key));
+		subject = new RecodeableKeyedObject(delegate, of(new CodingKey[] { key }));
 	}
 
 	@Nested

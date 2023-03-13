@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -69,5 +70,11 @@ class CodeableVersionRequirementRangeTests extends CodeableAdapterTester<Codeabl
 			it.when(callTo(method(KeyedObject_tryDecode())).with(args(maximumVersion)).then(doReturn("4.5")));
 		});
 		assertThat(subject, hasToString("require range version from '2.3' to '4.5'"));
+	}
+
+	@Test
+	void encodesKnownCodingKeyOnNewInstance() {
+		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
+		assertThat(newSubjectInstance(delegate), encodeKnownCodingKeys(delegate));
 	}
 }

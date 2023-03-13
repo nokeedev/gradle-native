@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
@@ -77,5 +78,11 @@ class CodeablePBXVariantGroupTests extends CodeableAdapterTester<CodeablePBXVari
 	@Test
 	void isPBXReference() {
 		assertThat(newSubject(), isA(PBXReference.class));
+	}
+
+	@Test
+	void encodesIsaCodingKeyOnNewInstance() {
+		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
+		assertThat(newSubjectInstance(delegate), encodeIsaCodingKeys(delegate));
 	}
 }

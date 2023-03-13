@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXResourcesBuildPhase implements PBXResourcesBuildPhase, Codeable {
@@ -81,6 +82,6 @@ public final class CodeablePBXResourcesBuildPhase implements PBXResourcesBuildPh
 	}
 
 	public static CodeablePBXResourcesBuildPhase newInstance(KeyedObject delegate) {
-		return new CodeablePBXResourcesBuildPhase(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXResourcesBuildPhase(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import lombok.EqualsAndHashCode;
 
@@ -23,6 +22,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXContainerItemProxy implements PBXContainerItemProxy, Codeable {
@@ -97,6 +97,6 @@ public final class CodeablePBXContainerItemProxy implements PBXContainerItemProx
 	}
 
 	public static CodeablePBXContainerItemProxy newInstance(KeyedObject delegate) {
-		return new CodeablePBXContainerItemProxy(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXContainerItemProxy(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

@@ -15,8 +15,10 @@
  */
 package dev.nokee.xcode.project;
 
+import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import lombok.val;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
@@ -115,6 +117,12 @@ class CodeablePBXShellScriptBuildPhaseTests extends CodeableAdapterTester<Codeab
 		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(outputFileListPaths)).then(doReturn(expectedValue))));
 
 		assertThat(subject.getOutputFileListPaths(), matchesIterable(expectedValue));
+	}
+
+	@Test
+	void encodesIsaCodingKeyOnNewInstance() {
+		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
+		assertThat(newSubjectInstance(delegate), encodeIsaCodingKeys(delegate));
 	}
 
 	static final class ToList implements ArgumentsAggregator {

@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXVariantGroup implements PBXVariantGroup, Codeable {
@@ -109,6 +110,6 @@ public final class CodeablePBXVariantGroup implements PBXVariantGroup, Codeable 
 	}
 
 	public static CodeablePBXVariantGroup newInstance(KeyedObject delegate) {
-		return new CodeablePBXVariantGroup(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXVariantGroup(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

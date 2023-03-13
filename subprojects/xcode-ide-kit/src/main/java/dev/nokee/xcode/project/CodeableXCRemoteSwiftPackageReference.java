@@ -15,11 +15,12 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeableXCRemoteSwiftPackageReference implements XCRemoteSwiftPackageReference, Codeable {
@@ -81,6 +82,6 @@ public final class CodeableXCRemoteSwiftPackageReference implements XCRemoteSwif
 	}
 
 	public static CodeableXCRemoteSwiftPackageReference newInstance(KeyedObject delegate) {
-		return new CodeableXCRemoteSwiftPackageReference(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeableXCRemoteSwiftPackageReference(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

@@ -15,9 +15,11 @@
  */
 package dev.nokee.xcode.project;
 
+import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import lombok.val;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -77,5 +79,11 @@ class CodeablePBXReferenceProxyTests extends CodeableAdapterTester<CodeablePBXRe
 		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(fileType)).then(doReturn(expectedValue))));
 
 		assertThat(subject.getFileType(), matchesObject(expectedValue));
+	}
+
+	@Test
+	void encodesIsaCodingKeyOnNewInstance() {
+		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
+		assertThat(newSubjectInstance(delegate), encodeIsaCodingKeys(delegate));
 	}
 }

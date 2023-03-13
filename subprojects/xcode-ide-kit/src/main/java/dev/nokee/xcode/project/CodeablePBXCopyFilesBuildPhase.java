@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
 import lombok.EqualsAndHashCode;
@@ -24,6 +23,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeablePBXCopyFilesBuildPhase implements PBXCopyFilesBuildPhase, Codeable {
@@ -92,6 +92,6 @@ public final class CodeablePBXCopyFilesBuildPhase implements PBXCopyFilesBuildPh
 	}
 
 	public static CodeablePBXCopyFilesBuildPhase newInstance(KeyedObject delegate) {
-		return new CodeablePBXCopyFilesBuildPhase(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeablePBXCopyFilesBuildPhase(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

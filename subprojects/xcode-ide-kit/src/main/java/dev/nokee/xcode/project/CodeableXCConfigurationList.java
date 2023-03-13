@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import lombok.EqualsAndHashCode;
@@ -28,6 +27,7 @@ import java.util.Optional;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.PBXTypeSafety.orFalse;
+import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 @EqualsAndHashCode
 public final class CodeableXCConfigurationList implements XCConfigurationList, Codeable {
@@ -100,6 +100,6 @@ public final class CodeableXCConfigurationList implements XCConfigurationList, C
 	}
 
 	public static CodeableXCConfigurationList newInstance(KeyedObject delegate) {
-		return new CodeableXCConfigurationList(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
+		return new CodeableXCConfigurationList(new RecodeableKeyedObject(delegate, ofIsaAnd(CodingKeys.values())));
 	}
 }

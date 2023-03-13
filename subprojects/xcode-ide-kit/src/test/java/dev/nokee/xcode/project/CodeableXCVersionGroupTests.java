@@ -15,10 +15,12 @@
  */
 package dev.nokee.xcode.project;
 
+import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import lombok.val;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -91,5 +93,11 @@ class CodeableXCVersionGroupTests extends CodeableAdapterTester<CodeableXCVersio
 		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(versionGroupType)).then(doReturn(expectedValue))));
 
 		assertThat(subject.getVersionGroupType(), matchesOptional(expectedValue));
+	}
+
+	@Test
+	void encodesIsaCodingKeyOnNewInstance() {
+		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
+		assertThat(newSubjectInstance(delegate), encodeIsaCodingKeys(delegate));
 	}
 }
