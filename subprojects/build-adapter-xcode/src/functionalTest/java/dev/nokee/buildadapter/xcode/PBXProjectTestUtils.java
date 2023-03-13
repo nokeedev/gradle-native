@@ -16,16 +16,19 @@
 package dev.nokee.buildadapter.xcode;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.buildphase.BuildFileAwareBuilder;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.targets.BuildPhaseAwareBuilder;
+import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.objects.targets.TaskDependenciesAwareBuilder;
@@ -52,6 +55,7 @@ import static com.google.common.collect.MoreCollectors.onlyElement;
 public final class PBXProjectTestUtils {
 	public static Consumer<Path> mutateProject(UnaryOperator<PBXProject> action) {
 		return path -> {
+			assert path.getFileName().toString().endsWith(".xcodeproj");
 			try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(path.resolve("project.pbxproj"))))) {
 				val project = new PBXObjectUnarchiver().decode(reader.read());
 
@@ -120,6 +124,14 @@ public final class PBXProjectTestUtils {
 		};
 	}
 
+	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> removeFirst() {
+		return (__, values) -> ImmutableList.copyOf(Iterables.skip(values, 1));
+	}
+
+	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> removeLast() {
+		return (__, values) -> values.subList(0, values.size() - 1);
+	}
+
 	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> add(Function<? super SELF, ? extends E> action) {
 		return (self, values) -> {
 			return ImmutableList.<E>builder().addAll(values).add(action.apply(self)).build();
@@ -152,6 +164,18 @@ public final class PBXProjectTestUtils {
 		return it -> name.equals((it.getName()));
 	}
 
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> asLegacyTarget(BiFunction<? super PBXProject, ? super PBXLegacyTarget, ? extends PBXLegacyTarget> action) {
+		return (self, target) -> action.apply(self, (PBXLegacyTarget) target);
+	}
+
+	public static BiFunction<PBXProject, PBXLegacyTarget, PBXLegacyTarget> buildToolPath(String value) {
+		return (self, target) -> target.toBuilder().buildToolPath(value).build();
+	}
+
+	public static BiFunction<PBXProject, PBXLegacyTarget, PBXLegacyTarget> buildArgumentsString(String value) {
+		return (self, target) -> target.toBuilder().buildArguments(value).build();
+	}
+
 	public static BiFunction<PBXProject, PBXTarget, PBXTarget> buildPhases(BiFunction<? super PBXProject, ? super List<PBXBuildPhase>, ? extends List<PBXBuildPhase>> action) {
 		return (self, target) -> {
 			val builder = target.toBuilder();
@@ -174,5 +198,28 @@ public final class PBXProjectTestUtils {
 			((BuildFileAwareBuilder<?>) builder).files(action.apply(self, buildPhase.getFiles()));
 			return builder.build();
 		};
+	}
+
+	public static BiFunction<PBXProject, PBXShellScriptBuildPhase, PBXShellScriptBuildPhase> scriptPhaseName(String value) {
+		return (self, buildPhase) -> buildPhase.toBuilder().name(value).build();
+	}
+
+	public static BiFunction<PBXProject, PBXBuildPhase, PBXShellScriptBuildPhase> asShellScript(BiFunction<? super PBXProject, ? super PBXShellScriptBuildPhase, ? extends PBXShellScriptBuildPhase> action) {
+		return (self, buildPhase) -> {
+			assert buildPhase instanceof PBXShellScriptBuildPhase;
+			return action.apply(self, (PBXShellScriptBuildPhase) buildPhase);
+		};
+	}
+
+	public static BiFunction<PBXProject, PBXShellScriptBuildPhase, PBXShellScriptBuildPhase> shellPath(String value) {
+		return (self, buildPhase) -> buildPhase.toBuilder().shellPath(value).build();
+	}
+
+	public static BiFunction<PBXProject, PBXShellScriptBuildPhase, PBXShellScriptBuildPhase> shellScript(String value) {
+		return (self, buildPhase) -> buildPhase.toBuilder().shellScript(value).build();
+	}
+
+	public static BiFunction<PBXProject, PBXShellScriptBuildPhase, PBXShellScriptBuildPhase> inputPaths(BiFunction<? super PBXProject, ? super List<String>, ? extends List<String>> action) {
+		return (self, buildPhase) -> buildPhase.toBuilder().inputPaths(action.apply(self, buildPhase.getInputPaths())).build();
 	}
 }

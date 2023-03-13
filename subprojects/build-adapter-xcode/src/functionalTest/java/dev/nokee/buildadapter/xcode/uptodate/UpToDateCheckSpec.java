@@ -45,12 +45,15 @@ public abstract class UpToDateCheckSpec {
 		setup(testDirectory.resolve("UpToDateCheck.xcodeproj"));
 
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
-		executer = runner.withTasks("AppDebug").withArgument("-Dsdk=macosx");
+		executer = configure(runner).withArgument("-Dsdk=macosx");
 		executer.build();
 		assertThat(executer.build().getTasks(), everyItem(skipped()));
 	}
 
-	void setup(Path location) {}
+	void setup(Path location) throws IOException {}
+	GradleRunner configure(GradleRunner runner) {
+		return runner.withTasks("AppDebug");
+	}
 
 	static void appendMeaningfulChangeToCFile(Path location) throws IOException {
 		// Need to make a meaningful change so the final binary changes (this change will add a .data entry)

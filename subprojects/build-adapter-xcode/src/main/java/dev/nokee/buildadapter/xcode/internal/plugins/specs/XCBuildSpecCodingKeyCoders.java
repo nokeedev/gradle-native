@@ -53,6 +53,7 @@ import dev.nokee.xcode.project.ValueEncoder;
 import dev.nokee.xcode.project.coders.FieldCoder;
 import dev.nokee.xcode.project.coders.ListEncoder;
 import dev.nokee.xcode.project.coders.NoOpEncoder;
+import dev.nokee.xcode.project.coders.StringEncoder;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ import static dev.nokee.xcode.project.KeyedCoders.ISA;
 
 public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 	private static final Map<CodingKey, KeyedCoder<?>> coders = Collections.unmodifiableMap(new HashMap<CodingKey, KeyedCoder<?>>() {{
-		put(ISA, null);
+		put(ISA, forKey("isa", ofInputString()));
 
 		// PBXAggregateTarget
 		put(CodeablePBXAggregateTarget.CodingKeys.name, null);
@@ -110,9 +111,9 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXLegacyTarget.CodingKeys.productReference, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.dependencies, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, null);
-		put(CodeablePBXLegacyTarget.CodingKeys.buildPhases, forKey("buildPhases", list(of(PBXBuildPhase.class))));
-		put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, null);
-		put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, null);
+		put(CodeablePBXLegacyTarget.CodingKeys.buildPhases, null); // legacy target are not allowed to have build phases
+		put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, forKey("buildArgumentsString", ofInputString()));
+		put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, forKey("buildToolPath", ofInputString()));
 		put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, null);
 
@@ -146,9 +147,9 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 		// PBXShellScriptBuildPhase
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, null);
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.files, forKey("files", list(of(PBXBuildFile.class))));
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, null);
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, null);
+		put(CodeablePBXShellScriptBuildPhase.CodingKeys.files, null); // shell script uses input*/output* to check up-to-date
+		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, forKey("shellPath", ofInputString()));
+		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, forKey("shellScript", ofInputString()));
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, forKey("inputPaths", list(ofInputLocation())));
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, null);
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, null);
@@ -243,5 +244,9 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 	private static <T> ValueEncoder<XCBuildSpec, List<T>> list(ValueEncoder<XCBuildSpec, T> elementEncoder) {
 		return new ListSpecEncoder<>(new ListEncoder<>(elementEncoder));
+	}
+
+	private static ValueEncoder<XCBuildSpec, String> ofInputString() {
+		return new InputObjectSpecEncoder<>(new StringEncoder<>(new NoOpEncoder<>()));
 	}
 }

@@ -51,6 +51,7 @@ import dev.nokee.xcode.project.ValueEncoder;
 import dev.nokee.xcode.project.coders.FieldCoder;
 import dev.nokee.xcode.project.coders.ListEncoder;
 import dev.nokee.xcode.project.coders.NoOpEncoder;
+import dev.nokee.xcode.project.coders.StringEncoder;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -82,7 +83,7 @@ class XCBuildSpecCodingKeyCodersTests {
 
 	private static final class CodingKeysProvider implements ArgumentsProvider {
 		private static final Collection<Arguments> ARGUMENTS = Collections.unmodifiableCollection(new ArrayList<Arguments>() {{
-			add(arguments(KeyedCoders.ISA, ignore()));
+			add(arguments(KeyedCoders.ISA, keyOf("isa", inputOf(string()))));
 
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productName, ignore()));
@@ -126,9 +127,9 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.dependencies, ignore())); // not required (2)
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, ignore()));
-			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildPhases, keyOf("buildPhases", listOf(object(/*PBXBuildPhase*/)))));
-			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, ignore()));
-			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, ignore()));
+			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildPhases, ignore()));
+			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, keyOf("buildToolPath", inputOf(string()))));
+			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, keyOf("buildArgumentsString", inputOf(string()))));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, ignore()));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, ignore()));
 
@@ -156,10 +157,10 @@ class XCBuildSpecCodingKeyCodersTests {
 
 			add(arguments(CodeablePBXResourcesBuildPhase.CodingKeys.files, keyOf("files", listOf(object(/*PBXBuildFile*/)))));
 
-			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.files, keyOf("files", listOf(object(/*PBXBuildFile*/)))));
+			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.files, ignore()));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.name, ignore()));
-			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, ignore()));
-			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, ignore()));
+			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, keyOf("shellPath", inputOf(string()))));
+			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, keyOf("shellScript", inputOf(string()))));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, keyOf("inputPaths", listOf(inputLocation(resolvablePaths())))));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, ignore())); // TODO: implement support
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, ignore()));
@@ -252,5 +253,13 @@ class XCBuildSpecCodingKeyCodersTests {
 
 	public static <E> ValueEncoder<XCBuildSpec, List<E>> listOf(ValueEncoder<XCBuildSpec, E> elementEncoder) {
 		return new ListSpecEncoder<>(new ListEncoder<>(elementEncoder));
+	}
+
+	public static <IN> ValueEncoder<XCBuildSpec, IN> inputOf(ValueEncoder<?, IN> encoder) {
+		return new InputObjectSpecEncoder<>(encoder);
+	}
+
+	public static ValueEncoder<String, String> string() {
+		return new StringEncoder<>(new NoOpEncoder<>());
 	}
 }
