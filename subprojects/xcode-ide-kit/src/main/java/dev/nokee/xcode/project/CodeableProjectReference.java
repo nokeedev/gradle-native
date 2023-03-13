@@ -36,20 +36,18 @@ public final class CodeableProjectReference implements PBXProject.ProjectReferen
 			return name();
 		}
 	}
-	@EqualsAndHashCode.Exclude private final KeyedObject delegate;
+	private final KeyedObject delegate;
 
 	public CodeableProjectReference(KeyedObject delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	@EqualsAndHashCode.Include
 	public PBXGroup getProductGroup() {
 		return delegate.tryDecode(CodingKeys.ProductGroup);
 	}
 
 	@Override
-	@EqualsAndHashCode.Include
 	public PBXFileReference getProjectReference() {
 		return delegate.tryDecode(CodingKeys.ProjectRef);
 	}
