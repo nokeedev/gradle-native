@@ -30,11 +30,12 @@ import java.util.Map;
 import static com.google.common.collect.ImmutableMap.copyOf;
 
 public final class PBXObjectArchiver {
+	private static final GidGenerator DEFAULT_GLOBAL_ID_GENERATOR = new GidGenerator(Collections.emptySet());
 	private final GidGenerator gidGenerator;
 	private final CodingKeyCoders coders;
 
 	public PBXObjectArchiver() {
-		this(new GidGenerator(Collections.emptySet()));
+		this(DEFAULT_GLOBAL_ID_GENERATOR);
 	}
 
 	public PBXObjectArchiver(GidGenerator gidGenerator) {
