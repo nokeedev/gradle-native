@@ -50,6 +50,11 @@ public final class CachingKeyedObject implements KeyedObject {
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public String isa() {
 		return tryDecode(KeyedCoders.ISA);
 	}

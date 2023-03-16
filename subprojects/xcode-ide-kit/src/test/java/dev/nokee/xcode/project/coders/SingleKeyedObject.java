@@ -15,13 +15,13 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.project.CodingKey;
 import dev.nokee.xcode.project.KeyedObject;
 
 import javax.annotation.Nullable;
 
 public final class SingleKeyedObject implements KeyedObject {
+	private final long age = System.nanoTime();
 	private final CodingKey codingKey;
 	private final Object value;
 
@@ -39,6 +39,11 @@ public final class SingleKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public long age() {
+		return age;
 	}
 
 	@Override

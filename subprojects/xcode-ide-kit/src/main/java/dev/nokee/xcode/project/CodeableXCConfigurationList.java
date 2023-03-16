@@ -90,6 +90,11 @@ public final class CodeableXCConfigurationList implements XCConfigurationList, C
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
 	}

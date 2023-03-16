@@ -22,6 +22,7 @@ import dev.nokee.xcode.project.KeyedObject;
 import javax.annotation.Nullable;
 
 public final class IsaKeyedObject implements KeyedObject {
+	private final long age = System.nanoTime();
 	private final String isa;
 
 	public IsaKeyedObject(String isa) {
@@ -39,6 +40,11 @@ public final class IsaKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public long age() {
+		return age;
 	}
 
 	@Override

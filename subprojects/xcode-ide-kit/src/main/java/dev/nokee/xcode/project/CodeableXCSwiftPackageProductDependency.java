@@ -71,6 +71,11 @@ public final class CodeableXCSwiftPackageProductDependency implements XCSwiftPac
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
 	}

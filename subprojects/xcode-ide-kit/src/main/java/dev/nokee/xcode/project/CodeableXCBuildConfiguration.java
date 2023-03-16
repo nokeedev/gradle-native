@@ -78,6 +78,11 @@ public final class CodeableXCBuildConfiguration implements XCBuildConfiguration,
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
 	}

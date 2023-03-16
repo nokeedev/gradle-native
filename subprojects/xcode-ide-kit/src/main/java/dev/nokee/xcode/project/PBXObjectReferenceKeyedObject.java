@@ -25,17 +25,23 @@ import static com.google.common.collect.ImmutableMap.copyOf;
 
 @EqualsAndHashCode
 public final class PBXObjectReferenceKeyedObject implements KeyedObject {
+	@EqualsAndHashCode.Exclude private final long age;
 	@EqualsAndHashCode.Exclude private final PBXObjects objects;
 	@EqualsAndHashCode.Include private final PBXObjectReference reference;
 	@EqualsAndHashCode.Exclude private final CodingKeyCoders coders;
 
 	public PBXObjectReferenceKeyedObject(PBXObjects objects, PBXObjectReference reference, CodingKeyCoders coders) {
+		this(objects, reference, coders, System.nanoTime());
+	}
+
+	private PBXObjectReferenceKeyedObject(PBXObjects objects, PBXObjectReference reference, CodingKeyCoders coders, long age) {
 		assert objects != null;
 		assert reference != null;
 		assert coders != null;
 		this.objects = objects;
 		this.reference = reference;
 		this.coders = coders;
+		this.age = age;
 	}
 
 	@Override
@@ -66,6 +72,11 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 					}
 
 					@Override
+					public long age() {
+						return PBXObjectReferenceKeyedObject.this.age;
+					}
+
+					@Override
 					public String isa() {
 						return tryDecode(KeyedCoders.ISA);
 					}
@@ -85,7 +96,8 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 
 			@Override
 			public KeyedObject decodeByrefObject(String gid) {
-				return new PBXObjectReferenceKeyedObject(objects, objects.getById(gid), coders);
+				// keep the same age for all object decoded from this object
+				return new PBXObjectReferenceKeyedObject(objects, objects.getById(gid), coders, age);
 			}
 		};
 	}
@@ -94,6 +106,11 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		return reference.getGlobalID();
+	}
+
+	@Override
+	public long age() {
+		return age;
 	}
 
 	@Override

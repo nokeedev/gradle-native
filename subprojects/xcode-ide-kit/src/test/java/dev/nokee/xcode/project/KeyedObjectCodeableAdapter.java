@@ -36,6 +36,11 @@ public final class KeyedObjectCodeableAdapter implements KeyedObject {
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
 	}

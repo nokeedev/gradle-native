@@ -82,6 +82,11 @@ public final class CodeablePBXCopyFilesBuildPhase implements PBXCopyFilesBuildPh
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
 	}

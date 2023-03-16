@@ -107,6 +107,11 @@ public final class CodeablePBXAggregateTarget implements PBXAggregateTarget, Cod
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
 	}

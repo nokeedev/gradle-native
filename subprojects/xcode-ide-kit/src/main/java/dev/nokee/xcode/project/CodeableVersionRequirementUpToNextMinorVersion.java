@@ -67,6 +67,11 @@ public final class CodeableVersionRequirementUpToNextMinorVersion implements XCR
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(Codeable.EncodeContext context) {
 		delegate.encode(context);
 	}

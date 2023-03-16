@@ -82,6 +82,11 @@ public final class CodeablePBXContainerItemProxy implements PBXContainerItemProx
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
 	}
