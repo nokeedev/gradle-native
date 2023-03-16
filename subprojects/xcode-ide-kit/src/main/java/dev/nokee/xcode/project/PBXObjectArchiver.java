@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.google.common.collect.ImmutableMap.copyOf;
 
@@ -48,51 +47,73 @@ public final class PBXObjectArchiver {
 	}
 
 	public <T extends PBXProject> PBXProj encode(T obj) {
-		PBXObjects.Builder objects = PBXObjects.builder();
 		Map<Encodeable, String> encodedObjects = new HashMap<>();
-		PBXObjectReference rootObject = encodeRefInternal(objects, encodedObjects, (Encodeable) obj);
-		objects.add(rootObject);
-		return PBXProj.builder().objects(objects.build()).rootObject(rootObject.getGlobalID()).build();
+		Map<String, Encodeable> objectsToEncode = new HashMap<>();
+		Map<String, PBXObjectReference> objectsToRef = new LinkedHashMap<>();
+
+		val rootObjectGid = globalIdOf(encodedObjects, (Encodeable) obj);
+		mark(objectsToRef, encodedObjects, objectsToEncode, rootObjectGid, (Encodeable) obj);
+
+		PBXObjects.Builder objects = PBXObjects.builder();
+		for (PBXObjectReference value : objectsToRef.values()) {
+			objects.add(value);
+		}
+		return PBXProj.builder().objects(objects.build()).rootObject(rootObjectGid).build();
 	}
 
-	interface KnownGlobalIdentificationCallback {
-		void onKnownGlobalId(String gid);
-	}
-
-	private <T extends Encodeable> PBXObjectReference encodeRefInternal(PBXObjects.Builder objects, Map<Encodeable, String> encodedObjects, T obj) {
-		assert !encodedObjects.containsKey(obj);
-		val context = encodeContextOf(objects, encodedObjects, gid -> encodedObjects.put(obj, gid));
+	private <T extends Encodeable> PBXObjectReference encodeRefInternal(Map<String, PBXObjectReference> objectsToRef, String globalId, Map<Encodeable, String> encodedObjects, T obj, Map<String, Encodeable> objectsToEncode) {
+		val context = encodeContextOf(objectsToRef, encodedObjects, objectsToEncode);
 		obj.encode(context);
 		context.flushEncoding();
 
-		String gid = context.gid;
-		if (gid == null) {
-			gid = gidGenerator.generateGid(obj.isa(), obj.stableHash());
-			encodedObjects.put(obj, gid);
-		}
-
-		PBXObjectReference reference = PBXObjectReference.of(gid, it -> {
+		PBXObjectReference reference = PBXObjectReference.of(globalId, it -> {
 			context.map.forEach((a, b) -> it.putField(a, b));
 		});
 		return reference;
 	}
 
-	private MyEncodeContext encodeContextOf(PBXObjects.Builder objects, Map<Encodeable, String> encodedObjects, KnownGlobalIdentificationCallback watgid) {
-		return new MyEncodeContext(objects, encodedObjects, watgid);
+	private MyEncodeContext encodeContextOf(Map<String, PBXObjectReference> objectsToRef, Map<Encodeable, String> encodedObjects, Map<String, Encodeable> objectsToEncode) {
+		return new MyEncodeContext(objectsToRef, encodedObjects, objectsToEncode);
+	}
+
+	private String globalIdOf(Map<Encodeable, String> encodedObjects, Encodeable object) {
+		// TODO: Every created object should have a globalId (if loaded) or a unique placeholder globalId (if created)
+		//   The idea is if the following:
+		//    - If the models point to the same object, all object will be the same so we can match them together
+		//    - If the models point to the same object but we mutate part of it, the objects won't be the same but the unique placeholder globalId will be the same so we can match them together and pick the newest one
+		//    - If the models point to the same object already with a globalId, regardless if we mutate it or not the globalId will be kept
+		if (object.globalId() == null) {
+			return encodedObjects.computeIfAbsent(object, it -> gidGenerator.generateGid(it.isa(), it.stableHash()));
+		} else {
+			return object.globalId();
+		}
+	}
+
+	private void mark(Map<String, PBXObjectReference> objectsToRef, Map<Encodeable, String> encodedObjects, Map<String, Encodeable> objectsToEncode, String globalId, Encodeable object) {
+		val prevObj = objectsToEncode.get(globalId);
+		if (prevObj == null) {
+			objectsToEncode.put(globalId, object);
+			objectsToRef.put(globalId, encodeRefInternal(objectsToRef, globalId, encodedObjects, object, objectsToEncode));
+		} else if (prevObj.age() >= object.age()) {
+			// nothing to do, already visited and latest version found
+		} else {
+			objectsToEncode.put(globalId, object); // revisit with a newer version
+			objectsToRef.put(globalId, encodeRefInternal(objectsToRef, globalId, encodedObjects, object, objectsToEncode));
+		}
 	}
 
 	private class MyEncodeContext implements Codeable.EncodeContext {
-		private final PBXObjects.Builder objects;
+		private final Map<String, PBXObjectReference> objectsToRef;
 		private final Map<Encodeable, String> encodedObjects;
-		private final KnownGlobalIdentificationCallback knownGlobalIdCallback;
+		private final Map<String, Encodeable> objectsToEncode;
 		String gid;
 		Map<String, Object> map;
 		Map<CodingKey, Object> codingMap = new LinkedHashMap<>();
 
-		public MyEncodeContext(PBXObjects.Builder objects, Map<Encodeable, String> encodedObjects, KnownGlobalIdentificationCallback knownGlobalIdCallback) {
-			this.objects = objects;
+		public MyEncodeContext(Map<String, PBXObjectReference> objectsToRef, Map<Encodeable, String> encodedObjects, Map<String, Encodeable> objectsToEncode) {
+			this.objectsToRef = objectsToRef;
 			this.encodedObjects = encodedObjects;
-			this.knownGlobalIdCallback = knownGlobalIdCallback;
+			this.objectsToEncode = objectsToEncode;
 			gid = null;
 			map = new LinkedHashMap<>();
 		}
@@ -107,7 +128,6 @@ public final class PBXObjectArchiver {
 		@Override
 		public void gid(String globalID) {
 			gid = globalID;
-			knownGlobalIdCallback.onKnownGlobalId(globalID);
 		}
 
 		@Override
@@ -132,20 +152,14 @@ public final class PBXObjectArchiver {
 
 					@Override
 					public ByrefObject encodeByrefObject(Encodeable object) {
-						// Skip encoding if object already encoded
-						if (encodedObjects.containsKey(object)) {
-							return new DefaultByrefObject(encodedObjects.get(object));
-						} else if (object.globalId() != null && encodedObjects.containsValue(object.globalId())) {
-							return new DefaultByrefObject(object.globalId()); // already encoded but the object was different, we really only care about the reference (ex. PBXProject was changed but some other object still reference the old object)
-						}
-						final PBXObjectReference reference = encodeRefInternal(objects, encodedObjects, object);
-						objects.add(reference);
-						return new DefaultByrefObject(reference.getGlobalID());
+						val globalId = globalIdOf(encodedObjects, object);
+						mark(objectsToRef, encodedObjects, objectsToEncode, globalId, object);
+						return new DefaultByrefObject(globalId);
 					}
 
 					@Override
 					public BycopyObject encodeBycopyObject(Encodeable object) {
-						val context = encodeContextOf(objects, encodedObjects, gid -> encodedObjects.put(object, gid));
+						val context = encodeContextOf(objectsToRef, encodedObjects, objectsToEncode);
 						object.encode(context);
 						assert context.gid == null;
 						return new DefaultBycopyObject(copyOf(context.map));

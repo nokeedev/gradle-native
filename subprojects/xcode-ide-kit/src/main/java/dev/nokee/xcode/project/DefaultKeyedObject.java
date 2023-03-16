@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 
 @EqualsAndHashCode
 public final class DefaultKeyedObject implements KeyedObject {
+	@EqualsAndHashCode.Exclude private final long age = System.nanoTime(); // signal this object is newer than parent
 	private final KeyedObject parent;
 	private final ImmutableMap<CodingKey, Object> values;
 
@@ -49,6 +50,11 @@ public final class DefaultKeyedObject implements KeyedObject {
 		} else {
 			return parent.globalId();
 		}
+	}
+
+	@Override
+	public long age() {
+		return age;
 	}
 
 	@Override

@@ -67,6 +67,11 @@ public final class CodeableVersionRequirementRevision implements XCRemoteSwiftPa
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(Codeable.EncodeContext context) {
 		delegate.encode(context);
 	}

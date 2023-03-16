@@ -17,7 +17,6 @@ package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Streams;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
@@ -49,6 +48,11 @@ public final class RecodeableKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		return delegate.globalId();
+	}
+
+	@Override
+	public long age() {
+		return delegate.age();
 	}
 
 	@Override

@@ -64,6 +64,11 @@ public final class CodeableProjectReference implements PBXProject.ProjectReferen
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
 	}

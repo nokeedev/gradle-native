@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 
 @EqualsAndHashCode
 public final class RefKeyedObject implements KeyedObject {
+	@EqualsAndHashCode.Exclude private final long age = System.nanoTime();
 	private final String globalId;
 
 	public RefKeyedObject(String globalId) {
@@ -38,6 +39,11 @@ public final class RefKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		return globalId;
+	}
+
+	@Override
+	public long age() {
+		return age;
 	}
 
 	@Override

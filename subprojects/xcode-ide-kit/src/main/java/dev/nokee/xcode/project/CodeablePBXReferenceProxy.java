@@ -98,6 +98,11 @@ public final class CodeablePBXReferenceProxy implements PBXReferenceProxy, Codea
 	}
 
 	@Override
+	public long age() {
+		return delegate.age();
+	}
+
+	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
 	}

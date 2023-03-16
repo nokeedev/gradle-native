@@ -24,6 +24,8 @@ public interface Encodeable {
 	@Nullable
 	String globalId();
 
+	long age();
+
 	default int stableHash() {
 		return 0;
 	}

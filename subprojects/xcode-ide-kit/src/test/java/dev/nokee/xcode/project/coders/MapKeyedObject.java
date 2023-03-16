@@ -24,6 +24,7 @@ import java.util.Map;
 
 @EqualsAndHashCode
 public final class MapKeyedObject implements KeyedObject {
+	@EqualsAndHashCode.Exclude private final long age = System.nanoTime();
 	private final Map<String, ?> values;
 
 	public MapKeyedObject(Map<String, ?> values) {
@@ -39,6 +40,11 @@ public final class MapKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		return null;
+	}
+
+	@Override
+	public long age() {
+		return age;
 	}
 
 	@Override
