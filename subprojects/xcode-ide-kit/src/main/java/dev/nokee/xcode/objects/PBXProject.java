@@ -30,7 +30,6 @@ import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.KeyedObject;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -163,6 +162,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		public Builder mainGroup(PBXGroup mainGroup) {
 			this.mainGroup = mainGroup;
 			this.mainGroupChildren.clear();
+			builder.put(CodeablePBXProject.CodingKeys.mainGroup, mainGroup);
 			return this;
 		}
 
@@ -188,12 +188,9 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 
 		@Override
 		public PBXProject build() {
-			PBXGroup mainGroup = this.mainGroup;
-			if (mainGroup == null) {
-				mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
+			if (mainGroup == null && !mainGroupChildren.isEmpty()) {
+				builder.put(CodeablePBXProject.CodingKeys.mainGroup, PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build());
 			}
-
-			builder.ifAbsent(CodeablePBXProject.CodingKeys.mainGroup, mainGroup);
 
 			return CodeablePBXProject.newInstance(builder.build());
 		}
