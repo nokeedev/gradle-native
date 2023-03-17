@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.tasksExecuted;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @EnabledOnOs(OS.MAC)
@@ -49,6 +49,6 @@ class CrossProjectTargetDependenciesFunctionalTest {
 
 	@Test
 	void doesNotFailTheBuild() {
-		assertThat(result, tasksExecuted(":Library:GreeterLibRelease", ":CrossProjectReference:GreeterAppRelease", ":CrossProjectReference:GreeterApp"));
+		assertThat(result.getExecutedTaskPaths(), hasItems(":Library:GreeterLibRelease", ":CrossProjectReference:GreeterAppRelease", ":CrossProjectReference:GreeterApp"));
 	}
 }

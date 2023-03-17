@@ -15,15 +15,11 @@
  */
 package dev.nokee.buildadapter.xcode;
 
-import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
-import dev.gradleplugins.runnerkit.TaskOutcome;
 import dev.nokee.DualMacosIosFramework;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
-import dev.nokee.platform.xcode.XcodeSwiftApp;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -36,11 +32,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.anExistingDirectory;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnabledOnOs(OS.MAC)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
@@ -56,7 +49,7 @@ class SdkSelectionFunctionalTest {
 	@Test
 	void executesForDefaultSdkByDefault(GradleRunner runner) {
 		runner.withTasks("DualMacOsIosFramework").build();
-		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFramework/Build/Products/Release-macosx"), anExistingDirectory());
+		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFrameworkRelease/Build/Products/Release"), anExistingDirectory());
 	}
 
 	@ParameterizedTest
@@ -64,6 +57,6 @@ class SdkSelectionFunctionalTest {
 	void canSelectSdkToUse(String sdkToSelect, GradleRunner runner) {
 		runner.withTasks("DualMacOsIosFramework").withArgument("-Dsdk=" + sdkToSelect).build();
 
-		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFramework/Build/Products/Release-" + sdkToSelect), anExistingDirectory());
+		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFrameworkRelease/Build/Products/Release-" + sdkToSelect), anExistingDirectory());
 	}
 }

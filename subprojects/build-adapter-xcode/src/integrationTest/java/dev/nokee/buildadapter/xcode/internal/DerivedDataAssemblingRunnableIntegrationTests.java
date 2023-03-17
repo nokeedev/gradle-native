@@ -15,8 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode.internal;
 
-import dev.nokee.buildadapter.xcode.internal.plugins.XcodeTargetExecTask;
-import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
+import dev.nokee.buildadapter.xcode.internal.plugins.AssembleDerivedDataDirectoryTask;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,18 +42,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @ExtendWith(TestDirectoryExtension.class)
 class DerivedDataAssemblingRunnableIntegrationTests {
 	@TestDirectory Path testDirectory;
-	Path outputDirectory;
 	Path derivedDataDirectory;
-	XcodeTargetExecTask.DerivedDataAssemblingRunnable.Parameters parameters;
-	XcodeTargetExecTask.DerivedDataAssemblingRunnable subject;
-	Runnable delegate = MockitoBuilder.newMock(Runnable.class).instance();
+	AssembleDerivedDataDirectoryTask.DerivedDataAssemblingRunnable.Parameters parameters;
+	AssembleDerivedDataDirectoryTask.DerivedDataAssemblingRunnable subject;
 
 	@BeforeEach
 	void givenSubject() {
-		parameters = objectFactory().newInstance(XcodeTargetExecTask.DerivedDataAssemblingRunnable.Parameters.class);
-		subject = new XcodeTargetExecTask.DerivedDataAssemblingRunnable(fileSystemOperations(), parameters, delegate);
+		parameters = objectFactory().newInstance(AssembleDerivedDataDirectoryTask.DerivedDataAssemblingRunnable.Parameters.class);
+		subject = new AssembleDerivedDataDirectoryTask.DerivedDataAssemblingRunnable(fileSystemOperations(), parameters);
 
-		parameters.getOutgoingDerivedDataPath().set((outputDirectory = testDirectory.resolve("output")).toFile());
 		parameters.getXcodeDerivedDataPath().set((derivedDataDirectory = testDirectory.resolve("derived-data")).toFile());
 	}
 

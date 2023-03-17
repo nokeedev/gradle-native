@@ -38,9 +38,7 @@ import dev.nokee.xcode.project.PBXProjReader;
 import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.val;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.model.ObjectFactory;
@@ -49,7 +47,6 @@ import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
@@ -95,9 +92,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@Input
 	public abstract Property<String> getTargetName();
-
-	@InputFiles
-	public abstract ConfigurableFileCollection getInputDerivedData();
 
 	@OutputDirectory
 	public abstract DirectoryProperty getOutputDirectory();
@@ -236,7 +230,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		workerExecutor.noIsolation().submit(XcodebuildExec.class, spec -> {
 			spec.getOutgoingDerivedDataPath().set(getOutputDirectory());
 			spec.getXcodeDerivedDataPath().set(getDerivedDataPath());
-			spec.getIncomingDerivedDataPaths().setFrom(getInputDerivedData());
 
 			spec.getOriginalProjectLocation().set(getXcodeProject().get().getLocation().toFile());
 			spec.getIsolatedProjectLocation().set(isolatedProjectLocation);
@@ -259,12 +252,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		@Override
 		public void run() {
-			new PreserveLastModifiedFileSystemOperation(fileOperations::copy).execute(spec -> {
-				spec.from(parameters.getIncomingDerivedDataPaths());
-				spec.into(parameters.getXcodeDerivedDataPath());
-				spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE);
-			});
-
 			delegate.run();
 
 			new PreserveLastModifiedFileSystemOperation(fileOperations::sync).execute(spec -> {
@@ -274,7 +261,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		}
 
 		public interface Parameters {
-			ConfigurableFileCollection getIncomingDerivedDataPaths();
 			DirectoryProperty getXcodeDerivedDataPath();
 			DirectoryProperty getOutgoingDerivedDataPath();
 		}
