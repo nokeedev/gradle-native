@@ -30,6 +30,7 @@ import java.util.Arrays;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.first;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.referenceNameOrPath;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.removeIf;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
@@ -63,6 +64,13 @@ class UpToDateCheckDetectsChangeToPBXSourcesBuildPhaseFunctionalTests extends Up
 			xcodeproj(groupUnderTest(children(add(ofGroup("OtherSource.swift")))));
 			xcodeproj(targetUnderTest(sourcesBuildPhases(files(add(buildFileTo("OtherSource.swift"))))));
 			Files.write(file("App/OtherSource.swift"), Arrays.asList("// my new file"));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileSettingsChanges() {
+			xcodeproj(targetUnderTest(sourcesBuildPhases(files(first(changeSettings())))));
 
 			assertThat(targetUnderTestExecution(), outOfDate());
 		}

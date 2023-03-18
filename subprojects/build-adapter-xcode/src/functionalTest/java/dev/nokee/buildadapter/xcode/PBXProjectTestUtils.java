@@ -143,9 +143,12 @@ public final class PBXProjectTestUtils {
 	}
 
 	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> add(E child) {
-		return (__, values) -> {
-			return ImmutableList.<E>builder().addAll(values).add(child).build();
-		};
+		return (__, values) -> ImmutableList.<E>builder().addAll(values).add(child).build();
+	}
+
+	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> first(Function<? super E, ? extends E> action) {
+		return (__, values) -> ImmutableList.<E>builder().add(action.apply(values.get(0))) //
+			.addAll(Iterables.skip(values, 1)).build();
 	}
 
 	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> removeFirst() {

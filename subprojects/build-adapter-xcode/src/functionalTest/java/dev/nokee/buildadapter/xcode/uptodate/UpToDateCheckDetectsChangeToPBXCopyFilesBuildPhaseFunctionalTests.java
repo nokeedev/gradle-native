@@ -16,6 +16,7 @@
 package dev.nokee.buildadapter.xcode.uptodate;
 
 import com.google.common.collect.ImmutableMap;
+import dev.nokee.buildadapter.xcode.PBXProjectTestUtils;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -40,6 +41,7 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.dependencies;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.childNameOrPath;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.first;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetDependencyTo;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static java.nio.file.Files.delete;
@@ -79,6 +81,13 @@ class UpToDateCheckDetectsChangeToPBXCopyFilesBuildPhaseFunctionalTests extends 
 		void outOfDateWhenFileAdded() {
 			xcodeproj(embedFrameworkIntoApp("Bar"));
 			xcodeproj(targetUnderTest(dependencies(add(targetDependencyTo("Bar")))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileSettingsChanges() {
+			xcodeproj(targetUnderTest(copyFilesBuildPhases(files(first(changeSettings())))));
 
 			assertThat(targetUnderTestExecution(), outOfDate());
 		}

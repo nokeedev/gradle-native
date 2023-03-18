@@ -16,6 +16,7 @@
 package dev.nokee.buildadapter.xcode.uptodate;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import dev.gradleplugins.runnerkit.BuildTask;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.UpToDateCheck;
@@ -148,6 +149,12 @@ public abstract class UpToDateCheckSpec {
 			assert result.size() == values.size();
 			return result;
 		};
+	}
+
+	protected static Function<PBXBuildFile, PBXBuildFile> changeSettings() {
+		return buildFile -> buildFile.toBuilder() //
+			.settings(ImmutableMap.<String, Object>builder().putAll(buildFile.getSettings()).put("foo", "FOO").build()) //
+			.build();
 	}
 
 	@BeforeEach
