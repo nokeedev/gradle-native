@@ -18,6 +18,7 @@ package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.files.PBXReference;
+import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
 import dev.nokee.xcode.project.CodeablePBXBuildFile;
 import dev.nokee.xcode.project.CodeablePBXContainerItemProxy;
@@ -53,6 +54,7 @@ import dev.nokee.xcode.project.ValueEncoder;
 import dev.nokee.xcode.project.coders.FieldCoder;
 import dev.nokee.xcode.project.coders.ListEncoder;
 import dev.nokee.xcode.project.coders.NoOpEncoder;
+import dev.nokee.xcode.project.coders.ProductTypeEncoder;
 import dev.nokee.xcode.project.coders.StringEncoder;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -90,7 +92,7 @@ class XCBuildSpecCodingKeyCodersTests {
 
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productName, keyOf("productName", inputOf(string()))));
-			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productType, ignore()));
+			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productType, ignore())); // not required (3)
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.dependencies, ignore())); // not required (2)
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, ignore()));
@@ -126,7 +128,7 @@ class XCBuildSpecCodingKeyCodersTests {
 
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productName, keyOf("productName", inputOf(string()))));
-			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productType, ignore()));
+			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productType, ignore())); // not required (3)
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.dependencies, ignore())); // not required (2)
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, ignore()));
@@ -138,7 +140,7 @@ class XCBuildSpecCodingKeyCodersTests {
 
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.productName, keyOf("productName", inputOf(string()))));
-			add(arguments(CodeablePBXNativeTarget.CodingKeys.productType, ignore()));
+			add(arguments(CodeablePBXNativeTarget.CodingKeys.productType, keyOf("productType", inputOf(productType()))));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.dependencies, ignore())); // not required (2)
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, ignore()));
@@ -233,6 +235,7 @@ class XCBuildSpecCodingKeyCodersTests {
 
 	// Note 1: We don't need PBXProject objects for target encoding
 	// Note 2: We track target dependencies differently (aka via input files)
+	// Note 3: Legacy/Aggregate targets don't have product type keys
 
 	private static <T> Matcher<Optional<? extends KeyedCoder<T>>> keyOf(String key, ValueEncoder<XCBuildSpec, T> encoder) {
 		return optionalWithValue(equalTo(new FieldCoder<>(key, new EncoderOnlyCoder<>(encoder))));
@@ -268,5 +271,9 @@ class XCBuildSpecCodingKeyCodersTests {
 
 	public static ValueEncoder<String, String> string() {
 		return new StringEncoder<>(new NoOpEncoder<>());
+	}
+
+	public static ValueEncoder<String, ProductType> productType() {
+		return new ProductTypeEncoder();
 	}
 }
