@@ -69,7 +69,7 @@ class UpToDateCheckDetectsChangeToPBXHeadersBuildPhaseFunctionalTests extends Up
 			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 
-		@Test // TODO: What about public/protected
+		@Test
 		void outOfDateWhenPublicHeaderFileAdded() throws IOException {
 			xcodeproj(groupUnderTest(children(add(ofGroup("MyApp.h")))));
 			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("MyApp.h", asPublic()))))));
@@ -78,7 +78,7 @@ class UpToDateCheckDetectsChangeToPBXHeadersBuildPhaseFunctionalTests extends Up
 			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 
-		@Test // TODO: What about public/protected
+		@Test
 		void outOfDateWhenPrivateHeaderFileAdded() throws IOException {
 			xcodeproj(groupUnderTest(children(add(ofGroup("MyApp.h")))));
 			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("MyApp.h", asPrivate()))))));
@@ -87,7 +87,7 @@ class UpToDateCheckDetectsChangeToPBXHeadersBuildPhaseFunctionalTests extends Up
 			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 
-		@Test // TODO: What about public/protected
+		@Test
 		void outOfDateWhenProjectHeaderFileAdded() throws IOException {
 			xcodeproj(groupUnderTest(children(add(ofGroup("MyApp.h")))));
 			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("MyApp.h", asProject()))))));
