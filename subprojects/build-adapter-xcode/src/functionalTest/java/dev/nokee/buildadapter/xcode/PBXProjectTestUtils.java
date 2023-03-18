@@ -318,4 +318,12 @@ public final class PBXProjectTestUtils {
 	public static BiFunction<PBXProject, PBXNativeTarget, PBXNativeTarget> productType(ProductType value) {
 		return (self, target) -> target.toBuilder().productType(value).build();
 	}
+
+	public static BiFunction<PBXProject, PBXLegacyTarget, PBXLegacyTarget> passBuildSettingsInEnvironment(BiFunction<? super PBXProject, ? super Boolean, ? extends Boolean> action) {
+		return (self, target) -> target.toBuilder().passBuildSettingsInEnvironment(action.apply(self, target.isPassBuildSettingsInEnvironment())).build();
+	}
+
+	public static BiFunction<PBXProject, Boolean, Boolean> toggle() {
+		return (self, value) -> !value;
+	}
 }

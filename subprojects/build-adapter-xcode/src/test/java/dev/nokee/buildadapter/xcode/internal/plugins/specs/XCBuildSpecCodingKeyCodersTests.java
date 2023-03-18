@@ -17,7 +17,6 @@ package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
 import dev.nokee.xcode.project.CodeablePBXBuildFile;
@@ -72,7 +71,6 @@ import java.util.stream.Stream;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
-import static dev.gradleplugins.buildscript.syntax.Syntax.setOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -136,7 +134,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, keyOf("buildToolPath", inputOf(string()))));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, keyOf("buildArgumentsString", inputOf(string()))));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, ignore()));
-			add(arguments(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, ignore()));
+			add(arguments(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, keyOf("passBuildSettingsInEnvironment", inputOf(asIs()))));
 
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.productName, keyOf("productName", inputOf(string()))));
@@ -271,6 +269,10 @@ class XCBuildSpecCodingKeyCodersTests {
 
 	public static ValueEncoder<String, String> string() {
 		return new StringEncoder<>(new NoOpEncoder<>());
+	}
+
+	public static <T> ValueEncoder<T, T> asIs() {
+		return new NoOpEncoder<>();
 	}
 
 	public static ValueEncoder<String, ProductType> productType() {

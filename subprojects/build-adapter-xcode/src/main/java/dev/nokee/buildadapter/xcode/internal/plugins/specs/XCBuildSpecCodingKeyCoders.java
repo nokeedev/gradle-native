@@ -117,7 +117,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, forKey("buildArgumentsString", atInput(ofString())));
 		put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, forKey("buildToolPath", atInput(ofString())));
 		put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, null);
-		put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, null);
+		put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, forKey("passBuildSettingsInEnvironment", atInput(ofBoolean())));
 
 		// PBXNativeTarget
 		put(CodeablePBXNativeTarget.CodingKeys.name, null);
@@ -262,6 +262,10 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 	private static ValueEncoder<String, ProductType> ofProductType() {
 		return new ProductTypeEncoder();
+	}
+
+	private static ValueEncoder<Boolean, Boolean> ofBoolean() {
+		return new NoOpEncoder<>();
 	}
 
 	private static <T> ValueEncoder<XCBuildSpec, List<T>> set(ValueEncoder<XCBuildSpec, T> elementEncoder) {
