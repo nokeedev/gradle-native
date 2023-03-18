@@ -298,4 +298,8 @@ public final class PBXProjectTestUtils {
 	public static BiFunction<PBXProject, PBXShellScriptBuildPhase, PBXShellScriptBuildPhase> inputPaths(BiFunction<? super PBXProject, ? super List<String>, ? extends List<String>> action) {
 		return (self, buildPhase) -> buildPhase.toBuilder().inputPaths(action.apply(self, buildPhase.getInputPaths())).build();
 	}
+
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> productName(String value) {
+		return (self, target) -> target.toBuilder().productName(value).build();
+	}
 }

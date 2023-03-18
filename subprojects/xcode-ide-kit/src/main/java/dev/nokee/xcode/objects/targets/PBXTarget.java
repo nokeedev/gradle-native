@@ -44,6 +44,8 @@ public interface PBXTarget extends PBXProjectItem {
 	Builder toBuilder();
 
 	interface Builder {
+		Builder productName(String productName);
+
 		PBXTarget build();
 	}
 }
