@@ -27,7 +27,9 @@ import java.util.Arrays;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asLegacyTarget;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildArgumentsString;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildToolPath;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.passBuildSettingsInEnvironment;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.productName;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.toggle;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static java.nio.file.attribute.PosixFilePermissions.fromString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -63,6 +65,13 @@ class UpToDateCheckDetectsChangeToPBXLegacyTargetFunctionalTests extends UpToDat
 	@Test
 	void outOfDateWhenProductNameChanged() {
 		xcodeproj(targetUnderTest(productName("NewApp")));
+
+		assertThat(targetUnderTestExecution(), outOfDate());
+	}
+
+	@Test
+	void outOfDateWhenPassBuildSettingsInEnvironmentChanged() {
+		xcodeproj(targetUnderTest(asLegacyTarget(passBuildSettingsInEnvironment(toggle()))));
 
 		assertThat(targetUnderTestExecution(), outOfDate());
 	}
