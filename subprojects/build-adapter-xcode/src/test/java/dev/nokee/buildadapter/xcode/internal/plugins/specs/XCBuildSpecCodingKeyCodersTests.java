@@ -98,7 +98,7 @@ class XCBuildSpecCodingKeyCodersTests {
 
 			add(arguments(CodeablePBXBuildFile.CodingKeys.fileRef, keyOf("fileRef", inputLocation(resolvablePaths()))));
 			add(arguments(CodeablePBXBuildFile.CodingKeys.productRef, ignore()));
-			add(arguments(CodeablePBXBuildFile.CodingKeys.settings, ignore()));
+			add(arguments(CodeablePBXBuildFile.CodingKeys.settings, keyOf("settings", inputOf(asIs()))));
 
 			add(arguments(CodeablePBXContainerItemProxy.CodingKeys.containerPortal, ignore()));
 			add(arguments(CodeablePBXContainerItemProxy.CodingKeys.proxyType, ignore()));

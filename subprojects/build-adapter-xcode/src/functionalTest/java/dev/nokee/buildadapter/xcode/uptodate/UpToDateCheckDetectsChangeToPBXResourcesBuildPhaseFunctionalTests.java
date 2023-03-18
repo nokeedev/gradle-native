@@ -27,6 +27,7 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.first;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.upToDate;
 import static dev.nokee.xcode.objects.files.PBXFileReference.ofGroup;
@@ -58,6 +59,13 @@ class UpToDateCheckDetectsChangeToPBXResourcesBuildPhaseFunctionalTests extends 
 			xcodeproj(groupUnderTest(children(add(ofGroup("OtherAssets.xcassets")))));
 			xcodeproj(targetUnderTest(resourcesBuildPhases(files(add(buildFileTo("OtherAssets.xcassets"))))));
 			xcodeproj(run(() -> writeColorSet(file("App/OtherAssets.xcassets/NewColor.colorset"))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileSettingsChanges() {
+			xcodeproj(targetUnderTest(resourcesBuildPhases(files(first(changeSettings())))));
 
 			assertThat(targetUnderTestExecution(), outOfDate());
 		}

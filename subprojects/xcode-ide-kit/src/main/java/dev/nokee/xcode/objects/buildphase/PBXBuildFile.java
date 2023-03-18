@@ -22,6 +22,7 @@ import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import dev.nokee.xcode.project.CodeablePBXBuildFile;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.KeyedObject;
 
 import java.util.Map;
 import java.util.Optional;
@@ -44,6 +45,8 @@ public interface PBXBuildFile extends PBXProjectItem {
 
 	Map<String, ?> getSettings();
 
+	Builder toBuilder();
+
 	static PBXBuildFile ofFile(FileReference fileReference) {
 		return PBXBuildFile.builder().fileRef(fileReference).build();
 	}
@@ -57,9 +60,18 @@ public interface PBXBuildFile extends PBXProjectItem {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXBuildFile>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
+			this(new DefaultKeyedObject.Builder());
+		}
+
+		public Builder(KeyedObject parent) {
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder;
 			builder.put(KeyedCoders.ISA, "PBXBuildFile");
 			builder.requires(key(CodeablePBXBuildFile.CodingKeys.fileRef).or(key(CodeablePBXBuildFile.CodingKeys.productRef)));
 		}

@@ -63,6 +63,11 @@ public final class CodeablePBXBuildFile implements PBXBuildFile, Codeable {
 	}
 
 	@Override
+	public Builder toBuilder() {
+		return new Builder(delegate);
+	}
+
+	@Override
 	public String toString() {
 		return String.format("%s isa=%s fileRef=%s settings=%s", super.toString(), this.getClass().getSimpleName(), getFileRef().orElse(null), getSettings());
 	}

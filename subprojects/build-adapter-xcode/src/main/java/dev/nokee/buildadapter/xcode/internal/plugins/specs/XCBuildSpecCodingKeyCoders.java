@@ -80,7 +80,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 		// PBXBuildFile
 		put(CodeablePBXBuildFile.CodingKeys.fileRef, forKey("fileRef", atInputFiles(ofLocation())));
-		put(CodeablePBXBuildFile.CodingKeys.settings, null);
+		put(CodeablePBXBuildFile.CodingKeys.settings, forKey("settings", atInput(ofSettings())));
 		put(CodeablePBXBuildFile.CodingKeys.productRef, null);
 
 		// PBXContainerItemProxy
@@ -265,6 +265,10 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 	}
 
 	private static ValueEncoder<Boolean, Boolean> ofBoolean() {
+		return new NoOpEncoder<>();
+	}
+
+	private static ValueEncoder<Map<String, ?>, Map<String, ?>> ofSettings() {
 		return new NoOpEncoder<>();
 	}
 

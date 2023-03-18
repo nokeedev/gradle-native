@@ -36,6 +36,7 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.dependencies;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.first;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetDependencyTo;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetNamed;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
@@ -91,6 +92,13 @@ class UpToDateCheckDetectsChangeToPBXHeadersBuildPhaseFunctionalTests extends Up
 			xcodeproj(groupUnderTest(children(add(ofGroup("MyApp.h")))));
 			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("MyApp.h", asProject()))))));
 			Files.write(file("Foo/MyApp.h"), Arrays.asList("// my app header"));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileSettingsChanges() {
+			xcodeproj(targetUnderTest(headersBuildPhases(files(first(changeSettings())))));
 
 			assertThat(targetUnderTestExecution(), outOfDate());
 		}

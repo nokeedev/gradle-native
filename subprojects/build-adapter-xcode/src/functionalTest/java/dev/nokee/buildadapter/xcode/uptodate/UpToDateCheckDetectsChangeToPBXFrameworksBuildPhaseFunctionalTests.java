@@ -28,6 +28,7 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildFileToProduct;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.first;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static java.nio.file.Files.delete;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -58,6 +59,13 @@ class UpToDateCheckDetectsChangeToPBXFrameworksBuildPhaseFunctionalTests extends
 		@Test
 		void outOfDateWhenFileAdded() {
 			xcodeproj(targetUnderTest(frameworksBuildPhases(files(add(buildFileToProduct("Bar.framework"))))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileSettingsChanges() {
+			xcodeproj(targetUnderTest(frameworksBuildPhases(files(first(changeSettings())))));
 
 			assertThat(targetUnderTestExecution(), outOfDate());
 		}
