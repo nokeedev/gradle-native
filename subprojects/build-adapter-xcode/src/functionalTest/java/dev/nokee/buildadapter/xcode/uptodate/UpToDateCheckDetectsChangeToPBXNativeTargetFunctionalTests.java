@@ -15,38 +15,46 @@
  */
 package dev.nokee.buildadapter.xcode.uptodate;
 
-import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import java.nio.file.Path;
+import java.io.IOException;
 
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mutateProject;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.removeLast;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetNamed;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXNativeTargetFunctionalTests extends UpToDateCheckSpec {
+	@BeforeEach
+	void setup() throws IOException {
+		ensureUpToDate(executer);
+	}
+
+	@Override
+	protected String targetUnderTestName() {
+		return "App";
+	}
+
 	@Nested
 	class BuildPhasesField {
 		@Test
-		void outOfDateWhenNewBuildPhase() {
-			mutateProject(targetNamed("App", buildPhases(add(PBXCopyFilesBuildPhase.builder().destination(it -> it.frameworks("")).build())))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+		void outOfDateWhenBuildPhaseAdded() {
+			xcodeproj(targetUnderTest(buildPhases(add(aBuildPhase()))));
 
-			assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 
 		@Test
-		void outOfDateWhenRemoveBuildPhase() {
-			mutateProject(targetNamed("App", buildPhases(removeLast()))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+		void outOfDateWhenBuildPhaseRemoved() {
+			xcodeproj(targetUnderTest(buildPhases(removeLast())));
 
-			assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 	}
 }

@@ -38,20 +38,20 @@ import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-class MapSpecEncoderTests {
+class AtNestedMapEncoderTests {
 	ValueEncoder.Context context = newMock(ValueEncoder.Context.class)
 		.when(any(callTo(method(ValueEncoder.Context::encodeBycopyObject))).then(doReturn((it, args) -> new TestBycopyObject(args.getArgument(0)))))
 		.alwaysThrows().instance();
 	TestDouble<ValueEncoder<Encodeable, KeyedObject>> delegate = newMock(ValueEncoder.class)
 		.when(any(callTo(method(ValueEncoder<Encodeable, KeyedObject>::encode))).then(doReturn((it, args) -> args.getArgument(0))));
-	MapSpecEncoder<KeyedObject> subject = new MapSpecEncoder<>(delegate.instance());
+	AtNestedMapEncoder<KeyedObject> subject = new AtNestedMapEncoder<>(delegate.instance());
 
 	KeyedObject objectToEncode = DefaultKeyedObject.builder().put(key("a"), "A").put(key("b"), "B").build();
 	XCBuildSpec result = subject.encode(objectToEncode, context);
 
 	@Test
 	void canEncodeObjectToBuildSpec() {
-		assertThat(result, equalTo(new NestedMapSpec(ImmutableMap.of("a", spec("A"), "b", spec("B")))));
+		assertThat(result, equalTo(new AtNestedMapEncoder.Spec(ImmutableMap.of("a", spec("A"), "b", spec("B")))));
 	}
 
 	@Test

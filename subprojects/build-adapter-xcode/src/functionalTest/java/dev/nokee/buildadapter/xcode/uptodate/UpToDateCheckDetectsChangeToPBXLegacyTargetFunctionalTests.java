@@ -15,50 +15,47 @@
  */
 package dev.nokee.buildadapter.xcode.uptodate;
 
-import dev.gradleplugins.runnerkit.GradleRunner;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asLegacyTarget;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildArgumentsString;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildToolPath;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mutateProject;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetNamed;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static java.nio.file.attribute.PosixFilePermissions.fromString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXLegacyTargetFunctionalTests extends UpToDateCheckSpec {
-	@Override
-	void setup(Path location) throws IOException {
-		Files.write(location.getParent().resolve("makefile"), Arrays.asList("null:", "\t@:"));
+	@BeforeEach
+	void setup() throws IOException {
+		ensureUpToDate(executer);
 	}
 
 	@Override
-	GradleRunner configure(GradleRunner runner) {
-		return runner.withTasks("LegacyDebug");
+	protected String targetUnderTestName() {
+		return "AppLegacy";
 	}
 
 	@Test
-	void outOfDateWhenBuildToolChange() throws IOException {
-		Files.write(testDirectory.resolve("my-make"), Arrays.asList("#!/usr/bin/env bash", "make $@"));
-		Files.setPosixFilePermissions(testDirectory.resolve("my-make"), fromString("rwx------"));
-		mutateProject(targetNamed("Legacy", asLegacyTarget(buildToolPath(testDirectory.resolve("my-make").toString())))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+	void outOfDateWhenBuildToolChanged() throws IOException {
+		Files.write(file("my-make"), Arrays.asList("#!/usr/bin/env bash", "make $@"));
+		Files.setPosixFilePermissions(file("my-make"), fromString("rwx------"));
+		xcodeproj(targetUnderTest(asLegacyTarget(buildToolPath(file("my-make").toString()))));
 
-		assertThat(executer.build().task(":UpToDateCheck:LegacyDebug"), outOfDate());
+		assertThat(targetUnderTestExecution(), outOfDate());
 	}
 
 	@Test
-	void outOfDateWhenBuildArgumentsChange() {
-		mutateProject(targetNamed("Legacy", asLegacyTarget(buildArgumentsString("build")))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+	void outOfDateWhenBuildArgumentsChanged() {
+		xcodeproj(targetUnderTest(asLegacyTarget(buildArgumentsString("build"))));
 
-		assertThat(executer.build().task(":UpToDateCheck:LegacyDebug"), outOfDate());
+		assertThat(targetUnderTestExecution(), outOfDate());
 	}
 }

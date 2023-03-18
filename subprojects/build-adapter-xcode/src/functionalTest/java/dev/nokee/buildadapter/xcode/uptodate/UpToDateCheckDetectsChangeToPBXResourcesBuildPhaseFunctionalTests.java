@@ -15,19 +15,18 @@
  */
 package dev.nokee.buildadapter.xcode.uptodate;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asGroup;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.childNamed;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mainGroup;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mutateProject;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.upToDate;
 import static dev.nokee.xcode.objects.files.PBXFileReference.ofGroup;
@@ -35,19 +34,76 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXResourcesBuildPhaseFunctionalTests extends UpToDateCheckSpec {
-	@Test
-	void outOfDateWhenNewColorSet() throws IOException {
-		writeColorSet(testDirectory.resolve("App/Assets.xcassets/NewColor.colorset"));
+	@BeforeEach
+	void setup() throws IOException {
+		ensureUpToDate(executer);
+	}
 
-		assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+	@Override
+	protected String targetUnderTestName() {
+		return "App";
+	}
+
+	@Nested
+	class FilesField {
+		@Test
+		void outOfDateWhenXCAssetsChanged() throws IOException {
+			writeColorSet(file("App/Assets.xcassets/NewColor.colorset"));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileAdded() {
+			xcodeproj(groupUnderTest(children(add(ofGroup("OtherAssets.xcassets")))));
+			xcodeproj(targetUnderTest(resourcesBuildPhases(files(add(buildFileTo("OtherAssets.xcassets"))))));
+			xcodeproj(run(() -> writeColorSet(file("App/OtherAssets.xcassets/NewColor.colorset"))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileRemoved() {
+			xcodeproj(targetUnderTest(resourcesBuildPhases(files(clear()))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileEntryDuplicated() {
+			xcodeproj(targetUnderTest(resourcesBuildPhases(files(add(buildFileTo("Assets.xcassets"))))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenResolvedFileDuplicated() {
+			xcodeproj(alternateFileUnderTest("Assets.xcassets"));
+			xcodeproj(targetUnderTest(resourcesBuildPhases(files(add(buildFileTo("alternate-Assets.xcassets"))))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileOrderingChanged() throws IOException {
+			writeColorSet(file("App/OtherAssets.xcassets/NewColor.colorset"));
+			xcodeproj(groupUnderTest(children(add(ofGroup("OtherAssets.xcassets")))));
+			xcodeproj(targetUnderTest(resourcesBuildPhases(files(add(buildFileTo("OtherAssets.xcassets"))))));
+
+			ensureUpToDate(executer);
+
+			xcodeproj(targetUnderTest(resourcesBuildPhases(files(shuffleOrdering()))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
 	}
 
 	@Test
 	void ignoresNewUnlinkedAssets() throws IOException {
-		writeColorSet(testDirectory.resolve("App/OtherAssets.xcassets/NewColor.colorset"));
-		mutateProject(mainGroup(childNamed("App", asGroup(children(add(ofGroup("OtherAssets.xcassets"))))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+		writeColorSet(file("App/OtherAssets.xcassets/NewColor.colorset"));
+		xcodeproj(groupUnderTest(children(add(ofGroup("OtherAssets.xcassets")))));
 
-		assertThat(executer.build().task(":UpToDateCheck:AppDebug"), upToDate());
+		assertThat(targetUnderTestExecution(), upToDate());
 	}
 
 	// TODO: Modifying storyboard should make this out-of-date but it doesn't work because how we calculate paths for PBXVariantGroup is broken

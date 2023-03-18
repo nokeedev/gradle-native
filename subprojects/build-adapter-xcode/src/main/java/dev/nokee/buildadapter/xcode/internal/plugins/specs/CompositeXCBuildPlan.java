@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,25 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
-import dev.nokee.xcode.project.ValueEncoder;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode
-public final class InputObjectSpecEncoder<IN> implements ValueEncoder<XCBuildSpec, IN> {
-	private final ValueEncoder<?, IN> delegate;
+import java.util.Iterator;
 
-	public InputObjectSpecEncoder(ValueEncoder<?, IN> delegate) {
-		this.delegate = delegate;
+@EqualsAndHashCode
+public final class CompositeXCBuildPlan<T> implements XCBuildPlan, Iterable<T> {
+	private final Iterable<T> values;
+
+	public CompositeXCBuildPlan(Iterable<T> values) {
+		this.values = values;
 	}
 
 	@Override
-	public XCBuildSpec encode(IN value, Context context) {
-		return new InputObjectSpec(delegate.encode(value, context));
+	public Iterator<T> iterator() {
+		return values.iterator();
+	}
+
+	@Override
+	public String toString() {
+		return values.toString();
 	}
 }

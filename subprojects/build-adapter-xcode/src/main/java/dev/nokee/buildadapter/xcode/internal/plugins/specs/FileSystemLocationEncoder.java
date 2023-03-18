@@ -15,21 +15,41 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.project.ValueEncoder;
 import lombok.EqualsAndHashCode;
-
-import java.util.List;
+import org.gradle.api.file.FileCollection;
 
 @EqualsAndHashCode
-public final class ListSpecEncoder<IN> implements ValueEncoder<XCBuildSpec, IN> {
-	private final ValueEncoder<List<XCBuildSpec>, IN> delegate;
+public final class FileSystemLocationEncoder<IN> implements ValueEncoder<XCBuildSpec, IN> {
+	private final ValueEncoder<PBXReference, IN> delegate;
 
-	public ListSpecEncoder(ValueEncoder<List<XCBuildSpec>, IN> delegate) {
+	public FileSystemLocationEncoder(ValueEncoder<PBXReference, IN> delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
 	public XCBuildSpec encode(IN value, Context context) {
-		return new NestedListSpec(delegate.encode(value, context));
+		return new Spec(delegate.encode(value, context));
+	}
+
+	@EqualsAndHashCode
+	public static final class Spec implements XCBuildSpec {
+		private final PBXReference reference;
+
+		public Spec(PBXReference reference) {
+			this.reference = reference;
+		}
+
+		@Override
+		public XCBuildPlan resolve(ResolveContext context) {
+			final FileCollection locations = context.inputs(reference);
+			return new CompositeXCBuildPlan<>(locations);
+		}
+
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visitValue(reference.toString()); // TODO: Proper tostring
+		}
 	}
 }

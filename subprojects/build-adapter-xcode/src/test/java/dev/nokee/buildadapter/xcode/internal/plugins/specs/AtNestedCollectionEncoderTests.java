@@ -15,9 +15,14 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.testdoubles.TestDouble;
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
@@ -28,22 +33,43 @@ import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-class InputObjectSpecEncoderTests {
+class AtNestedCollectionEncoderTests {
 	ValueEncoder.Context context = newMock(ValueEncoder.Context.class).alwaysThrows().instance();
-	TestDouble<ValueEncoder<Object, Object>> delegate = newMock(ValueEncoder.class)
-		.when(any(callTo(method(ValueEncoder<Object, Object>::encode))).then(doReturn((it, args) -> args.getArgument(0))));
+	TestDouble<ValueEncoder<List<XCBuildSpec>, List<String>>> delegate = newMock(ValueEncoder.class)
+		.when(any(callTo(method(ValueEncoder<List<XCBuildSpec>, List<String>>::encode))).then(doReturn((it, args) -> {
+			List<String> values = args.getArgument(0);
+			return values.stream().map(Object::toString).map(AtNestedCollectionEncoderTests::spec).collect(Collectors.toList());
+		})));
 
-	Object objectToEncode = new Object();
-	InputObjectSpecEncoder<Object> subject = new InputObjectSpecEncoder<>(delegate.instance());
+	List<String> objectToEncode = ImmutableList.of("a", "b", "c");
+	AtNestedCollectionEncoder<List<String>> subject = new AtNestedCollectionEncoder<>(ImmutableList.toImmutableList(), delegate.instance());
 	XCBuildSpec result = subject.encode(objectToEncode, context);
 
 	@Test
 	void canEncodeObjectToBuildSpec() {
-		assertThat(result, equalTo(new InputObjectSpec(objectToEncode)));
+		assertThat(result, equalTo(new AtNestedCollectionEncoder.Spec(ImmutableList.toImmutableList(), ImmutableList.of(spec("a"), spec("b"), spec("c")))));
 	}
 
 	@Test
 	void callsDelegateWithInputValue() {
-		assertThat(delegate.to(method(ValueEncoder<Object, Object>::encode)), calledOnceWith(objectToEncode, context));
+		assertThat(delegate.to(method(ValueEncoder<List<XCBuildSpec>, List<String>>::encode)), calledOnceWith(objectToEncode, context));
+	}
+
+	private static Spec spec(String value) {
+		return new Spec(value);
+	}
+
+	@EqualsAndHashCode
+	private static final class Spec implements XCBuildSpec {
+		private final Object value;
+
+		public Spec(Object value) {
+			this.value = value;
+		}
+
+		@Override
+		public XCBuildPlan resolve(ResolveContext context) {
+			throw new UnsupportedOperationException();
+		}
 	}
 }

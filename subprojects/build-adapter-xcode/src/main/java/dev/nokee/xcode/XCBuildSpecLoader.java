@@ -15,7 +15,7 @@
  */
 package dev.nokee.xcode;
 
-import dev.nokee.buildadapter.xcode.internal.plugins.specs.NestedMapSpec;
+import dev.nokee.buildadapter.xcode.internal.plugins.specs.AtNestedMapEncoder;
 import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildSpec;
 import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildSpecCodingKeyCoders;
 import dev.nokee.xcode.objects.targets.PBXTarget;
@@ -57,7 +57,7 @@ public final class XCBuildSpecLoader implements XCLoader<XCBuildSpec, XCTargetRe
 		private final Map<String, XCBuildSpec> map = new LinkedHashMap<>();
 
 		public XCBuildSpec value() {
-			return new NestedMapSpec(map);
+			return new AtNestedMapEncoder.Spec(map);
 		}
 
 		@Override
