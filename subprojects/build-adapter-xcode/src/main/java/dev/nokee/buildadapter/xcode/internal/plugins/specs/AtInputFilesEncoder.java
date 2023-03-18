@@ -15,23 +15,37 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
-import dev.nokee.xcode.project.Encodeable;
 import dev.nokee.xcode.project.ValueEncoder;
 import lombok.EqualsAndHashCode;
-
-import java.util.Map;
+import org.gradle.api.tasks.InputFiles;
 
 @EqualsAndHashCode
-public final class MapSpecEncoder<IN extends Encodeable> implements ValueEncoder<XCBuildSpec, IN> {
-	private final ValueEncoder<Encodeable, IN> delegate;
+public final class AtInputFilesEncoder<IN> implements ValueEncoder<XCBuildSpec, IN> {
+	private final ValueEncoder<XCBuildSpec, IN> delegate;
 
-	public MapSpecEncoder(ValueEncoder<Encodeable, IN> delegate) {
+	public AtInputFilesEncoder(ValueEncoder<XCBuildSpec, IN> delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public XCBuildSpec encode(IN value, Context context) {
-		return new NestedMapSpec((Map<String, XCBuildSpec>) context.encodeBycopyObject(delegate.encode(value, context)).asMap());
+		final XCBuildSpec references = delegate.encode(value, context);
+		return new XCBuildSpec() {
+			@Override
+			public XCBuildPlan resolve(ResolveContext context) {
+				final XCBuildPlan result = references.resolve(context);
+				return new XCBuildPlan() {
+					@InputFiles
+					public Object getValue() {
+						return result;
+					}
+
+					@Override
+					public String toString() {
+						return result.toString();
+					}
+				};
+			}
+		};
 	}
 }

@@ -15,9 +15,8 @@
  */
 package dev.nokee.buildadapter.xcode.uptodate;
 
-import com.google.common.base.Predicates;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
-import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,26 +25,17 @@ import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
-import static com.google.common.base.Predicates.instanceOf;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asGroup;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asShellScript;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.childNamed;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.inputPaths;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mainGroup;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.matching;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mutateProject;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.removeFirst;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.scriptPhaseName;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.shellPath;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.shellScript;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetNamed;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.upToDate;
 import static dev.nokee.xcode.objects.files.PBXFileReference.ofGroup;
@@ -54,65 +44,84 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXShellScriptBuildPhaseFunctionalTests extends UpToDateCheckSpec {
-	void setup(Path location) {
-		mutateProject(targetNamed("App", buildPhases(add(PBXShellScriptBuildPhase.builder().name("Lint main component").shellScript("echo \"dummy-result\" > \"$DERIVED_FILE_DIR/App-result.txt\"").inputPath("$(SRCROOT)/App/AppDelegate.swift").inputPath("$(SRCROOT)/App/ViewController.swift").outputPath("$(DERIVED_FILE_DIR)/App-result.txt").build())))).accept(location);
+	@BeforeEach
+	void setup() throws IOException {
+		xcodeproj(targetUnderTest(buildPhases(add(PBXShellScriptBuildPhase.builder()
+			.name("Lint main component")
+			.shellScript("echo \"dummy-result\" > \"$DERIVED_FILE_DIR/App-result.txt\"")
+			.inputPath("$(SRCROOT)/App/AppDelegate.swift")
+			.inputPath("$(SRCROOT)/App/ViewController.swift")
+			.outputPath("$(DERIVED_FILE_DIR)/App-result.txt")
+			.build()))));
+
+		ensureUpToDate(executer);
+	}
+
+	@Override
+	protected String targetUnderTestName() {
+		return "App";
 	}
 
 	@Nested
 	class InputPathsField {
 		@Test
-		void outOfDateWhenFileContentChange() throws IOException {
-			appendChangeToSwiftFile(testDirectory.resolve("App/AppDelegate.swift"));
+		void outOfDateWhenInputPathContentChanged() throws IOException {
+			appendChangeToSwiftFile(file("App/AppDelegate.swift"));
 
-			assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 
 		@Test
-		void outOfDateWhenNewFileEntry() throws IOException {
-			mutateProject(mainGroup(childNamed("App", asGroup(children(add(ofGroup("NewFile.swift"))))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
-			mutateProject(targetNamed("App", buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(inputPaths(add("$(SRCROOT)/App/NewFile.swift"))))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
-			Files.write(testDirectory.resolve("App/NewFile.swift"), Arrays.asList("// Some additional line"), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+		void outOfDateWhenInputPathAdded() {
+			xcodeproj(groupUnderTest(children(add(ofGroup("NewFile.swift")))));
+			xcodeproj(targetUnderTest(shellScriptBuildPhases(inputPaths(add("$(SRCROOT)/App/NewFile.swift")))));
+			xcodeproj(run(() -> Files.write(file("App/NewFile.swift"), Arrays.asList("// Some additional line"), StandardOpenOption.WRITE, StandardOpenOption.CREATE)));
 
-			assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 
 		@Test
-		@Disabled
-		void ignoresDuplicatedPaths() {
-			mutateProject(targetNamed("App", buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(inputPaths(add("$(SRCROOT)/App/AppDelegate.swift"))))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+		void ignoresDuplicatedInputPaths() {
+			xcodeproj(targetUnderTest(shellScriptBuildPhases(inputPaths(add("$(SRCROOT)/App/AppDelegate.swift")))));
 
-			assertThat(executer.build().task(":UpToDateCheck:AppDebug"), upToDate());
+			assertThat(targetUnderTestExecution(), upToDate());
 		}
 
 		@Test
-		@Disabled
-		void ignoresPathsThatResolvesToDuplicatedFiles() {
-			mutateProject(targetNamed("App", buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(inputPaths(add("$(SOURCE_ROOT)/App/AppDelegate.swift"))))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+		void ignoresDuplicatedResolvedInputPaths() {
+			xcodeproj(targetUnderTest(shellScriptBuildPhases(inputPaths(add("$(SOURCE_ROOT)/App/AppDelegate.swift")))));
 
-			assertThat(executer.build().task(":UpToDateCheck:AppDebug"), upToDate());
+			assertThat(targetUnderTestExecution(), upToDate());
 		}
 
 		@Test
-		void outOfDateWhenFilesRemoved() {
-			mutateProject(targetNamed("App", buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(inputPaths(removeFirst())))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+		void ignoresInputPathsOrderingChanges() {
+			xcodeproj(targetUnderTest(shellScriptBuildPhases(inputPaths(shuffleOrdering()))));
 
-			assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+			assertThat(targetUnderTestExecution(), upToDate());
+		}
+
+		@Test
+		void outOfDateWhenInputPathRemoved() {
+			xcodeproj(targetUnderTest(shellScriptBuildPhases(inputPaths(removeFirst()))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 	}
 
 	@Test
 	void ignoresNewUnlinkedFile() throws IOException {
-		mutateProject(mainGroup(childNamed("App", asGroup(children(add(ofGroup("UnusedFile.swift"))))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
-		Files.write(testDirectory.resolve("App/UnusedFile.swift"), Arrays.asList("// Some additional line"), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+		xcodeproj(groupUnderTest(children(add(ofGroup("UnusedFile.swift")))));
+		Files.write(file("App/UnusedFile.swift"), Arrays.asList("// Some additional line"), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
 
-		assertThat(executer.build().task(":UpToDateCheck:AppDebug"), upToDate());
+		assertThat(targetUnderTestExecution(), upToDate());
 	}
 
 	@Test
 	void ignoresChangesToBuildPhaseName() {
-		mutateProject(targetNamed("App", buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(scriptPhaseName("Lint 'App' component")))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+		xcodeproj(targetUnderTest(shellScriptBuildPhases(scriptPhaseName("Lint 'App' component"))));
 
-		assertThat(executer.build().task(":UpToDateCheck:AppDebug"), upToDate());
+		assertThat(targetUnderTestExecution(), upToDate());
 	}
 
 	@Disabled("outputs are not yet tracked")
@@ -120,20 +129,20 @@ class UpToDateCheckDetectsChangeToPBXShellScriptBuildPhaseFunctionalTests extend
 	void outOfDateWhenOutputFileRemoved() throws IOException {
 		delete(buildDirectory().resolve("tmp/AppDebug/derivedData/Build/Intermediates.noindex/UpToDateCheck.build/Debug/App.build/DerivedSources/App-result.txt"));
 
-		assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+		assertThat(targetUnderTestExecution(), outOfDate());
 	}
 
 	@Test
-	void outOfDateWhenShellPathChange() {
-		mutateProject(targetNamed("App", buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(shellPath("/bin/bash")))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+	void outOfDateWhenShellPathChanged() {
+		xcodeproj(targetUnderTest(shellScriptBuildPhases(shellPath("/bin/bash"))));
 
-		assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+		assertThat(targetUnderTestExecution(), outOfDate());
 	}
 
 	@Test
-	void outOfDateWhenShellScriptChange() {
-		mutateProject(targetNamed("App", buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(shellScript("echo \"less-dummy-result\" > \"$DERIVED_FILE_DIR/App-result.txt\"")))))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+	void outOfDateWhenShellScriptChanged() {
+		xcodeproj(targetUnderTest(shellScriptBuildPhases(shellScript("echo \"less-dummy-result\" > \"$DERIVED_FILE_DIR/App-result.txt\""))));
 
-		assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+		assertThat(targetUnderTestExecution(), outOfDate());
 	}
 }

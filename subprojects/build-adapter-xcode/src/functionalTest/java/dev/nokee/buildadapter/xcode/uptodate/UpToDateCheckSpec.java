@@ -15,21 +15,62 @@
  */
 package dev.nokee.buildadapter.xcode.uptodate;
 
+import com.google.common.collect.ImmutableList;
+import dev.gradleplugins.runnerkit.BuildTask;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.UpToDateCheck;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
+import dev.nokee.xcode.objects.PBXProject;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
+import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXFrameworksBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXHeadersBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
+import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.objects.files.PBXGroup;
+import dev.nokee.xcode.objects.files.PBXSourceTree;
+import dev.nokee.xcode.objects.targets.PBXTarget;
+import lombok.val;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
+import static com.google.common.base.Predicates.instanceOf;
+import static com.google.common.collect.MoreCollectors.onlyElement;
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asCopyFiles;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asFrameworks;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asGroup;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asHeaders;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asResources;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asShellScript;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asSources;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mainGroup;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.matching;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mutateProject;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.childNameOrPath;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.productsGroup;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetName;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targets;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.skipped;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.everyItem;
@@ -39,32 +80,105 @@ public abstract class UpToDateCheckSpec {
 	GradleRunner executer;
 	@TestDirectory Path testDirectory;
 
-	@BeforeEach
-	final void setup(GradleRunner runner) throws IOException {
-		new UpToDateCheck().writeToProject(testDirectory);
-		setup(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+	protected static UnaryOperator<PBXProject> alternateBuiltProduct(String filename) {
+		return project -> {
+			PBXProject result = project;
+			val productsGroup = (PBXGroup) project.getMainGroup().getChildren().stream().filter(childNameOrPath("Products")).collect(onlyElement());
+			val sourceFile = (PBXFileReference) productsGroup.getChildren().stream().filter(childNameOrPath(filename)).collect(onlyElement());
 
-		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
-		executer = configure(runner).withArgument("-Dsdk=macosx");
-		executer.build();
-		assertThat(executer.build().getTasks(), everyItem(skipped()));
+			val builder = PBXFileReference.builder().sourceTree(PBXSourceTree.of("CONFIGURATION_BUILD_DIR"));
+			sourceFile.getPath().ifPresent(builder::path);
+			builder.name("alternate-" + filename);
+			val alternateFile = builder.build();
+
+			result = productsGroup(children(add(alternateFile))).apply(result);
+			return result;
+		};
 	}
 
-	void setup(Path location) throws IOException {}
-	GradleRunner configure(GradleRunner runner) {
-		return runner.withTasks("AppDebug");
+	static PBXBuildPhase aBuildPhase() {
+		return PBXCopyFilesBuildPhase.builder().destination(it -> it.resources("")).build();
+	}
+
+	protected UnaryOperator<PBXProject> alternateFileUnderTest(String filename) {
+		return project -> {
+			PBXProject result = project;
+			val groupUnderTest = (PBXGroup) project.getMainGroup().getChildren().stream().filter(childNameOrPath(targetUnderTestName())).collect(onlyElement());
+			val sourceFile = (PBXFileReference) groupUnderTest.getChildren().stream().filter(childNameOrPath(filename)).collect(onlyElement());
+
+			val builder = PBXFileReference.builder().sourceTree(PBXSourceTree.of("SOURCE_ROOT"));
+			builder.path(targetUnderTestName() + "/" + filename);
+			builder.name("alternate-" + filename);
+			val alternateFile = builder.build();
+
+			result = groupUnderTest(children(add(alternateFile))).apply(result);
+			return result;
+		};
+	}
+
+
+	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> copyFilesBuildPhases(BiFunction<? super PBXProject, ? super PBXCopyFilesBuildPhase, ? extends PBXCopyFilesBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXCopyFilesBuildPhase.class), asCopyFiles(action)));
+	}
+
+	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> frameworksBuildPhases(BiFunction<? super PBXProject, ? super PBXFrameworksBuildPhase, ? extends PBXFrameworksBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXFrameworksBuildPhase.class), asFrameworks(action)));
+	}
+
+	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> headersBuildPhases(BiFunction<? super PBXProject, ? super PBXHeadersBuildPhase, ? extends PBXHeadersBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXHeadersBuildPhase.class), asHeaders(action)));
+	}
+
+	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> resourcesBuildPhases(BiFunction<? super PBXProject, ? super PBXResourcesBuildPhase, ? extends PBXResourcesBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXResourcesBuildPhase.class), asResources(action)));
+	}
+
+	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> sourcesBuildPhases(BiFunction<? super PBXProject, ? super PBXSourcesBuildPhase, ? extends PBXSourcesBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXSourcesBuildPhase.class), asSources(action)));
+	}
+
+	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> shellScriptBuildPhases(BiFunction<? super PBXProject, ? super PBXShellScriptBuildPhase, ? extends PBXShellScriptBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(action)));
+	}
+
+	protected static <T> BiFunction<PBXProject, List<T>, List<T>> shuffleOrdering() {
+		return (self, values) -> {
+			assert values.size() > 1;
+			val result = ImmutableList.<T>builder().add(values.get(values.size() - 1)).addAll(values.subList(0, values.size() - 1)).build();
+			assert result.size() == values.size();
+			return result;
+		};
+	}
+
+	@BeforeEach
+	void setup(GradleRunner runner) throws IOException {
+		new UpToDateCheck().writeToProject(testDirectory);
+
+		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
+		executer = runner.withTasks(targetUnderTestName() + "Debug").withArgument("-Dsdk=macosx");
+	}
+
+	protected String targetUnderTestName() {
+		return "ComponentUnderTest";
+	}
+
+	protected final BuildTask targetUnderTestExecution() {
+		return executer.build().task(":UpToDateCheck:" + targetUnderTestName() + "Debug");
 	}
 
 	static void appendMeaningfulChangeToCFile(Path location) throws IOException {
+		assert location.getFileName().toString().endsWith(".c");
 		// Need to make a meaningful change so the final binary changes (this change will add a .data entry)
 		Files.write(location, Arrays.asList("int value = 42;"), StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 	}
 
 	static void appendChangeToCHeader(Path location) throws IOException {
+		assert location.getFileName().toString().endsWith(".h");
 		Files.write(location, Arrays.asList("// Some additional line"), StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 	}
 
 	static void appendChangeToSwiftFile(Path location) throws IOException {
+		assert location.getFileName().toString().endsWith(".swift");
 		Files.write(location, Arrays.asList("// Some additional line"), StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 	}
 
@@ -83,11 +197,61 @@ public abstract class UpToDateCheckSpec {
 			"}"), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
 	}
 
+	static void ensureUpToDate(GradleRunner executer) {
+		executer.build();
+		assertThat(executer.build().getTasks(), everyItem(skipped()));
+	}
+
 	Path appDebugProductsDirectory() {
 		return buildDirectory().resolve("derivedData/App/Build/Products/Debug");
 	}
 
 	Path buildDirectory() {
 		return testDirectory.resolve("build/subprojects/UpToDateCheck-1jnf0zhg14ui3");
+	}
+
+	protected static <T> Function<T, T> run(Executable executable) {
+		return it -> {
+			try {
+				executable.execute();
+			} catch (Throwable e) {
+				throw new RuntimeException(e);
+			}
+			return it;
+		};
+	}
+
+	protected void xcodeproj(Function<PBXProject, PBXProject> action) {
+		mutateProject(action).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+	}
+
+	protected UnaryOperator<PBXProject> targetUnderTest(BiFunction<? super PBXProject, ? super PBXTarget, ? extends PBXTarget> action) {
+		return targets(matching(targetName(targetUnderTestName()), action));
+	}
+
+	protected UnaryOperator<PBXProject> groupUnderTest(BiFunction<? super PBXProject, ? super PBXGroup, ? extends PBXGroup> action) {
+		return mainGroup(children(matching(childNameOrPath(targetUnderTestName()), asGroup(action))));
+	}
+
+	protected Function<PBXProject, PBXBuildFile> buildFileTo(String name) {
+		return self -> {
+			val appGroup = (PBXGroup) self.getMainGroup().getChildren().stream().filter(childNameOrPath(targetUnderTestName())).collect(onlyElement());
+			val fileRef = (PBXFileReference) appGroup.getChildren().stream().filter(childNameOrPath(name)).collect(onlyElement());
+			return PBXBuildFile.builder().fileRef(fileRef).build();
+		};
+	}
+
+	protected Function<PBXProject, PBXBuildFile> buildFileTo(String name, Consumer<? super PBXBuildFile.Builder> action) {
+		return self -> {
+			val appGroup = (PBXGroup) self.getMainGroup().getChildren().stream().filter(childNameOrPath(targetUnderTestName())).collect(onlyElement());
+			val fileRef = (PBXFileReference) appGroup.getChildren().stream().filter(childNameOrPath(name)).collect(onlyElement());
+			val builder = PBXBuildFile.builder();
+			action.accept(builder);
+			return builder.fileRef(fileRef).build();
+		};
+	}
+
+	protected final Path file(String path) {
+		return testDirectory.resolve(path);
 	}
 }

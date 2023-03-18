@@ -15,14 +15,11 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.testdoubles.TestDouble;
+import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.project.ValueEncoder;
-import lombok.EqualsAndHashCode;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
@@ -33,43 +30,22 @@ import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-class ListSpecEncoderTests {
+class FileSystemLocationEncoderTests {
 	ValueEncoder.Context context = newMock(ValueEncoder.Context.class).alwaysThrows().instance();
-	TestDouble<ValueEncoder<List<XCBuildSpec>, List<String>>> delegate = newMock(ValueEncoder.class)
-		.when(any(callTo(method(ValueEncoder<List<XCBuildSpec>, List<String>>::encode))).then(doReturn((it, args) -> {
-			List<String> values = args.getArgument(0);
-			return values.stream().map(Object::toString).map(ListSpecEncoderTests::spec).collect(Collectors.toList());
-		})));
+	TestDouble<ValueEncoder<PBXReference, PBXReference>> delegate = newMock(ValueEncoder.class)
+		.when(any(callTo(method(ValueEncoder<PBXReference, PBXReference>::encode))).then(doReturn((it, args) -> args.getArgument(0))));
 
-	List<String> objectToEncode = ImmutableList.of("a", "b", "c");
-	ListSpecEncoder<List<String>> subject = new ListSpecEncoder<>(delegate.instance());
+	PBXFileReference objectToEncode = PBXFileReference.ofSourceRoot("foo.c");
+	FileSystemLocationEncoder<PBXReference> subject = new FileSystemLocationEncoder<>(delegate.instance());
 	XCBuildSpec result = subject.encode(objectToEncode, context);
 
 	@Test
 	void canEncodeObjectToBuildSpec() {
-		assertThat(result, equalTo(new NestedListSpec(ImmutableList.of(spec("a"), spec("b"), spec("c")))));
+		assertThat(result, equalTo(new FileSystemLocationEncoder.Spec(objectToEncode)));
 	}
 
 	@Test
 	void callsDelegateWithInputValue() {
-		assertThat(delegate.to(method(ValueEncoder<List<XCBuildSpec>, List<String>>::encode)), calledOnceWith(objectToEncode, context));
-	}
-
-	private static Spec spec(String value) {
-		return new Spec(value);
-	}
-
-	@EqualsAndHashCode
-	private static final class Spec implements XCBuildSpec {
-		private final Object value;
-
-		public Spec(Object value) {
-			this.value = value;
-		}
-
-		@Override
-		public XCBuildPlan resolve(ResolveContext context) {
-			throw new UnsupportedOperationException();
-		}
+		assertThat(delegate.to(method(ValueEncoder<PBXReference, PBXReference>::encode)), calledOnceWith(objectToEncode, context));
 	}
 }

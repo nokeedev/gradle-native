@@ -15,48 +15,92 @@
  */
 package dev.nokee.buildadapter.xcode.uptodate;
 
-import dev.nokee.xcode.objects.buildphase.PBXFrameworksBuildPhase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
-import static com.google.common.base.Predicates.instanceOf;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildFileToProduct;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.dependencies;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.matching;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mutateProject;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetDependencyTo;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetNamed;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static java.nio.file.Files.delete;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXFrameworksBuildPhaseFunctionalTests extends UpToDateCheckSpec {
-	void setup(Path location) {
-		mutateProject(targetNamed("App", dependencies(add(targetDependencyTo("Common"))))).accept(location);
-		mutateProject(targetNamed("App", buildPhases(matching(instanceOf(PBXFrameworksBuildPhase.class), files(add(buildFileToProduct("Common.framework"))))))).accept(location);
+	@BeforeEach
+	void setup() throws IOException {
+		xcodeproj(targetUnderTest(frameworksBuildPhases(files(add(buildFileToProduct("Foo.framework"))))));
+
+		ensureUpToDate(executer);
 	}
 
-	@Test
-	void outOfDateWhenConsumedFrameworkRebuild() throws IOException {
-		appendMeaningfulChangeToCFile(testDirectory.resolve("Common/Common.c"));
+	@Override
+	protected String targetUnderTestName() {
+		return "App";
+	}
 
-		assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+	@Nested
+	class FilesField {
+		@Test
+		void outOfDateWhenConsumedFrameworkRebuilt() throws IOException {
+			appendChangeToSwiftFile(file("Foo/Foo.swift"));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileAdded() {
+			xcodeproj(targetUnderTest(frameworksBuildPhases(files(add(buildFileToProduct("Bar.framework"))))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileRemoved() {
+			xcodeproj(targetUnderTest(frameworksBuildPhases(files(clear()))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileEntryDuplicated() {
+			xcodeproj(targetUnderTest(frameworksBuildPhases(files(add(buildFileToProduct("Foo.framework"))))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenResolvedFileDuplicated() {
+			xcodeproj(alternateBuiltProduct("Foo.framework"));
+			xcodeproj(targetUnderTest(frameworksBuildPhases(files(add(buildFileToProduct("alternate-Foo.framework"))))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileOrderingChanged() {
+			xcodeproj(targetUnderTest(frameworksBuildPhases(files(add(buildFileToProduct("Bar.framework"))))));
+
+			ensureUpToDate(executer.withArgument("-i"));
+
+			xcodeproj(targetUnderTest(frameworksBuildPhases(files(shuffleOrdering()))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
 	}
 
 	@Disabled("outputs are not yet tracked")
 	@Test
 	void outOfDateWhenConsumedFrameworkChange() throws IOException {
-		delete(appDebugProductsDirectory().resolve("Common.framework/Common"));
+		delete(appDebugProductsDirectory().resolve("Foo.framework/Foo"));
 
-		assertThat(executer.build().task(":UpToDateCheck:AppDebug"), outOfDate());
+		assertThat(targetUnderTestExecution(), outOfDate());
 	}
 }

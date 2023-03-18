@@ -135,7 +135,7 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 					return XCFileReference.fromBuildSetting(fileRef.getSourceTree().toString(), pathOf(fileRef));
 				}
 			}
-			return Objects.requireNonNull(fileRefs.get(fileRef));
+			return Objects.requireNonNull(fileRefs.get(fileRef), () -> "no reference for '" + fileRef + "'");
 		}
 
 		public static Builder builder() {

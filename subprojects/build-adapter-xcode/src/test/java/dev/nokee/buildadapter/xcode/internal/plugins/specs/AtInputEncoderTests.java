@@ -16,8 +16,6 @@
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
 import dev.nokee.internal.testing.testdoubles.TestDouble;
-import dev.nokee.xcode.objects.files.PBXFileReference;
-import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.project.ValueEncoder;
 import org.junit.jupiter.api.Test;
 
@@ -30,22 +28,22 @@ import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-class InputLocationSpecEncoderTests {
+class AtInputEncoderTests {
 	ValueEncoder.Context context = newMock(ValueEncoder.Context.class).alwaysThrows().instance();
-	TestDouble<ValueEncoder<PBXReference, PBXReference>> delegate = newMock(ValueEncoder.class)
-		.when(any(callTo(method(ValueEncoder<PBXReference, PBXReference>::encode))).then(doReturn((it, args) -> args.getArgument(0))));
+	TestDouble<ValueEncoder<Object, Object>> delegate = newMock(ValueEncoder.class)
+		.when(any(callTo(method(ValueEncoder<Object, Object>::encode))).then(doReturn((it, args) -> args.getArgument(0))));
 
-	PBXFileReference objectToEncode = PBXFileReference.ofSourceRoot("foo.c");
-	InputLocationSpecEncoder<PBXReference> subject = new InputLocationSpecEncoder<>(delegate.instance());
+	Object objectToEncode = new Object();
+	AtInputEncoder<Object> subject = new AtInputEncoder<>(delegate.instance());
 	XCBuildSpec result = subject.encode(objectToEncode, context);
 
 	@Test
 	void canEncodeObjectToBuildSpec() {
-		assertThat(result, equalTo(new InputLocationSpec(objectToEncode)));
+		assertThat(result, equalTo(new AtInputEncoder.Spec(objectToEncode)));
 	}
 
 	@Test
 	void callsDelegateWithInputValue() {
-		assertThat(delegate.to(method(ValueEncoder<PBXReference, PBXReference>::encode)), calledOnceWith(objectToEncode, context));
+		assertThat(delegate.to(method(ValueEncoder<Object, Object>::encode)), calledOnceWith(objectToEncode, context));
 	}
 }

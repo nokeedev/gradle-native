@@ -15,42 +15,48 @@
  */
 package dev.nokee.buildadapter.xcode.uptodate;
 
-import dev.gradleplugins.runnerkit.GradleRunner;
-import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import java.io.IOException;
+
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mutateProject;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.removeLast;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetNamed;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXAggregateTargetFunctionalTests extends UpToDateCheckSpec {
+	@BeforeEach
+	void setup() throws IOException {
+		xcodeproj(targetUnderTest(buildPhases(add(aBuildPhase()))));
+
+		ensureUpToDate(executer);
+	}
+
 	@Override
-	GradleRunner configure(GradleRunner runner) {
-		return runner.withTasks("AggregateDebug");
+	protected String targetUnderTestName() {
+		return "AppAggregate";
 	}
 
 	@Nested
 	class BuildPhasesField {
 		@Test
-		void outOfDateWhenNewBuildPhase() {
-			mutateProject(targetNamed("Aggregate", buildPhases(add(PBXCopyFilesBuildPhase.builder().destination(it -> it.frameworks("")).build())))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+		void outOfDateWhenBuildPhaseAdded() {
+			xcodeproj(targetUnderTest(buildPhases(add(aBuildPhase()))));
 
-			assertThat(executer.build().task(":UpToDateCheck:AggregateDebug"), outOfDate());
+			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 
 		@Test
-		void outOfDateWhenRemoveBuildPhase() {
-			mutateProject(targetNamed("Aggregate", buildPhases(removeLast()))).accept(testDirectory.resolve("UpToDateCheck.xcodeproj"));
+		void outOfDateWhenBuildPhaseRemoved() {
+			xcodeproj(targetUnderTest(buildPhases(clear())));
 
-			assertThat(executer.build().task(":UpToDateCheck:AggregateDebug"), outOfDate());
+			assertThat(targetUnderTestExecution(), outOfDate());
 		}
 	}
 }

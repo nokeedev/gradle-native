@@ -15,43 +15,139 @@
  */
 package dev.nokee.buildadapter.xcode.uptodate;
 
-import dev.gradleplugins.runnerkit.TaskOutcome;
+import com.google.common.collect.ImmutableMap;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
+import static com.google.common.collect.ImmutableList.of;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.dependencies;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mutateProject;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetDependencyTo;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetNamed;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
+import static dev.nokee.xcode.objects.files.PBXFileReference.ofGroup;
 import static java.nio.file.Files.delete;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 
 @EnabledOnOs(OS.MAC)
 class UpToDateCheckDetectsChangeToPBXHeadersBuildPhaseFunctionalTests extends UpToDateCheckSpec {
-	void setup(Path location) {
-		mutateProject(targetNamed("App", dependencies(add(targetDependencyTo("Common"))))).accept(location);
+	@BeforeEach
+	void setup() throws IOException {
+		xcodeproj(targetNamed("App", dependencies(add(targetDependencyTo(targetUnderTestName())))));
+
+		executer = executer.withTasks("AppDebug"); // ensure the App is built which depends on the target under test
+
+		ensureUpToDate(executer);
 	}
 
-	@Test
-	void outOfDateWhenPrivateHeaderChange() throws IOException {
-		appendChangeToCHeader(testDirectory.resolve("Common/Common.h"));
+	@Override
+	protected String targetUnderTestName() {
+		return "Foo";
+	}
 
-		assertThat(executer.build().task(":UpToDateCheck:CommonDebug"), outOfDate());
+	@Nested
+	class FilesField {
+		@Test // TODO: check here
+		void outOfDateWhenPrivateHeaderChange() throws IOException {
+			appendChangeToCHeader(file("Foo/Foo.h"));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test // TODO: What about public/protected
+		void outOfDateWhenPublicHeaderFileAdded() throws IOException {
+			xcodeproj(groupUnderTest(children(add(ofGroup("MyApp.h")))));
+			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("MyApp.h", asPublic()))))));
+			Files.write(file("Foo/MyApp.h"), Arrays.asList("// my app header"));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test // TODO: What about public/protected
+		void outOfDateWhenPrivateHeaderFileAdded() throws IOException {
+			xcodeproj(groupUnderTest(children(add(ofGroup("MyApp.h")))));
+			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("MyApp.h", asPrivate()))))));
+			Files.write(file("Foo/MyApp.h"), Arrays.asList("// my app header"));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test // TODO: What about public/protected
+		void outOfDateWhenProjectHeaderFileAdded() throws IOException {
+			xcodeproj(groupUnderTest(children(add(ofGroup("MyApp.h")))));
+			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("MyApp.h", asProject()))))));
+			Files.write(file("Foo/MyApp.h"), Arrays.asList("// my app header"));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileRemoved() {
+			xcodeproj(targetUnderTest(headersBuildPhases(files(clear()))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenFileEntryDuplicated() {
+			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("Foo.h", asPublic()))))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenResolvedFileDuplicated() {
+			xcodeproj(alternateFileUnderTest("Foo.h"));
+			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("alternate-Foo.h", asPublic()))))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void outOfDateWhenHeadersOrderingChanged() throws IOException {
+			Files.write(file("Foo/MyApp.h"), Arrays.asList("// my app header"), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+			xcodeproj(groupUnderTest(children(add(ofGroup("MyApp.h")))));
+			xcodeproj(targetUnderTest(headersBuildPhases(files(add(buildFileTo("MyApp.h", asPublic()))))));
+
+			ensureUpToDate(executer);
+
+			xcodeproj(targetUnderTest(headersBuildPhases(files(shuffleOrdering()))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
 	}
 
 	@Disabled("outputs are not yet tracked")
 	@Test // TODO: This may actually trigger the productReference....
 	void outOfDateWhenDeletePrivateHeaderFromFramework() throws IOException {
-		delete(appDebugProductsDirectory().resolve("Common.framework/Versions/A/Headers/Common.h"));
+		delete(appDebugProductsDirectory().resolve("Foo.framework/Versions/A/Headers/Foo.h"));
 
-		assertThat(executer.build().task(":UpToDateCheck:CommonDebug").getOutcome(), equalTo(TaskOutcome.SUCCESS));
+		assertThat(targetUnderTestExecution(), outOfDate());
+	}
+
+	public static Consumer<PBXBuildFile.Builder> asPublic() {
+		return it -> it.settings(ImmutableMap.of("ATTRIBUTES", of("Public")));
+	}
+
+	public static Consumer<PBXBuildFile.Builder> asPrivate() {
+		return it -> it.settings(ImmutableMap.of("ATTRIBUTES", of("Private")));
+	}
+
+	public static Consumer<PBXBuildFile.Builder> asProject() {
+		return it -> it.settings(ImmutableMap.of("ATTRIBUTES", of("Project")));
 	}
 }

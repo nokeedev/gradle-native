@@ -65,7 +65,7 @@ import static dev.nokee.xcode.project.KeyedCoders.ISA;
 
 public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 	private static final Map<CodingKey, KeyedCoder<?>> coders = Collections.unmodifiableMap(new HashMap<CodingKey, KeyedCoder<?>>() {{
-		put(ISA, forKey("isa", ofInputString()));
+		put(ISA, forKey("isa", atInput(ofString())));
 
 		// PBXAggregateTarget
 		put(CodeablePBXAggregateTarget.CodingKeys.name, null);
@@ -77,7 +77,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXAggregateTarget.CodingKeys.dependencies, null);
 
 		// PBXBuildFile
-		put(CodeablePBXBuildFile.CodingKeys.fileRef, forKey("fileRef", ofInputLocation()));
+		put(CodeablePBXBuildFile.CodingKeys.fileRef, forKey("fileRef", atInputFiles(ofLocation())));
 		put(CodeablePBXBuildFile.CodingKeys.settings, null);
 		put(CodeablePBXBuildFile.CodingKeys.productRef, null);
 
@@ -112,8 +112,8 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXLegacyTarget.CodingKeys.dependencies, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.buildPhases, null); // legacy target are not allowed to have build phases
-		put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, forKey("buildArgumentsString", ofInputString()));
-		put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, forKey("buildToolPath", ofInputString()));
+		put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, forKey("buildArgumentsString", atInput(ofString())));
+		put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, forKey("buildToolPath", atInput(ofString())));
 		put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, null);
 
@@ -148,9 +148,9 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		// PBXShellScriptBuildPhase
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, null);
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.files, null); // shell script uses input*/output* to check up-to-date
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, forKey("shellPath", ofInputString()));
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, forKey("shellScript", ofInputString()));
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, forKey("inputPaths", list(ofInputLocation())));
+		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, forKey("shellPath", atInput(ofString())));
+		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, forKey("shellScript", atInput(ofString())));
+		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, forKey("inputPaths", atInputFiles(set(ofLocation()))));
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, null);
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, null);
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, null);
@@ -235,18 +235,30 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 	}
 
 	private static <T extends Codeable, U> ValueEncoder<XCBuildSpec, T> of(Class<U> type) {
-		return new MapSpecEncoder<>(new NoOpEncoder<>());
+		return new AtNestedMapEncoder<>(new NoOpEncoder<>());
 	}
 
-	private static ValueEncoder<XCBuildSpec, Object> ofInputLocation() {
-		return new InputLocationSpecEncoder<>(new NormalizeStringAsPBXReferenceEncoder(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder(new ThrowingValueEncoder<>())));
+	private static ValueEncoder<XCBuildSpec, Object> ofLocation() {
+		return new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder(new ThrowingValueEncoder<>())));
 	}
 
 	private static <T> ValueEncoder<XCBuildSpec, List<T>> list(ValueEncoder<XCBuildSpec, T> elementEncoder) {
-		return new ListSpecEncoder<>(new ListEncoder<>(elementEncoder));
+		return AtNestedCollectionEncoder.atNestedList(new ListEncoder<>(elementEncoder));
 	}
 
-	private static ValueEncoder<XCBuildSpec, String> ofInputString() {
-		return new InputObjectSpecEncoder<>(new StringEncoder<>(new NoOpEncoder<>()));
+	private static <T> ValueEncoder<XCBuildSpec, T> atInputFiles(ValueEncoder<XCBuildSpec, T> encoder) {
+		return new AtInputFilesEncoder<>(encoder);
+	}
+
+	private static <T> ValueEncoder<XCBuildSpec, T> atInput(ValueEncoder<?, T> encoder) {
+		return new AtInputEncoder<>(encoder);
+	}
+
+	private static ValueEncoder<String, String> ofString() {
+		return new StringEncoder<>(new NoOpEncoder<>());
+	}
+
+	private static <T> ValueEncoder<XCBuildSpec, List<T>> set(ValueEncoder<XCBuildSpec, T> elementEncoder) {
+		return AtNestedCollectionEncoder.atNestedSet(new ListEncoder<>(elementEncoder));
 	}
 }

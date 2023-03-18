@@ -50,6 +50,17 @@
                ReferencedContainer = "container:UpToDateCheck.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "65FF4CBA29BF4C84000D5657"
+               BuildableName = "FooTests.xctest"
+               BlueprintName = "FooTests"
+               ReferencedContainer = "container:UpToDateCheck.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

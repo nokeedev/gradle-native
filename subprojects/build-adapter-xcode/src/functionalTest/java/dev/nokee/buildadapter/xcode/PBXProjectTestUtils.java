@@ -23,10 +23,16 @@ import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.buildphase.BuildFileAwareBuilder;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXFrameworksBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXHeadersBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.targets.BuildPhaseAwareBuilder;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
@@ -43,6 +49,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -53,7 +60,7 @@ import java.util.function.UnaryOperator;
 import static com.google.common.collect.MoreCollectors.onlyElement;
 
 public final class PBXProjectTestUtils {
-	public static Consumer<Path> mutateProject(UnaryOperator<PBXProject> action) {
+	public static Consumer<Path> mutateProject(Function<PBXProject, PBXProject> action) {
 		return path -> {
 			assert path.getFileName().toString().endsWith(".xcodeproj");
 			try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(path.resolve("project.pbxproj"))))) {
@@ -75,6 +82,10 @@ public final class PBXProjectTestUtils {
 		return project -> project.toBuilder().mainGroup(action.apply(project, project.getMainGroup())).build();
 	}
 
+	public static UnaryOperator<PBXProject> productsGroup(BiFunction<? super PBXProject, ? super PBXGroup, ? extends PBXGroup> action) {
+		return mainGroup(children(matching(childNameOrPath("Products"), asGroup(action))));
+	}
+
 	public static <SELF> BiFunction<SELF, PBXGroup, PBXGroup> children(BiFunction<? super SELF, ? super List<GroupChild>, ? extends List<GroupChild>> action) {
 		return (project, group) -> {
 			return group.toBuilder().children(action.apply(project, group.getChildren())).build();
@@ -83,20 +94,19 @@ public final class PBXProjectTestUtils {
 
 	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> matching(Predicate<? super E> predicate, BiFunction<? super SELF, ? super E, ? extends E> action) {
 		return (self, values) -> {
+			boolean found = false;
 			val builder = ImmutableList.<E>builder();
 			for (E value : values) {
 				if (predicate.test(value)) {
+					found = true;
 					builder.add(action.apply(self, value));
 				} else {
 					builder.add(value);
 				}
 			}
+			assert found : "no item matched predicate";
 			return builder.build();
 		};
-	}
-
-	public static BiFunction<PBXProject, PBXGroup, PBXGroup> childNamed(String name, BiFunction<? super PBXProject, ? super GroupChild, ? extends GroupChild> action) {
-		return children(matching(childName(name), action));
 	}
 
 	public static Predicate<GroupChild> childName(String value) {
@@ -107,8 +117,20 @@ public final class PBXProjectTestUtils {
 		return it -> it.getPath().map(value::equals).orElse(false);
 	}
 
-	public static Predicate<GroupChild> nameOrPath(String value) {
+	public static Predicate<GroupChild> childNameOrPath(String value) {
 		return childName(value).or(childPath(value));
+	}
+
+	public static Predicate<PBXReference> referenceName(String value) {
+		return it -> it.getName().map(value::equals).orElse(false);
+	}
+
+	public static Predicate<PBXReference> referencePath(String value) {
+		return it -> it.getPath().map(value::equals).orElse(false);
+	}
+
+	public static Predicate<PBXReference> referenceNameOrPath(String value) {
+		return referenceName(value).or(referencePath(value));
 	}
 
 	public static BiFunction<PBXProject, GroupChild, GroupChild> asGroup(BiFunction<? super PBXProject, ? super PBXGroup, ? extends PBXGroup> action) {
@@ -132,6 +154,19 @@ public final class PBXProjectTestUtils {
 		return (__, values) -> values.subList(0, values.size() - 1);
 	}
 
+	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> removeIf(Predicate<? super E> predicate) {
+		return (__, values) -> {
+			val newValues = new ArrayList<>(values);
+			boolean found = newValues.removeIf(predicate);
+			assert found;
+			return newValues;
+		};
+	}
+
+	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> clear() {
+		return (__, values) -> ImmutableList.of();
+	}
+
 	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> add(Function<? super SELF, ? extends E> action) {
 		return (self, values) -> {
 			return ImmutableList.<E>builder().addAll(values).add(action.apply(self)).build();
@@ -146,10 +181,14 @@ public final class PBXProjectTestUtils {
 
 	public static Function<PBXProject, PBXBuildFile> buildFileToProduct(String productName) {
 		return self -> {
-			val productGroup = (PBXGroup) self.getMainGroup().getChildren().stream().filter(childName("Products")).collect(onlyElement());
-			val productFile = (PBXFileReference) productGroup.getChildren().stream().filter(nameOrPath(productName)).collect(onlyElement());
+			val productGroup = (PBXGroup) self.getMainGroup().getChildren().stream().filter(childNameOrPath("Products")).collect(onlyElement());
+			val productFile = (PBXFileReference) productGroup.getChildren().stream().filter(childNameOrPath(productName)).collect(onlyElement());
 			return PBXBuildFile.ofFile(productFile);
 		};
+	}
+
+	public static Function<PBXProject, PBXBuildFile> buildFileToProduct(Function<? super PBXProject, PBXBuildFile.FileReference> action) {
+		return self -> PBXBuildFile.ofFile(action.apply(self));
 	}
 
 	public static UnaryOperator<PBXProject> targets(BiFunction<? super PBXProject, ? super List<PBXTarget>, ? extends List<PBXTarget>> action) {
@@ -192,11 +231,13 @@ public final class PBXProjectTestUtils {
 		};
 	}
 
-	public static BiFunction<PBXProject, PBXBuildPhase, PBXBuildPhase> files(BiFunction<? super PBXProject, ? super List<PBXBuildFile>, ? extends List<PBXBuildFile>> action) {
+	public static <T extends PBXBuildPhase> BiFunction<PBXProject, T, T> files(BiFunction<? super PBXProject, ? super List<PBXBuildFile>, ? extends List<PBXBuildFile>> action) {
 		return (self, buildPhase) -> {
 			val builder = buildPhase.toBuilder();
 			((BuildFileAwareBuilder<?>) builder).files(action.apply(self, buildPhase.getFiles()));
-			return builder.build();
+			@SuppressWarnings("unchecked")
+			val result = (T) builder.build();
+			return result;
 		};
 	}
 
@@ -208,6 +249,41 @@ public final class PBXProjectTestUtils {
 		return (self, buildPhase) -> {
 			assert buildPhase instanceof PBXShellScriptBuildPhase;
 			return action.apply(self, (PBXShellScriptBuildPhase) buildPhase);
+		};
+	}
+
+	public static BiFunction<PBXProject, PBXBuildPhase, PBXCopyFilesBuildPhase> asCopyFiles(BiFunction<? super PBXProject, ? super PBXCopyFilesBuildPhase, ? extends PBXCopyFilesBuildPhase> action) {
+		return (self, buildPhase) -> {
+			assert buildPhase instanceof PBXCopyFilesBuildPhase;
+			return action.apply(self, (PBXCopyFilesBuildPhase) buildPhase);
+		};
+	}
+
+	public static BiFunction<PBXProject, PBXBuildPhase, PBXFrameworksBuildPhase> asFrameworks(BiFunction<? super PBXProject, ? super PBXFrameworksBuildPhase, ? extends PBXFrameworksBuildPhase> action) {
+		return (self, buildPhase) -> {
+			assert buildPhase instanceof PBXFrameworksBuildPhase;
+			return action.apply(self, (PBXFrameworksBuildPhase) buildPhase);
+		};
+	}
+
+	public static BiFunction<PBXProject, PBXBuildPhase, PBXHeadersBuildPhase> asHeaders(BiFunction<? super PBXProject, ? super PBXHeadersBuildPhase, ? extends PBXHeadersBuildPhase> action) {
+		return (self, buildPhase) -> {
+			assert buildPhase instanceof PBXHeadersBuildPhase;
+			return action.apply(self, (PBXHeadersBuildPhase) buildPhase);
+		};
+	}
+
+	public static BiFunction<PBXProject, PBXBuildPhase, PBXResourcesBuildPhase> asResources(BiFunction<? super PBXProject, ? super PBXResourcesBuildPhase, ? extends PBXResourcesBuildPhase> action) {
+		return (self, buildPhase) -> {
+			assert buildPhase instanceof PBXResourcesBuildPhase;
+			return action.apply(self, (PBXResourcesBuildPhase) buildPhase);
+		};
+	}
+
+	public static BiFunction<PBXProject, PBXBuildPhase, PBXSourcesBuildPhase> asSources(BiFunction<? super PBXProject, ? super PBXSourcesBuildPhase, ? extends PBXSourcesBuildPhase> action) {
+		return (self, buildPhase) -> {
+			assert buildPhase instanceof PBXSourcesBuildPhase;
+			return action.apply(self, (PBXSourcesBuildPhase) buildPhase);
 		};
 	}
 

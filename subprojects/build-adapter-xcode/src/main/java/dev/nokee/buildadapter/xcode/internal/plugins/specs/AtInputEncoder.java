@@ -15,20 +15,44 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
-import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.project.ValueEncoder;
 import lombok.EqualsAndHashCode;
+import org.gradle.api.tasks.Input;
 
 @EqualsAndHashCode
-public final class InputLocationSpecEncoder<IN> implements ValueEncoder<XCBuildSpec, IN> {
-	private final ValueEncoder<PBXReference, IN> delegate;
+public final class AtInputEncoder<IN> implements ValueEncoder<XCBuildSpec, IN> {
+	private final ValueEncoder<?, IN> delegate;
 
-	public InputLocationSpecEncoder(ValueEncoder<PBXReference, IN> delegate) {
+	public AtInputEncoder(ValueEncoder<?, IN> delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
 	public XCBuildSpec encode(IN value, Context context) {
-		return new InputLocationSpec(delegate.encode(value, context));
+		return new Spec(delegate.encode(value, context));
+	}
+
+	@EqualsAndHashCode
+	public static final class Spec implements XCBuildSpec, XCBuildPlan {
+		private final Object value;
+
+		public Spec(Object value) {
+			this.value = value;
+		}
+
+		@Input
+		public Object getValue() {
+			return value;
+		}
+
+		@Override
+		public XCBuildPlan resolve(ResolveContext context) {
+			return this; // already resolved
+		}
+
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visitValue(value);
+		}
 	}
 }
