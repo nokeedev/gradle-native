@@ -89,7 +89,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(KeyedCoders.ISA, keyOf("isa", inputOf(string()))));
 
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.name, ignore()));
-			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productName, ignore()));
+			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productName, keyOf("productName", inputOf(string()))));
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productType, ignore()));
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.dependencies, ignore())); // not required (2)
@@ -125,7 +125,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXHeadersBuildPhase.CodingKeys.files, keyOf("files", listOf(object(/*PBXBuildFile*/)))));
 
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.name, ignore()));
-			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productName, ignore()));
+			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productName, keyOf("productName", inputOf(string()))));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productType, ignore()));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.dependencies, ignore())); // not required (2)
@@ -137,7 +137,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, ignore()));
 
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.name, ignore()));
-			add(arguments(CodeablePBXNativeTarget.CodingKeys.productName, ignore()));
+			add(arguments(CodeablePBXNativeTarget.CodingKeys.productName, keyOf("productName", inputOf(string()))));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.productType, ignore()));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.dependencies, ignore())); // not required (2)

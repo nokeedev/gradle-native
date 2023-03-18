@@ -73,6 +73,12 @@ public interface PBXAggregateTarget extends PBXTarget {
 		}
 
 		@Override
+		public PBXTarget.Builder productName(String productName) {
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.productName, productName);
+			return this;
+		}
+
+		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurations) {
 			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, buildConfigurations);
 			return this;

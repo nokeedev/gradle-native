@@ -69,7 +69,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 		// PBXAggregateTarget
 		put(CodeablePBXAggregateTarget.CodingKeys.name, null);
-		put(CodeablePBXAggregateTarget.CodingKeys.productName, null);
+		put(CodeablePBXAggregateTarget.CodingKeys.productName, forKey("productName", atInput(ofString())));
 		put(CodeablePBXAggregateTarget.CodingKeys.productType, null);
 		put(CodeablePBXAggregateTarget.CodingKeys.productReference, null);
 		put(CodeablePBXAggregateTarget.CodingKeys.buildPhases, forKey("buildPhases", list(of(PBXBuildPhase.class))));
@@ -106,7 +106,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 		// PBXLegacyTarget
 		put(CodeablePBXLegacyTarget.CodingKeys.name, null);
-		put(CodeablePBXLegacyTarget.CodingKeys.productName, null);
+		put(CodeablePBXLegacyTarget.CodingKeys.productName, forKey("productName", atInput(ofString())));
 		put(CodeablePBXLegacyTarget.CodingKeys.productType, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.productReference, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.dependencies, null);
@@ -119,7 +119,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 		// PBXNativeTarget
 		put(CodeablePBXNativeTarget.CodingKeys.name, null);
-		put(CodeablePBXNativeTarget.CodingKeys.productName, null);
+		put(CodeablePBXNativeTarget.CodingKeys.productName, forKey("productName", atInput(ofString())));
 		put(CodeablePBXNativeTarget.CodingKeys.productType, null);
 		put(CodeablePBXNativeTarget.CodingKeys.productReference, null);
 		put(CodeablePBXNativeTarget.CodingKeys.dependencies, null);

@@ -99,6 +99,7 @@ public interface PBXNativeTarget extends PBXTarget {
 			return this;
 		}
 
+		@Override
 		public Builder productName(String productName) {
 			builder.put(CodeablePBXNativeTarget.CodingKeys.productName, productName);
 			return this;

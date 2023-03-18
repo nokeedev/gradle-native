@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.productName;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.removeLast;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,5 +57,12 @@ class UpToDateCheckDetectsChangeToPBXNativeTargetFunctionalTests extends UpToDat
 
 			assertThat(targetUnderTestExecution(), outOfDate());
 		}
+	}
+
+	@Test
+	void outOfDateWhenProductNameChanged() {
+		xcodeproj(targetUnderTest(productName("NewApp")));
+
+		assertThat(targetUnderTestExecution(), outOfDate());
 	}
 }

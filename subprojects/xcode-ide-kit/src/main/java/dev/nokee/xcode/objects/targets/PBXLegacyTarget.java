@@ -97,6 +97,7 @@ public interface PBXLegacyTarget extends PBXTarget {
 			return this;
 		}
 
+		@Override
 		public Builder productName(String productName) {
 			builder.put(CodeablePBXLegacyTarget.CodingKeys.productName, productName);
 			return this;
