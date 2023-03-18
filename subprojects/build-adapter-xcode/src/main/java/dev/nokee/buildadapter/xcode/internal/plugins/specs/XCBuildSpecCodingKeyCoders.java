@@ -17,6 +17,7 @@ package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
+import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.project.Codeable;
 import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
 import dev.nokee.xcode.project.CodeablePBXBuildFile;
@@ -53,6 +54,7 @@ import dev.nokee.xcode.project.ValueEncoder;
 import dev.nokee.xcode.project.coders.FieldCoder;
 import dev.nokee.xcode.project.coders.ListEncoder;
 import dev.nokee.xcode.project.coders.NoOpEncoder;
+import dev.nokee.xcode.project.coders.ProductTypeEncoder;
 import dev.nokee.xcode.project.coders.StringEncoder;
 
 import java.util.Collections;
@@ -70,7 +72,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		// PBXAggregateTarget
 		put(CodeablePBXAggregateTarget.CodingKeys.name, null);
 		put(CodeablePBXAggregateTarget.CodingKeys.productName, forKey("productName", atInput(ofString())));
-		put(CodeablePBXAggregateTarget.CodingKeys.productType, null);
+		put(CodeablePBXAggregateTarget.CodingKeys.productType, null); // aggregate target are not allowed to have product type
 		put(CodeablePBXAggregateTarget.CodingKeys.productReference, null);
 		put(CodeablePBXAggregateTarget.CodingKeys.buildPhases, forKey("buildPhases", list(of(PBXBuildPhase.class))));
 		put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, null);
@@ -107,7 +109,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		// PBXLegacyTarget
 		put(CodeablePBXLegacyTarget.CodingKeys.name, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.productName, forKey("productName", atInput(ofString())));
-		put(CodeablePBXLegacyTarget.CodingKeys.productType, null);
+		put(CodeablePBXLegacyTarget.CodingKeys.productType, null); // legacy target are not allowed to have product type
 		put(CodeablePBXLegacyTarget.CodingKeys.productReference, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.dependencies, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, null);
@@ -120,7 +122,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		// PBXNativeTarget
 		put(CodeablePBXNativeTarget.CodingKeys.name, null);
 		put(CodeablePBXNativeTarget.CodingKeys.productName, forKey("productName", atInput(ofString())));
-		put(CodeablePBXNativeTarget.CodingKeys.productType, null);
+		put(CodeablePBXNativeTarget.CodingKeys.productType, forKey("productType", atInput(ofProductType())));
 		put(CodeablePBXNativeTarget.CodingKeys.productReference, null);
 		put(CodeablePBXNativeTarget.CodingKeys.dependencies, null);
 		put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, null);
@@ -256,6 +258,10 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 	private static ValueEncoder<String, String> ofString() {
 		return new StringEncoder<>(new NoOpEncoder<>());
+	}
+
+	private static ValueEncoder<String, ProductType> ofProductType() {
+		return new ProductTypeEncoder();
 	}
 
 	private static <T> ValueEncoder<XCBuildSpec, List<T>> set(ValueEncoder<XCBuildSpec, T> elementEncoder) {

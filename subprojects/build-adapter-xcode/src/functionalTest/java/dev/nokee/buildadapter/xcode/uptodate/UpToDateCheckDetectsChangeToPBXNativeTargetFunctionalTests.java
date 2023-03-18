@@ -15,6 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode.uptodate;
 
+import dev.nokee.xcode.objects.targets.ProductTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,8 +25,10 @@ import org.junit.jupiter.api.condition.OS;
 import java.io.IOException;
 
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asNativeTarget;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.productName;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.productType;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.removeLast;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -62,6 +65,13 @@ class UpToDateCheckDetectsChangeToPBXNativeTargetFunctionalTests extends UpToDat
 	@Test
 	void outOfDateWhenProductNameChanged() {
 		xcodeproj(targetUnderTest(productName("NewApp")));
+
+		assertThat(targetUnderTestExecution(), outOfDate());
+	}
+
+	@Test
+	void outOfDateWhenProductTypeChanged() {
+		xcodeproj(targetUnderTest(asNativeTarget(productType(ProductTypes.BUNDLE))));
 
 		assertThat(targetUnderTestExecution(), outOfDate());
 	}

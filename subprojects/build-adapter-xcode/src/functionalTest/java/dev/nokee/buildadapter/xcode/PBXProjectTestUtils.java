@@ -35,8 +35,10 @@ import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.targets.BuildPhaseAwareBuilder;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
+import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
+import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.objects.targets.TaskDependenciesAwareBuilder;
 import dev.nokee.xcode.project.Codeable;
 import dev.nokee.xcode.project.PBXObjectArchiver;
@@ -204,7 +206,17 @@ public final class PBXProjectTestUtils {
 	}
 
 	public static BiFunction<PBXProject, PBXTarget, PBXTarget> asLegacyTarget(BiFunction<? super PBXProject, ? super PBXLegacyTarget, ? extends PBXLegacyTarget> action) {
-		return (self, target) -> action.apply(self, (PBXLegacyTarget) target);
+		return (self, target) -> {
+			assert target instanceof PBXLegacyTarget;
+			return action.apply(self, (PBXLegacyTarget) target);
+		};
+	}
+
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> asNativeTarget(BiFunction<? super PBXProject, ? super PBXNativeTarget, ? extends PBXNativeTarget> action) {
+		return (self, target) -> {
+			assert target instanceof PBXNativeTarget;
+			return action.apply(self, (PBXNativeTarget) target);
+		};
 	}
 
 	public static BiFunction<PBXProject, PBXLegacyTarget, PBXLegacyTarget> buildToolPath(String value) {
@@ -301,5 +313,9 @@ public final class PBXProjectTestUtils {
 
 	public static BiFunction<PBXProject, PBXTarget, PBXTarget> productName(String value) {
 		return (self, target) -> target.toBuilder().productName(value).build();
+	}
+
+	public static BiFunction<PBXProject, PBXNativeTarget, PBXNativeTarget> productType(ProductType value) {
+		return (self, target) -> target.toBuilder().productType(value).build();
 	}
 }
