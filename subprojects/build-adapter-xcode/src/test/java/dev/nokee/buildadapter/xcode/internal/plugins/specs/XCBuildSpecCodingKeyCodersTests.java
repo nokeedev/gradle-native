@@ -17,6 +17,11 @@ package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
+import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
+import dev.nokee.xcode.objects.configuration.BuildSettings;
+import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
+import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
 import dev.nokee.xcode.project.CodeablePBXBuildFile;
@@ -50,10 +55,12 @@ import dev.nokee.xcode.project.CodingKey;
 import dev.nokee.xcode.project.KeyedCoder;
 import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.ValueEncoder;
+import dev.nokee.xcode.project.coders.BuildSettingsEncoder;
 import dev.nokee.xcode.project.coders.FieldCoder;
 import dev.nokee.xcode.project.coders.ListEncoder;
 import dev.nokee.xcode.project.coders.NoOpEncoder;
 import dev.nokee.xcode.project.coders.ProductTypeEncoder;
+import dev.nokee.xcode.project.coders.Select;
 import dev.nokee.xcode.project.coders.StringEncoder;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -93,8 +100,8 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productType, ignore())); // not required (3)
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.dependencies, ignore())); // not required (2)
-			add(arguments(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, ignore()));
-			add(arguments(CodeablePBXAggregateTarget.CodingKeys.buildPhases, keyOf("buildPhases", listOf(object(/*PBXBuildPhase*/)))));
+			add(arguments(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, keyOf("buildConfigurationList", object(XCConfigurationList.class))));
+			add(arguments(CodeablePBXAggregateTarget.CodingKeys.buildPhases, keyOf("buildPhases", listOf(object(PBXBuildPhase.class)))));
 
 			add(arguments(CodeablePBXBuildFile.CodingKeys.fileRef, keyOf("fileRef", inputLocation(resolvablePaths()))));
 			add(arguments(CodeablePBXBuildFile.CodingKeys.productRef, ignore()));
@@ -105,7 +112,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXContainerItemProxy.CodingKeys.remoteGlobalIDString, ignore()));
 			add(arguments(CodeablePBXContainerItemProxy.CodingKeys.remoteInfo, ignore()));
 
-			add(arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, keyOf("files", listOf(object(/*PBXBuildFile*/)))));
+			add(arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, keyOf("files", listOf(object(PBXBuildFile.class)))));
 			add(arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, ignore()));
 			add(arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, ignore()));
 
@@ -115,21 +122,21 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXFileReference.CodingKeys.explicitFileType, ignore()));
 			add(arguments(CodeablePBXFileReference.CodingKeys.lastKnownFileType, ignore()));
 
-			add(arguments(CodeablePBXFrameworksBuildPhase.CodingKeys.files, keyOf("files", listOf(object(/*PBXBuildFile*/)))));
+			add(arguments(CodeablePBXFrameworksBuildPhase.CodingKeys.files, keyOf("files", listOf(object(PBXBuildFile.class)))));
 
 			add(arguments(CodeablePBXGroup.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXGroup.CodingKeys.path, ignore()));
 			add(arguments(CodeablePBXGroup.CodingKeys.sourceTree, ignore()));
 			add(arguments(CodeablePBXGroup.CodingKeys.children, ignore()));
 
-			add(arguments(CodeablePBXHeadersBuildPhase.CodingKeys.files, keyOf("files", listOf(object(/*PBXBuildFile*/)))));
+			add(arguments(CodeablePBXHeadersBuildPhase.CodingKeys.files, keyOf("files", listOf(object(PBXBuildFile.class)))));
 
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productName, keyOf("productName", inputOf(string()))));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productType, ignore())); // not required (3)
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.dependencies, ignore())); // not required (2)
-			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, ignore()));
+			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, keyOf("buildConfigurationList", object(XCConfigurationList.class))));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildPhases, ignore()));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, keyOf("buildToolPath", inputOf(string()))));
 			add(arguments(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, keyOf("buildArgumentsString", inputOf(string()))));
@@ -141,8 +148,8 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.productType, keyOf("productType", inputOf(productType()))));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.productReference, ignore()));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.dependencies, ignore())); // not required (2)
-			add(arguments(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, ignore()));
-			add(arguments(CodeablePBXNativeTarget.CodingKeys.buildPhases, keyOf("buildPhases", listOf(object(/*PBXBuildPhase*/)))));
+			add(arguments(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, keyOf("buildConfigurationList", object(XCConfigurationList.class))));
+			add(arguments(CodeablePBXNativeTarget.CodingKeys.buildPhases, keyOf("buildPhases", listOf(object(PBXBuildPhase.class)))));
 			add(arguments(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, ignore()));
 
 			add(arguments(CodeablePBXProject.CodingKeys.mainGroup, ignore())); // not required (1)
@@ -158,7 +165,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXReferenceProxy.CodingKeys.remoteRef, ignore()));
 			add(arguments(CodeablePBXReferenceProxy.CodingKeys.fileType, ignore()));
 
-			add(arguments(CodeablePBXResourcesBuildPhase.CodingKeys.files, keyOf("files", listOf(object(/*PBXBuildFile*/)))));
+			add(arguments(CodeablePBXResourcesBuildPhase.CodingKeys.files, keyOf("files", listOf(object(PBXBuildFile.class)))));
 
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.files, ignore()));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.name, ignore()));
@@ -169,7 +176,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, ignore()));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, ignore())); // TODO: implement support
 
-			add(arguments(CodeablePBXResourcesBuildPhase.CodingKeys.files, keyOf("files", listOf(object(/*PBXBuildFile*/)))));
+			add(arguments(CodeablePBXResourcesBuildPhase.CodingKeys.files, keyOf("files", listOf(object(PBXBuildFile.class)))));
 
 			add(arguments(CodeablePBXTargetDependency.CodingKeys.name, ignore())); // not required (2)
 			add(arguments(CodeablePBXTargetDependency.CodingKeys.target, ignore())); // not required (2)
@@ -204,9 +211,9 @@ class XCBuildSpecCodingKeyCodersTests {
 
 			add(arguments(CodeableXCBuildConfiguration.CodingKeys.name, ignore()));
 			add(arguments(CodeableXCBuildConfiguration.CodingKeys.baseConfigurationReference, ignore()));
-			add(arguments(CodeableXCBuildConfiguration.CodingKeys.buildSettings, ignore()));
+			add(arguments(CodeableXCBuildConfiguration.CodingKeys.buildSettings, keyOf("buildSettings", inputOf(object(BuildSettings.class)))));
 
-			add(arguments(CodeableXCConfigurationList.CodingKeys.buildConfigurations, ignore()));
+			add(arguments(CodeableXCConfigurationList.CodingKeys.buildConfigurations, keyOf("buildConfigurations", listOf(object(XCBuildConfiguration.class)))));
 			add(arguments(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, ignore()));
 			add(arguments(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, ignore()));
 
@@ -251,8 +258,14 @@ class XCBuildSpecCodingKeyCodersTests {
 		return new AtInputFilesEncoder<>(encoder);
 	}
 
-	private static ValueEncoder<XCBuildSpec, ?> object() {
-		return new AtNestedMapEncoder<>(new NoOpEncoder<>());
+	private static <T> ValueEncoder<XCBuildSpec, ?> object(Class<T> type) {
+		return Select.newInstance() //
+			.forCase(PBXBuildFile.class, new AtNestedMapEncoder<>(new NoOpEncoder<>())) //
+			.forCase(PBXBuildPhase.class, new AtNestedMapEncoder<>(new NoOpEncoder<>())) //
+			.forCase(XCBuildConfiguration.class, new AtNestedMapEncoder<>(new NoOpEncoder<>())) //
+			.forCase(XCConfigurationList.class, new AtNestedConfigurationSelectionEncoder<>(new AtNestedMapEncoder<>(new NoOpEncoder<>()))) //
+			.forCase(BuildSettings.class, new BuildSettingsEncoder()) //
+			.select(type);
 	}
 
 	public static <E> ValueEncoder<XCBuildSpec, List<E>> listOf(ValueEncoder<XCBuildSpec, E> elementEncoder) {

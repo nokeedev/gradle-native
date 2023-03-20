@@ -61,6 +61,9 @@ class UpToDateCheckDetectsChangeToPBXAggregateTargetFunctionalTests extends UpTo
 		}
 	}
 
+	@Nested
+	class BuildConfigurationsField extends BuildConfigurationsTester {}
+
 	@Test
 	void outOfDateWhenProductNameChanged() {
 		xcodeproj(targetUnderTest(productName("NewApp")));

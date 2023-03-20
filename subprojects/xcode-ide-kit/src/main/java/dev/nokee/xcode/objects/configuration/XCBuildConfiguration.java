@@ -20,6 +20,7 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.project.CodeableXCBuildConfiguration;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.KeyedObject;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -32,14 +33,25 @@ import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 public interface XCBuildConfiguration extends PBXBuildStyle {
 	Optional<PBXFileReference> getBaseConfigurationReference();
 
+	Builder toBuilder();
+
 	static Builder builder() {
 		return new Builder();
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<XCBuildConfiguration>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
+			this(new DefaultKeyedObject.Builder());
+		}
+
+		public Builder(KeyedObject parent) {
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder;
 			builder.put(KeyedCoders.ISA, "XCBuildConfiguration");
 			builder.requires(key(CodeableXCBuildConfiguration.CodingKeys.name));
 

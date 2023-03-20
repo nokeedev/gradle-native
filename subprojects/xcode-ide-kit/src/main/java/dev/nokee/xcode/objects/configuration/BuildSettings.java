@@ -46,12 +46,24 @@ public final class BuildSettings {
 		return EMPTY_BUILD_SETTINGS;
 	}
 
+	public Builder toBuilder() {
+		return new Builder(values);
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}
 
 	public static final class Builder {
-		private final Map<String, Object> values = new LinkedHashMap<>();
+		private final LinkedHashMap<String, Object> values;
+
+		private Builder() {
+			this.values = new LinkedHashMap<>();
+		}
+
+		private Builder(Map<String, ?> values) {
+			this.values = new LinkedHashMap<>(values);
+		}
 
 		public Builder put(String key, Object value) {
 			values.put(key, value);

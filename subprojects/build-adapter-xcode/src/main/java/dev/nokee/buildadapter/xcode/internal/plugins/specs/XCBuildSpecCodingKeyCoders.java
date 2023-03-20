@@ -17,6 +17,9 @@ package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
+import dev.nokee.xcode.objects.configuration.BuildSettings;
+import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
+import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.project.Codeable;
 import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
@@ -49,8 +52,10 @@ import dev.nokee.xcode.project.CodeableXCSwiftPackageProductDependency;
 import dev.nokee.xcode.project.CodeableXCVersionGroup;
 import dev.nokee.xcode.project.CodingKey;
 import dev.nokee.xcode.project.CodingKeyCoders;
+import dev.nokee.xcode.project.Encodeable;
 import dev.nokee.xcode.project.KeyedCoder;
 import dev.nokee.xcode.project.ValueEncoder;
+import dev.nokee.xcode.project.coders.BuildSettingsEncoder;
 import dev.nokee.xcode.project.coders.FieldCoder;
 import dev.nokee.xcode.project.coders.ListEncoder;
 import dev.nokee.xcode.project.coders.NoOpEncoder;
@@ -75,7 +80,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXAggregateTarget.CodingKeys.productType, null); // aggregate target are not allowed to have product type
 		put(CodeablePBXAggregateTarget.CodingKeys.productReference, null);
 		put(CodeablePBXAggregateTarget.CodingKeys.buildPhases, forKey("buildPhases", list(of(PBXBuildPhase.class))));
-		put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, null);
+		put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, forKey("buildConfigurationList", selection(ofBuildConfiguration())));
 		put(CodeablePBXAggregateTarget.CodingKeys.dependencies, null);
 
 		// PBXBuildFile
@@ -112,7 +117,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXLegacyTarget.CodingKeys.productType, null); // legacy target are not allowed to have product type
 		put(CodeablePBXLegacyTarget.CodingKeys.productReference, null);
 		put(CodeablePBXLegacyTarget.CodingKeys.dependencies, null);
-		put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, null);
+		put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, forKey("buildConfigurationList", selection(ofBuildConfiguration())));
 		put(CodeablePBXLegacyTarget.CodingKeys.buildPhases, null); // legacy target are not allowed to have build phases
 		put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, forKey("buildArgumentsString", atInput(ofString())));
 		put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, forKey("buildToolPath", atInput(ofString())));
@@ -125,7 +130,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXNativeTarget.CodingKeys.productType, forKey("productType", atInput(ofProductType())));
 		put(CodeablePBXNativeTarget.CodingKeys.productReference, null);
 		put(CodeablePBXNativeTarget.CodingKeys.dependencies, null);
-		put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, null);
+		put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, forKey("buildConfigurationList", selection(ofBuildConfiguration())));
 		put(CodeablePBXNativeTarget.CodingKeys.buildPhases, forKey("buildPhases", list(of(PBXBuildPhase.class))));
 		put(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, null);
 
@@ -202,12 +207,12 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 		// XCBuildConfiguration
 		put(CodeableXCBuildConfiguration.CodingKeys.name, null);
-		put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, null);
+		put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, forKey("buildSettings", atInput(ofBuildSettings())));
 		put(CodeableXCBuildConfiguration.CodingKeys.baseConfigurationReference, null);
 
 		// XCConfigurationList
 		put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, null);
-		put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, null); // don't really care about the available configurations
+		put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, forKey("buildConfigurations", list(of(XCBuildConfiguration.class))));
 		put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, null);
 
 		// XCRemoteSwiftPackageReference
@@ -268,11 +273,23 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		return new NoOpEncoder<>();
 	}
 
+	private static ValueEncoder<Map<String, ?>, BuildSettings> ofBuildSettings() {
+		return new BuildSettingsEncoder();
+	}
+
 	private static ValueEncoder<Map<String, ?>, Map<String, ?>> ofSettings() {
 		return new NoOpEncoder<>();
 	}
 
+	private static <T extends XCBuildConfiguration & Encodeable> ValueEncoder<XCBuildSpec, T> ofBuildConfiguration() {
+		return new AtNestedMapEncoder<>(new NoOpEncoder<>());
+	}
+
 	private static <T> ValueEncoder<XCBuildSpec, List<T>> set(ValueEncoder<XCBuildSpec, T> elementEncoder) {
 		return AtNestedCollectionEncoder.atNestedSet(new ListEncoder<>(elementEncoder));
+	}
+
+	private static <T extends XCBuildConfiguration & Encodeable> ValueEncoder<XCBuildSpec, XCConfigurationList> selection(ValueEncoder<XCBuildSpec, T> buildConfigurationEncoder) {
+		return new AtNestedConfigurationSelectionEncoder<>(buildConfigurationEncoder);
 	}
 }
