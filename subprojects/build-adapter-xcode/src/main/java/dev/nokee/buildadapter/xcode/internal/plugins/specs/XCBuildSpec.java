@@ -23,6 +23,8 @@ public interface XCBuildSpec {
 
 	interface ResolveContext {
 		FileCollection inputs(PBXReference reference);
+
+		String getConfiguration();
 	}
 
 	default void visit(Visitor visitor) {

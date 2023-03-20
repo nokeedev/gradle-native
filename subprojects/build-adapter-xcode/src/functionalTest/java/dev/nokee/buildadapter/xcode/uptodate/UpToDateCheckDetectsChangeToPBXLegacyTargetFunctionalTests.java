@@ -16,6 +16,7 @@
 package dev.nokee.buildadapter.xcode.uptodate;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -75,4 +76,7 @@ class UpToDateCheckDetectsChangeToPBXLegacyTargetFunctionalTests extends UpToDat
 
 		assertThat(targetUnderTestExecution(), outOfDate());
 	}
+
+	@Nested
+	class BuildConfigurationsField extends BuildConfigurationsTester {}
 }

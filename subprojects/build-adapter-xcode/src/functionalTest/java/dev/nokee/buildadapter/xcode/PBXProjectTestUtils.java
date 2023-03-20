@@ -29,10 +29,14 @@ import dev.nokee.xcode.objects.buildphase.PBXHeadersBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
+import dev.nokee.xcode.objects.configuration.BuildSettings;
+import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
+import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXReference;
+import dev.nokee.xcode.objects.targets.BuildConfigurationsAwareBuilder;
 import dev.nokee.xcode.objects.targets.BuildPhaseAwareBuilder;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
@@ -109,6 +113,20 @@ public final class PBXProjectTestUtils {
 			assert found : "no item matched predicate";
 			return builder.build();
 		};
+	}
+
+	public static <SELF, E> BiFunction<SELF, List<E>, List<E>> all(BiFunction<? super SELF, ? super E, ? extends E> action) {
+		return (self, values) -> {
+			val builder = ImmutableList.<E>builder();
+			for (E value : values) {
+				builder.add(action.apply(self, value));
+			}
+			return builder.build();
+		};
+	}
+
+	public static <SELF, E> BiFunction<SELF, XCBuildConfiguration, XCBuildConfiguration> buildSettings(BiFunction<? super SELF, ? super BuildSettings, ? extends BuildSettings> action) {
+		return (self, buildConfiguration) -> buildConfiguration.toBuilder().buildSettings(action.apply(self, buildConfiguration.getBuildSettings())).build();
 	}
 
 	public static Predicate<GroupChild> childName(String value) {
@@ -213,6 +231,18 @@ public final class PBXProjectTestUtils {
 			assert target instanceof PBXLegacyTarget;
 			return action.apply(self, (PBXLegacyTarget) target);
 		};
+	}
+
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> buildConfigurationList(BiFunction<? super PBXProject, ? super XCConfigurationList, ? extends XCConfigurationList> action) {
+		return (self, target) -> {
+			val builder = target.toBuilder();
+			((BuildConfigurationsAwareBuilder<?>) builder).buildConfigurations(action.apply(self, target.getBuildConfigurationList()));
+			return builder.build();
+		};
+	}
+
+	public static BiFunction<PBXProject, XCConfigurationList, XCConfigurationList> buildConfigurations(BiFunction<? super PBXProject, ? super List<XCBuildConfiguration>, ? extends List<XCBuildConfiguration>> action) {
+		return (self, configurations) -> configurations.toBuilder().buildConfigurations(action.apply(self, configurations.getBuildConfigurations())).build();
 	}
 
 	public static BiFunction<PBXProject, PBXTarget, PBXTarget> asNativeTarget(BiFunction<? super PBXProject, ? super PBXNativeTarget, ? extends PBXNativeTarget> action) {

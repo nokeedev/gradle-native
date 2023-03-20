@@ -204,6 +204,11 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 						}
 					});
 				}
+
+				@Override
+				public String getConfiguration() {
+					return XcodeTargetExecTask.this.getConfiguration().get();
+				}
 			});
 		})));
 	}

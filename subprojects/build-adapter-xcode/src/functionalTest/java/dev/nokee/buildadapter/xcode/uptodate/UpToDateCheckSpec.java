@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import dev.gradleplugins.runnerkit.BuildTask;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.UpToDateCheck;
+import dev.nokee.buildadapter.xcode.PBXProjectTestUtils;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
@@ -30,6 +31,8 @@ import dev.nokee.xcode.objects.buildphase.PBXHeadersBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
+import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
+import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
@@ -38,6 +41,7 @@ import lombok.val;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 
@@ -63,16 +67,19 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asHeaders;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asResources;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asShellScript;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asSources;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildConfigurationList;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.childNameOrPath;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mainGroup;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.matching;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mutateProject;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.childNameOrPath;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.productsGroup;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targetName;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.targets;
+import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.skipped;
+import static dev.nokee.internal.testing.GradleRunnerMatchers.upToDate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.everyItem;
 
@@ -117,6 +124,19 @@ public abstract class UpToDateCheckSpec {
 		};
 	}
 
+	protected static BiFunction<PBXProject, XCConfigurationList, XCConfigurationList> debugBuildConfiguration(BiFunction<? super PBXProject, ? super XCBuildConfiguration, ? extends XCBuildConfiguration> action) {
+		return (self, buildConfigurations) -> {
+			val newBuildConfigurations = PBXProjectTestUtils.<PBXProject, XCBuildConfiguration>matching((XCBuildConfiguration it) -> it.getName().equals("Debug"), action).apply(self, buildConfigurations.getBuildConfigurations());
+			return buildConfigurations.toBuilder().buildConfigurations(newBuildConfigurations).build();
+		};
+	}
+
+	protected static BiFunction<PBXProject, XCConfigurationList, XCConfigurationList> releaseBuildConfiguration(BiFunction<? super PBXProject, ? super XCBuildConfiguration, ? extends XCBuildConfiguration> action) {
+		return (self, buildConfigurations) -> {
+			val newBuildConfigurations = PBXProjectTestUtils.<PBXProject, XCBuildConfiguration>matching((XCBuildConfiguration it) -> it.getName().equals("Release"), action).apply(self, buildConfigurations.getBuildConfigurations());
+			return buildConfigurations.toBuilder().buildConfigurations(newBuildConfigurations).build();
+		};
+	}
 
 	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> copyFilesBuildPhases(BiFunction<? super PBXProject, ? super PBXCopyFilesBuildPhase, ? extends PBXCopyFilesBuildPhase> action) {
 		return buildPhases(matching(instanceOf(PBXCopyFilesBuildPhase.class), asCopyFiles(action)));
@@ -154,6 +174,12 @@ public abstract class UpToDateCheckSpec {
 	protected static Function<PBXBuildFile, PBXBuildFile> changeSettings() {
 		return buildFile -> buildFile.toBuilder() //
 			.settings(ImmutableMap.<String, Object>builder().putAll(buildFile.getSettings()).put("foo", "FOO").build()) //
+			.build();
+	}
+
+	protected static BiFunction<PBXProject, XCBuildConfiguration, XCBuildConfiguration> changeBuildSettings() {
+		return (self, buildConfiguration) -> buildConfiguration.toBuilder() //
+			.buildSettings(buildConfiguration.getBuildSettings().toBuilder().put("foo", "FOO").build()) //
 			.build();
 	}
 
@@ -260,5 +286,22 @@ public abstract class UpToDateCheckSpec {
 
 	protected final Path file(String path) {
 		return testDirectory.resolve(path);
+	}
+
+	protected abstract class BuildConfigurationsTester {
+		@Test
+		void outOfDateWhenBuildSettingsOfRelatedBuildConfigurationChanges() {
+			// type/ordering changes will result in a simple change to the build settings because it's essentially a map
+			xcodeproj(targetUnderTest(buildConfigurationList(debugBuildConfiguration(changeBuildSettings()))));
+
+			assertThat(targetUnderTestExecution(), outOfDate());
+		}
+
+		@Test
+		void ignoreChangesToBuildSettingsOfUnrelatedBuildConfiguration() {
+			xcodeproj(targetUnderTest(buildConfigurationList(releaseBuildConfiguration(changeBuildSettings()))));
+
+			assertThat(targetUnderTestExecution(), upToDate());
+		}
 	}
 }
