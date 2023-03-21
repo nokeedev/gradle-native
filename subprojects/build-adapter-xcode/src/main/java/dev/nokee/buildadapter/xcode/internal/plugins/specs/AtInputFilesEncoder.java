@@ -18,6 +18,8 @@ package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 import dev.nokee.xcode.project.ValueEncoder;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 
 @EqualsAndHashCode
 public final class AtInputFilesEncoder<IN> implements ValueEncoder<XCBuildSpec, IN> {
@@ -36,6 +38,7 @@ public final class AtInputFilesEncoder<IN> implements ValueEncoder<XCBuildSpec, 
 				final XCBuildPlan result = references.resolve(context);
 				return new XCBuildPlan() {
 					@InputFiles
+					@PathSensitive(PathSensitivity.ABSOLUTE)
 					public Object getValue() {
 						return result;
 					}
