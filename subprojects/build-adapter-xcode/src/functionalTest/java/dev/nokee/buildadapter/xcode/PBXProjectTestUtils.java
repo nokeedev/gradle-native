@@ -63,6 +63,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.collect.MoreCollectors.onlyElement;
 
 public final class PBXProjectTestUtils {
@@ -358,5 +359,29 @@ public final class PBXProjectTestUtils {
 
 	public static BiFunction<PBXProject, Boolean, Boolean> toggle() {
 		return (self, value) -> !value;
+	}
+
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> copyFilesBuildPhases(BiFunction<? super PBXProject, ? super PBXCopyFilesBuildPhase, ? extends PBXCopyFilesBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXCopyFilesBuildPhase.class), asCopyFiles(action)));
+	}
+
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> frameworksBuildPhases(BiFunction<? super PBXProject, ? super PBXFrameworksBuildPhase, ? extends PBXFrameworksBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXFrameworksBuildPhase.class), asFrameworks(action)));
+	}
+
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> headersBuildPhases(BiFunction<? super PBXProject, ? super PBXHeadersBuildPhase, ? extends PBXHeadersBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXHeadersBuildPhase.class), asHeaders(action)));
+	}
+
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> resourcesBuildPhases(BiFunction<? super PBXProject, ? super PBXResourcesBuildPhase, ? extends PBXResourcesBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXResourcesBuildPhase.class), asResources(action)));
+	}
+
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> sourcesBuildPhases(BiFunction<? super PBXProject, ? super PBXSourcesBuildPhase, ? extends PBXSourcesBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXSourcesBuildPhase.class), asSources(action)));
+	}
+
+	public static BiFunction<PBXProject, PBXTarget, PBXTarget> shellScriptBuildPhases(BiFunction<? super PBXProject, ? super PBXShellScriptBuildPhase, ? extends PBXShellScriptBuildPhase> action) {
+		return buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(action)));
 	}
 }

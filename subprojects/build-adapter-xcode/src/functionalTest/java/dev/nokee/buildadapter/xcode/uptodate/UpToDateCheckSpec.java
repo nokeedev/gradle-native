@@ -26,11 +26,6 @@ import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
-import dev.nokee.xcode.objects.buildphase.PBXFrameworksBuildPhase;
-import dev.nokee.xcode.objects.buildphase.PBXHeadersBuildPhase;
-import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
-import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
-import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -56,19 +51,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.collect.MoreCollectors.onlyElement;
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.add;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asCopyFiles;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asFrameworks;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asGroup;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asHeaders;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asResources;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asShellScript;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.asSources;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildConfigurationList;
-import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildPhases;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.childNameOrPath;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.mainGroup;
@@ -136,30 +123,6 @@ public abstract class UpToDateCheckSpec {
 			val newBuildConfigurations = PBXProjectTestUtils.<PBXProject, XCBuildConfiguration>matching((XCBuildConfiguration it) -> it.getName().equals("Release"), action).apply(self, buildConfigurations.getBuildConfigurations());
 			return buildConfigurations.toBuilder().buildConfigurations(newBuildConfigurations).build();
 		};
-	}
-
-	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> copyFilesBuildPhases(BiFunction<? super PBXProject, ? super PBXCopyFilesBuildPhase, ? extends PBXCopyFilesBuildPhase> action) {
-		return buildPhases(matching(instanceOf(PBXCopyFilesBuildPhase.class), asCopyFiles(action)));
-	}
-
-	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> frameworksBuildPhases(BiFunction<? super PBXProject, ? super PBXFrameworksBuildPhase, ? extends PBXFrameworksBuildPhase> action) {
-		return buildPhases(matching(instanceOf(PBXFrameworksBuildPhase.class), asFrameworks(action)));
-	}
-
-	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> headersBuildPhases(BiFunction<? super PBXProject, ? super PBXHeadersBuildPhase, ? extends PBXHeadersBuildPhase> action) {
-		return buildPhases(matching(instanceOf(PBXHeadersBuildPhase.class), asHeaders(action)));
-	}
-
-	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> resourcesBuildPhases(BiFunction<? super PBXProject, ? super PBXResourcesBuildPhase, ? extends PBXResourcesBuildPhase> action) {
-		return buildPhases(matching(instanceOf(PBXResourcesBuildPhase.class), asResources(action)));
-	}
-
-	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> sourcesBuildPhases(BiFunction<? super PBXProject, ? super PBXSourcesBuildPhase, ? extends PBXSourcesBuildPhase> action) {
-		return buildPhases(matching(instanceOf(PBXSourcesBuildPhase.class), asSources(action)));
-	}
-
-	protected static BiFunction<PBXProject, PBXTarget, PBXTarget> shellScriptBuildPhases(BiFunction<? super PBXProject, ? super PBXShellScriptBuildPhase, ? extends PBXShellScriptBuildPhase> action) {
-		return buildPhases(matching(instanceOf(PBXShellScriptBuildPhase.class), asShellScript(action)));
 	}
 
 	protected static <T> BiFunction<PBXProject, List<T>, List<T>> shuffleOrdering() {
