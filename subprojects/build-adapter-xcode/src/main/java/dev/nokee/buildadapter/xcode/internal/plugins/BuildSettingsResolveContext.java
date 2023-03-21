@@ -30,7 +30,7 @@ public final class BuildSettingsResolveContext implements XCFileReference.Resolv
 
 	@Override
 	public Path getBuiltProductsDirectory() {
-		return new File(buildSettings.get("BUILT_PRODUCT_DIR")).toPath();
+		return new File(buildSettings.get("BUILT_PRODUCTS_DIR")).toPath();
 	}
 
 	@Override

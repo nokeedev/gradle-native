@@ -40,7 +40,7 @@ class BuildSettingsResolveContextTests {
 	class WhenGetBuiltProductDirectoryCalled {
 		@BeforeEach
 		void givenBuiltProductDir() {
-			Mockito.when(buildSettings.get("BUILT_PRODUCT_DIR")).thenReturn("/derived-data/Products");
+			Mockito.when(buildSettings.get("BUILT_PRODUCTS_DIR")).thenReturn("/derived-data/Products");
 		}
 
 		@Test
