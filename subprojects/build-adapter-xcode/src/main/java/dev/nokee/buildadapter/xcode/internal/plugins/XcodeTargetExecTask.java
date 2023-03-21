@@ -46,6 +46,7 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
@@ -79,6 +80,7 @@ import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.ifPresent;
 
+@CacheableTask
 public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask, HasConfigurableXcodeInstallation, HasXcodeTargetReference {
 	private final WorkerExecutor workerExecutor;
 	private final Provider<XCTargetReference> targetReference;
