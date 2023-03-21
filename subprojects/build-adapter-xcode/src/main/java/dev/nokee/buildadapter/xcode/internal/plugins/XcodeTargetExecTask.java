@@ -90,7 +90,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	@Internal
 	public abstract Property<XCProjectReference> getXcodeProject();
 
-	@Input
+	@Internal
 	public abstract Property<String> getTargetName();
 
 	@OutputDirectory
