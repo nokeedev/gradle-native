@@ -155,7 +155,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				@Override
 				public String get(String name) {
 					switch (name) {
-						case "CONFIGURATION_BUILD_DIR":
 						case "BUILT_PRODUCTS_DIR":
 							// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
 							// TODO: Guard against the missing derived data path
