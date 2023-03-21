@@ -29,6 +29,7 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.buildFileToProduc
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.first;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.frameworksBuildPhases;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static java.nio.file.Files.delete;
 import static org.hamcrest.MatcherAssert.assertThat;

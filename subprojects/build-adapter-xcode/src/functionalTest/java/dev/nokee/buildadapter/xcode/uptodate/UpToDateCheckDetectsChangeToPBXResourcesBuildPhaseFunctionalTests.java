@@ -28,6 +28,7 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.children;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.clear;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.first;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.resourcesBuildPhases;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.upToDate;
 import static dev.nokee.xcode.objects.files.PBXFileReference.ofGroup;

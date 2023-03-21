@@ -33,6 +33,7 @@ import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.files;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.first;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.referenceNameOrPath;
 import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.removeIf;
+import static dev.nokee.buildadapter.xcode.PBXProjectTestUtils.sourcesBuildPhases;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.outOfDate;
 import static dev.nokee.internal.testing.GradleRunnerMatchers.upToDate;
 import static dev.nokee.xcode.objects.files.PBXFileReference.ofGroup;
