@@ -52,12 +52,14 @@ public final class ProvidedBuildSettingsBuilder {
 	}
 
 	public ProvidedBuildSettingsBuilder derivedDataPath(Provider<Path> location) {
+		assert location != null : "'location' must not be null";
 		buildSettings.put("OBJROOT", location.map(it -> it.resolve("Build/Intermediates.noindex").toString()));
 		buildSettings.put("SYMROOT", location.map(it -> it.resolve("Build/Products").toString()));
 		return this;
 	}
 
 	public ProvidedBuildSettingsBuilder targetReference(Provider<XCTargetReference> reference) {
+		assert reference != null : "'reference' must not be null";
 		buildSettings.put("PROJECT_NAME", reference.map(it -> it.getProject().getName()));
 		buildSettings.put("TARGET_NAME", reference.map(it -> it.getName()));
 		buildSettings.put("SRCROOT", reference.map(it -> it.getProject().getLocation().getParent().toString()));
@@ -65,17 +67,20 @@ public final class ProvidedBuildSettingsBuilder {
 	}
 
 	public ProvidedBuildSettingsBuilder configuration(Provider<String> configuration) {
+		assert configuration != null : "'configuration' must not be null";
 		buildSettings.put("CONFIGURATION", configuration);
 		return this;
 	}
 
 	public ProvidedBuildSettingsBuilder platformName(Provider<String> sdk) {
+		assert sdk != null : "'sdk' must not be null";
 		// fallthrough to the next layer, if absent
 		buildSettings.putAll(sdk.map(it -> ImmutableMap.of("PLATFORM_NAME", it)).orElse(ImmutableMap.of()));
 		return this;
 	}
 
 	public ProvidedBuildSettingsBuilder developerDir(Provider<Path> developerDir) {
+		assert developerDir != null : "'developerDir' must not be null";
 		// We can reasonably guess the DEVELOPER_DIR from the Xcode installation
 		buildSettings.put("DEVELOPER_DIR", developerDir.map(Path::toString));
 		return this;

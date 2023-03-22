@@ -84,7 +84,6 @@ class KnownBuildSettingsLayerBuilderTests {
 		assertThat(result, hasBuildSetting("SHARED_PRECOMPS_DIR", "$(OBJROOT)/PrecompiledHeaders"));
 	}
 
-
 	@Test
 	void hasPodsBuildDir() {
 		assertThat(result, hasBuildSetting("PODS_BUILD_DIR", "$(BUILD_DIR)"));

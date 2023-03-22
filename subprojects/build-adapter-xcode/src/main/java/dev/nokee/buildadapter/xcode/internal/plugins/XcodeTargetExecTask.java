@@ -79,7 +79,6 @@ import java.util.stream.Collectors;
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.skip;
-import static dev.nokee.buildadapter.xcode.internal.plugins.XCBuildSettingsUtils.codeSigningDisabled;
 import static dev.nokee.core.exec.CommandLineToolExecutionEngine.execOperations;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toFile;
@@ -135,7 +134,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			//   Not perfect, but good enough for now.
 			return overrideLayer(new XCBuildSettingsEmptyLayer()).findAll().entrySet().stream().filter(it -> !(it.getKey().equals("SDKROOT") || it.getKey().equals("DEVELOPER_DIR"))).map(it -> it.getKey() + "=" + it.getValue().toString()).collect(Collectors.toList());
 		}));
-		getAllArguments().addAll(codeSigningDisabled());
 
 		finalizeValueOnRead(disallowChanges(getAllArguments()));
 
@@ -171,7 +169,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	}
 
 	private XCBuildSettingLayer overrideLayer(XCBuildSettingLayer delegate) {
-		return derivedDataPathLayer(shortcutLayer(delegate));
+		return derivedDataPathLayer(shortcutLayer(disableCodeSigning(delegate)));
 	}
 
 	private static XCBuildSettingLayer shortcutLayer(XCBuildSettingLayer delegate) {
@@ -187,6 +185,10 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			.platformName(getSdk())
 			.targetReference(getTargetReference())
 			.build();
+	}
+
+	private static XCBuildSettingLayer disableCodeSigning(XCBuildSettingLayer delegate) {
+		return new CodeSigningDisabledBuildSettingLayerBuilder().next(delegate).build();
 	}
 
 	private XCBuildSettingLayer xcodebuildLayer() {
