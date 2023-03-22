@@ -15,6 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode;
 
+import dev.nokee.xcode.DefaultXCProjectReference;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
@@ -25,7 +26,7 @@ import java.nio.file.Path;
 
 @EqualsAndHashCode
 public final class TestProjectReference implements XCProjectReference, Serializable {
-	public static XCProjectReference project(String name) {
+	public static TestProjectReference project(String name) {
 		assert !name.endsWith(".xcodeproj") : "do not include .xcodeproj extension";
 		return new TestProjectReference(name);
 	}
@@ -44,6 +45,10 @@ public final class TestProjectReference implements XCProjectReference, Serializa
 	@Override
 	public Path getLocation() {
 		throw new UnsupportedOperationException();
+	}
+
+	public XCProjectReference inDirectory(Path location) {
+		return new DefaultXCProjectReference(location.resolve(name + ".xcodeproj"));
 	}
 
 	@Override

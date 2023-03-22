@@ -15,7 +15,17 @@
  */
 package dev.nokee.xcode;
 
+import javax.annotation.Nullable;
+
+/**
+ * Represent a Xcode build setting.
+ */
 public interface XCBuildSetting {
+	/**
+	 * Returns the name of this build setting.
+	 *
+	 * @return this build setting's name
+	 */
 	String getName();
 
 	// <build_settings_name>[arch=<architecture_pattern>] = <build_setting_specification>
@@ -53,6 +63,7 @@ public interface XCBuildSetting {
 //		String getArch();
 //		String getVariant();
 //		String getSdk();
+		@Nullable
 		String get(String value);
 	}
 

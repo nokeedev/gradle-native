@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode;
+package dev.nokee.xcode.buildsettings;
 
-import javax.annotation.Nullable;
+import dev.nokee.xcode.DefaultXCBuildSettingSearchContext;
+import org.junit.jupiter.api.Test;
 
-/**
- * Represent build settings for a specific invocation.
- */
-public interface XCBuildSettings {
-	/**
-	 * Returns the evaluated build setting of the specified name.
-	 *
-	 * @param name  the name of the build setting to find and evaluate, must not be null
-	 * @return the evaluated build setting value, never null
-	 */
-	@Nullable
-	String get(String name);
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
+class DefaultXCBuildSettingSearchContextTests {
+	DefaultXCBuildSettingSearchContext subject = new DefaultXCBuildSettingSearchContext("MY_BUILD_SETTING");
+
+	@Test
+	void hasBuildSettingName() {
+		assertThat(subject.getName(), equalTo("MY_BUILD_SETTING"));
+	}
 }

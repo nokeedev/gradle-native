@@ -16,6 +16,7 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -27,7 +28,14 @@ import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
+import dev.nokee.xcode.DefaultXCBuildSettingLayer;
+import dev.nokee.xcode.DefaultXCBuildSettings;
+import dev.nokee.xcode.ProvidedMapAdapter;
+import dev.nokee.xcode.XCBuildSetting;
+import dev.nokee.xcode.XCBuildSettingLayer;
+import dev.nokee.xcode.XCBuildSettingLiteral;
 import dev.nokee.xcode.XCBuildSettings;
+import dev.nokee.xcode.XCBuildSettingsEmptyLayer;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
@@ -43,9 +51,9 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
@@ -60,12 +68,13 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Iterables.concat;
@@ -82,6 +91,7 @@ import static dev.nokee.utils.ProviderUtils.ifPresent;
 @CacheableTask
 public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask, HasConfigurableXcodeInstallation, HasXcodeTargetReference {
 	private final WorkerExecutor workerExecutor;
+	private final ObjectFactory objects;
 	private final Provider<XCTargetReference> targetReference;
 	private final Provider<XCBuildPlan> buildSpec;
 
@@ -100,9 +110,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	@Internal
 	public abstract ListProperty<String> getAllArguments();
 
-	@Internal
-	public abstract MapProperty<String, String> getAllBuildSettings();
-
 	@Override
 	@Internal
 	public Provider<XCTargetReference> getTargetReference() {
@@ -115,74 +122,28 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	}
 
 	@Inject
-	public XcodeTargetExecTask(WorkerExecutor workerExecutor, ObjectFactory objects) {
+	public XcodeTargetExecTask(WorkerExecutor workerExecutor, ObjectFactory objects, ProviderFactory providers) {
 		this.workerExecutor = workerExecutor;
+		this.objects = objects;
 
 		getAllArguments().addAll(getXcodeProject().map(it -> of("-project", it.getLocation().toString())));
 		getAllArguments().addAll(getTargetName().map(it -> of("-target", it)));
 		getAllArguments().addAll(getSdk().map(sdk -> of("-sdk", sdk)).orElse(of()));
 		getAllArguments().addAll(getConfiguration().map(buildType -> of("-configuration", buildType)).orElse(of()));
-		getAllArguments().addAll(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
-			.map(derivedDataPath -> of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"))));
-		getAllArguments().addAll(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
-			.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags));
+		getAllArguments().addAll(providers.provider(() -> {
+			// We use XCBuildSetting#toString() to get a representation of the build setting to use on the command line.
+			//   Not perfect, but good enough for now.
+			return overrideLayer(new XCBuildSettingsEmptyLayer()).findAll().entrySet().stream().filter(it -> !(it.getKey().equals("SDKROOT") || it.getKey().equals("DEVELOPER_DIR"))).map(it -> it.getKey() + "=" + it.getValue().toString()).collect(Collectors.toList());
+		}));
 		getAllArguments().addAll(codeSigningDisabled());
 
 		finalizeValueOnRead(disallowChanges(getAllArguments()));
 
-		finalizeValueOnRead(disallowChanges(getAllBuildSettings().value(getAllArguments().map(allArguments -> {
-			return CommandLineTool.of("xcodebuild").withArguments(it -> {
-				it.args(allArguments);
-				it.args("-showBuildSettings", "-json");
-			}).newInvocation(it -> {
-				it.withEnvironmentVariables(inherit("PATH").putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
-				ifPresent(getWorkingDirectory(), it::workingDirectory);
-			}).submitTo(execOperations(getExecOperations())).result()
-				.getStandardOutput().parse(output -> {
-					@SuppressWarnings("unchecked")
-					val parsedOutput = (List<ShowBuildSettingsEntry>) new Gson().fromJson(output, new TypeToken<List<ShowBuildSettingsEntry>>() {}.getType());
-					return parsedOutput.get(0).getBuildSettings();
-				});
-		}))));
-
 		this.targetReference = ProviderUtils.zip(() -> objects.listProperty(Object.class), getXcodeProject(), getTargetName(), XCProjectReference::ofTarget);
 		this.buildSpec = finalizeValueOnRead(objects.property(XCBuildPlan.class).value(getTargetReference().map(XCLoaders.buildSpecLoader()::load).map(spec -> {
-			val xcodeInstallation = getXcodeInstallation().get();
-			final XCBuildSettings buildSettings = new XCBuildSettings() {
-				@Override
-				public String get(String name) {
-					switch (name) {
-						case "BUILT_PRODUCTS_DIR":
-							// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
-							// TODO: Guard against the missing derived data path
-							// TODO: We should map derived data path as a collection of build settings via helper method
-							return getDerivedDataPath().dir("Build/Products/" + getConfiguration().get() + "-" + getSdk().get()).get().getAsFile().getAbsolutePath();
-						case "DEVELOPER_DIR":
-							// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
-							return xcodeInstallation.getDeveloperDirectory().toString();
-						case "SDKROOT":
-							// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
-							return getSdk().map(it -> {
-									if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
-										return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toString();
-									} else if (it.toLowerCase(Locale.ENGLISH).equals("macosx")) {
-										return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString();
-									} else if (it.toLowerCase(Locale.ENGLISH).equals("iphonesimulator")) {
-										return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk").toString();
-									}
-									return null;
-								})
-								// FIXME: Use -showBuildSettings to get default SDKROOT
-								.orElse(xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString()).get();
-						case "SOURCE_ROOT":
-							return getXcodeProject().get().getLocation().getParent().toString();
-						default:
-							return new File(getAllBuildSettings().get().get(name)).getAbsolutePath();
-					}
-				}
-			};
+			final XCBuildSettings buildSettings = new DefaultXCBuildSettings(overrideLayer(xcodebuildLayer()));
 
-			val context = new BuildSettingsResolveContext(buildSettings);
+			val context = new BuildSettingsResolveContext(FileSystems.getDefault(), buildSettings);
 			val fileRefs = XCLoaders.fileReferences().load(getXcodeProject().get());
 			return spec.resolve(new XCBuildSpec.ResolveContext() {
 				private Path resolve(PBXReference reference) {
@@ -207,6 +168,51 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				}
 			});
 		})));
+	}
+
+	private XCBuildSettingLayer overrideLayer(XCBuildSettingLayer delegate) {
+		return derivedDataPathLayer(shortcutLayer(delegate));
+	}
+
+	private static XCBuildSettingLayer shortcutLayer(XCBuildSettingLayer delegate) {
+		return new KnownBuildSettingsLayerBuilder().next(delegate).build();
+	}
+
+	private XCBuildSettingLayer derivedDataPathLayer(XCBuildSettingLayer delegate) {
+		return new ProvidedBuildSettingsBuilder(objects)
+			.next(delegate)
+			.derivedDataPath(getDerivedDataPath().map(FileSystemLocationUtils::asPath))
+			.configuration(getConfiguration())
+			.developerDir(getXcodeInstallation().map(XcodeInstallation::getDeveloperDirectory))
+			.platformName(getSdk())
+			.targetReference(getTargetReference())
+			.build();
+	}
+
+	private XCBuildSettingLayer xcodebuildLayer() {
+		val effectiveBuildSettings = finalizeValueOnRead(disallowChanges(objects.mapProperty(String.class, String.class)
+			.value(getAllArguments().map(allArguments -> {
+				return CommandLineTool.of("xcodebuild").withArguments(it -> {
+						it.args(allArguments);
+						it.args("-showBuildSettings", "-json");
+					}).newInvocation(it -> {
+						it.withEnvironmentVariables(inherit("PATH").putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
+						ifPresent(getWorkingDirectory(), it::workingDirectory);
+					}).submitTo(execOperations(getExecOperations())).result()
+					.getStandardOutput().parse(output -> {
+						@SuppressWarnings("unchecked")
+						val parsedOutput = (List<ShowBuildSettingsEntry>) new Gson().fromJson(output, new TypeToken<List<ShowBuildSettingsEntry>>() {}.getType());
+						return parsedOutput.get(0).getBuildSettings();
+					});
+			}))));
+
+		return new DefaultXCBuildSettingLayer(new ProvidedMapAdapter<>(effectiveBuildSettings.map(it -> {
+			ImmutableMap.Builder<String, XCBuildSetting> builder = ImmutableMap.builder();
+			it.forEach((key, value) -> {
+				builder.put(key, new XCBuildSettingLiteral(key, value));
+			});
+			return builder.build();
+		})), new XCBuildSettingsEmptyLayer());
 	}
 
 	private static final class ShowBuildSettingsEntry {

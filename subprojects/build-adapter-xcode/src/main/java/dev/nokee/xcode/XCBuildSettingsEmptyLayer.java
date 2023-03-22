@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,19 @@
  */
 package dev.nokee.xcode;
 
-import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableMap;
 
-/**
- * Represent build settings for a specific invocation.
- */
-public interface XCBuildSettings {
-	/**
-	 * Returns the evaluated build setting of the specified name.
-	 *
-	 * @param name  the name of the build setting to find and evaluate, must not be null
-	 * @return the evaluated build setting value, never null
-	 */
-	@Nullable
-	String get(String name);
+import java.util.Map;
+
+public final class XCBuildSettingsEmptyLayer implements XCBuildSettingLayer {
+	@Override
+	public XCBuildSetting find(SearchContext context) {
+		assert context != null : "'context' must not be null";
+		return new XCBuildSettingNull(context.getName());
+	}
+
+	@Override
+	public Map<String, XCBuildSetting> findAll() {
+		return ImmutableMap.of();
+	}
 }

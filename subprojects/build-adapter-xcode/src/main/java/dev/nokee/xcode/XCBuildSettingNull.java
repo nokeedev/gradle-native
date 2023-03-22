@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,24 @@
  */
 package dev.nokee.xcode;
 
-public final class DefaultXCBuildSettingDefinition implements XCBuildSettingDefinition {
-	private final XCBuildSetting buildSetting;
+import lombok.EqualsAndHashCode;
 
-	public DefaultXCBuildSettingDefinition(XCBuildSetting buildSetting) {
-		this.buildSetting = buildSetting;
+@EqualsAndHashCode
+public final class XCBuildSettingNull implements XCBuildSetting {
+	private final String name;
+
+	public XCBuildSettingNull(String name) {
+		assert name != null : "'name' must not be null";
+		this.name = name;
 	}
 
 	@Override
 	public String getName() {
-		return buildSetting.getName();
+		return name;
 	}
 
 	@Override
-	public XCBuildSetting select(SelectContext context) {
-		return buildSetting;
+	public String evaluate(EvaluationContext context) {
+		return null; // always return null
 	}
 }

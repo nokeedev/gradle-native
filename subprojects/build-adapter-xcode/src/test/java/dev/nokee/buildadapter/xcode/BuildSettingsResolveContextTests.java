@@ -15,50 +15,29 @@
  */
 package dev.nokee.buildadapter.xcode;
 
+import com.google.common.jimfs.Jimfs;
 import dev.nokee.buildadapter.xcode.internal.plugins.BuildSettingsResolveContext;
 import dev.nokee.xcode.XCBuildSettings;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
-import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
+import static com.google.common.jimfs.Configuration.unix;
+import static dev.nokee.internal.testing.FileSystemMatchers.absolutePath;
+import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.buildSettings;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.equalTo;
 
-@ExtendWith(MockitoExtension.class)
 class BuildSettingsResolveContextTests {
-	@Mock XCBuildSettings buildSettings;
-	@InjectMocks BuildSettingsResolveContext subject;
+	XCBuildSettings buildSettings = buildSettings(it -> it.put("BUILT_PRODUCTS_DIR", "/derived-data/Products") //
+		.put("SOURCE_ROOT", "/test/Foo-Project"));
+	BuildSettingsResolveContext subject = new BuildSettingsResolveContext(Jimfs.newFileSystem(unix()), buildSettings);
 
-	@Nested
-	class WhenGetBuiltProductDirectoryCalled {
-		@BeforeEach
-		void givenBuiltProductDir() {
-			Mockito.when(buildSettings.get("BUILT_PRODUCTS_DIR")).thenReturn("/derived-data/Products");
-		}
-
-		@Test
-		void returnsPathToBuiltProductDir() {
-			assertThat(subject.getBuiltProductsDirectory(), aFile(withAbsolutePath(endsWith("/derived-data/Products"))));
-		}
+	@Test
+	void returnsPathToBuiltProductDir() {
+		assertThat(subject.getBuiltProductsDirectory(), absolutePath(equalTo("/derived-data/Products")));
 	}
 
-	@Nested
-	class WhenGetCalled {
-		@BeforeEach
-		void givenSourceRoot() {
-			Mockito.when(buildSettings.get("SOURCE_ROOT")).thenReturn("/test/Foo-Project");
-		}
-
-		@Test
-		void returnsPathToSourceRoot() {
-			assertThat(subject.get("SOURCE_ROOT"), aFile(withAbsolutePath(endsWith("/test/Foo-Project"))));
-		}
+	@Test
+	void returnsPathToSourceRoot() {
+		assertThat(subject.get("SOURCE_ROOT"), absolutePath(equalTo("/test/Foo-Project")));
 	}
 }
