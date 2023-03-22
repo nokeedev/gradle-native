@@ -47,7 +47,6 @@ import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
@@ -127,10 +126,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			.map(derivedDataPath -> of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"))));
 		getAllArguments().addAll(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
 			.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags));
-		getAllArguments().addAll(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
-			val path = derivedDataPath.resolve("Build/Products/" + getConfiguration().get() + getSdk().map(it -> "-" + it).getOrElse(""));
-			return of("CONFIGURATION_BUILD_DIR=" + path, "BUILT_PRODUCT_DIR=" + path);
-		}));
 		getAllArguments().addAll(codeSigningDisabled());
 
 		finalizeValueOnRead(disallowChanges(getAllArguments()));
