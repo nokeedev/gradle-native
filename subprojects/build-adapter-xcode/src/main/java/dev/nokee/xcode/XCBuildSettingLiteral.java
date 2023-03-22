@@ -15,16 +15,29 @@
  */
 package dev.nokee.xcode;
 
-public final class DefaultXCBuildSettings implements XCBuildSettings {
-	private final XCBuildSettingLayer layer;
+public final class XCBuildSettingLiteral implements XCBuildSetting {
+	private final String name;
+	private final String value;
 
-	public DefaultXCBuildSettings(XCBuildSettingLayer layer) {
-		assert layer != null : "'layer' must not be null, use null layer instead";
-		this.layer = layer;
+	public XCBuildSettingLiteral(String name, String value) {
+		assert name != null : "'name' must not be null";
+		assert value != null : "'value' must not be null";
+		this.name = name;
+		this.value = value;
 	}
 
 	@Override
-	public String get(String name) {
-		return layer.find(new DefaultXCBuildSettingSearchContext(name)).evaluate(new DefaultXCBuildSettingEvaluationContext(this));
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String evaluate(EvaluationContext context) {
+		return value;
+	}
+
+	@Override
+	public String toString() {
+		return value; // not perfect, but good enough for now - see XcodeTargetExecTask
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,39 @@
  */
 package dev.nokee.xcode;
 
-import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public final class DefaultXCBuildSettingLayer implements XCBuildSettingLayer {
-	private final Map<String, XCBuildSettingDefinition> buildSettingsDefinition;
+	private final Map<String, XCBuildSetting> buildSettings;
+	private final XCBuildSettingLayer delegate;
 
-	public DefaultXCBuildSettingLayer(Map<String, XCBuildSettingDefinition> buildSettingsDefinition) {
-		this.buildSettingsDefinition = buildSettingsDefinition;
+	public DefaultXCBuildSettingLayer(Map<String, XCBuildSetting> buildSettings, XCBuildSettingLayer delegate) {
+		assert buildSettings != null : "'buildSettings' must not be null";
+		assert delegate != null : "'delegate' must not be null";
+		this.buildSettings = buildSettings;
+		this.delegate = delegate;
 	}
 
-
-	@Nullable
 	@Override
 	public XCBuildSetting find(SearchContext context) {
-		return Optional.ofNullable(buildSettingsDefinition.get(context.getName())).map(it -> it.select((XCBuildSettingDefinition.SelectContext) context)).orElse(null);
+		assert context != null : "'context' must not be null";
+		final XCBuildSetting value = buildSettings.get(context.getName());
+		if (value != null) {
+			return value;
+		} else {
+			return delegate.find(context);
+		}
+	}
+
+	@Override
+	public Map<String, XCBuildSetting> findAll() {
+		LinkedHashMap<String, XCBuildSetting> result = new LinkedHashMap<>(buildSettings);
+		delegate.findAll().forEach((k, v) -> {
+			if (!result.containsKey(k)) {
+				result.put(k, v);
+			}
+		});
+		return result;
 	}
 }

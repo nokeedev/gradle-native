@@ -15,11 +15,12 @@
  */
 package dev.nokee.xcode;
 
-import javax.annotation.Nullable;
+import java.util.Map;
 
 public interface XCBuildSettingLayer {
-	@Nullable
 	XCBuildSetting find(SearchContext context);
+
+	Map<String, XCBuildSetting> findAll();
 
 	interface SearchContext {
 		String getName();

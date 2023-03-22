@@ -18,24 +18,25 @@ package dev.nokee.xcode;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
 import java.io.Serializable;
+import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @EqualsAndHashCode
 public final class DefaultXCProjectReference implements XCProjectReference, Serializable {
-	private /*final*/ File location;
+	private /*final*/ URI location;
 
 	public DefaultXCProjectReference(Path location) {
-		this.location = location.toFile();
+		this.location = location.toUri();
 	}
 
 	public String getName() {
-		return FilenameUtils.removeExtension(location.getName());
+		return FilenameUtils.removeExtension(asPath().getFileName().toString());
 	}
 
 	public Path getLocation() {
-		return location.toPath();
+		return asPath();
 	}
 
 	@Override
@@ -43,9 +44,13 @@ public final class DefaultXCProjectReference implements XCProjectReference, Seri
 		return new DefaultXCTargetReference(this, name);
 	}
 
+	private Path asPath() {
+		return Paths.get(location);
+	}
+
 	@Override
 	public String toString() {
-		return "project '" + location + "'";
+		return "project '" + asPath() + "'";
 	}
 
 	public XCProject load() {

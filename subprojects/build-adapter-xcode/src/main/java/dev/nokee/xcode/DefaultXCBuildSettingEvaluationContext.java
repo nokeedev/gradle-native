@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,17 @@ package dev.nokee.xcode;
 
 import javax.annotation.Nullable;
 
-/**
- * Represent build settings for a specific invocation.
- */
-public interface XCBuildSettings {
-	/**
-	 * Returns the evaluated build setting of the specified name.
-	 *
-	 * @param name  the name of the build setting to find and evaluate, must not be null
-	 * @return the evaluated build setting value, never null
-	 */
+public final class DefaultXCBuildSettingEvaluationContext implements XCBuildSetting.EvaluationContext {
+	private final XCBuildSettings buildSettings;
+
+	public DefaultXCBuildSettingEvaluationContext(XCBuildSettings buildSettings) {
+		assert buildSettings != null : "'buildSettings' must not be null";
+		this.buildSettings = buildSettings;
+	}
+
 	@Nullable
-	String get(String name);
+	@Override
+	public String get(String value) {
+		return buildSettings.get(value);
+	}
 }

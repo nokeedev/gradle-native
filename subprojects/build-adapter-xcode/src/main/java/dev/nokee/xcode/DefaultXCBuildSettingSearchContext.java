@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,16 @@
  */
 package dev.nokee.xcode;
 
-import javax.annotation.Nullable;
+public final class DefaultXCBuildSettingSearchContext implements XCBuildSettingLayer.SearchContext {
+	private final String name;
 
-/**
- * Represent build settings for a specific invocation.
- */
-public interface XCBuildSettings {
-	/**
-	 * Returns the evaluated build setting of the specified name.
-	 *
-	 * @param name  the name of the build setting to find and evaluate, must not be null
-	 * @return the evaluated build setting value, never null
-	 */
-	@Nullable
-	String get(String name);
+	public DefaultXCBuildSettingSearchContext(String name) {
+		assert name != null : "'name' must not be null";
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
 }

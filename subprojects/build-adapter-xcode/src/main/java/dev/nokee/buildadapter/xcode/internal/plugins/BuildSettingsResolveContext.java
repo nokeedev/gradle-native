@@ -18,23 +18,26 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCFileReference;
 
-import java.io.File;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public final class BuildSettingsResolveContext implements XCFileReference.ResolveContext {
+	private final FileSystem fileSystem;
 	private final XCBuildSettings buildSettings;
 
-	public BuildSettingsResolveContext(XCBuildSettings buildSettings) {
+	public BuildSettingsResolveContext(FileSystem fileSystem, XCBuildSettings buildSettings) {
+		this.fileSystem = fileSystem;
 		this.buildSettings = buildSettings;
 	}
 
 	@Override
 	public Path getBuiltProductsDirectory() {
-		return new File(buildSettings.get("BUILT_PRODUCTS_DIR")).toPath();
+		return fileSystem.getPath(Objects.requireNonNull(buildSettings.get("BUILT_PRODUCTS_DIR")));
 	}
 
 	@Override
 	public Path get(String name) {
-		return new File(buildSettings.get(name)).toPath();
+		return fileSystem.getPath(Objects.requireNonNull(buildSettings.get(name)));
 	}
 }
