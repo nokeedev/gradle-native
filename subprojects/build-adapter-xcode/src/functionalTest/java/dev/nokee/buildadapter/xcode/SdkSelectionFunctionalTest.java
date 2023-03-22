@@ -49,7 +49,7 @@ class SdkSelectionFunctionalTest {
 	@Test
 	void executesForDefaultSdkByDefault(GradleRunner runner) {
 		runner.withTasks("DualMacOsIosFramework").build();
-		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFrameworkRelease/Build/Products/Release"), anExistingDirectory());
+		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFrameworkRelease/Build/Products/Release-macosx"), anExistingDirectory());
 	}
 
 	@ParameterizedTest
