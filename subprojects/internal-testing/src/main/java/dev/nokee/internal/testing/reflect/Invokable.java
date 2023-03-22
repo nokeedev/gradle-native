@@ -25,5 +25,8 @@ public interface Invokable<ReceiverType, ReturnType, ExceptionType extends Throw
 
 	interface Arguments {
 		<A> A getArgument(int index);
+		default <A> A getArgument(int index, Class<A> type) {
+			return type.cast(getArgument(index));
+		}
 	}
 }
