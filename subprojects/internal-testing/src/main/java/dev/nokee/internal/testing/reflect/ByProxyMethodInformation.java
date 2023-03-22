@@ -35,7 +35,7 @@ final class ByProxyMethodInformation<ReceiverType, ReturnInfoType extends Return
 		final Deque<Class<?>> queue = new ArrayDeque<>();
 		queue.add(type);
 		Method result = null;
-		while (!queue.isEmpty()) {
+		while (!queue.isEmpty() && result == null) {
 			@SuppressWarnings("unchecked")
 			final Class<ReceiverType> candidate = (Class<ReceiverType>) queue.pop();
 			try {
