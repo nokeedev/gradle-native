@@ -51,6 +51,7 @@ public class KnownBuildSettingsLayerBuilder {
 	private XCBuildSettingLayer nextLayer = new XCBuildSettingsEmptyLayer();
 
 	public KnownBuildSettingsLayerBuilder next(XCBuildSettingLayer layer) {
+		assert layer != null : "'layer' must not be null";
 		this.nextLayer = layer;
 		return this;
 	}
