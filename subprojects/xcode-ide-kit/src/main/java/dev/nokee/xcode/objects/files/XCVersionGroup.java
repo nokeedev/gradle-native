@@ -33,7 +33,7 @@ import static dev.nokee.xcode.project.DefaultKeyedObject.key;
  * Represents a group that contains multiple file references to the different versions of a resource.
  * Users use this kind of group to contain the different versions of a {@literal xcdatamodel}.
  */
-public interface XCVersionGroup extends GroupChild, PBXBuildFile.FileReference {
+public interface XCVersionGroup extends PBXReference, GroupChild, PBXBuildFile.FileReference {
 	List<GroupChild> getChildren();
 
 	Optional<PBXFileReference> getCurrentVersion();
