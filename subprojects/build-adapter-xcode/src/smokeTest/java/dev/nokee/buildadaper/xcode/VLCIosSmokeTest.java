@@ -43,7 +43,7 @@ class VLCIosSmokeTest {
 	static void setup(GradleRunner runner) throws IOException {
 		CommandLine.of("git", "clone", "--depth=1", "https://code.videolan.org/videolan/vlc-ios.git", '.').execute(null, testDirectory).waitFor().assertNormalExitValue();
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
-		executer = runner.withArgument(":buildVLC-iOS");
+		executer = runner.withTasks("VLC-iOS").withArgument("-Dconfiguration=Debug").withArgument("-Dsdk=iphonesimulator");
 		result = executer.build();
 	}
 
