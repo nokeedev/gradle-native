@@ -38,7 +38,7 @@ class NormalizeStringAsPBXReferenceEncoderTests {
 	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
 	TestDouble<ValueEncoder<PBXReference, Object>> delegate = newMock(new TypeToken<ValueEncoder<PBXReference, Object>>() {})
 		.when(any(callTo(method(ValueEncoder<PBXReference, Object>::encode))).then(doReturn(ofAbsolutePath("/dummy/path.txt"))));
-	NormalizeStringAsPBXReferenceEncoder subject = new NormalizeStringAsPBXReferenceEncoder(delegate.instance());
+	NormalizeStringAsPBXReferenceEncoder<Object> subject = new NormalizeStringAsPBXReferenceEncoder<>(delegate.instance());
 
 	@Nested
 	class WhenEncodingValidValues {

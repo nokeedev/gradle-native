@@ -246,7 +246,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 	}
 
 	private static ValueEncoder<XCBuildSpec, Object> ofLocation() {
-		return new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder(new ThrowingValueEncoder<>())));
+		return new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder<>(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>())));
 	}
 
 	private static <T> ValueEncoder<XCBuildSpec, List<T>> list(ValueEncoder<XCBuildSpec, T> elementEncoder) {

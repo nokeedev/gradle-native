@@ -21,15 +21,15 @@ import dev.nokee.xcode.project.ValueEncoder;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
-public final class NormalizeStringAsPBXReferenceEncoder implements ValueEncoder<PBXReference, Object> {
-	private final ValueEncoder<PBXReference, Object> delegate;
+public final class NormalizeStringAsPBXReferenceEncoder<T> implements ValueEncoder<PBXReference, T> {
+	private final ValueEncoder<PBXReference, T> delegate;
 
-	public NormalizeStringAsPBXReferenceEncoder(ValueEncoder<PBXReference, Object> delegate) {
+	public NormalizeStringAsPBXReferenceEncoder(ValueEncoder<PBXReference, T> delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public PBXReference encode(Object value, Context context) {
+	public PBXReference encode(T value, Context context) {
 		if (value instanceof String) {
 			return PBXFileReference.ofAbsolutePath((String) value);
 		} else {
