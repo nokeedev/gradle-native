@@ -252,7 +252,7 @@ class XCBuildSpecCodingKeyCodersTests {
 	}
 
 	private static ValueEncoder<XCBuildSpec, ?> resolvablePaths() {
-		return new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder(new ThrowingValueEncoder<>())));
+		return new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder<>(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>())));
 	}
 
 	private static ValueEncoder<XCBuildSpec, ?> inputLocation(ValueEncoder<XCBuildSpec, ?> encoder) {

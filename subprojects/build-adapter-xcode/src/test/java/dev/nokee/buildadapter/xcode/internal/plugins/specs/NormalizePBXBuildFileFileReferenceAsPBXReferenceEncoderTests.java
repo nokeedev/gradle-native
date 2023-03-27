@@ -39,7 +39,7 @@ class NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoderTests {
 	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
 	TestDouble<ValueEncoder<PBXReference, Object>> delegate = newMock(new TypeToken<ValueEncoder<PBXReference, Object>>() {})
 		.when(any(callTo(method(ValueEncoder<PBXReference, Object>::encode))).then(doReturn(ofAbsolutePath("/dummy/path.txt"))));
-	NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder subject = new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder(delegate.instance());
+	NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder<Object> subject = new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder<>(delegate.instance());
 
 	@Nested
 	class WhenEncodingPBXReferenceValues {
