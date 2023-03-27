@@ -18,6 +18,7 @@ package dev.nokee.xcode.project;
 import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,7 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesIterable;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
 
 class CodeableXCVersionGroupTests extends CodeableAdapterTester<CodeableXCVersionGroup> {
 	@ParameterizedTest
@@ -99,5 +101,10 @@ class CodeableXCVersionGroupTests extends CodeableAdapterTester<CodeableXCVersio
 	void encodesIsaCodingKeyOnNewInstance() {
 		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
 		assertThat(newSubjectInstance(delegate), encodeIsaCodingKeys(delegate));
+	}
+
+	@Test
+	void isPBXReference() {
+		assertThat(newSubject(), isA(PBXReference.class));
 	}
 }
