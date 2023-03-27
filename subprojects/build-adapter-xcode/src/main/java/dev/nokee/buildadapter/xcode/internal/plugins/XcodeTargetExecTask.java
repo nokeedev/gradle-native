@@ -25,6 +25,7 @@ import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildPlan;
 import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildSpec;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
+import dev.nokee.util.internal.NotPredicate;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.utils.ProviderUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
@@ -73,6 +74,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -130,9 +132,17 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		getAllArguments().addAll(getSdk().map(sdk -> of("-sdk", sdk)).orElse(of()));
 		getAllArguments().addAll(getConfiguration().map(buildType -> of("-configuration", buildType)).orElse(of()));
 		getAllArguments().addAll(providers.provider(() -> {
-			// We use XCBuildSetting#toString() to get a representation of the build setting to use on the command line.
-			//   Not perfect, but good enough for now.
-			return overrideLayer(new XCBuildSettingsEmptyLayer()).findAll().entrySet().stream().filter(it -> !(it.getKey().equals("SDKROOT") || it.getKey().equals("DEVELOPER_DIR"))).map(it -> it.getKey() + "=" + it.getValue().toString()).collect(Collectors.toList());
+			ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+			builder.add("SDKROOT", "DEVELOPER_DIR"); // let Xcode dictate the real value
+			builder.add("TARGET_NAME", "TARGETNAME", "PROJECT_NAME"); // when using SwiftPM, the override leak into the package causing incoherent builds
+			Set<String> buildSettingsToIgnore = builder.build();
+			return overrideLayer(new XCBuildSettingsEmptyLayer()).findAll().entrySet().stream() //
+				.filter(new NotPredicate<>(it -> buildSettingsToIgnore.contains(it.getKey()))) //
+
+				// We use XCBuildSetting#toString() to get a representation of the build setting to use on the command line.
+				//   Not perfect, but good enough for now.
+				.map(it -> it.getKey() + "=" + it.getValue().toString()) //
+				.collect(Collectors.toList());
 		}));
 
 		finalizeValueOnRead(disallowChanges(getAllArguments()));
