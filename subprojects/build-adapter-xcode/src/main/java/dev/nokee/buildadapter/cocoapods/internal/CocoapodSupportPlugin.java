@@ -17,6 +17,7 @@ package dev.nokee.buildadapter.cocoapods.internal;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
@@ -26,17 +27,21 @@ import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 
 abstract class CocoapodSupportPlugin implements Plugin<Settings> {
 	private final CocoaPodsProviders providers;
+	private final Provider<Boolean> skipCocoapods;
 
 	@Inject
 	public CocoapodSupportPlugin(ProviderFactory providers) {
 		this.providers = new CocoaPodsProviders(providers);
+		this.skipCocoapods = providers.systemProperty("skip-cocoapods").map(it -> it.isEmpty() || Boolean.parseBoolean(it)).orElse(false);
 	}
 
 	@Override
 	public void apply(Settings settings) {
-		forUseAtConfigurationTime(providers.installation(spec -> {
-			spec.getPodfile().set(forUseAtConfigurationTime(providers.podfile(new File(settings.getSettingsDir(), "Podfile"))));
-			spec.getCacheFile().set(new File(settings.getSettingsDir(), ".gradle/Podfile"));
-		})).getOrNull();
+		if (!skipCocoapods.get()) {
+			forUseAtConfigurationTime(providers.installation(spec -> {
+				spec.getPodfile().set(forUseAtConfigurationTime(providers.podfile(new File(settings.getSettingsDir(), "Podfile"))));
+				spec.getCacheFile().set(new File(settings.getSettingsDir(), ".gradle/Podfile"));
+			})).getOrNull();
+		}
 	}
 }
