@@ -103,7 +103,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, keyOf("buildConfigurationList", object(XCConfigurationList.class))));
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.buildPhases, keyOf("buildPhases", listOf(object(PBXBuildPhase.class)))));
 
-			add(arguments(CodeablePBXBuildFile.CodingKeys.fileRef, keyOf("fileRef", inputLocation(resolvablePaths()))));
+			add(arguments(CodeablePBXBuildFile.CodingKeys.fileRef, keyOf("fileRef", inputLocation(resolvableFileReference()))));
 			add(arguments(CodeablePBXBuildFile.CodingKeys.productRef, ignore()));
 			add(arguments(CodeablePBXBuildFile.CodingKeys.settings, keyOf("settings", inputOf(asIs()))));
 
@@ -171,7 +171,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, keyOf("shellPath", inputOf(string()))));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, keyOf("shellScript", inputOf(string()))));
-			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, keyOf("inputPaths", inputLocation(setOf(resolvablePaths())))));
+			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, keyOf("inputPaths", inputLocation(setOfResolvablePaths()))));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, ignore())); // TODO: implement support
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, ignore()));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, ignore())); // TODO: implement support
@@ -250,8 +250,8 @@ class XCBuildSpecCodingKeyCodersTests {
 		return emptyOptional();
 	}
 
-	private static ValueEncoder<XCBuildSpec, ?> resolvablePaths() {
-		return new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder<>(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>())));
+	private static ValueEncoder<XCBuildSpec, ?> resolvableFileReference() {
+		return new FileSystemLocationEncoder<>(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>()));
 	}
 
 	private static ValueEncoder<XCBuildSpec, ?> inputLocation(ValueEncoder<XCBuildSpec, ?> encoder) {
@@ -272,8 +272,8 @@ class XCBuildSpecCodingKeyCodersTests {
 		return new AtNestedCollectionEncoder<>(ImmutableList.toImmutableList(), new ListEncoder<>(elementEncoder));
 	}
 
-	public static <E> ValueEncoder<XCBuildSpec, List<E>> setOf(ValueEncoder<XCBuildSpec, E> elementEncoder) {
-		return new AtNestedCollectionEncoder<>(ImmutableSet.toImmutableSet(), new ListEncoder<>(elementEncoder));
+	public static ValueEncoder<XCBuildSpec, List<String>> setOfResolvablePaths() {
+		return new IgnoreEmptyStringEncoder<>(new AtNestedCollectionEncoder<>(ImmutableSet.toImmutableSet(), new ListEncoder<>(new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>())))));
 	}
 
 	public static <IN> ValueEncoder<XCBuildSpec, IN> inputOf(ValueEncoder<?, IN> encoder) {

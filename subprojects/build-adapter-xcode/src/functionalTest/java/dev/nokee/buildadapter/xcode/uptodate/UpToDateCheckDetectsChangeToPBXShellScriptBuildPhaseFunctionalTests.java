@@ -102,6 +102,13 @@ class UpToDateCheckDetectsChangeToPBXShellScriptBuildPhaseFunctionalTests extend
 			assertThat(targetUnderTestExecution(), upToDate());
 		}
 
+		@Test // https://github.com/nokeedev/gradle-native/issues/817
+		void ignoresEmptyInputPaths() {
+			xcodeproj(targetUnderTest(shellScriptBuildPhases(inputPaths(add("")))));
+
+			assertThat(targetUnderTestExecution(), upToDate());
+		}
+
 		@Test
 		void outOfDateWhenInputPathRemoved() {
 			xcodeproj(targetUnderTest(shellScriptBuildPhases(inputPaths(removeFirst()))));

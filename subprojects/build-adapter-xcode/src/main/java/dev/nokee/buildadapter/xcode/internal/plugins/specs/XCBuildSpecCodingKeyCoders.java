@@ -157,7 +157,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.files, null); // shell script uses input*/output* to check up-to-date
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, forKey("shellPath", atInput(ofString())));
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, forKey("shellScript", atInput(ofString())));
-		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, forKey("inputPaths", atInputFiles(set(ofLocation()))));
+		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, forKey("inputPaths", atInputFiles(setOfLocation())));
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, null);
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, null);
 		put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, null);
@@ -246,7 +246,11 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 	}
 
 	private static ValueEncoder<XCBuildSpec, Object> ofLocation() {
-		return new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder<>(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>())));
+		return new FileSystemLocationEncoder<>(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>()));
+	}
+
+	private static ValueEncoder<XCBuildSpec, List<String>> setOfLocation() {
+		return new IgnoreEmptyStringEncoder<>(AtNestedCollectionEncoder.atNestedSet(new ListEncoder<>(new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>())))));
 	}
 
 	private static <T> ValueEncoder<XCBuildSpec, List<T>> list(ValueEncoder<XCBuildSpec, T> elementEncoder) {
@@ -283,10 +287,6 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 	private static <T extends XCBuildConfiguration & Encodeable> ValueEncoder<XCBuildSpec, T> ofBuildConfiguration() {
 		return new AtNestedMapEncoder<>(new NoOpEncoder<>());
-	}
-
-	private static <T> ValueEncoder<XCBuildSpec, List<T>> set(ValueEncoder<XCBuildSpec, T> elementEncoder) {
-		return AtNestedCollectionEncoder.atNestedSet(new ListEncoder<>(elementEncoder));
 	}
 
 	private static <T extends XCBuildConfiguration & Encodeable> ValueEncoder<XCBuildSpec, XCConfigurationList> selection(ValueEncoder<XCBuildSpec, T> buildConfigurationEncoder) {
