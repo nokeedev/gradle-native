@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.objects.targets;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -23,11 +22,6 @@ import dev.nokee.xcode.project.CodeablePBXLegacyTarget;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.KeyedObject;
-
-import java.util.List;
-import java.util.Objects;
-
-import static com.google.common.collect.Streams.stream;
 
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build system.
@@ -48,7 +42,7 @@ public interface PBXLegacyTarget extends PBXTarget {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXLegacyTarget>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder>, PBXTarget.Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXLegacyTarget>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder>, TaskDependenciesAwareBuilder<Builder>, PBXTarget.Builder {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
@@ -91,9 +85,14 @@ public interface PBXLegacyTarget extends PBXTarget {
 			return this;
 		}
 
+		@Override
+		public Builder dependency(PBXTargetDependency dependency) {
+			builder.add(CodeablePBXLegacyTarget.CodingKeys.dependencies, dependency);
+			return this;
+		}
+
 		public Builder dependencies(Iterable<? extends PBXTargetDependency> dependencies) {
-			List<PBXTargetDependency> sanitizedDependencies = stream(dependencies).peek(Objects::requireNonNull).collect(ImmutableList.toImmutableList());
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.dependencies, sanitizedDependencies);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.dependencies, dependencies);
 			return this;
 		}
 
