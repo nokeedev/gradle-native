@@ -52,6 +52,8 @@ import org.gradle.internal.component.model.ComponentOverrideMetadata;
 import org.gradle.internal.component.model.ComponentResolveMetadata;
 import org.gradle.internal.component.model.ConfigurationMetadata;
 import org.gradle.internal.component.model.ModuleSources;
+import org.gradle.internal.hash.HashCode;
+import org.gradle.internal.hash.Hashing;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.resolve.result.BuildableArtifactResolveResult;
 import org.gradle.internal.resolve.result.BuildableArtifactSetResolveResult;
@@ -282,12 +284,18 @@ public final class DefaultAdhocArtifactRepository implements AdhocArtifactReposi
 						}
 
 						@Override
-						public void file(String filename, Action<? super OutputStream> action) {
+						public GradleModuleMetadata.File file(String filename, Action<? super OutputStream> action) {
 							// TODO: should make sure filename doesn't point to a file outside the componentPath
-							try (final OutputStream outStream = Files.newOutputStream(createDirectories(componentPath).resolve(filename))) {
-								action.execute(outStream);
-							} catch (
-								IOException e) {
+							try {
+								final Path filePath = createDirectories(componentPath).resolve(filename);
+								try (final OutputStream outStream = Files.newOutputStream(filePath)) {
+									action.execute(outStream);
+								}
+								byte[] allBytes = Files.readAllBytes(filePath);
+								HashCode md5 = Hashing.md5().hashBytes(allBytes);
+								HashCode sha1 = Hashing.sha1().hashBytes(allBytes);
+								return GradleModuleMetadata.File.builder().md5(md5.toString()).sha1(sha1.toString()).name(filename).url(filename).size(allBytes.length).build();
+							} catch (IOException e) {
 								throw new UncheckedIOException(e);
 							}
 						}

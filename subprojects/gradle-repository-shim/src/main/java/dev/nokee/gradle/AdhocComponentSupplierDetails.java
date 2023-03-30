@@ -26,5 +26,5 @@ public interface AdhocComponentSupplierDetails {
 
 	void metadata(Action<? super GradleModuleMetadata.Builder> action);
 
-	void file(String filename, Action<? super OutputStream> action);
+	GradleModuleMetadata.File file(String filename, Action<? super OutputStream> action);
 }
