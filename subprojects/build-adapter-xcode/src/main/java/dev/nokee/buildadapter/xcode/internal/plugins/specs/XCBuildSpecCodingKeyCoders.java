@@ -141,6 +141,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 		put(CodeablePBXProject.CodingKeys.compatibilityVersion, null);
 		put(CodeablePBXProject.CodingKeys.projectReferences, null);
 		put(CodeablePBXProject.CodingKeys.packageReferences, null);
+		put(CodeablePBXProject.CodingKeys.projectDirPath, null);
 
 		// PBXReferenceProxy
 		put(CodeablePBXReferenceProxy.CodingKeys.name, null);

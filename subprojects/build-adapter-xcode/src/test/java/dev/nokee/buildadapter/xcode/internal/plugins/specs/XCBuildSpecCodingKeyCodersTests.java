@@ -158,6 +158,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXProject.CodingKeys.packageReferences, ignore())); // not required (1)
 			add(arguments(CodeablePBXProject.CodingKeys.compatibilityVersion, ignore())); // not required (1)
 			add(arguments(CodeablePBXProject.CodingKeys.targets, ignore())); // not required (1)
+			add(arguments(CodeablePBXProject.CodingKeys.projectDirPath, ignore())); // not required (1)
 
 			add(arguments(CodeablePBXReferenceProxy.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXReferenceProxy.CodingKeys.path, ignore()));

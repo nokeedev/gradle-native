@@ -193,6 +193,7 @@ public final class KeyedCoders {
 		.put(CodeablePBXProject.CodingKeys.compatibilityVersion, forKey("compatibilityVersion"))
 		.put(CodeablePBXProject.CodingKeys.projectReferences, forKey("projectReferences", listOf(objectOf(new ProjectReferenceDecoder<>()))))
 		.put(CodeablePBXProject.CodingKeys.packageReferences, forKey("packageReferences", listOf(objectRef(new XCRemoteSwiftPackageReferenceDecoder<>()))))
+		.put(CodeablePBXProject.CodingKeys.projectDirPath, forKey("projectDirPath", string))
 
 		// PBXReferenceProxy
 		.put(CodeablePBXReferenceProxy.CodingKeys.name, forKey("name"))
