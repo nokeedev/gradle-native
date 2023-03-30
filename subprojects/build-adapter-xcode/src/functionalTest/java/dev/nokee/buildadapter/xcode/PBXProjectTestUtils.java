@@ -43,7 +43,7 @@ import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.objects.targets.ProductType;
-import dev.nokee.xcode.objects.targets.TaskDependenciesAwareBuilder;
+import dev.nokee.xcode.objects.targets.TargetDependenciesAwareBuilder;
 import dev.nokee.xcode.project.Codeable;
 import dev.nokee.xcode.project.PBXObjectArchiver;
 import dev.nokee.xcode.project.PBXObjectUnarchiver;
@@ -272,7 +272,7 @@ public final class PBXProjectTestUtils {
 	public static BiFunction<PBXProject, PBXTarget, PBXTarget> dependencies(BiFunction<? super PBXProject, ? super List<PBXTargetDependency>, ? extends List<PBXTargetDependency>> action) {
 		return (self, target) -> {
 			val builder = target.toBuilder();
-			((TaskDependenciesAwareBuilder<?>) builder).dependencies(action.apply(self, target.getDependencies()));
+			((TargetDependenciesAwareBuilder<?>) builder).dependencies(action.apply(self, target.getDependencies()));
 			return builder.build();
 		};
 	}

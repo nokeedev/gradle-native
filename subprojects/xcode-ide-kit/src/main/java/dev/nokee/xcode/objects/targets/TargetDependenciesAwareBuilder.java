@@ -17,7 +17,7 @@ package dev.nokee.xcode.objects.targets;
 
 import java.util.function.Consumer;
 
-public interface TaskDependenciesAwareBuilder<SELF> {
+public interface TargetDependenciesAwareBuilder<SELF> {
 	SELF dependency(PBXTargetDependency dependency);
 
 	SELF dependencies(Iterable<? extends PBXTargetDependency> dependencies);
