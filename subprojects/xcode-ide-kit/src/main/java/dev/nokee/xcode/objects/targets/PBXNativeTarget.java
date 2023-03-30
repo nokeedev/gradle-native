@@ -45,7 +45,7 @@ public interface PBXNativeTarget extends PBXTarget {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXNativeTarget>, BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder>, TaskDependenciesAwareBuilder<Builder>, PBXTarget.Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXNativeTarget>, BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder>, TargetDependenciesAwareBuilder<Builder>, PBXTarget.Builder {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
