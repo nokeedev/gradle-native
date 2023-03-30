@@ -122,7 +122,7 @@ public interface PBXNativeTarget extends PBXTarget {
 		}
 
 		public Builder packageProductDependencies(Iterable<? extends XCSwiftPackageProductDependency> packageProductDependencies) {
-			builder.put(CodeablePBXNativeTarget.CodingKeys.dependencies, packageProductDependencies);
+			builder.put(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, packageProductDependencies);
 			return this;
 		}
 
