@@ -171,6 +171,7 @@ class PBXObjectCodingKeyCodersTests {
 				arguments(CodeablePBXProject.CodingKeys.packageReferences, keyOf("packageReferences", list(byRef(of(XCRemoteSwiftPackageReference.class))))),
 				arguments(CodeablePBXProject.CodingKeys.compatibilityVersion, keyOf("compatibilityVersion", string())),
 				arguments(CodeablePBXProject.CodingKeys.targets, keyOf("targets", list(byRef(anyOf(PBXTarget.class))))),
+				arguments(CodeablePBXProject.CodingKeys.projectDirPath, keyOf("projectDirPath", string())),
 
 				arguments(CodeablePBXReferenceProxy.CodingKeys.name, keyOf("name", string())),
 				arguments(CodeablePBXReferenceProxy.CodingKeys.path, keyOf("path", string())),

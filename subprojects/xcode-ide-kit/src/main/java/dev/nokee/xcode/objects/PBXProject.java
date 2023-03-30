@@ -126,6 +126,11 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 			return action.apply(this);
 		}
 
+		public Builder projectDirPath(String path) {
+			builder.put(CodeablePBXProject.CodingKeys.projectDirPath, path);
+			return this;
+		}
+
 		public Builder target(PBXTarget target) {
 			builder.add(CodeablePBXProject.CodingKeys.targets, target);
 			return this;

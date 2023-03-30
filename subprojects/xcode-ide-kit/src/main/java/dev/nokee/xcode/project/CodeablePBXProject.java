@@ -37,6 +37,7 @@ public final class CodeablePBXProject implements PBXProject, Codeable {
 		compatibilityVersion,
 		projectReferences,
 		packageReferences,
+		projectDirPath,
 		;
 
 
