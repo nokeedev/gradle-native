@@ -23,14 +23,11 @@ import java.util.Set;
 @EqualsAndHashCode
 public final class DefaultXCProject implements XCProject {
 	private final XCProjectReference reference;
-	private transient XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 	private transient XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader;
-	private transient XCFileReferencesLoader.XCFileReferences references;
 
 	// friends with XCProjectReference
-	DefaultXCProject(XCProjectReference reference, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
+	DefaultXCProject(XCProjectReference reference, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
 		this.reference = reference;
-		this.fileReferencesLoader = fileReferencesLoader;
 		this.targetReferencesLoader = targetReferencesLoader;
 	}
 
@@ -44,13 +41,5 @@ public final class DefaultXCProject implements XCProject {
 
 	public XCProjectReference toReference() {
 		return reference;
-	}
-
-	private XCFileReferencesLoader.XCFileReferences getFileReferences() {
-		if (references == null) {
-			references = fileReferencesLoader.load(toReference());
-			fileReferencesLoader = null;
-		}
-		return references;
 	}
 }
