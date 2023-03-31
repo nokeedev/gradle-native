@@ -19,27 +19,25 @@ import java.util.List;
 import java.util.Set;
 
 public final class DefaultXCTarget implements XCTarget {
-	private final String name;
-	private final XCProjectReference project;
 	private final List<XCFileReference> inputFiles;
 	private final XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader;
 	private final XCFileReference outputFile;
+	private final XCTargetReference reference;
 
 	// friends with XCTargetReference
-	DefaultXCTarget(String name, XCProjectReference project, List<XCFileReference> inputFiles, XCFileReference outputFile, XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader) {
-		this.name = name;
-		this.project = project;
+	DefaultXCTarget(XCTargetReference reference, List<XCFileReference> inputFiles, XCFileReference outputFile, XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader) {
+		this.reference = reference;
 		this.outputFile = outputFile;
 		this.inputFiles = inputFiles;
 		this.dependenciesLoader = dependenciesLoader;
 	}
 
 	public String getName() {
-		return name;
+		return reference.getName();
 	}
 
 	public Set<XCDependency> getDependencies() {
-		return project.ofTarget(name).load(dependenciesLoader);
+		return reference.load(dependenciesLoader);
 	}
 
 	// TODO: Switch to only the input file of THIS XCTarget
@@ -52,16 +50,16 @@ public final class DefaultXCTarget implements XCTarget {
 	}
 
 	public XCProjectReference getProject() {
-		return project;
+		return reference.getProject();
 	}
 
 	@Override
 	public XCTargetReference asReference() {
-		return project.ofTarget(name);
+		return reference;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("target '%s' in project '%s'", name, project.getLocation());
+		return String.format("target '%s' in project '%s'", reference.getName(), reference.getProject().getLocation());
 	}
 }

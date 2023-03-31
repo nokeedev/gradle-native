@@ -26,8 +26,7 @@ import java.util.Set;
 
 @EqualsAndHashCode
 public final class DefaultXCProject implements XCProject {
-	private final String name;
-	private final Path location;
+	private final XCProjectReference reference;
 	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
 	private transient final PBXProject project;
@@ -35,9 +34,8 @@ public final class DefaultXCProject implements XCProject {
 	private transient XCFileReferencesLoader.XCFileReferences references;
 
 	// friends with XCProjectReference
-	DefaultXCProject(String name, Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
-		this.name = name;
-		this.location = location;
+	DefaultXCProject(XCProjectReference reference, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
+		this.reference = reference;
 		this.targets = targets;
 		this.schemeNames = schemeNames;
 		this.project = project;
@@ -45,7 +43,7 @@ public final class DefaultXCProject implements XCProject {
 	}
 
 	public String getName() {
-		return name;
+		return reference.getName();
 	}
 
 	public Set<XCTarget> getTargets() {
@@ -65,7 +63,7 @@ public final class DefaultXCProject implements XCProject {
 				@Override
 				public Path get(String name) {
 					if ("SOURCE_ROOT".equals(name)) {
-						return location.getParent();
+						return reference.getLocation().getParent();
 					}
 					throw new UnsupportedOperationException(String.format("Could not resolve '%s' build setting.", name));
 				}
@@ -79,7 +77,7 @@ public final class DefaultXCProject implements XCProject {
 	}
 
 	public XCProjectReference toReference() {
-		return XCProjectReference.of(location);
+		return reference;
 	}
 
 	PBXProject getModel() {
