@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode;
 
-import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 
 import java.util.Set;
@@ -23,12 +22,12 @@ import java.util.Set;
 @EqualsAndHashCode
 public final class DefaultXCProject implements XCProject {
 	private final XCProjectReference reference;
-	private transient XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader;
+	private transient XCLoader<Set<XCTarget>, XCProjectReference> targetsLoader;
 
 	// friends with XCProjectReference
-	DefaultXCProject(XCProjectReference reference, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
+	DefaultXCProject(XCProjectReference reference, XCLoader<Set<XCTarget>, XCProjectReference> targetsLoader) {
 		this.reference = reference;
-		this.targetReferencesLoader = targetReferencesLoader;
+		this.targetsLoader = targetsLoader;
 	}
 
 	public String getName() {
@@ -36,7 +35,7 @@ public final class DefaultXCProject implements XCProject {
 	}
 
 	public Set<XCTarget> getTargets() {
-		return reference.load(targetReferencesLoader).stream().map(XCTargetReference::load).collect(ImmutableSet.toImmutableSet());
+		return reference.load(targetsLoader);
 	}
 
 	public XCProjectReference toReference() {
