@@ -54,6 +54,6 @@ public final class DefaultXCProjectReference implements XCProjectReference, Seri
 	}
 
 	public XCProject load() {
-		return load(XCLoaders.projectLoader());
+		throw new UnsupportedOperationException();
 	}
 }
