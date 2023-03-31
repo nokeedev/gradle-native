@@ -15,10 +15,16 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.xcode.XCCacheLoader;
+import dev.nokee.xcode.XCDependenciesLoader;
+import dev.nokee.xcode.XCDependency;
 import dev.nokee.xcode.XCFileReference;
+import dev.nokee.xcode.XCLoader;
+import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTarget;
+import dev.nokee.xcode.XCTargetLoader;
 import dev.nokee.xcode.XCTargetReference;
 import lombok.val;
 import org.gradle.api.provider.MapProperty;
@@ -31,6 +37,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -41,6 +48,30 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 
 	private final Map<XCTargetReference, Coordinate> targetToCoordinates = new HashMap<>();
 	private final Map<XCFileReference, Coordinate> fileToCoordinates = new HashMap<>();
+	private final XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader = new XCCacheLoader<>(new XCDependenciesLoader(XCLoaders.pbxtargetLoader(), XCLoaders.fileReferences(), new XCDependenciesLoader.XCDependencyFactory() {
+		@Nullable
+		@Override
+		public XCDependency create(XCFileReference reference) {
+			val coordinate = forFile(reference);
+			if (coordinate != null) {
+				return new CoordinateDependency(coordinate, CoordinateDependency.Type.implicit);
+			} else {
+				return null;
+			}
+		}
+
+		@Nullable
+		@Override
+		public XCDependency create(XCTargetReference reference) {
+			val coordinate = forTarget(reference);
+			if (coordinate != null) {
+				return new CoordinateDependency(coordinate, CoordinateDependency.Type.explicit);
+			} else {
+				return null;
+			}
+		}
+	}));
+	private final XCLoader<XCTarget, XCTargetReference> targetLoader = new XCCacheLoader<>(new XCTargetLoader(XCLoaders.pbxprojectLoader(), XCLoaders.fileReferences(), dependenciesLoader));
 
 	@Inject
 	public XcodeDependenciesService() {
@@ -60,7 +91,7 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 	}
 
 	public XCTarget load(XCTargetReference reference) {
-		return reference.load();
+		return reference.load(targetLoader);
 	}
 
 	@Nullable
@@ -79,6 +110,26 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 		return Optional.ofNullable(targetToCoordinates.get(target)).orElseThrow(RuntimeException::new);
 	}
 
+	public static final class CoordinateDependency implements XCDependency {
+		private final Coordinate coordinate;
+		private final Type type;
+
+		public CoordinateDependency(Coordinate coordinate, Type type) {
+			this.coordinate = coordinate;
+			this.type = type;
+		}
+
+		enum Type { implicit, explicit }
+
+		public Coordinate getCoordinate() {
+			return coordinate;
+		}
+
+		@Override
+		public String toString() {
+			return coordinate + " (" + type + ")";
+		}
+	}
 
 	public static final class Coordinate {
 		public final Path projectPath;
@@ -89,6 +140,11 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 			this.projectPath = projectPath;
 			this.projectName = projectName;
 			this.capabilityName = capabilityName;
+		}
+
+		@Override
+		public String toString() {
+			return projectPath + "@" + capabilityName;
 		}
 	}
 }

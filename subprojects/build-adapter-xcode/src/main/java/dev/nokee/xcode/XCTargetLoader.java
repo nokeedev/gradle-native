@@ -33,10 +33,10 @@ public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReferenc
 	private final XCLoader<PBXProject, XCProjectReference> pbxLoader;
 	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 
-	public XCTargetLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
+	public XCTargetLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader) {
 		this.pbxLoader = pbxLoader;
 		this.fileReferencesLoader = fileReferencesLoader;
-		this.dependenciesLoader = new XCCacheLoader<>(new XCDependenciesLoader(XCLoaders.pbxtargetLoader(), fileReferencesLoader));
+		this.dependenciesLoader = dependenciesLoader;
 	}
 
 	@Override
