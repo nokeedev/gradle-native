@@ -29,13 +29,14 @@ import java.util.stream.Stream;
 import static dev.nokee.utils.Optionals.stream;
 
 public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReference> {
-	private final XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader = new XCCacheLoader<>(new XCDependenciesLoader(XCLoaders.pbxtargetLoader()));
+	private final XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader;
 	private final XCLoader<PBXProject, XCProjectReference> pbxLoader;
 	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 
 	public XCTargetLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
 		this.pbxLoader = pbxLoader;
 		this.fileReferencesLoader = fileReferencesLoader;
+		this.dependenciesLoader = new XCCacheLoader<>(new XCDependenciesLoader(XCLoaders.pbxtargetLoader(), fileReferencesLoader));
 	}
 
 	@Override

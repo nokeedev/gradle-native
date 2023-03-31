@@ -15,13 +15,11 @@
  */
 package dev.nokee.xcode;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
-import lombok.val;
 
 import java.nio.file.Path;
 import java.util.Set;
@@ -30,9 +28,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, XCTargetReference> {
 	private final XCLoader<PBXTarget, XCTargetReference> targetLoader;
+	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 
-	public XCDependenciesLoader(XCLoader<PBXTarget, XCTargetReference> targetLoader) {
+	public XCDependenciesLoader(XCLoader<PBXTarget, XCTargetReference> targetLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
 		this.targetLoader = targetLoader;
+		this.fileReferencesLoader = fileReferencesLoader;
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 			return new DefaultXCTargetReference(project, targetProxy.getRemoteInfo()
 				.orElseThrow(XCDependenciesLoader::missingRemoteInfoException));
 		} else if (targetProxy.getContainerPortal() instanceof PBXFileReference) {
-			return new DefaultXCTargetReference(new DefaultXCProjectReference(((DefaultXCProject) project.load()).getFileReferences().get((PBXFileReference) targetProxy.getContainerPortal()).resolve(new XCFileReference.ResolveContext() {
+			return new DefaultXCTargetReference(new DefaultXCProjectReference(project.load(fileReferencesLoader).get((PBXFileReference) targetProxy.getContainerPortal()).resolve(new XCFileReference.ResolveContext() {
 				@Override
 				public Path getBuiltProductsDirectory() {
 					throw new UnsupportedOperationException("Should not call");
