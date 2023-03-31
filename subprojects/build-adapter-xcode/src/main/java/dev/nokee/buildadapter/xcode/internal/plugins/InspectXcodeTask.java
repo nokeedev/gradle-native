@@ -59,6 +59,9 @@ public /*final*/ abstract class InspectXcodeTask extends DefaultTask {
 	@Internal
 	protected abstract Property<ReportContext> getReportContext();
 
+	@Internal
+	public abstract Property<XcodeDependenciesService> getXCLoaderService();
+
 	@Inject
 	public InspectXcodeTask(ObjectFactory objects) {
 		getOutputFormat().convention(Format.TEXT);
@@ -70,7 +73,7 @@ public /*final*/ abstract class InspectXcodeTask extends DefaultTask {
 			}
 		})));
 		getXcodeTarget().set(zip(() -> objects.listProperty(Object.class),
-			getXcodeProject().map(XCProjectReference::load),
+			getXcodeProject().map(it -> getXCLoaderService().get().load(it)),
 			getTargetFlag(),
 			(project, targetName) -> project.getTargets().stream().filter(t -> t.getName().equals(targetName)).findFirst().map(XCTarget::asReference).orElse(null)));
 	}
@@ -79,8 +82,8 @@ public /*final*/ abstract class InspectXcodeTask extends DefaultTask {
 	void doInspect() {
 		ifPresentOrElse(
 			getXcodeTarget(),
-			targetReference -> new XCTargetReport(targetReference.load()).report(getReportContext().get()),
-			() -> new XCProjectReport(getXcodeProject().get().load()).report(getReportContext().get()));
+			targetReference -> new XCTargetReport(getXCLoaderService().get().load(targetReference)).report(getReportContext().get()),
+			() -> new XCProjectReport(getXCLoaderService().get().load(getXcodeProject().get())).report(getReportContext().get()));
 	}
 
 	/**

@@ -81,7 +81,6 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.services.BuildServiceRegistration;
 import org.gradle.api.specs.Spec;
 import org.gradle.build.event.BuildEventsListenerRegistry;
 
@@ -175,7 +174,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCProjectDescriptionRule(new DefaultXCProjectReferenceToStringer(project.getRootDir().toPath())));
 
 			@SuppressWarnings("unchecked")
-			final Provider<XcodeDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeDependenciesService, XcodeDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName(XcodeDependenciesService.class.getSimpleName())).flatMap(BuildServiceRegistration::getService);
+			final Provider<XcodeDependenciesService> service = (Provider<XcodeDependenciesService>) project.getGradle().getSharedServices().getRegistrations().getByName(XcodeDependenciesService.class.getSimpleName()).getService();
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetComponentDiscoveryRule(project.getExtensions().getByType(ModelRegistry.class), buildInputs.capture("loads all targets from " + project, (Transformer<Iterable<XCTargetReference>, XCProjectReference> & Serializable) XCLoaders.allTargetsLoader()::load)::transform));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
@@ -183,6 +182,8 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.as(InspectXcodeTask.class)
 					.configure(task -> {
 						task.getXcodeProject().set(reference);
+						task.getXCLoaderService().set(service);
+						task.usesService(service);
 					});
 			}));
 
@@ -220,11 +221,11 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					})
 					.configure(configuration -> {
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-								return target.load().getInputFiles().stream().map(it::forFile).filter(Objects::nonNull).collect(Collectors.toList());
+								return it.load(target).getInputFiles().stream().map(it::forFile).filter(Objects::nonNull).collect(Collectors.toList());
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-								return target.load().getDependencies().stream().map(dep -> ((DefaultXCDependency) dep).getTarget()).map(it::forTarget).filter(Objects::nonNull).collect(Collectors.toList());
+								return it.load(target).getDependencies().stream().map(dep -> ((DefaultXCDependency) dep).getTarget()).map(it::forTarget).filter(Objects::nonNull).collect(Collectors.toList());
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
 					});
