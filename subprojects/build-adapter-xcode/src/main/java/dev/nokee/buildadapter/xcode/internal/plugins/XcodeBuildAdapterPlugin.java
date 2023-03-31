@@ -99,6 +99,7 @@ import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
+import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 import static dev.nokee.utils.TransformerUtils.Transformer.of;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
@@ -225,6 +226,25 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						)).orElse(Collections.emptyList()));
 					});
 
+				val overlays = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("overlays", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-overlays"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
+						});
+					})
+					.configure(configuration -> {
+						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+								return it.load(target).getInputFiles().stream().map(it::forFile).filter(Objects::nonNull).collect(Collectors.toList());
+							}).map(transformEach(asDependency(project)))
+						)).orElse(Collections.emptyList()));
+						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+								return it.load(target).getDependencies().stream().map(dep -> ((DefaultXCDependency) dep).getTarget()).map(it::forTarget).filter(Objects::nonNull).collect(Collectors.toList());
+							}).map(transformEach(asDependency(project)))
+						)).orElse(Collections.emptyList()));
+					});
+
 				val derivedDataTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("assemble", "derivedDataDir"), AssembleDerivedDataDirectoryTask.class, it -> it.ownedBy(entity)))
 					.as(AssembleDerivedDataDirectoryTask.class)
 					.configure(task -> {
@@ -243,6 +263,8 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + task.getName()));
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getConfiguration().set(variantInfo.getName());
+						task.getVfsOverlayFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/product-headers.yaml"));
+						task.getVfsOverlays().from(overlays);
 						action.execute(task);
 					});
 				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetTask)));
@@ -259,6 +281,21 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						configuration.outgoing(outgoing -> {
 							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
 							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
+						});
+					});
+
+				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("OverlaysElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-overlays"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
+						});
+					})
+					.configure(configuration -> {
+						configuration.outgoing(outgoing -> {
+							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
+							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getVfsOverlayFile));
 						});
 					});
 			})));

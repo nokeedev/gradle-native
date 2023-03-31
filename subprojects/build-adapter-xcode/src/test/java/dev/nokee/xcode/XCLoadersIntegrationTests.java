@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode;
 
+import dev.nokee.xcode.objects.PBXProject;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -67,6 +68,16 @@ class XCLoadersIntegrationTests {
 	@Nested
 	class WhenAllTargetsLoader {
 		XCLoader<Set<XCTargetReference>, XCProjectReference> subject = XCLoaders.allTargetsLoader();
+
+		@Test
+		void canSerialize() {
+			assertThat(subject, isSerializable());
+		}
+	}
+
+	@Nested
+	class WhenPBXProjectLoader {
+		XCLoader<PBXProject, XCProjectReference> subject = XCLoaders.pbxprojectLoader();
 
 		@Test
 		void canSerialize() {
