@@ -16,6 +16,7 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import dev.nokee.xcode.XCFileReference;
+import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTarget;
 import dev.nokee.xcode.XCTargetReference;
@@ -54,6 +55,13 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 		});
 	}
 
+	public XCProject load(XCProjectReference reference) {
+		return reference.load();
+	}
+
+	public XCTarget load(XCTargetReference reference) {
+		return reference.load();
+	}
 
 	@Nullable
 	public Coordinate forFile(XCFileReference file) {
