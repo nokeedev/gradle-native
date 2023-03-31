@@ -18,16 +18,14 @@ package dev.nokee.xcode;
 import java.util.Set;
 
 public final class XCProjectLoader implements XCLoader<XCProject, XCProjectReference> {
-	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 	private final XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader;
 
-	public XCProjectLoader(XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
-		this.fileReferencesLoader = fileReferencesLoader;
+	public XCProjectLoader(XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
 		this.targetReferencesLoader = targetReferencesLoader;
 	}
 
 	@Override
 	public XCProject load(XCProjectReference reference) {
-		return new DefaultXCProject(reference, fileReferencesLoader, targetReferencesLoader);
+		return new DefaultXCProject(reference, targetReferencesLoader);
 	}
 }
