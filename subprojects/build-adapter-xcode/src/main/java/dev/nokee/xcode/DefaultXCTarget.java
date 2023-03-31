@@ -21,11 +21,11 @@ public final class DefaultXCTarget implements XCTarget {
 	private final String name;
 	private final XCProjectReference project;
 	private final List<XCFileReference> inputFiles;
-	private final List<XCTargetReference> dependencies;
+	private final List<XCDependency> dependencies;
 	private final XCFileReference outputFile;
 
 	// friends with XCTargetReference
-	DefaultXCTarget(String name, XCProjectReference project, List<XCFileReference> inputFiles, List<XCTargetReference> dependencies, XCFileReference outputFile) {
+	DefaultXCTarget(String name, XCProjectReference project, List<XCFileReference> inputFiles, List<XCDependency> dependencies, XCFileReference outputFile) {
 		this.name = name;
 		this.project = project;
 		this.dependencies = dependencies;
@@ -37,7 +37,7 @@ public final class DefaultXCTarget implements XCTarget {
 		return name;
 	}
 
-	public List<XCTargetReference> getDependencies() {
+	public List<XCDependency> getDependencies() {
 		return dependencies;
 	}
 

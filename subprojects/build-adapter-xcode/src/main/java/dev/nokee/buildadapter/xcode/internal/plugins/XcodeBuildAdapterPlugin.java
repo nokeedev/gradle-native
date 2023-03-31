@@ -60,6 +60,7 @@ import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.TransformerUtils;
+import dev.nokee.xcode.DefaultXCDependency;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
@@ -223,7 +224,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-								return target.load().getDependencies().stream().map(it::forTarget).filter(Objects::nonNull).collect(Collectors.toList());
+								return target.load().getDependencies().stream().map(dep -> ((DefaultXCDependency) dep).getTarget()).map(it::forTarget).filter(Objects::nonNull).collect(Collectors.toList());
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
 					});

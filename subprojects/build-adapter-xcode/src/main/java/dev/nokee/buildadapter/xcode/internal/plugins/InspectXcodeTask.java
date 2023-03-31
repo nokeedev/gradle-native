@@ -19,6 +19,7 @@ import dev.nokee.buildadapter.xcode.internal.reporting.JsonReportContext;
 import dev.nokee.buildadapter.xcode.internal.reporting.Report;
 import dev.nokee.buildadapter.xcode.internal.reporting.ReportContext;
 import dev.nokee.buildadapter.xcode.internal.reporting.TextReportContext;
+import dev.nokee.xcode.DefaultXCDependency;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTarget;
@@ -116,7 +117,7 @@ public /*final*/ abstract class InspectXcodeTask extends DefaultTask {
 			context.beginDocument();
 			context.attribute("Project name", target.getProject().load().getName());
 			context.attribute("name", target.getName());
-			context.attribute("dependencies", target.getDependencies().stream().map(it -> it.getProject().getName() + ":" + it.getName() + " (" + (target.getProject().equals(it.getProject()) ? "local" : "remote") + ")").collect(toList()));
+			context.attribute("dependencies", target.getDependencies().stream().map(it -> ((DefaultXCDependency) it).getTarget()).map(it -> it.getProject().getName() + ":" + it.getName() + " (" + (target.getProject().equals(it.getProject()) ? "local" : "remote") + ")").collect(toList()));
 			context.attribute("inputFiles", target.getInputFiles().stream().map(Object::toString).collect(toList()));
 			context.attributeGroup("product", it -> {
 				it.attribute("location", target.getOutputFile().toString());
