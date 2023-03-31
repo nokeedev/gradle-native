@@ -23,15 +23,13 @@ import java.util.Set;
 @EqualsAndHashCode
 public final class DefaultXCProject implements XCProject {
 	private final XCProjectReference reference;
-	private final ImmutableSet<String> schemeNames;
 	private transient XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 	private transient XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader;
 	private transient XCFileReferencesLoader.XCFileReferences references;
 
 	// friends with XCProjectReference
-	DefaultXCProject(XCProjectReference reference, ImmutableSet<String> schemeNames, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
+	DefaultXCProject(XCProjectReference reference, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
 		this.reference = reference;
-		this.schemeNames = schemeNames;
 		this.fileReferencesLoader = fileReferencesLoader;
 		this.targetReferencesLoader = targetReferencesLoader;
 	}
@@ -42,10 +40,6 @@ public final class DefaultXCProject implements XCProject {
 
 	public Set<XCTarget> getTargets() {
 		return reference.load(targetReferencesLoader).stream().map(XCTargetReference::load).collect(ImmutableSet.toImmutableSet());
-	}
-
-	public Set<String> getSchemeNames() {
-		return schemeNames;
 	}
 
 	public XCProjectReference toReference() {
