@@ -17,7 +17,6 @@ package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXProject;
-import dev.nokee.xcode.objects.targets.PBXTarget;
 import lombok.val;
 
 import java.io.IOException;
@@ -25,23 +24,24 @@ import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 public final class XCProjectLoader implements XCLoader<XCProject, XCProjectReference> {
 	private final XCLoader<PBXProject, XCProjectReference> pbxLoader;
 	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
+	private final XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader;
 
-	public XCProjectLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
+	public XCProjectLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
 		this.pbxLoader = pbxLoader;
 		this.fileReferencesLoader = fileReferencesLoader;
+		this.targetReferencesLoader = targetReferencesLoader;
 	}
 
 	@Override
 	public XCProject load(XCProjectReference reference) {
 		val pbxproj = pbxLoader.load(reference);
-
-		val targets = pbxproj.getTargets().stream().map(PBXTarget::getName).map(name -> XCTargetReference.of(reference, name)).collect(ImmutableSet.toImmutableSet());
 
 		val it = reference.getLocation().resolve("xcshareddata/xcschemes");
 		val builder = ImmutableSet.<String>builder();
@@ -58,6 +58,6 @@ public final class XCProjectLoader implements XCLoader<XCProject, XCProjectRefer
 		val schemeNames = builder.build();
 
 		// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
-		return new DefaultXCProject(reference, targets, schemeNames, pbxproj, fileReferencesLoader);
+		return new DefaultXCProject(reference, schemeNames, pbxproj, fileReferencesLoader, targetReferencesLoader);
 	}
 }

@@ -27,19 +27,19 @@ import java.util.Set;
 @EqualsAndHashCode
 public final class DefaultXCProject implements XCProject {
 	private final XCProjectReference reference;
-	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
 	private transient final PBXProject project;
 	private transient XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
+	private transient XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader;
 	private transient XCFileReferencesLoader.XCFileReferences references;
 
 	// friends with XCProjectReference
-	DefaultXCProject(XCProjectReference reference, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
+	DefaultXCProject(XCProjectReference reference, ImmutableSet<String> schemeNames, PBXProject project, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
 		this.reference = reference;
-		this.targets = targets;
 		this.schemeNames = schemeNames;
 		this.project = project;
 		this.fileReferencesLoader = fileReferencesLoader;
+		this.targetReferencesLoader = targetReferencesLoader;
 	}
 
 	public String getName() {
@@ -47,7 +47,7 @@ public final class DefaultXCProject implements XCProject {
 	}
 
 	public Set<XCTarget> getTargets() {
-		return targets.stream().map(XCTargetReference::load).collect(ImmutableSet.toImmutableSet());
+		return reference.load(targetReferencesLoader).stream().map(XCTargetReference::load).collect(ImmutableSet.toImmutableSet());
 	}
 
 	public List<XCProjectReference> getProjectReferences() {
