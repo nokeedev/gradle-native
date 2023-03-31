@@ -15,29 +15,23 @@
  */
 package dev.nokee.xcode;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.xcode.objects.PBXProject;
 import lombok.EqualsAndHashCode;
 
-import java.nio.file.Path;
-import java.util.List;
 import java.util.Set;
 
 @EqualsAndHashCode
 public final class DefaultXCProject implements XCProject {
 	private final XCProjectReference reference;
 	private final ImmutableSet<String> schemeNames;
-	private transient final PBXProject project;
 	private transient XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 	private transient XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader;
 	private transient XCFileReferencesLoader.XCFileReferences references;
 
 	// friends with XCProjectReference
-	DefaultXCProject(XCProjectReference reference, ImmutableSet<String> schemeNames, PBXProject project, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
+	DefaultXCProject(XCProjectReference reference, ImmutableSet<String> schemeNames, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCLoader<Set<XCTargetReference>, XCProjectReference> targetReferencesLoader) {
 		this.reference = reference;
 		this.schemeNames = schemeNames;
-		this.project = project;
 		this.fileReferencesLoader = fileReferencesLoader;
 		this.targetReferencesLoader = targetReferencesLoader;
 	}
@@ -48,28 +42,6 @@ public final class DefaultXCProject implements XCProject {
 
 	public Set<XCTarget> getTargets() {
 		return reference.load(targetReferencesLoader).stream().map(XCTargetReference::load).collect(ImmutableSet.toImmutableSet());
-	}
-
-	public List<XCProjectReference> getProjectReferences() {
-		return project.getProjectReferences().stream()
-			.map(PBXProject.ProjectReference::getProjectReference)
-			.map(it -> getFileReferences().get(it))
-			.map(it -> it.resolve(new XCFileReference.ResolveContext() {
-				@Override
-				public Path getBuiltProductsDirectory() {
-					throw new UnsupportedOperationException("Should not call");
-				}
-
-				@Override
-				public Path get(String name) {
-					if ("SOURCE_ROOT".equals(name)) {
-						return reference.getLocation().getParent();
-					}
-					throw new UnsupportedOperationException(String.format("Could not resolve '%s' build setting.", name));
-				}
-			}))
-			.map(XCProjectReference::of)
-			.collect(ImmutableList.toImmutableList());
 	}
 
 	public Set<String> getSchemeNames() {
