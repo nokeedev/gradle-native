@@ -15,15 +15,12 @@
  */
 package dev.nokee.xcode;
 
-import java.util.List;
 import java.util.Set;
 
 public interface XCProject {
 	String getName();
 
 	Set<XCTarget> getTargets();
-
-	List<XCProjectReference> getProjectReferences();
 
 	Set<String> getSchemeNames();
 
