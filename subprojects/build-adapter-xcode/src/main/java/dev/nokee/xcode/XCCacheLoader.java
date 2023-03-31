@@ -29,22 +29,22 @@ public final class XCCacheLoader<T, R extends XCReference> implements XCLoader<T
 
 	@Override
 	public T load(R reference) {
-		return XCCache.cacheIfAbsent(new CacheKey<>(delegate.getClass(), reference), __ -> delegate.load(reference));
+		return XCCache.cacheIfAbsent(new CacheKey<>(delegate, reference), __ -> delegate.load(reference));
 	}
 
 	@EqualsAndHashCode
 	private static final class CacheKey<R> {
-		private final Class<?> loaderType;
+		private final Object loaderType;
 		private final R reference;
 
-		private CacheKey(Class<?> loaderType, R reference) {
+		private CacheKey(Object loaderType, R reference) {
 			this.loaderType = loaderType;
 			this.reference = reference;
 		}
 
 		@Override
 		public String toString() {
-			return loaderType.getSimpleName() + " - " + reference;
+			return loaderType.getClass().getSimpleName() + " - " + reference;
 		}
 	}
 }

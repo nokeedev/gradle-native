@@ -60,7 +60,6 @@ import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.TransformerUtils;
-import dev.nokee.xcode.DefaultXCDependency;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
@@ -90,7 +89,6 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -221,11 +219,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					})
 					.configure(configuration -> {
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-								return it.load(target).getInputFiles().stream().map(it::forFile).filter(Objects::nonNull).collect(Collectors.toList());
-							}).map(transformEach(asDependency(project)))
-						)).orElse(Collections.emptyList()));
-						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-								return it.load(target).getDependencies().stream().map(dep -> ((DefaultXCDependency) dep).getTarget()).map(it::forTarget).filter(Objects::nonNull).collect(Collectors.toList());
+								return it.load(target).getDependencies().stream().map(dep -> ((XcodeDependenciesService.CoordinateDependency) dep).getCoordinate()).collect(Collectors.toList());
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
 					});

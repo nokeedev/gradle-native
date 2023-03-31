@@ -29,7 +29,7 @@ public final class XCLoaders {
 	private static final XCLoader<XCWorkspaceData, XCWorkspaceReference> WORKSPACE_DATA_LOADER = new XCCacheLoader<>(new XCWorkspaceDataLoader());
 	private static final XCLoader<Iterable<XCProjectReference>, XCWorkspaceReference> WORKSPACE_PROJECT_REFERENCES_LOADER = new XCCacheLoader<>(new WorkspaceProjectReferencesLoader(WORKSPACE_DATA_LOADER, new DefaultXCProjectReferenceFactory()));
 	private static final XCLoader<Iterable<XCProjectReference>, XCProjectReference> CROSS_PROJECT_REFERENCES_LOADER = new XCCacheLoader<>(new CrossProjectReferencesLoader(PBXPROJECT_LOADER, FILE_REFERENCES_LOADER));
-	private static final XCLoader<XCTarget, XCTargetReference> TARGET_LOADER = new XCCacheLoader<>(new XCTargetLoader(PBXPROJECT_LOADER, FILE_REFERENCES_LOADER));
+	private static final XCLoader<XCTarget, XCTargetReference> TARGET_LOADER = new XCCacheLoader<>(new XCTargetLoader(PBXPROJECT_LOADER, FILE_REFERENCES_LOADER, __ -> { throw new UnsupportedOperationException(); }));
 	private static final XCLoader<Set<XCTargetReference>, XCProjectReference> ALL_TARGETS_LOADER = new XCCacheLoader<>(new XCTargetsLoader(PBXPROJECT_LOADER));
 	private static final XCLoader<XCProject, XCProjectReference> PROJECT_LOADER = new XCCacheLoader<>(new XCProjectLoader(ALL_TARGETS_LOADER));
 	private static final XCLoader<Set<String>, XCTargetReference> TARGET_CONFIGURATION_LOADER = new XCCacheLoader<>(new ConfigurationsLoader(PBXPROJECT_LOADER));
@@ -52,6 +52,10 @@ public final class XCLoaders {
 
 	public static XCLoader<PBXTarget, XCTargetReference> pbxtargetLoader() {
 		return PBXTARGET_LOADER;
+	}
+
+	public static XCLoader<PBXProject, XCProjectReference> pbxprojectLoader() {
+		return PBXPROJECT_LOADER;
 	}
 
 	public static XCLoader<XCTarget, XCTargetReference> targetLoader() {
