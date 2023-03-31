@@ -22,7 +22,5 @@ public interface XCProject {
 
 	Set<XCTarget> getTargets();
 
-	Set<String> getSchemeNames();
-
 	XCProjectReference toReference();
 }
