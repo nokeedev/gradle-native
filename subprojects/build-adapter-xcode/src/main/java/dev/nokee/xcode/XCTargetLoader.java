@@ -59,7 +59,7 @@ public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReferenc
 			.map(it -> it.getTarget().map(t -> toTargetReference(reference.getProject(), t)).orElseGet(() -> toTargetReference(reference.getProject(), it.getTargetProxy())))
 			.collect(ImmutableList.toImmutableList());
 
-		return new XCTarget(reference.getName(), reference.getProject(), inputFiles, dependencies, outputFile);
+		return new DefaultXCTarget(reference.getName(), reference.getProject(), inputFiles, dependencies, outputFile);
 	}
 
 	private XCTargetReference toTargetReference(XCProjectReference project, PBXTarget target) {
@@ -73,7 +73,7 @@ public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReferenc
 			return new DefaultXCTargetReference(project, targetProxy.getRemoteInfo()
 				.orElseThrow(XCTargetLoader::missingRemoteInfoException));
 		} else if (targetProxy.getContainerPortal() instanceof PBXFileReference) {
-			return new DefaultXCTargetReference(new DefaultXCProjectReference(project.load().getFileReferences().get((PBXFileReference) targetProxy.getContainerPortal()).resolve(new XCFileReference.ResolveContext() {
+			return new DefaultXCTargetReference(new DefaultXCProjectReference(((DefaultXCProject) project.load()).getFileReferences().get((PBXFileReference) targetProxy.getContainerPortal()).resolve(new XCFileReference.ResolveContext() {
 				@Override
 				public Path getBuiltProductsDirectory() {
 					throw new UnsupportedOperationException("Should not call");

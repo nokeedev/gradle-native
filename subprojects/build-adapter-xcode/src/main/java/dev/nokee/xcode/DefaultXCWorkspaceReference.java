@@ -69,7 +69,7 @@ public final class DefaultXCWorkspaceReference implements XCWorkspaceReference, 
 				return builder.build().stream();
 			}).distinct().collect(ImmutableSet.toImmutableSet());
 
-			return new XCWorkspace(location.toPath(), projects, schemeNames);
+			return new DefaultXCWorkspace(location.toPath(), projects, schemeNames);
 		});
 	}
 
