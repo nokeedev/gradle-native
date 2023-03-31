@@ -28,4 +28,6 @@ public interface XCTarget {
 	XCFileReference getOutputFile();
 
 	XCProjectReference getProject();
+
+	XCTargetReference asReference();
 }

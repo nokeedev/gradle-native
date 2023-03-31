@@ -17,6 +17,7 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.XCTarget;
 import dev.nokee.xcode.XCTargetReference;
 import lombok.val;
 import org.gradle.api.provider.MapProperty;
@@ -43,12 +44,12 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 	@Inject
 	public XcodeDependenciesService() {
 		getParameters().getProjectReferences().get().forEach((reference, path) -> {
-			for (XCTargetReference target : reference.load().getTargets()) {
-				val outputFile = target.load().getOutputFile();
+			for (XCTarget target : reference.load().getTargets()) {
+				val outputFile = target.getOutputFile();
 				if (outputFile != null) {
 					fileToCoordinates.put(outputFile, new Coordinate(Path.path(path), target.getProject().getName(), target.getName()));
 				}
-				targetToCoordinates.put(target, new Coordinate(Path.path(path), target.getProject().getName(), target.getName()));
+				targetToCoordinates.put(target.asReference(), new Coordinate(Path.path(path), target.getProject().getName(), target.getName()));
 			}
 		});
 	}

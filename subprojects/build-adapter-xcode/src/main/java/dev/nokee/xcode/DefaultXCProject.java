@@ -48,8 +48,8 @@ public final class DefaultXCProject implements XCProject {
 		return name;
 	}
 
-	public Set<XCTargetReference> getTargets() {
-		return targets;
+	public Set<XCTarget> getTargets() {
+		return targets.stream().map(XCTargetReference::load).collect(ImmutableSet.toImmutableSet());
 	}
 
 	public List<XCProjectReference> getProjectReferences() {

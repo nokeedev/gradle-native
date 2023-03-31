@@ -55,6 +55,11 @@ public final class DefaultXCTarget implements XCTarget {
 	}
 
 	@Override
+	public XCTargetReference asReference() {
+		return project.ofTarget(name);
+	}
+
+	@Override
 	public String toString() {
 		return String.format("target '%s' in project '%s'", name, project.getLocation());
 	}

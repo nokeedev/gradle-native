@@ -21,7 +21,7 @@ import java.util.Set;
 public interface XCProject {
 	String getName();
 
-	Set<XCTargetReference> getTargets();
+	Set<XCTarget> getTargets();
 
 	List<XCProjectReference> getProjectReferences();
 
