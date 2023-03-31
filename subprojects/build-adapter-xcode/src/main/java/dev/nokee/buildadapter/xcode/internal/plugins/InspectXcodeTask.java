@@ -72,7 +72,7 @@ public /*final*/ abstract class InspectXcodeTask extends DefaultTask {
 		getXcodeTarget().set(zip(() -> objects.listProperty(Object.class),
 			getXcodeProject().map(XCProjectReference::load),
 			getTargetFlag(),
-			(project, targetName) -> project.getTargets().stream().filter(t -> t.getName().equals(targetName)).findFirst().orElse(null)));
+			(project, targetName) -> project.getTargets().stream().filter(t -> t.getName().equals(targetName)).findFirst().map(XCTarget::asReference).orElse(null)));
 	}
 
 	@TaskAction
@@ -97,7 +97,7 @@ public /*final*/ abstract class InspectXcodeTask extends DefaultTask {
 		public void report(ReportContext context) {
 			context.beginDocument();
 			context.attribute("name", project.getName());
-			context.attribute("targets", project.getTargets().stream().map(XCTargetReference::getName).collect(toList()));
+			context.attribute("targets", project.getTargets().stream().map(XCTarget::getName).collect(toList()));
 			context.endDocument();
 		}
 	}
