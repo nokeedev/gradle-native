@@ -58,6 +58,6 @@ public final class XCProjectLoader implements XCLoader<XCProject, XCProjectRefer
 		val schemeNames = builder.build();
 
 		// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
-		return new DefaultXCProject(reference.getName(), reference.getLocation(), targets, schemeNames, pbxproj, fileReferencesLoader);
+		return new DefaultXCProject(reference, targets, schemeNames, pbxproj, fileReferencesLoader);
 	}
 }

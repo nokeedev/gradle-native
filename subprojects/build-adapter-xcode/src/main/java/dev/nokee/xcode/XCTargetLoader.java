@@ -54,7 +54,7 @@ public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReferenc
 		// TODO: PBXAggregateTarget has no productFile
 		val outputFile = target.getProductReference().map(resolver::get).orElse(null);
 
-		return new DefaultXCTarget(reference.getName(), reference.getProject(), inputFiles, outputFile, dependenciesLoader);
+		return new DefaultXCTarget(reference, inputFiles, outputFile, dependenciesLoader);
 	}
 
 	public static Stream<PBXFileReference> findInputFiles(PBXTarget target) {
