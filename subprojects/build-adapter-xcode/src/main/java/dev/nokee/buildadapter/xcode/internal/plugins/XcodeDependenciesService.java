@@ -49,27 +49,17 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 
 	private final Map<XCTargetReference, Coordinate> targetToCoordinates = new HashMap<>();
 	private final Map<XCFileReference, Coordinate> fileToCoordinates = new HashMap<>();
-	private final XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader = new XCCacheLoader<>(new XCDependenciesLoader(XCLoaders.pbxtargetLoader(), XCLoaders.fileReferences(), new XCDependenciesLoader.XCDependencyFactory() {
+	private final XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader = new XCCacheLoader<>(new XCDependenciesLoader(XCLoaders.pbxtargetLoader(), XCLoaders.fileReferences(), new XCDependenciesLoader.XCDependencyCoordinateLookup() {
 		@Nullable
 		@Override
-		public XCDependency create(XCFileReference reference) {
-			val coordinate = forFile(reference);
-			if (coordinate != null) {
-				return new CoordinateDependency(coordinate, CoordinateDependency.Type.implicit);
-			} else {
-				return null;
-			}
+		public Coordinate forFile(XCFileReference reference) {
+			return XcodeDependenciesService.this.forFile(reference);
 		}
 
 		@Nullable
 		@Override
-		public XCDependency create(XCTargetReference reference) {
-			val coordinate = forTarget(reference);
-			if (coordinate != null) {
-				return new CoordinateDependency(coordinate, CoordinateDependency.Type.explicit);
-			} else {
-				return null;
-			}
+		public Coordinate forTarget(XCTargetReference reference) {
+			return XcodeDependenciesService.this.forTarget(reference);
 		}
 	}));
 	private final XCLoader<XCTarget, XCTargetReference> targetLoader = new XCCacheLoader<>(new XCTargetLoader(XCLoaders.pbxprojectLoader(), XCLoaders.fileReferences(), dependenciesLoader));
@@ -121,7 +111,7 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 			this.type = type;
 		}
 
-		enum Type { implicit, explicit }
+		public enum Type { implicit, explicit }
 
 		public Coordinate getCoordinate() {
 			return coordinate;

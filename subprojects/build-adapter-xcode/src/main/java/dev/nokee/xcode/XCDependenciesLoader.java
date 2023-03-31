@@ -16,6 +16,7 @@
 package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.buildadapter.xcode.internal.plugins.XcodeDependenciesService;
 import dev.nokee.utils.Optionals;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
@@ -34,36 +35,20 @@ import static com.google.common.base.Preconditions.checkArgument;
 public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, XCTargetReference> {
 	private final XCLoader<PBXTarget, XCTargetReference> targetLoader;
 	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
-	private final XCDependencyFactory dependencyFactory;
+	private final XCDependencyCoordinateLookup dependencyFactory;
 
-	public XCDependenciesLoader(XCLoader<PBXTarget, XCTargetReference> targetLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
-		this(targetLoader, fileReferencesLoader, new XCDependencyFactory() {
-			@Nullable
-			@Override
-			public XCDependency create(XCFileReference reference) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Nullable
-			@Override
-			public XCDependency create(XCTargetReference reference) {
-				throw new UnsupportedOperationException();
-			}
-		});
-	}
-
-	public XCDependenciesLoader(XCLoader<PBXTarget, XCTargetReference> targetLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCDependencyFactory dependencyFactory) {
+	public XCDependenciesLoader(XCLoader<PBXTarget, XCTargetReference> targetLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader, XCDependencyCoordinateLookup dependencyFactory) {
 		this.targetLoader = targetLoader;
 		this.fileReferencesLoader = fileReferencesLoader;
 		this.dependencyFactory = dependencyFactory;
 	}
 
-	public interface XCDependencyFactory {
+	public interface XCDependencyCoordinateLookup {
 		@Nullable
-		XCDependency create(XCFileReference reference);
+		XcodeDependenciesService.Coordinate forFile(XCFileReference reference);
 
 		@Nullable
-		XCDependency create(XCTargetReference reference);
+		XcodeDependenciesService.Coordinate forTarget(XCTargetReference reference);
 	}
 
 	@Override
@@ -75,11 +60,15 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 				.flatMap(it -> it.getFiles().stream()) //
 				.flatMap(it -> Optionals.stream(it.getFileRef())) //
 				.map(it -> fileReferencesLoader.load(reference.getProject()).get((PBXReference) it)) //
-				.map(dependencyFactory::create), //
+				.map(dependencyFactory::forFile) //
+				.filter(Objects::nonNull) //
+				.map(it -> new XcodeDependenciesService.CoordinateDependency(it, XcodeDependenciesService.CoordinateDependency.Type.implicit)), //
 			target.getDependencies().stream() //
 				.map(it -> it.getTarget().map(t -> toTargetReference(reference.getProject(), t)).orElseGet(() -> toTargetReference(reference.getProject(), it.getTargetProxy()))) //
-				.map(dependencyFactory::create) //
-			).filter(Objects::nonNull).collect(ImmutableSet.toImmutableSet());
+				.map(dependencyFactory::forTarget) //
+				.filter(Objects::nonNull) //
+				.map(it -> new XcodeDependenciesService.CoordinateDependency(it, XcodeDependenciesService.CoordinateDependency.Type.explicit)) //
+			).collect(ImmutableSet.toImmutableSet());
 	}
 
 	private XCTargetReference toTargetReference(XCProjectReference project, PBXTarget target) {
