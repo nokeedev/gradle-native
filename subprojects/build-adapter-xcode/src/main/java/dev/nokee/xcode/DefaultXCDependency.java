@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,14 @@
  */
 package dev.nokee.xcode;
 
-import java.util.List;
+public final class DefaultXCDependency implements XCDependency {
+	private final XCTargetReference target;
 
-public interface XCTarget {
-	String getName();
+	public DefaultXCDependency(XCTargetReference target) {
+		this.target = target;
+	}
 
-	List<XCDependency> getDependencies();
-
-	// TODO: Switch to only the input file of THIS XCTarget
-	List<XCFileReference> getInputFiles();
-
-	XCFileReference getOutputFile();
-
-	XCProjectReference getProject();
+	public XCTargetReference getTarget() {
+		return target;
+	}
 }

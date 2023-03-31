@@ -57,6 +57,8 @@ public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReferenc
 		// TODO: Handle cross-project reference
 		val dependencies = target.getDependencies().stream()
 			.map(it -> it.getTarget().map(t -> toTargetReference(reference.getProject(), t)).orElseGet(() -> toTargetReference(reference.getProject(), it.getTargetProxy())))
+			.map(DefaultXCDependency::new)
+			.map(XCDependency.class::cast)
 			.collect(ImmutableList.toImmutableList());
 
 		return new DefaultXCTarget(reference.getName(), reference.getProject(), inputFiles, dependencies, outputFile);
