@@ -22,6 +22,7 @@ import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCLoader;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProject;
+import dev.nokee.xcode.XCProjectLoader;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTarget;
 import dev.nokee.xcode.XCTargetLoader;
@@ -72,11 +73,12 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 		}
 	}));
 	private final XCLoader<XCTarget, XCTargetReference> targetLoader = new XCCacheLoader<>(new XCTargetLoader(XCLoaders.pbxprojectLoader(), XCLoaders.fileReferences(), dependenciesLoader));
+	private final XCLoader<XCProject, XCProjectReference> projectLoader = new XCCacheLoader<>(new XCProjectLoader(reference -> reference.load(XCLoaders.allTargetsLoader()).stream().map(targetLoader::load).collect(Collectors.toSet())));
 
 	@Inject
 	public XcodeDependenciesService() {
 		getParameters().getProjectReferences().get().forEach((reference, path) -> {
-			for (XCTarget target : reference.load().getTargets()) {
+			for (XCTarget target : reference.load(projectLoader).getTargets()) {
 				val outputFile = target.getOutputFile();
 				if (outputFile != null) {
 					fileToCoordinates.put(outputFile, new Coordinate(Path.path(path), target.getProject().getName(), target.getName()));
@@ -87,7 +89,7 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 	}
 
 	public XCProject load(XCProjectReference reference) {
-		return reference.load();
+		return reference.load(projectLoader);
 	}
 
 	public XCTarget load(XCTargetReference reference) {

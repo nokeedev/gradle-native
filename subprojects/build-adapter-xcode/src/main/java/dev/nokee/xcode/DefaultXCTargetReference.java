@@ -38,7 +38,7 @@ public final class DefaultXCTargetReference implements XCTargetReference, Serial
 	}
 
 	public XCTarget load() {
-		return XCLoaders.targetLoader().load(this);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

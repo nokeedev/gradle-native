@@ -21,7 +21,6 @@ import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.workspace.XCWorkspaceData;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class XCLoaders {
 	private static final XCLoader<PBXProject, XCProjectReference> PBXPROJECT_LOADER = new XCCacheLoader<>(new PBXProjectLoader());
@@ -30,11 +29,7 @@ public final class XCLoaders {
 	private static final XCLoader<XCWorkspaceData, XCWorkspaceReference> WORKSPACE_DATA_LOADER = new XCCacheLoader<>(new XCWorkspaceDataLoader());
 	private static final XCLoader<Iterable<XCProjectReference>, XCWorkspaceReference> WORKSPACE_PROJECT_REFERENCES_LOADER = new XCCacheLoader<>(new WorkspaceProjectReferencesLoader(WORKSPACE_DATA_LOADER, new DefaultXCProjectReferenceFactory()));
 	private static final XCLoader<Iterable<XCProjectReference>, XCProjectReference> CROSS_PROJECT_REFERENCES_LOADER = new XCCacheLoader<>(new CrossProjectReferencesLoader(PBXPROJECT_LOADER, FILE_REFERENCES_LOADER));
-	private static final XCLoader<XCTarget, XCTargetReference> TARGET_LOADER = new XCCacheLoader<>(new XCTargetLoader(PBXPROJECT_LOADER, FILE_REFERENCES_LOADER, __ -> { throw new UnsupportedOperationException(); }));
 	private static final XCLoader<Set<XCTargetReference>, XCProjectReference> ALL_TARGETS_LOADER = new XCCacheLoader<>(new XCTargetsLoader(PBXPROJECT_LOADER));
-	private static final XCLoader<XCProject, XCProjectReference> PROJECT_LOADER = new XCCacheLoader<>(new XCProjectLoader(reference -> {
-		return reference.load(ALL_TARGETS_LOADER).stream().map(XCTargetReference::load).collect(Collectors.toSet());
-	}));
 	private static final XCLoader<Set<String>, XCTargetReference> TARGET_CONFIGURATION_LOADER = new XCCacheLoader<>(new ConfigurationsLoader(PBXPROJECT_LOADER));
 
 	private static final XCLoader<String, XCTargetReference> DEFAULT_TARGET_CONFIGURATION_LOADER = new XCCacheLoader<>(new DefaultTargetConfigurationLoader(PBXPROJECT_LOADER));
@@ -49,20 +44,12 @@ public final class XCLoaders {
 		return WORKSPACE_PROJECT_REFERENCES_LOADER;
 	}
 
-	public static XCLoader<XCProject, XCProjectReference> projectLoader() {
-		return PROJECT_LOADER;
-	}
-
 	public static XCLoader<PBXTarget, XCTargetReference> pbxtargetLoader() {
 		return PBXTARGET_LOADER;
 	}
 
 	public static XCLoader<PBXProject, XCProjectReference> pbxprojectLoader() {
 		return PBXPROJECT_LOADER;
-	}
-
-	public static XCLoader<XCTarget, XCTargetReference> targetLoader() {
-		return TARGET_LOADER;
 	}
 
 	public static XCLoader<Set<XCTargetReference>, XCProjectReference> allTargetsLoader() {
