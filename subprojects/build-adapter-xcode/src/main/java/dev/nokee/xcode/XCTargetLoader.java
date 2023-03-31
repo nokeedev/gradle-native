@@ -15,23 +15,21 @@
  */
 package dev.nokee.xcode;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import lombok.val;
 
-import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static dev.nokee.utils.Optionals.stream;
 
 public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReference> {
+	private final XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader = new XCCacheLoader<>(new XCDependenciesLoader(XCLoaders.pbxtargetLoader()));
 	private final XCLoader<PBXProject, XCProjectReference> pbxLoader;
 	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 
@@ -54,48 +52,8 @@ public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReferenc
 		// TODO: outputFile here is misleading, it's more about the productFile
 		// TODO: PBXAggregateTarget has no productFile
 		val outputFile = target.getProductReference().map(resolver::get).orElse(null);
-		// TODO: Handle cross-project reference
-		val dependencies = target.getDependencies().stream()
-			.map(it -> it.getTarget().map(t -> toTargetReference(reference.getProject(), t)).orElseGet(() -> toTargetReference(reference.getProject(), it.getTargetProxy())))
-			.map(DefaultXCDependency::new)
-			.map(XCDependency.class::cast)
-			.collect(ImmutableList.toImmutableList());
 
-		return new DefaultXCTarget(reference.getName(), reference.getProject(), inputFiles, dependencies, outputFile);
-	}
-
-	private XCTargetReference toTargetReference(XCProjectReference project, PBXTarget target) {
-		return new DefaultXCTargetReference(project, target.getName());
-	}
-
-	private XCTargetReference toTargetReference(XCProjectReference project, PBXContainerItemProxy targetProxy) {
-		checkArgument(PBXContainerItemProxy.ProxyType.TARGET_REFERENCE.equals(targetProxy.getProxyType()), "'targetProxy' is expected to be a target reference");
-
-		if (targetProxy.getContainerPortal() instanceof PBXProject) {
-			return new DefaultXCTargetReference(project, targetProxy.getRemoteInfo()
-				.orElseThrow(XCTargetLoader::missingRemoteInfoException));
-		} else if (targetProxy.getContainerPortal() instanceof PBXFileReference) {
-			return new DefaultXCTargetReference(new DefaultXCProjectReference(((DefaultXCProject) project.load()).getFileReferences().get((PBXFileReference) targetProxy.getContainerPortal()).resolve(new XCFileReference.ResolveContext() {
-				@Override
-				public Path getBuiltProductsDirectory() {
-					throw new UnsupportedOperationException("Should not call");
-				}
-
-				@Override
-				public Path get(String name) {
-					if ("SOURCE_ROOT".equals(name)) {
-						return project.getLocation().getParent();
-					}
-					throw new UnsupportedOperationException(String.format("Could not resolve '%s' build setting.", name));
-				}
-			})), targetProxy.getRemoteInfo().orElseThrow(XCTargetLoader::missingRemoteInfoException));
-		} else {
-			throw new UnsupportedOperationException("Unknown container portal.");
-		}
-	}
-
-	private static RuntimeException missingRemoteInfoException() {
-		return new RuntimeException("Missing 'remoteInfo' on 'targetProxy'.");
+		return new DefaultXCTarget(reference.getName(), reference.getProject(), inputFiles, outputFile, dependenciesLoader);
 	}
 
 	public static Stream<PBXFileReference> findInputFiles(PBXTarget target) {

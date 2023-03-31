@@ -16,29 +16,30 @@
 package dev.nokee.xcode;
 
 import java.util.List;
+import java.util.Set;
 
 public final class DefaultXCTarget implements XCTarget {
 	private final String name;
 	private final XCProjectReference project;
 	private final List<XCFileReference> inputFiles;
-	private final List<XCDependency> dependencies;
+	private final XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader;
 	private final XCFileReference outputFile;
 
 	// friends with XCTargetReference
-	DefaultXCTarget(String name, XCProjectReference project, List<XCFileReference> inputFiles, List<XCDependency> dependencies, XCFileReference outputFile) {
+	DefaultXCTarget(String name, XCProjectReference project, List<XCFileReference> inputFiles, XCFileReference outputFile, XCLoader<Set<XCDependency>, XCTargetReference> dependenciesLoader) {
 		this.name = name;
 		this.project = project;
-		this.dependencies = dependencies;
 		this.outputFile = outputFile;
 		this.inputFiles = inputFiles;
+		this.dependenciesLoader = dependenciesLoader;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public List<XCDependency> getDependencies() {
-		return dependencies;
+	public Set<XCDependency> getDependencies() {
+		return project.ofTarget(name).load(dependenciesLoader);
 	}
 
 	// TODO: Switch to only the input file of THIS XCTarget

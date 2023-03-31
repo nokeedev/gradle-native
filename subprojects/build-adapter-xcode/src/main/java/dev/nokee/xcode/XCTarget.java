@@ -16,11 +16,12 @@
 package dev.nokee.xcode;
 
 import java.util.List;
+import java.util.Set;
 
 public interface XCTarget {
 	String getName();
 
-	List<XCDependency> getDependencies();
+	Set<XCDependency> getDependencies();
 
 	// TODO: Switch to only the input file of THIS XCTarget
 	List<XCFileReference> getInputFiles();
