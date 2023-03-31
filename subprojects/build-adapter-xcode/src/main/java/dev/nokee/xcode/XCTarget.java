@@ -17,45 +17,15 @@ package dev.nokee.xcode;
 
 import java.util.List;
 
-public final class XCTarget {
-	private final String name;
-	private final XCProjectReference project;
-	private final List<XCFileReference> inputFiles;
-	private final List<XCTargetReference> dependencies;
-	private final XCFileReference outputFile;
+public interface XCTarget {
+	String getName();
 
-	// friends with XCTargetReference
-	XCTarget(String name, XCProjectReference project, List<XCFileReference> inputFiles, List<XCTargetReference> dependencies, XCFileReference outputFile) {
-		this.name = name;
-		this.project = project;
-		this.dependencies = dependencies;
-		this.outputFile = outputFile;
-		this.inputFiles = inputFiles;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public List<XCTargetReference> getDependencies() {
-		return dependencies;
-	}
+	List<XCTargetReference> getDependencies();
 
 	// TODO: Switch to only the input file of THIS XCTarget
-	public List<XCFileReference> getInputFiles() {
-		return inputFiles;
-	}
+	List<XCFileReference> getInputFiles();
 
-	public XCFileReference getOutputFile() {
-		return outputFile;
-	}
+	XCFileReference getOutputFile();
 
-	public XCProjectReference getProject() {
-		return project;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("target '%s' in project '%s'", name, project.getLocation());
-	}
+	XCProjectReference getProject();
 }

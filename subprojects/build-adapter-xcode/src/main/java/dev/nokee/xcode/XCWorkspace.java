@@ -15,44 +15,16 @@
  */
 package dev.nokee.xcode;
 
-import com.google.common.collect.ImmutableSet;
-import lombok.EqualsAndHashCode;
-
-import java.io.File;
-import java.io.Serializable;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
-@EqualsAndHashCode
-public final class XCWorkspace implements Serializable {
-	private final File location;
-	private final List<XCProjectReference> projects;
-	private final ImmutableSet<String> schemeNames;
+public interface XCWorkspace {
+	Path getLocation();
 
-	// friends with XCWorkspaceReference
-	XCWorkspace(Path workspaceLocation, List<XCProjectReference> projects, ImmutableSet<String> schemeNames) {
-		assert Files.exists(workspaceLocation) && Files.isDirectory(workspaceLocation) : "invalid workspace";
+	List<XCProjectReference> getProjectLocations();
 
-		this.location = workspaceLocation.toFile();
-		this.projects = projects;
-		this.schemeNames = schemeNames;
-	}
+	Set<String> getSchemeNames();
 
-	public Path getLocation() {
-		return location.toPath();
-	}
-
-	public List<XCProjectReference> getProjectLocations() {
-		return projects;
-	}
-
-	public Set<String> getSchemeNames() {
-		return schemeNames;
-	}
-
-	public XCWorkspaceReference toReference() {
-		return XCWorkspaceReference.of(getLocation());
-	}
+	XCWorkspaceReference toReference();
 }

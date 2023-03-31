@@ -15,82 +15,17 @@
  */
 package dev.nokee.xcode;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import dev.nokee.xcode.objects.PBXProject;
-import lombok.EqualsAndHashCode;
-
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
-@EqualsAndHashCode
-public final class XCProject {
-	private final String name;
-	private final Path location;
-	private final ImmutableSet<XCTargetReference> targets;
-	private final ImmutableSet<String> schemeNames;
-	private transient final PBXProject project;
-	private transient XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
-	private transient XCFileReferencesLoader.XCFileReferences references;
+public interface XCProject {
+	String getName();
 
-	// friends with XCProjectReference
-	XCProject(String name, Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
-		this.name = name;
-		this.location = location;
-		this.targets = targets;
-		this.schemeNames = schemeNames;
-		this.project = project;
-		this.fileReferencesLoader = fileReferencesLoader;
-	}
+	Set<XCTargetReference> getTargets();
 
-	public String getName() {
-		return name;
-	}
+	List<XCProjectReference> getProjectReferences();
 
-	public Set<XCTargetReference> getTargets() {
-		return targets;
-	}
+	Set<String> getSchemeNames();
 
-	public List<XCProjectReference> getProjectReferences() {
-		return project.getProjectReferences().stream()
-			.map(PBXProject.ProjectReference::getProjectReference)
-			.map(it -> getFileReferences().get(it))
-			.map(it -> it.resolve(new XCFileReference.ResolveContext() {
-				@Override
-				public Path getBuiltProductsDirectory() {
-					throw new UnsupportedOperationException("Should not call");
-				}
-
-				@Override
-				public Path get(String name) {
-					if ("SOURCE_ROOT".equals(name)) {
-						return location.getParent();
-					}
-					throw new UnsupportedOperationException(String.format("Could not resolve '%s' build setting.", name));
-				}
-			}))
-			.map(XCProjectReference::of)
-			.collect(ImmutableList.toImmutableList());
-	}
-
-	public Set<String> getSchemeNames() {
-		return schemeNames;
-	}
-
-	public XCProjectReference toReference() {
-		return XCProjectReference.of(location);
-	}
-
-	PBXProject getModel() {
-		return project;
-	}
-
-	XCFileReferencesLoader.XCFileReferences getFileReferences() {
-		if (references == null) {
-			references = fileReferencesLoader.load(toReference());
-			fileReferencesLoader = null;
-		}
-		return references;
-	}
+	XCProjectReference toReference();
 }
