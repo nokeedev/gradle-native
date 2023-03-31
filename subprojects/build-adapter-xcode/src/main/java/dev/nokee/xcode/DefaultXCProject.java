@@ -80,11 +80,7 @@ public final class DefaultXCProject implements XCProject {
 		return reference;
 	}
 
-	PBXProject getModel() {
-		return project;
-	}
-
-	XCFileReferencesLoader.XCFileReferences getFileReferences() {
+	private XCFileReferencesLoader.XCFileReferences getFileReferences() {
 		if (references == null) {
 			references = fileReferencesLoader.load(toReference());
 			fileReferencesLoader = null;
