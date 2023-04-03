@@ -15,6 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.XCCacheLoader;
 import dev.nokee.xcode.XCDependenciesLoader;
 import dev.nokee.xcode.XCDependency;
@@ -63,7 +64,7 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 		}
 	}));
 	private final XCLoader<XCTarget, XCTargetReference> targetLoader = new XCCacheLoader<>(new XCTargetLoader(XCLoaders.pbxprojectLoader(), XCLoaders.fileReferences(), dependenciesLoader));
-	private final XCLoader<XCProject, XCProjectReference> projectLoader = new XCCacheLoader<>(new XCProjectLoader(reference -> reference.load(XCLoaders.allTargetsLoader()).stream().map(targetLoader::load).collect(Collectors.toSet())));
+	private final XCLoader<XCProject, XCProjectReference> projectLoader = new XCCacheLoader<>(new XCProjectLoader(reference -> reference.load(XCLoaders.allTargetsLoader()).stream().map(targetLoader::load).collect(ImmutableSet.toImmutableSet())));
 
 	@Inject
 	public XcodeDependenciesService() {
