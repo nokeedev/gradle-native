@@ -74,14 +74,14 @@ class XcodeProjectInspectionFunctionalTest {
 			() -> {
 				val report = XCTargetInspectionReport.from(executer.withTasks(inspect("XcodeSwiftApp")).withTasks("--target=XcodeSwiftAppTests").build().getOutput());
 				assertThat(report.getName(), equalTo("XcodeSwiftAppTests"));
-				assertThat(report.getDependencies(), contains("XcodeSwiftApp:XcodeSwiftApp (local)"));
+				assertThat(report.getDependencies(), contains(":XcodeSwiftApp@XcodeSwiftApp (explicit)"));
 				assertThat(report.getInputFiles(), contains("$(SOURCE_ROOT)/XcodeSwiftAppTests/XcodeSwiftAppTests.swift"));
 				assertThat(report.getProduct().getLocation(), equalTo("$(BUILT_PRODUCT_DIR)/XcodeSwiftAppTests.xctest"));
 			},
 			() -> {
 				val report = XCTargetInspectionReport.from(executer.withTasks(inspect("XcodeSwiftApp")).withTasks("--target=XcodeSwiftAppUITests").build().getOutput());
 				assertThat(report.getName(), equalTo("XcodeSwiftAppUITests"));
-				assertThat(report.getDependencies(), contains("XcodeSwiftApp:XcodeSwiftApp (local)"));
+				assertThat(report.getDependencies(), contains(":XcodeSwiftApp@XcodeSwiftApp (explicit)"));
 				assertThat(report.getInputFiles(), contains("$(SOURCE_ROOT)/XcodeSwiftAppUITests/XcodeSwiftAppUITestsLaunchTests.swift", "$(SOURCE_ROOT)/XcodeSwiftAppUITests/XcodeSwiftAppUITests.swift"));
 				assertThat(report.getProduct().getLocation(), equalTo("$(BUILT_PRODUCT_DIR)/XcodeSwiftAppUITests.xctest"));
 			});
@@ -92,7 +92,7 @@ class XcodeProjectInspectionFunctionalTest {
 		new GreeterAppWithRemoteLib().writeToProject(testDirectory);
 		val report = XCTargetInspectionReport.from(executer.withTasks(inspect("GreeterApp")).withTasks("--target=GreeterApp").build().getOutput());
 		assertThat(report.getName(), equalTo("GreeterApp"));
-		assertThat(report.getDependencies(), contains("GreeterLib:GreeterLib (remote)"));
+		assertThat(report.getDependencies(), contains(":GreeterLib@GreeterLib (implicit dependency via file '$(BUILT_PRODUCT_DIR)/libGreeterLib.a' in build phase 'Link Binary')", ":GreeterLib@GreeterLib (explicit)"));
 		assertThat(report.getInputFiles(), contains("$(SOURCE_ROOT)/GreeterApp/main.c"));
 		assertThat(report.getProduct().getLocation(), equalTo("$(BUILT_PRODUCT_DIR)/GreeterApp"));
 	}
