@@ -20,14 +20,17 @@ import dev.nokee.xcode.DefaultXCBuildSettings;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingNull;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.buildSetting;
 import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.evaluateTo;
 import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.evaluateToNested;
@@ -78,7 +81,13 @@ class DefaultXCBuildSettingsTests {
 		assertThat(subject.get("EXISTING"), equalTo("foo"));
 	}
 
-	private static final class TestLayer implements XCBuildSettingLayer {
+	@Test
+	void canSerialize() {
+		assertThat(subject, isSerializable());
+	}
+
+	@EqualsAndHashCode
+	private static final class TestLayer implements XCBuildSettingLayer, Serializable {
 		private final List<XCBuildSetting> buildSettings = new ArrayList<>();
 
 		public void add(XCBuildSetting buildSetting) {

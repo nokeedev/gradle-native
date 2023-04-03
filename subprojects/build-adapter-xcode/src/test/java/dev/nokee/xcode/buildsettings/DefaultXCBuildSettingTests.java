@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nullable;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -40,6 +41,13 @@ class DefaultXCBuildSettingTests {
 		val subject = new DefaultXCBuildSetting("MY_VAR", XCString.variable("MY_OTHER_VAR"));
 
 		assertThat(subject.evaluate(contextOf("MY_OTHER_VAR", "other value")), equalTo("other value"));
+	}
+
+	@Test
+	void canSerialize() {
+		val subject = new DefaultXCBuildSetting("MY_VAR", XCString.variable("MY_OTHER_VAR"));
+
+		assertThat(subject, isSerializable());
 	}
 
 	private static XCBuildSetting.EvaluationContext contextOf(String key, String value) {

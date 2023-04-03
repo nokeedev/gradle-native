@@ -16,8 +16,13 @@
 package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableMap;
+import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.Provider;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +33,8 @@ import java.util.Set;
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  */
-public final class ProvidedMapAdapter<K, V> implements Map<K, V> {
-	private final Provider<Map<K, V>> delegate;
+public final class ProvidedMapAdapter<K, V> implements Map<K, V>, Serializable {
+	private Provider<Map<K, V>> delegate;
 
 	public ProvidedMapAdapter(Provider<Map<K, V>> delegate) {
 		assert delegate != null : "'delegate' must not be null";
@@ -102,5 +107,14 @@ public final class ProvidedMapAdapter<K, V> implements Map<K, V> {
 			result = ImmutableMap.of(); // use empty map when provider is absent
 		}
 		return result;
+	}
+
+	private void writeObject(ObjectOutputStream outStream) throws IOException {
+		outStream.writeObject(delegate());
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream inStream) throws IOException, ClassNotFoundException {
+		delegate = Providers.of((Map<K, V>) inStream.readObject());
 	}
 }

@@ -17,8 +17,13 @@ package dev.nokee.xcode;
 
 import lombok.EqualsAndHashCode;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 @EqualsAndHashCode
-public final class XCStringDelayedParse implements XCString {
+public final class XCStringDelayedParse implements XCString, Serializable {
 	@EqualsAndHashCode.Exclude private XCStringParser parser;
 	@EqualsAndHashCode.Exclude private String rawString;
 	@EqualsAndHashCode.Exclude private XCString parsedString;
@@ -48,5 +53,13 @@ public final class XCStringDelayedParse implements XCString {
 	@Override
 	public String toString() {
 		return parsedString().toString();
+	}
+
+	private void writeObject(ObjectOutputStream outStream) throws IOException {
+		outStream.writeObject(parsedString());
+	}
+
+	private void readObject(ObjectInputStream inStream) throws IOException, ClassNotFoundException {
+		parsedString = (XCString) inStream.readObject();
 	}
 }

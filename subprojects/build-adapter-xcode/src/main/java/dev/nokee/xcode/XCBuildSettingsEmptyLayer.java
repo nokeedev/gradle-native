@@ -16,10 +16,13 @@
 package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public final class XCBuildSettingsEmptyLayer implements XCBuildSettingLayer {
+@EqualsAndHashCode
+public final class XCBuildSettingsEmptyLayer implements XCBuildSettingLayer, Serializable {
 	@Override
 	public XCBuildSetting find(SearchContext context) {
 		assert context != null : "'context' must not be null";

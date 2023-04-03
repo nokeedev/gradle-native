@@ -19,6 +19,7 @@ import dev.nokee.xcode.DefaultXCBuildSettingSearchContext;
 import dev.nokee.xcode.XCBuildSettingsEmptyLayer;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.nullBuildSetting;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
@@ -34,5 +35,10 @@ class XCBuildSettingsEmptyLayerTests {
 	@Test
 	void hasNoBuildSettings() {
 		assertThat(subject.findAll(), anEmptyMap());
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(subject, isSerializable());
 	}
 }

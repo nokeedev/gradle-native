@@ -22,6 +22,7 @@ import dev.nokee.xcode.XCBuildSettingsEmptyLayer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.buildSetting;
 import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.mapOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -71,6 +72,12 @@ class DefaultXCBuildSettingLayerTests {
 				hasEntry("MY_VAR", myVar), //
 				hasEntry("MY_OTHER_VAR", myOtherVar)));
 		}
+	}
+
+	@Test
+	void canSerialize() {
+		DefaultXCBuildSettingLayer subject = new DefaultXCBuildSettingLayer(mapOf(myVar), new XCBuildSettingsEmptyLayer());
+		assertThat(subject, isSerializable());
 	}
 
 //	@Test

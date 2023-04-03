@@ -17,8 +17,10 @@ package dev.nokee.xcode;
 
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 @EqualsAndHashCode
-public final class XCBuildSettingNull implements XCBuildSetting {
+public final class XCBuildSettingNull implements XCBuildSetting, Serializable {
 	private final String name;
 
 	public XCBuildSettingNull(String name) {

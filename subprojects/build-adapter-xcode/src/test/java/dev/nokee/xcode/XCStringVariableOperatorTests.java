@@ -16,13 +16,11 @@
 package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.internal.testing.reflect.ArgumentInformation;
-import dev.nokee.internal.testing.testdoubles.MethodVerifier;
 import dev.nokee.internal.testing.testdoubles.TestDouble;
-import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
@@ -159,5 +157,11 @@ class XCStringVariableOperatorTests {
 		void checkToString() {
 			assertThat(subject, hasToString("$(MY_VALUE:prefix,suffix)"));
 		}
+	}
+
+	@Test
+	void canSerialize() {
+		XCStringVariableOperator subject = new XCStringVariableOperator(XCString.of("MY_VAR"), ImmutableList.of());
+		assertThat(subject, isSerializable());
 	}
 }

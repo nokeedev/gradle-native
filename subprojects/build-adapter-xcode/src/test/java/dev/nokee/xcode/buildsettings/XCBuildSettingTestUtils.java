@@ -20,10 +20,12 @@ import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingNull;
 import dev.nokee.xcode.XCBuildSettings;
+import lombok.EqualsAndHashCode;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -33,37 +35,65 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class XCBuildSettingTestUtils {
 	public static XCBuildSetting buildSetting(String name) {
-		return buildSetting(name, throwsException(new UnsupportedOperationException()));
+		return buildSetting(name, throwsException(new TestException()));
 	}
 
 	public static XCBuildSetting buildSetting(String name, Function<XCBuildSetting.EvaluationContext, String> evaluate) {
-		return new XCBuildSetting() {
-			@Override
-			public String getName() {
-				return name;
-			}
+		return new TestXCBuildSetting(name, evaluate);
+	}
 
-			@Override
-			public String evaluate(EvaluationContext context) {
-				return evaluate.apply(context);
-			}
-		};
+	@EqualsAndHashCode(callSuper = false)
+	private static final class TestException extends UnsupportedOperationException {}
+
+	@EqualsAndHashCode
+	private static final class TestXCBuildSetting implements XCBuildSetting, Serializable {
+		private final String name;
+		private final Function<XCBuildSetting.EvaluationContext, String> evaluate;
+
+		private TestXCBuildSetting(String name, Function<EvaluationContext, String> evaluate) {
+			this.name = name;
+			this.evaluate = evaluate;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public String evaluate(EvaluationContext context) {
+			return evaluate.apply(context);
+		}
 	}
 
 	public static Function<XCBuildSetting.EvaluationContext, String> evaluateToNull() {
-		return __ -> null;
+		return (Serializable & Function<XCBuildSetting.EvaluationContext, String>) __ -> null;
 	}
 
 	public static Function<XCBuildSetting.EvaluationContext, String> evaluateTo(String value) {
-		return __ -> value;
+		return (Serializable & Function<XCBuildSetting.EvaluationContext, String>) __ -> value;
 	}
 
 	public static Function<XCBuildSetting.EvaluationContext, String> throwsException(RuntimeException throwable) {
-		return __ -> { throw throwable; };
+		return new ThrowingExceptionEvaluation(throwable);
+	}
+
+	@EqualsAndHashCode
+	private static final class ThrowingExceptionEvaluation implements Function<XCBuildSetting.EvaluationContext, String>, Serializable {
+		private final RuntimeException throwable;
+
+		private ThrowingExceptionEvaluation(RuntimeException throwable) {
+			this.throwable = throwable;
+		}
+
+		@Override
+		public String apply(XCBuildSetting.EvaluationContext evaluationContext) {
+			throw throwable;
+		}
 	}
 
 	public static Function<XCBuildSetting.EvaluationContext, String> evaluateToNested(String buildSettingName) {
-		return context -> context.get(buildSettingName);
+		return (Serializable & Function<XCBuildSetting.EvaluationContext, String>) context -> context.get(buildSettingName);
 	}
 
 	public static Matcher<XCBuildSettingLayer.SearchContext> searchContextForName(String name) {

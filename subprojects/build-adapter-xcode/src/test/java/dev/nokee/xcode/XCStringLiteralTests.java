@@ -15,10 +15,9 @@
  */
 package dev.nokee.xcode;
 
-import dev.nokee.xcode.XCStringLiteral;
-import dev.nokee.xcode.XCString;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -35,5 +34,10 @@ class XCStringLiteralTests {
 	@Test
 	void checkToString() {
 		assertThat(subject, hasToString("some-value"));
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(subject, isSerializable());
 	}
 }

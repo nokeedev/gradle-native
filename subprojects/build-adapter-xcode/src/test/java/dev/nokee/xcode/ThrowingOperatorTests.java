@@ -15,9 +15,9 @@
  */
 package dev.nokee.xcode;
 
-import dev.nokee.xcode.ThrowingOperator;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,5 +33,10 @@ class ThrowingOperatorTests {
 	@Test
 	void checkToString() {
 		assertThat(subject, hasToString("op-name"));
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(subject, isSerializable());
 	}
 }

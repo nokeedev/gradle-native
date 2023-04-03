@@ -17,9 +17,12 @@ package dev.nokee.xcode;
 
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 @EqualsAndHashCode
-public final class XCStringVariable implements XCString {
+public final class XCStringVariable implements XCString, Serializable {
 	private final String variable;
+
 	public XCStringVariable(String variable) {
 		assert variable != null;
 		assert !variable.isEmpty();
