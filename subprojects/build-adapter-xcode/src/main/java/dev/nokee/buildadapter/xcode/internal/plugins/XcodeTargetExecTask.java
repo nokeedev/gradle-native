@@ -18,6 +18,7 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.MoreCollectors;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.nokee.buildadapter.xcode.internal.files.PreserveLastModifiedFileSystemOperation;
@@ -33,6 +34,7 @@ import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.util.internal.NotPredicate;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.utils.ProviderUtils;
+import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.DefaultXCBuildSettingLayer;
 import dev.nokee.xcode.DefaultXCBuildSettings;
 import dev.nokee.xcode.ProvidedMapAdapter;
@@ -51,7 +53,11 @@ import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.ProductTypes;
 import dev.nokee.xcode.objects.targets.TargetDependenciesAwareBuilder;
+import dev.nokee.xcode.project.CodeableXCRemoteSwiftPackageReference;
+import dev.nokee.xcode.project.CodeableXCSwiftPackageProductDependency;
 import dev.nokee.xcode.project.PBXObjectArchiver;
+import dev.nokee.xcode.project.PBXProj;
+import dev.nokee.xcode.project.PBXProjReader;
 import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.val;
 import org.apache.commons.lang3.SerializationUtils;
@@ -138,6 +144,12 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@Internal
 	public abstract ConfigurableFileCollection getVfsOverlays();
+
+	@OutputFile
+	public abstract RegularFileProperty getOutputRemoteSwiftPackages();
+
+	@Internal
+	public abstract ConfigurableFileCollection getRemoteSwiftPackages();
 
 //	@Internal
 //	public abstract MapProperty<String, String> getAllBuildSettings();
@@ -317,6 +329,9 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			spec.getTargetNameToIsolate().set(getTargetName());
 			spec.getVirtualFileSystemOverlayFile().set(getVfsOverlayFile());
 
+			spec.getOutputRemoteSwiftPackages().set(getOutputRemoteSwiftPackages());
+			spec.getRemoteSwiftPackages().from(getRemoteSwiftPackages());
+
 			spec.getInvocation().set(invocation);
 		});
 	}
@@ -368,13 +383,40 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				spec.into(isolatedProjectLocation);
 			});
 
+			PBXProj p = null;
+			try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(originalProjectLocation.resolve("project.pbxproj"))))) {
+				p = reader.read();
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+
+			final PBXProj proj = p;
+
 			PBXProject project = XCLoaders.pbxprojectLoader().load(XCProjectReference.of(originalProjectLocation));
 			val newProject = project.toBuilder().projectDirPath(originalProjectLocation.getParent().toString())
 				.targets(project.getTargets().stream()
 					.filter(target -> target.getName().equals(parameters.getTargetNameToIsolate().get()))
 					.map(target -> {
 						val builder = target.toBuilder();
-						((TargetDependenciesAwareBuilder<?>) builder).dependencies(ImmutableList.of());
+						((TargetDependenciesAwareBuilder<?>) builder).dependencies(of());
+
+
+						if (target instanceof PBXNativeTarget) {
+							for (File remoteSwiftPackage : parameters.getRemoteSwiftPackages()) {
+								try {
+									List<String> gids = SerializationUtils.deserialize(Files.newInputStream(remoteSwiftPackage.toPath()));
+									for (String gid : gids) {
+										val productName = (String) proj.getObjects().getById(gid).getFields().get("productName");
+										val gidPackageRef = proj.getObjects().getById(gid).getFields().get("package");
+										val packageRef = project.getPackageReferences().stream().map(CodeableXCRemoteSwiftPackageReference.class::cast).filter(it -> it.globalId().equals(gidPackageRef)).collect(MoreCollectors.onlyElement());
+										((PBXNativeTarget.Builder) builder).packageProductDependency(it -> it.productName(productName).packageReference(packageRef));
+									}
+								} catch (IOException e) {
+									throw new RuntimeException(e);
+								}
+							}
+						}
+
 						return builder.build();
 					}).collect(Collectors.toList()))
 				.build();
@@ -426,6 +468,18 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
+
+
+			ArrayList<String> packagesGids = new ArrayList<>();
+			if (target instanceof PBXNativeTarget) {
+				((PBXNativeTarget) target).getPackageProductDependencies().stream().map(it -> ((CodeableXCSwiftPackageProductDependency) it).globalId()).forEach(packagesGids::add);
+			}
+
+			try (val outStream = Files.newOutputStream(parameters.getOutputRemoteSwiftPackages().get().getAsFile().toPath())) {
+				SerializationUtils.serialize(packagesGids, outStream);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 		public interface Parameters {
@@ -435,6 +489,9 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			RegularFileProperty getVirtualFileSystemOverlayFile();
 			Property<CommandLineToolInvocation> getInvocation();
 			DirectoryProperty getXcodeDerivedDataPath();
+
+			RegularFileProperty getOutputRemoteSwiftPackages();
+			ConfigurableFileCollection getRemoteSwiftPackages();
 		}
 	}
 

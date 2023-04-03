@@ -236,11 +236,22 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					})
 					.configure(configuration -> {
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-								return it.load(target).getInputFiles().stream().map(it::forFile).filter(Objects::nonNull).collect(Collectors.toList());
+								return it.load(target).getDependencies().stream().filter(XCDependenciesLoader.CoordinateDependency.class::isInstance).map(dep -> ((XCDependenciesLoader.CoordinateDependency) dep).getCoordinate()).collect(Collectors.toList());
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
+					});
+
+				val remoteSwiftPackages = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("remoteSwiftPackages", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-swift-packages"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
+						});
+					})
+					.configure(configuration -> {
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-								return it.load(target).getDependencies().stream().map(dep -> ((DefaultXCDependency) dep).getTarget()).map(it::forTarget).filter(Objects::nonNull).collect(Collectors.toList());
+								return it.load(target).getDependencies().stream().filter(XCDependenciesLoader.CoordinateDependency.class::isInstance).map(dep -> ((XCDependenciesLoader.CoordinateDependency) dep).getCoordinate()).collect(Collectors.toList());
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
 					});
@@ -265,6 +276,8 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getConfiguration().set(variantInfo.getName());
 						task.getVfsOverlayFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/product-headers.yaml"));
 						task.getVfsOverlays().from(overlays);
+						task.getRemoteSwiftPackages().from(remoteSwiftPackages);
+						task.getOutputRemoteSwiftPackages().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/remote-swift-packages.ser"));
 						action.execute(task);
 					});
 				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetTask)));
@@ -296,6 +309,21 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						configuration.outgoing(outgoing -> {
 							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
 							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getVfsOverlayFile));
+						});
+					});
+
+				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("RemoteSwiftPackagesElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-swift-packages"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
+						});
+					})
+					.configure(configuration -> {
+						configuration.outgoing(outgoing -> {
+							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
+							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputRemoteSwiftPackages));
 						});
 					});
 			})));
