@@ -22,12 +22,14 @@ import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXReference;
+import dev.nokee.xcode.objects.files.PBXReferenceProxy;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
@@ -46,11 +48,12 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 
 	@Override
 	public XCFileReferences load(XCProjectReference reference) {
-		return walk(loader.load(reference));
+		return walk(loader.load(reference), reference);
 	}
 
-	public static XCFileReferences walk(PBXProject project) {
+	public static XCFileReferences walk(PBXProject project, XCProjectReference reference) {
 		val builder = XCFileReferences.builder();
+		builder.ref(reference);
 		walk(builder, new FileNode(SOURCE_ROOT, null, null), project.getMainGroup());
 		return builder.build();
 	}
@@ -118,14 +121,40 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 
 	public static final class XCFileReferences {
 		private final Map<PBXReference, XCFileReference> fileRefs;
+		private final XCProjectReference reference;
 
-		public XCFileReferences(Map<PBXReference, XCFileReference> fileRefs) {
+		public XCFileReferences(Map<PBXReference, XCFileReference> fileRefs, XCProjectReference reference) {
 			this.fileRefs = fileRefs;
+			this.reference = reference;
 		}
 
 		public XCFileReference get(PBXReference fileRef) {
 			// FIXME: When PBXFileReference comes from two different instance of the same project, they don't align.
 			//   We should find a way to normalize the file reference so they can be compared between project instance
+			if (fileRef instanceof PBXReferenceProxy) {
+				if (((PBXReferenceProxy) fileRef).getRemoteReference().getContainerPortal() instanceof PBXFileReference) {
+					val builder = PBXFileReference.builder();
+					fileRef.getName().ifPresent(builder::name);
+					fileRef.getPath().ifPresent(builder::path);
+					builder.sourceTree(fileRef.getSourceTree());
+
+					return XCLoaders.fileReferences().load(XCProjectReference.of(get((PBXReference) ((PBXReferenceProxy) fileRef).getRemoteReference().getContainerPortal()).resolve(new XCFileReference.ResolveContext() {
+						@Override
+						public Path getBuiltProductsDirectory() {
+							throw new UnsupportedOperationException();
+						}
+
+						@Override
+						public Path get(String name) {
+							if (name.equals("SOURCE_ROOT")) {
+								return reference.getLocation().getParent();
+							}
+							throw new UnsupportedOperationException(name);
+						}
+					}))).get(builder.build());
+				}
+			}
+
 			if (fileRef instanceof PBXFileReference) {
 				if (fileRef.getSourceTree().equals(ABSOLUTE)) {
 					return XCFileReference.absoluteFile(pathOf(fileRef));
@@ -144,14 +173,20 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 
 		public static final class Builder {
 			private final ImmutableMap.Builder<PBXReference, XCFileReference> fileRefs = ImmutableMap.builder();
+			private XCProjectReference reference;
 
 			public Builder put(PBXReference fileRef, XCFileReference file) {
 				fileRefs.put(fileRef, file);
 				return this;
 			}
 
+			public Builder ref(XCProjectReference reference) {
+				this.reference = reference;
+				return this;
+			}
+
 			public XCFileReferences build() {
-				return new XCFileReferences(fileRefs.build());
+				return new XCFileReferences(fileRefs.build(), reference);
 			}
 		}
 	}
