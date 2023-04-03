@@ -141,6 +141,7 @@ public final class KeyedCoders {
 
 		// PBXCopyFilesBuildPhase
 		.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, forKey("files", listOfBuildFiles))
+		.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.name, forKey("name"))
 		.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, forKey("dstPath"))
 		.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, forKey("dstSubfolderSpec", new DefaultCoder<>(new IntegerDecoder<>(new SubFolderDecoder()), new IntegerEncoder<>(new SubFolderEncoder()))))
 

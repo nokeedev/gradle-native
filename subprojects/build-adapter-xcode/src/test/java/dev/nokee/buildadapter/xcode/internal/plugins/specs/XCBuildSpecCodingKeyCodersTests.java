@@ -113,6 +113,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXContainerItemProxy.CodingKeys.remoteInfo, ignore()));
 
 			add(arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, keyOf("files", listOf(object(PBXBuildFile.class)))));
+			add(arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, ignore()));
 			add(arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, ignore()));
 

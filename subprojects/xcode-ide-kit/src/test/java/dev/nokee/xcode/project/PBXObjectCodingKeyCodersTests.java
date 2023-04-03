@@ -126,6 +126,7 @@ class PBXObjectCodingKeyCodersTests {
 				arguments(CodeablePBXContainerItemProxy.CodingKeys.remoteInfo, keyOf("remoteInfo", string())),
 
 				arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, keyOf("files", list(byRef(of(PBXBuildFile.class))))),
+				arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.name, keyOf("name", string())),
 				arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, keyOf("dstSubfolderSpec", of(PBXCopyFilesBuildPhase.SubFolder.class))),
 				arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, keyOf("dstPath", string())),
 

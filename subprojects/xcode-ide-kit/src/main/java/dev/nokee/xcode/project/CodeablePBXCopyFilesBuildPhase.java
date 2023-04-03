@@ -21,7 +21,9 @@ import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
+import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
@@ -29,6 +31,7 @@ import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 public final class CodeablePBXCopyFilesBuildPhase implements PBXCopyFilesBuildPhase, Codeable {
 	public enum CodingKeys implements CodingKey {
 		files,
+		name,
 		dstPath,
 		dstSubfolderSpec,
 		;
@@ -48,6 +51,11 @@ public final class CodeablePBXCopyFilesBuildPhase implements PBXCopyFilesBuildPh
 	@Override
 	public List<PBXBuildFile> getFiles() {
 		return orEmptyList(delegate.tryDecode(CodingKeys.files));
+	}
+
+	@Override
+	public Optional<String> getName() {
+		return orEmpty(delegate.tryDecode(CodingKeys.name));
 	}
 
 	@Override
