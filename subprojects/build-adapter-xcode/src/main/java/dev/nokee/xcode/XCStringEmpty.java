@@ -17,8 +17,10 @@ package dev.nokee.xcode;
 
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 @EqualsAndHashCode
-public final class XCStringEmpty implements XCString {
+public final class XCStringEmpty implements XCString, Serializable {
 	@Override
 	public String resolve(ResolveContext context) {
 		return null;

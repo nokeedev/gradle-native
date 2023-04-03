@@ -15,7 +15,12 @@
  */
 package dev.nokee.xcode;
 
-public final class DefaultXCBuildSettings implements XCBuildSettings {
+import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+
+@EqualsAndHashCode
+public final class DefaultXCBuildSettings implements XCBuildSettings, Serializable {
 	private final XCBuildSettingLayer layer;
 
 	public DefaultXCBuildSettings(XCBuildSettingLayer layer) {

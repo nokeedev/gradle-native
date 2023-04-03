@@ -17,11 +17,12 @@ package dev.nokee.xcode;
 
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode
-public final class XCStringVariableOperator implements XCString {
+public final class XCStringVariableOperator implements XCString, Serializable {
 	private final XCString variable;
 	private final List<Operator> operatorList;
 

@@ -15,10 +15,12 @@
  */
 package dev.nokee.xcode;
 
+import dev.nokee.internal.testing.SerializableMatchers;
 import dev.nokee.xcode.XCStringEmpty;
 import dev.nokee.xcode.XCString;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
@@ -35,5 +37,10 @@ class XCStringEmptyTests {
 	@Test
 	void checkToString() {
 		assertThat(subject, hasToString("<<empty>>"));
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(subject, isSerializable());
 	}
 }

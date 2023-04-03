@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.testdoubles.TestDouble;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.Answers.doAlwaysReturnNull;
@@ -70,5 +71,10 @@ class XCStringVariableTests {
 	@Test
 	void checkToString() {
 		assertThat(subject, hasToString("$VARIABLE_NAME"));
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(subject, isSerializable());
 	}
 }

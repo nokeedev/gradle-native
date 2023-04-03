@@ -17,8 +17,10 @@ package dev.nokee.xcode;
 
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 @EqualsAndHashCode
-public final class ThrowingOperator implements XCStringVariableOperator.Operator {
+public final class ThrowingOperator implements XCStringVariableOperator.Operator, Serializable {
 	private final String operator;
 
 	public ThrowingOperator(String operator) {

@@ -15,9 +15,13 @@
  */
 package dev.nokee.xcode;
 
-import javax.annotation.Nullable;
+import lombok.EqualsAndHashCode;
 
-public final class DefaultXCBuildSetting implements XCBuildSetting {
+import javax.annotation.Nullable;
+import java.io.Serializable;
+
+@EqualsAndHashCode
+public final class DefaultXCBuildSetting implements XCBuildSetting, Serializable {
 	private final String name;
 	private final XCString value;
 

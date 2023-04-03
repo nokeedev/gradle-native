@@ -19,6 +19,9 @@ import dev.nokee.internal.testing.testdoubles.TestDouble;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nullable;
+
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnce;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
@@ -73,5 +76,16 @@ class XCStringDelayedParseTests {
 	void checkToString() {
 		// TODO: parse the string
 		assertThat(subject, hasToString("our-raw-string"));
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(subject, isSerializable());
+	}
+
+	@Test
+	void canSerializeAfterResolved() {
+		subject.resolve(context);
+		assertThat(subject, isSerializable());
 	}
 }

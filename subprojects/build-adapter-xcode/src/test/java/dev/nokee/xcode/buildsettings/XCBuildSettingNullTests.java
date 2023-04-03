@@ -19,6 +19,7 @@ import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingNull;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -35,5 +36,10 @@ class XCBuildSettingNullTests {
 	@Test
 	void alwaysEvaluateToNullValue() {
 		assertThat(subject.evaluate(newAlwaysThrowingMock(XCBuildSetting.EvaluationContext.class)), nullValue());
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(subject, isSerializable());
 	}
 }

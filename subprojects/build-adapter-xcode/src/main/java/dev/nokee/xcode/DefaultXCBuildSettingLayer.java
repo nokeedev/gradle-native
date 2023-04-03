@@ -15,10 +15,14 @@
  */
 package dev.nokee.xcode;
 
+import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class DefaultXCBuildSettingLayer implements XCBuildSettingLayer {
+@EqualsAndHashCode
+public final class DefaultXCBuildSettingLayer implements XCBuildSettingLayer, Serializable {
 	private final Map<String, XCBuildSetting> buildSettings;
 	private final XCBuildSettingLayer delegate;
 
