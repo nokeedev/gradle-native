@@ -28,6 +28,7 @@ import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReference;
+import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 
 import javax.annotation.Nullable;
@@ -66,10 +67,13 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 		return Stream.concat( //
 			target.getBuildPhases().stream() //
 				.flatMap(buildPhase -> buildPhase.getFiles().stream() //
-						.flatMap(it -> Optionals.stream(it.getFileRef())) //
-						.map(it -> fileReferencesLoader.load(reference.getProject()).get((PBXReference) it)) //
-						.flatMap(file -> Stream.of(file).map(dependencyFactory::forFile).filter(Objects::nonNull)
-							.map(it -> new CoordinateDependency(it, implicit().via(file).inBuildPhase(buildPhase)))) //
+						.flatMap(buildFile -> {
+							return Stream.concat(Optionals.stream(buildFile.getFileRef())
+								.map(it -> fileReferencesLoader.load(reference.getProject()).get((PBXReference) it)) //
+								.flatMap(file -> Stream.of(file).map(dependencyFactory::forFile).filter(Objects::nonNull)
+									.map(it -> new CoordinateDependency(it, implicit().via(file).inBuildPhase(buildPhase)))),
+								Optionals.stream(buildFile.getProductRef()).map(it -> new SwiftPMDependency(it.getProductName(), implicit().via(it.getPackageReference()).inBuildPhase(buildPhase)))); //
+						})
 				), //
 			target.getDependencies().stream() //
 				.map(it -> it.getTarget().map(t -> toTargetReference(reference.getProject(), t)).orElseGet(() -> toTargetReference(reference.getProject(), it.getTargetProxy()))) //
@@ -148,8 +152,24 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 		}
 	}
 
+	public static final class SwiftPMDependency implements XCDependency {
+		private final String productName;
+		private final CoordinateDependency.Type type;
+
+		public SwiftPMDependency(String productName, CoordinateDependency.Type type) {
+			this.productName = productName;
+			this.type = type;
+		}
+
+		@Override
+		public String toString() {
+			return "product '" + productName + "' (" + type + ")";
+		}
+	}
+
 	public interface ImplicitTypeBuilder {
 		ImplicitViaFileTypeBuilder via(XCFileReference file);
+		ImplicitViaFileTypeBuilder via(XCRemoteSwiftPackageReference reference);
 //		ImplicitViaOptionTypeBuilder via(XCBuildOption option);
 	}
 
@@ -169,6 +189,12 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 
 		public ImplicitViaFileTypeBuilder via(XCFileReference file) {
 			description.append(" via ").append(toString(file));
+			return this;
+		}
+
+		@Override
+		public ImplicitViaFileTypeBuilder via(XCRemoteSwiftPackageReference reference) {
+			description.append(" via ").append(toString(reference));
 			return this;
 		}
 
@@ -196,6 +222,10 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 
 		private static String toString(XCFileReference file) {
 			return "file '" + file + "'";
+		}
+
+		private static String toString(XCRemoteSwiftPackageReference reference) {
+			return "package at '" + reference.getRepositoryUrl() + "' which " + reference.getRequirement();
 		}
 
 		@Override
