@@ -20,6 +20,12 @@ import dev.nokee.buildadapter.xcode.internal.plugins.XcodeDependenciesService;
 import dev.nokee.utils.Optionals;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
+import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXFrameworksBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXHeadersBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
@@ -31,6 +37,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static dev.nokee.xcode.XCDependenciesLoader.CoordinateDependency.Type.explicit;
+import static dev.nokee.xcode.XCDependenciesLoader.CoordinateDependency.Type.implicit;
 
 public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, XCTargetReference> {
 	private final XCLoader<PBXTarget, XCTargetReference> targetLoader;
@@ -57,17 +65,17 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 
 		return Stream.concat( //
 			target.getBuildPhases().stream() //
-				.flatMap(it -> it.getFiles().stream()) //
-				.flatMap(it -> Optionals.stream(it.getFileRef())) //
-				.map(it -> fileReferencesLoader.load(reference.getProject()).get((PBXReference) it)) //
-				.map(dependencyFactory::forFile) //
-				.filter(Objects::nonNull) //
-				.map(it -> new XcodeDependenciesService.CoordinateDependency(it, XcodeDependenciesService.CoordinateDependency.Type.implicit)), //
+				.flatMap(buildPhase -> buildPhase.getFiles().stream() //
+						.flatMap(it -> Optionals.stream(it.getFileRef())) //
+						.map(it -> fileReferencesLoader.load(reference.getProject()).get((PBXReference) it)) //
+						.flatMap(file -> Stream.of(file).map(dependencyFactory::forFile).filter(Objects::nonNull)
+							.map(it -> new CoordinateDependency(it, implicit().via(file).inBuildPhase(buildPhase)))) //
+				), //
 			target.getDependencies().stream() //
 				.map(it -> it.getTarget().map(t -> toTargetReference(reference.getProject(), t)).orElseGet(() -> toTargetReference(reference.getProject(), it.getTargetProxy()))) //
 				.map(dependencyFactory::forTarget) //
 				.filter(Objects::nonNull) //
-				.map(it -> new XcodeDependenciesService.CoordinateDependency(it, XcodeDependenciesService.CoordinateDependency.Type.explicit)) //
+				.map(it -> new CoordinateDependency(it, explicit())) //
 			).collect(ImmutableSet.toImmutableSet());
 	}
 
@@ -103,5 +111,96 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 
 	private static RuntimeException missingRemoteInfoException() {
 		return new RuntimeException("Missing 'remoteInfo' on 'targetProxy'.");
+	}
+
+	public static final class CoordinateDependency implements XCDependency {
+		private final XcodeDependenciesService.Coordinate coordinate;
+		private final Type type;
+
+		public CoordinateDependency(XcodeDependenciesService.Coordinate coordinate, Type type) {
+			this.coordinate = coordinate;
+			this.type = type;
+		}
+
+		public interface Type {
+			// TODO: implicit dependency via options '-framework CocoaLumberjack' in build settings 'OTHER_LDFLAGS'
+			static ImplicitTypeBuilder implicit() {
+				return new DefaultImplicitTypeBuilder();
+			}
+
+			static Type explicit() {
+				return new Type() {
+					@Override
+					public String toString() {
+						return "explicit";
+					}
+				};
+			}
+		}
+
+		public XcodeDependenciesService.Coordinate getCoordinate() {
+			return coordinate;
+		}
+
+		@Override
+		public String toString() {
+			return coordinate + " (" + type + ")";
+		}
+	}
+
+	public interface ImplicitTypeBuilder {
+		ImplicitViaFileTypeBuilder via(XCFileReference file);
+//		ImplicitViaOptionTypeBuilder via(XCBuildOption option);
+	}
+
+	public interface ImplicitViaFileTypeBuilder {
+		CoordinateDependency.Type inBuildPhase(PBXBuildPhase buildPhase);
+	}
+
+	public interface ImplicitViaOptionTypeBuilder {
+		CoordinateDependency.Type inBuildSetting(String buildSetting);
+	}
+
+	// Examples:
+	//   implicit dependency via options '-framework SQLCipher' in build setting 'OTHER_LDFLAGS'
+	//   implicit dependency via file 'Pods_SignalNSE.framework' in build phase 'Link Binary'
+	public static final class DefaultImplicitTypeBuilder implements ImplicitTypeBuilder, ImplicitViaFileTypeBuilder, CoordinateDependency.Type {
+		private StringBuilder description = new StringBuilder("implicit dependency");
+
+		public ImplicitViaFileTypeBuilder via(XCFileReference file) {
+			description.append(" via ").append(toString(file));
+			return this;
+		}
+
+		@Override
+		public CoordinateDependency.Type inBuildPhase(PBXBuildPhase buildPhase) {
+			description.append(" in ").append(toString(buildPhase));
+			return this;
+		}
+
+		private static String toString(PBXBuildPhase buildPhase) {
+			if (buildPhase instanceof PBXCopyFilesBuildPhase) {
+				return "build phase '" + ((PBXCopyFilesBuildPhase) buildPhase).getName().orElse("copy files") + "'";
+			} else if (buildPhase instanceof PBXFrameworksBuildPhase) {
+				return "build phase 'Link Binary'";
+			} else if (buildPhase instanceof PBXHeadersBuildPhase) {
+				return "build phase 'Headers'";
+			} else if (buildPhase instanceof PBXResourcesBuildPhase) {
+				return "build phase 'Copy Resources'";
+			} else if (buildPhase instanceof PBXSourcesBuildPhase) {
+				return "build phase 'Compile Sources'";
+			} else {
+				return "a build phase";
+			}
+		}
+
+		private static String toString(XCFileReference file) {
+			return "file '" + file + "'";
+		}
+
+		@Override
+		public String toString() {
+			return description.toString();
+		}
 	}
 }

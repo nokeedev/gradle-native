@@ -102,27 +102,6 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 		return Optional.ofNullable(targetToCoordinates.get(target)).orElseThrow(RuntimeException::new);
 	}
 
-	public static final class CoordinateDependency implements XCDependency {
-		private final Coordinate coordinate;
-		private final Type type;
-
-		public CoordinateDependency(Coordinate coordinate, Type type) {
-			this.coordinate = coordinate;
-			this.type = type;
-		}
-
-		public enum Type { implicit, explicit }
-
-		public Coordinate getCoordinate() {
-			return coordinate;
-		}
-
-		@Override
-		public String toString() {
-			return coordinate + " (" + type + ")";
-		}
-	}
-
 	public static final class Coordinate {
 		public final Path projectPath;
 		public final String projectName;
