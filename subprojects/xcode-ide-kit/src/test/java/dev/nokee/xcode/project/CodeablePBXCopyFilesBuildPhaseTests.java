@@ -35,8 +35,10 @@ import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath;
 import static dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec;
 import static dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase.CodingKeys.files;
+import static dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase.CodingKeys.name;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesIterable;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
+import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class CodeablePBXCopyFilesBuildPhaseTests extends CodeableAdapterTester<CodeablePBXCopyFilesBuildPhase> {
@@ -46,6 +48,14 @@ class CodeablePBXCopyFilesBuildPhaseTests extends CodeableAdapterTester<Codeable
 		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(files)).then(doReturn(expectedValue))));
 
 		assertThat(subject.getFiles(), matchesIterable(expectedValue));
+	}
+
+	@ParameterizedTest
+	@ArgumentsSource(PBXObjectArgumentsProviders.PBXObjectNamesProvider.class)
+	void checkGetName(String expectedValue) {
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(name)).then(doReturn(expectedValue))));
+
+		assertThat(subject.getName(), matchesOptional(expectedValue));
 	}
 
 	@ParameterizedTest

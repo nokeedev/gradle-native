@@ -96,6 +96,7 @@ public final class XCBuildSpecCodingKeyCoders implements CodingKeyCoders {
 
 		// PBXCopyFilesBuildPhase
 		put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, forKey("files", list(of(PBXBuildFile.class))));
+		put(CodeablePBXCopyFilesBuildPhase.CodingKeys.name, null);
 		put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, null);
 		put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, null);
 

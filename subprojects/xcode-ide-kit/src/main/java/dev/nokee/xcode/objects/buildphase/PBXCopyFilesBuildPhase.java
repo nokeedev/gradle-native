@@ -22,6 +22,7 @@ import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.KeyedObject;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
@@ -96,6 +97,8 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 			throw new IllegalArgumentException(String.format("value '%d' is not known", value));
 		}
 	}
+
+	Optional<String> getName();
 
 	String getDstPath();
 
