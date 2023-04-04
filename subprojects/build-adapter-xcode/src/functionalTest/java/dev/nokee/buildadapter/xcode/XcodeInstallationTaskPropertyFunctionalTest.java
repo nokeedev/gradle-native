@@ -90,7 +90,7 @@ class XcodeInstallationTaskPropertyFunctionalTest {
 
 		@Test
 		void skipsTaskWhenXcodeInstallationDoesNotChangesFromPreviousInvocation() {
-			result = executer.withEnvironmentVariable("DEVELOPER_DIR", CommandLine.of("xcode-select", "--print-path").execute(new ProcessBuilderEngine()).waitFor().getOutput().getAsString().trim()).build();
+			result = executer.withEnvironmentVariable("DEVELOPER_DIR", "/Applications/Xcode.app/Contents/Developer").build();
 			assertThat(result, tasksSkipped(":verify"));
 		}
 
