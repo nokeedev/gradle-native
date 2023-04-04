@@ -407,9 +407,9 @@ Searched in the following locations:
 		versionNotation       			| displayName
 		'latest.integration'  			| 'latest status for integration'
 		'latest.release'      			| 'latest status for release'
-		'12.+'                			| 'prefix version range'
-		'[10.0,12.3]'        			| 'version range'
-		"[10.0,12.3]!!${sdkVersion}"	| 'version range with preference'
+		'13.+'                			| 'prefix version range'
+		'[10.0,14.3]'        			| 'version range'
+		"[10.0,14.3]!!${sdkVersion}"	| 'version range with preference'
 	}
 
 	def "handles xcrun errors without logging beyond info level"() {
