@@ -16,9 +16,29 @@
 package dev.nokee.buildadapter.cmake
 
 import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
+import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.language.cpp.CppTaskNames
 
+import java.nio.file.Path
+
+import static org.apache.commons.io.FilenameUtils.separatorsToSystem
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix
+import static org.apache.commons.lang3.SystemUtils.userDir
+
 class HeaderOnlyLibraryFunctionalTest extends AbstractGradleSpecification implements CppTaskNames {
+	Path testDirectory
+
+	def setup() {
+		def path = separatorsToUnix(temporaryFolder.testDirectory.absolutePath).replace(separatorsToUnix(userDir.absolutePath + '/'), '')
+		testDirectory = userDir.toPath().parent.parent.resolve(separatorsToSystem(path))
+		executer = executer.inDirectory(testDirectory)
+	}
+
+	@Override
+	protected TestFile getTestDirectory() {
+		return TestFile.of(testDirectory.toFile())
+	}
+
 	def "can depend on plog header-only library"() {
 		given:
 		settingsFile << """
