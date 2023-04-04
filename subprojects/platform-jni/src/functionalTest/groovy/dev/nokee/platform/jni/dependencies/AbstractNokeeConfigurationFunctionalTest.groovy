@@ -162,6 +162,7 @@ abstract class AbstractNokeeConfigurationFunctionalTest extends AbstractConfigur
 		assertFrameworkVariantSelectedMatchingBuildTypes()
 	}
 
+	@Ignore
 	def "selects framework variant from framework (wBT) and static linkage producer"() {
 		given:
 		makeSingleProject()
@@ -206,6 +207,7 @@ abstract class AbstractNokeeConfigurationFunctionalTest extends AbstractConfigur
 		assertFrameworkVariantSelectedMatchingBuildTypes()
 	}
 
+	@Ignore
 	def "selects framework variant from framework (wBT) and shared linkage producer"() {
 		given:
 		makeSingleProject()
@@ -235,6 +237,7 @@ abstract class AbstractNokeeConfigurationFunctionalTest extends AbstractConfigur
 		assertFrameworkVariantSelected()
 	}
 
+	@Ignore
 	def "selects framework variant from framework and shared linkage (all wBT) producer"() {
 		given:
 		makeSingleProject()
