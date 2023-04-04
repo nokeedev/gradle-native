@@ -6,7 +6,7 @@ pkg install -y openjdk8 llvm90 gcc9 bash tree git libobjc2
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "freebsd/FreeBSD-12.3-STABLE"
+  config.vm.box = "freebsd/FreeBSD-12.4-STABLE"
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", "4096"]
     vb.customize ["modifyvm", :id, "--cpus", "2"]

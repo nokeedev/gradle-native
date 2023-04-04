@@ -140,10 +140,10 @@ jobs:
             -   uses: nokeedev/actions/vagrant-provision@main
                 with:
                     mem: 4096
-                    name: freebsd-12.3
+                    name: freebsd-12.4
             -   uses: nokeedev/actions/vagrant-ssh@main
                 with:
-                    name: freebsd-12.3
+                    name: freebsd-12.4
                     run: ./gradlew --continue --no-daemon :docs:docsTest --no-build-cache -PskipAllAsciinemaTasks "-Dgradle.enterprise.url=https://ge.nokee.dev/" "-Dgradle.enterprise.accessKey=${{ secrets.BUILD_SCAN_ACCESS_KEY }}" "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
 
     publish-head-milestone:
