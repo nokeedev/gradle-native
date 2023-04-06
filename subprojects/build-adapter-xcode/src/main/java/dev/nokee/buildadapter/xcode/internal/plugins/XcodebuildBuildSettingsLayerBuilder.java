@@ -67,7 +67,7 @@ public class XcodebuildBuildSettingsLayerBuilder {
 
 	public XcodebuildBuildSettingsLayerBuilder sdk(Provider<String> sdk) {
 		assert sdk != null : "'sdk' must not be null";
-		arguments.put("-sdk", sdk);
+		arguments.putAll(sdk.map(it -> ImmutableMap.of("-sdk", it)).orElse(ImmutableMap.of()));
 		return this;
 	}
 
