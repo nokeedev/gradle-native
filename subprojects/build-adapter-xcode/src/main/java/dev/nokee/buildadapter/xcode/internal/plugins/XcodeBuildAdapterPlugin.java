@@ -228,8 +228,10 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				val derivedDataTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("assemble", "derivedDataDir"), AssembleDerivedDataDirectoryTask.class, it -> it.ownedBy(entity)))
 					.as(AssembleDerivedDataDirectoryTask.class)
 					.configure(task -> {
-						task.getIncomingDerivedDataPaths().from(derivedData);
-						task.getXcodeDerivedDataPath().set(project.getLayout().getBuildDirectory().dir("tmp-derived-data/" + target.getName() + "-" + variantInfo.getName()));
+						task.parameters(parameters -> {
+							parameters.getIncomingDerivedDataPaths().from(derivedData);
+							parameters.getXcodeDerivedDataPath().set(project.getLayout().getBuildDirectory().dir("tmp-derived-data/" + target.getName() + "-" + variantInfo.getName()));
+						});
 					});
 
 				val targetTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetExecTask.class, it -> it.ownedBy(entity)))
@@ -239,7 +241,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getXcodeProject().set(reference);
 						task.getTargetName().set(target.getName());
 						task.getOutputs().upToDateWhen(because(String.format("a shell script build phase of %s has no inputs or outputs defined", reference.ofTarget(target.getName())), everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs()));
-						task.getDerivedDataPath().set(derivedDataTask.flatMap(AssembleDerivedDataDirectoryTask::getXcodeDerivedDataPath));
+						task.getDerivedDataPath().set(derivedDataTask.flatMap(it -> it.getParameters().getXcodeDerivedDataPath()));
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + task.getName()));
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getConfiguration().set(variantInfo.getName());
