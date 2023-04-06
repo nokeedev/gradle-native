@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.core.exec.LoggingEngine;
 import dev.nokee.xcode.DefaultXCBuildSettingLayer;
 import dev.nokee.xcode.ProvidedMapAdapter;
 import dev.nokee.xcode.XCBuildSetting;
@@ -104,7 +105,7 @@ public class XcodebuildBuildSettingsLayerBuilder {
 						it.args("-showBuildSettings", "-json");
 					}).newInvocation(it -> {
 						it.withEnvironmentVariables(inherit("PATH").putOrReplace("DEVELOPER_DIR", developerDir.toString()));
-					}).submitTo(processBuilder()).waitFor().assertNormalExitValue()
+					}).submitTo(LoggingEngine.wrap(processBuilder())).waitFor().assertNormalExitValue()
 					.getStandardOutput().parse(output -> {
 						@SuppressWarnings("unchecked")
 						val parsedOutput = (List<ShowBuildSettingsEntry>) new Gson().fromJson(output, new TypeToken<List<ShowBuildSettingsEntry>>() {}.getType());
