@@ -16,7 +16,6 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import dev.nokee.buildadapter.xcode.internal.files.PreserveLastModifiedFileSystemOperation;
-import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
@@ -25,7 +24,6 @@ import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFiles;
-import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
@@ -33,42 +31,36 @@ import org.gradle.workers.WorkerExecutor;
 import javax.inject.Inject;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class AssembleDerivedDataDirectoryTask extends DefaultTask {
-	private final WorkerExecutor workerExecutor;
-
-	@InputFiles
-	public abstract ConfigurableFileCollection getIncomingDerivedDataPaths();
-
+public abstract class AssembleDerivedDataDirectoryTask extends ParameterizedTask<AssembleDerivedDataDirectoryTask.Parameters> {
 	@OutputFiles
 	public abstract ConfigurableFileCollection getOutputFiles();
 
-	@Internal
-	public abstract DirectoryProperty getXcodeDerivedDataPath();
-
 	@Inject
 	public AssembleDerivedDataDirectoryTask(WorkerExecutor workerExecutor) {
-		this.workerExecutor = workerExecutor;
-		getOutputFiles().from(getXcodeDerivedDataPath().dir("Build/Products").map(Directory::getAsFileTree)); // only track Build/Products/**
+		super(TaskAction.class, workerExecutor::noIsolation);
+		getOutputFiles().from(getParameters().getXcodeDerivedDataPath().dir("Build/Products").map(Directory::getAsFileTree)); // only track Build/Products/**
 	}
 
-	@TaskAction
-	private void doAssemble() {
-		workerExecutor.noIsolation().submit(CopyAction.class, parameters -> {
-			parameters.getIncomingDerivedDataPaths().from(getIncomingDerivedDataPaths());
-			parameters.getXcodeDerivedDataPath().set(getXcodeDerivedDataPath());
-		});
+	public interface Parameters extends WorkParameters, DerivedDataAssemblingRunnable.Parameters, CopyTo<Parameters> {
+		@InputFiles
+		ConfigurableFileCollection getIncomingDerivedDataPaths();
+
+		@Internal
+		DirectoryProperty getXcodeDerivedDataPath();
+
+		@Override
+		default CopyTo<Parameters> copyTo(Parameters other) {
+			other.getIncomingDerivedDataPaths().setFrom(getIncomingDerivedDataPaths());
+			other.getXcodeDerivedDataPath().set(getXcodeDerivedDataPath());
+			return this;
+		}
 	}
 
-	public static abstract class CopyAction implements WorkAction<CopyAction.Parameters> {
+	public static abstract class TaskAction implements WorkAction<Parameters> {
 		private final FileSystemOperations fileOperations;
 
-		public interface Parameters extends WorkParameters, DerivedDataAssemblingRunnable.Parameters {
-			ConfigurableFileCollection getIncomingDerivedDataPaths();
-			DirectoryProperty getXcodeDerivedDataPath();
-		}
-
 		@Inject
-		public CopyAction(FileSystemOperations fileOperations) {
+		public TaskAction(FileSystemOperations fileOperations) {
 			this.fileOperations = fileOperations;
 		}
 
