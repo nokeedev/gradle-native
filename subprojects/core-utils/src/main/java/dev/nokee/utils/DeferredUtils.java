@@ -189,7 +189,7 @@ public final class DeferredUtils {
 		@Override
 		public List<T> execute(@Nullable Object obj) {
 			@SuppressWarnings("unchecked")
-			List<T> result = (List<T>) flatUnpackWhile(obj, flattener, unpacker, it -> nestableDeferred().canUnpack(it) || DeferredUtils.isFlattenableType(it));
+			List<T> result = (List<T>) flatUnpackWhile(obj, flattener, unpacker, it -> unpacker.canUnpack(it) || DeferredUtils.isFlattenableType(it));
 			return result;
 		}
 	}
