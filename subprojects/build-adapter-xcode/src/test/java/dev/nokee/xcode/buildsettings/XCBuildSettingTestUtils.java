@@ -16,11 +16,13 @@
 package dev.nokee.xcode.buildsettings;
 
 import com.google.common.collect.ImmutableMap;
+import dev.nokee.xcode.DefaultXCBuildSettingSearchContext;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingNull;
 import dev.nokee.xcode.XCBuildSettings;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
@@ -40,6 +42,25 @@ public class XCBuildSettingTestUtils {
 
 	public static XCBuildSetting buildSetting(String name, Function<XCBuildSetting.EvaluationContext, String> evaluate) {
 		return new TestXCBuildSetting(name, evaluate);
+	}
+
+	public static XCBuildSettingLayer layerOf(XCBuildSetting... buildSettings) {
+		return new XCBuildSettingLayer() {
+			private final Map<String, XCBuildSetting> values = mapOf(buildSettings);
+			@Override
+			public XCBuildSetting find(SearchContext context) {
+				val value = values.get(context.getName());
+				if (value == null) {
+					return context.findNext();
+				}
+				return value;
+			}
+
+			@Override
+			public Map<String, XCBuildSetting> findAll() {
+				return values;
+			}
+		};
 	}
 
 	@EqualsAndHashCode(callSuper = false)
@@ -103,6 +124,10 @@ public class XCBuildSettingTestUtils {
 				return actual.getName();
 			}
 		};
+	}
+
+	public static XCBuildSettingLayer.SearchContext buildSettingNamed(String name) {
+		return new DefaultXCBuildSettingSearchContext(name);
 	}
 
 	public static Map<String, XCBuildSetting> mapOf(XCBuildSetting... buildSettings) {
