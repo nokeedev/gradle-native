@@ -46,4 +46,9 @@ public final class DefaultXCBuildSettingLayer implements XCBuildSettingLayer, Se
 		LinkedHashMap<String, XCBuildSetting> result = new LinkedHashMap<>(buildSettings);
 		return result;
 	}
+
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

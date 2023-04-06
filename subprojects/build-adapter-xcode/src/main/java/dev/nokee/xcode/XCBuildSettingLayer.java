@@ -34,4 +34,10 @@ public interface XCBuildSettingLayer {
 			throw new UnsupportedOperationException();
 		}
 	}
+
+	void accept(Visitor visitor);
+
+	interface Visitor {
+		void visit(XCBuildSettingLayer layer);
+	}
 }

@@ -15,12 +15,14 @@
  */
 package dev.nokee.xcode;
 
+import com.google.common.collect.Iterators;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 @EqualsAndHashCode
-public final class DefaultXCBuildSettings implements XCBuildSettings, Serializable {
+public final class DefaultXCBuildSettings implements XCBuildSettings, Serializable, Iterable<XCBuildSettingLayer> {
 	private final XCBuildSettingLayer layer;
 
 	public DefaultXCBuildSettings(XCBuildSettingLayer layer) {
@@ -31,5 +33,10 @@ public final class DefaultXCBuildSettings implements XCBuildSettings, Serializab
 	@Override
 	public String get(String name) {
 		return layer.find(new DefaultXCBuildSettingSearchContext(name)).evaluate(new DefaultXCBuildSettingEvaluationContext(this));
+	}
+
+	@Override
+	public Iterator<XCBuildSettingLayer> iterator() {
+		return Iterators.forArray(layer);
 	}
 }
