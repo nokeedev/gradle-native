@@ -18,30 +18,28 @@ package dev.nokee.internal.testing;
 import org.apache.commons.lang3.SerializationUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
 
 import java.io.Serializable;
 
 public class SerializableMatchers {
 	public static Matcher<Object> isSerializable() {
-		return new TypeSafeMatcher<Object>() {
+		return new TypeSafeDiagnosingMatcher<Object>() {
+			@Override
+			protected boolean matchesSafely(Object item, Description mismatchDescription) {
+				if (!(item instanceof Serializable)) {
+					mismatchDescription.appendText("not serializable");
+					return false;
+				} else if (!item.equals(SerializationUtils.clone((Serializable) item))) {
+					mismatchDescription.appendText("not equals after serialization");
+					return false;
+				}
+				return true;
+			}
+
 			@Override
 			public void describeTo(Description description) {
 				description.appendText("serializable object");
-			}
-
-			@Override
-			protected void describeMismatchSafely(Object item, Description mismatchDescription) {
-				if (!(item instanceof Serializable)) {
-					mismatchDescription.appendText("not serializable");
-				} else if (!item.equals(SerializationUtils.clone((Serializable) item))) {
-					mismatchDescription.appendText("not equals after serialization");
-				}
-			}
-
-			@Override
-			protected boolean matchesSafely(Object actual) {
-				return actual instanceof Serializable && actual.equals(SerializationUtils.clone((Serializable) actual));
 			}
 		};
 	}
