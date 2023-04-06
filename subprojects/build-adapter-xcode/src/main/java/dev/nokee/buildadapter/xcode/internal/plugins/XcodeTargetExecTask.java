@@ -29,6 +29,7 @@ import dev.nokee.util.internal.NotPredicate;
 import dev.nokee.util.provider.ZipProviderBuilder;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
+import dev.nokee.xcode.CompositeXCBuildSettingLayer;
 import dev.nokee.xcode.DefaultXCBuildSettingLayer;
 import dev.nokee.xcode.DefaultXCBuildSettings;
 import dev.nokee.xcode.ProvidedMapAdapter;
@@ -36,7 +37,6 @@ import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingLiteral;
 import dev.nokee.xcode.XCBuildSettings;
-import dev.nokee.xcode.XCBuildSettingsEmptyLayer;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
@@ -136,7 +136,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			builder.add("SDKROOT", "DEVELOPER_DIR"); // let Xcode dictate the real value
 			builder.add("TARGET_NAME", "TARGETNAME", "PROJECT_NAME"); // when using SwiftPM, the override leak into the package causing incoherent builds
 			Set<String> buildSettingsToIgnore = builder.build();
-			return overrideLayer(new XCBuildSettingsEmptyLayer()).findAll().entrySet().stream() //
+			return overrideLayer().findAll().entrySet().stream() //
 				.filter(new NotPredicate<>(it -> buildSettingsToIgnore.contains(it.getKey()))) //
 
 				// We use XCBuildSetting#toString() to get a representation of the build setting to use on the command line.
@@ -150,7 +150,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		this.targetReference = ZipProviderBuilder.newBuilder(objects).value(getXcodeProject()).value(getTargetName())
 			.zip(XCProjectReference::ofTarget);
 		this.buildSpec = finalizeValueOnRead(objects.property(XCBuildPlan.class).value(getTargetReference().map(XCLoaders.buildSpecLoader()::load).map(spec -> {
-			final XCBuildSettings buildSettings = new DefaultXCBuildSettings(overrideLayer(xcodebuildLayer()));
+			final XCBuildSettings buildSettings = new DefaultXCBuildSettings(new CompositeXCBuildSettingLayer(ImmutableList.of(overrideLayer(), xcodebuildLayer())));
 
 			val context = new BuildSettingsResolveContext(FileSystems.getDefault(), buildSettings);
 			val fileRefs = XCLoaders.fileReferences().load(getXcodeProject().get());
@@ -179,17 +179,16 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		})));
 	}
 
-	private XCBuildSettingLayer overrideLayer(XCBuildSettingLayer delegate) {
-		return derivedDataPathLayer(shortcutLayer(disableCodeSigning(delegate)));
+	private XCBuildSettingLayer overrideLayer() {
+		return new CompositeXCBuildSettingLayer(ImmutableList.of(derivedDataPathLayer(), shortcutLayer(), disableCodeSigning()));
 	}
 
-	private static XCBuildSettingLayer shortcutLayer(XCBuildSettingLayer delegate) {
-		return new KnownBuildSettingsLayerBuilder().next(delegate).build();
+	private static XCBuildSettingLayer shortcutLayer() {
+		return new KnownBuildSettingsLayerBuilder().build();
 	}
 
-	private XCBuildSettingLayer derivedDataPathLayer(XCBuildSettingLayer delegate) {
+	private XCBuildSettingLayer derivedDataPathLayer() {
 		return new ProvidedBuildSettingsBuilder(objects)
-			.next(delegate)
 			.derivedDataPath(getDerivedDataPath().map(FileSystemLocationUtils::asPath))
 			.configuration(getConfiguration())
 			.developerDir(getXcodeInstallation().map(XcodeInstallation::getDeveloperDirectory))
@@ -198,8 +197,8 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			.build();
 	}
 
-	private static XCBuildSettingLayer disableCodeSigning(XCBuildSettingLayer delegate) {
-		return new CodeSigningDisabledBuildSettingLayerBuilder().next(delegate).build();
+	private static XCBuildSettingLayer disableCodeSigning() {
+		return new CodeSigningDisabledBuildSettingLayerBuilder().build();
 	}
 
 	private XCBuildSettingLayer xcodebuildLayer() {
@@ -225,7 +224,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				builder.put(key, new XCBuildSettingLiteral(key, value));
 			});
 			return builder.build();
-		})), new XCBuildSettingsEmptyLayer());
+		})));
 	}
 
 	private static final class ShowBuildSettingsEntry {

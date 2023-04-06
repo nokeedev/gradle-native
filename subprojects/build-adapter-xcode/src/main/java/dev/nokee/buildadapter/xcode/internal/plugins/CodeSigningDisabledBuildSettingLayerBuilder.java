@@ -19,7 +19,6 @@ import dev.nokee.xcode.DefaultXCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingLiteral;
-import dev.nokee.xcode.XCBuildSettingsEmptyLayer;
 
 import java.util.stream.Stream;
 
@@ -28,15 +27,7 @@ import static java.util.function.Function.identity;
 
 // Disable code signing, see https://stackoverflow.com/a/39901677/13624023
 public final class CodeSigningDisabledBuildSettingLayerBuilder {
-	private XCBuildSettingLayer nextLayer = new XCBuildSettingsEmptyLayer();
-
-	public CodeSigningDisabledBuildSettingLayerBuilder next(XCBuildSettingLayer layer) {
-		assert layer != null : "'layer' must not be null";
-		this.nextLayer = layer;
-		return this;
-	}
-
 	public XCBuildSettingLayer build() {
-		return new DefaultXCBuildSettingLayer(Stream.of(new XCBuildSettingLiteral("CODE_SIGN_IDENTITY", ""), new XCBuildSettingLiteral("CODE_SIGNING_REQUIRED", "NO"), new XCBuildSettingLiteral("CODE_SIGN_ENTITLEMENTS", ""), new XCBuildSettingLiteral("CODE_SIGNING_ALLOWED", "NO")).collect(toImmutableMap(XCBuildSetting::getName, identity())), nextLayer);
+		return new DefaultXCBuildSettingLayer(Stream.of(new XCBuildSettingLiteral("CODE_SIGN_IDENTITY", ""), new XCBuildSettingLiteral("CODE_SIGNING_REQUIRED", "NO"), new XCBuildSettingLiteral("CODE_SIGN_ENTITLEMENTS", ""), new XCBuildSettingLiteral("CODE_SIGNING_ALLOWED", "NO")).collect(toImmutableMap(XCBuildSetting::getName, identity())));
 	}
 }
