@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import com.google.common.base.Suppliers;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.provider.Provider;
 
@@ -38,6 +39,10 @@ public final class DeferUtils {
 	 */
 	public static Object asToStringObject(Supplier<String> supplier) {
 		return new ToStringSupplierObject(supplier);
+	}
+
+	public static Object asToStringObject(String value) {
+		return new ToStringSupplierObject(Suppliers.ofInstance(value));
 	}
 
 	@EqualsAndHashCode
