@@ -26,8 +26,8 @@ import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildSpec;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.util.internal.NotPredicate;
+import dev.nokee.util.provider.ZipProviderBuilder;
 import dev.nokee.utils.FileSystemLocationUtils;
-import dev.nokee.utils.ProviderUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.DefaultXCBuildSettingLayer;
 import dev.nokee.xcode.DefaultXCBuildSettings;
@@ -147,7 +147,8 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		finalizeValueOnRead(disallowChanges(getAllArguments()));
 
-		this.targetReference = ProviderUtils.zip(() -> objects.listProperty(Object.class), getXcodeProject(), getTargetName(), XCProjectReference::ofTarget);
+		this.targetReference = ZipProviderBuilder.newBuilder(objects).value(getXcodeProject()).value(getTargetName())
+			.zip(XCProjectReference::ofTarget);
 		this.buildSpec = finalizeValueOnRead(objects.property(XCBuildPlan.class).value(getTargetReference().map(XCLoaders.buildSpecLoader()::load).map(spec -> {
 			final XCBuildSettings buildSettings = new DefaultXCBuildSettings(overrideLayer(xcodebuildLayer()));
 
