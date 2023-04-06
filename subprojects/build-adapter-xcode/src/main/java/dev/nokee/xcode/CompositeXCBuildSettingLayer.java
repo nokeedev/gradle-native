@@ -73,4 +73,11 @@ public final class CompositeXCBuildSettingLayer implements XCBuildSettingLayer, 
 		}
 		return result;
 	}
+
+	@Override
+	public void accept(Visitor visitor) {
+		for (XCBuildSettingLayer layer : layers) {
+			layer.accept(visitor);
+		}
+	}
 }

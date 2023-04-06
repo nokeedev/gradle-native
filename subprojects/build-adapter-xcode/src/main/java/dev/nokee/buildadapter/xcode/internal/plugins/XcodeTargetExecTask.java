@@ -22,7 +22,6 @@ import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildPlan;
 import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildSpec;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
-import dev.nokee.util.internal.NotPredicate;
 import dev.nokee.util.provider.ZipProviderBuilder;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
@@ -41,6 +40,7 @@ import dev.nokee.xcode.project.PBXProjReader;
 import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.val;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Transformer;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
@@ -66,6 +66,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,6 +90,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	private final ObjectFactory objects;
 	private final Provider<XCTargetReference> targetReference;
 	private final Provider<XCBuildPlan> buildSpec;
+	private final ConfigurableXCBuildSettings buildSettings;
 
 	@Internal
 	public abstract Property<XCProjectReference> getXcodeProject();
@@ -101,6 +103,11 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@Internal
 	public abstract ListProperty<String> getAllArguments();
+
+	@Internal
+	public ConfigurableXCBuildSettings getBuildSettings() {
+		return buildSettings;
+	}
 
 	@Override
 	@Internal
@@ -117,24 +124,13 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	public XcodeTargetExecTask(WorkerExecutor workerExecutor, ObjectFactory objects, ProviderFactory providers) {
 		this.workerExecutor = workerExecutor;
 		this.objects = objects;
+		this.buildSettings = objects.newInstance(ConfigurableXCBuildSettings.class);
 
 		getAllArguments().addAll(getXcodeProject().map(it -> of("-project", it.getLocation().toString())));
 		getAllArguments().addAll(getTargetName().map(it -> of("-target", it)));
 		getAllArguments().addAll(getSdk().map(sdk -> of("-sdk", sdk)).orElse(of()));
 		getAllArguments().addAll(getConfiguration().map(buildType -> of("-configuration", buildType)).orElse(of()));
-		getAllArguments().addAll(providers.provider(() -> {
-			ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-			builder.add("SDKROOT", "DEVELOPER_DIR"); // let Xcode dictate the real value
-			builder.add("TARGET_NAME", "TARGETNAME", "PROJECT_NAME"); // when using SwiftPM, the override leak into the package causing incoherent builds
-			Set<String> buildSettingsToIgnore = builder.build();
-			return overrideLayer().findAll().entrySet().stream() //
-				.filter(new NotPredicate<>(it -> buildSettingsToIgnore.contains(it.getKey()))) //
-
-				// We use XCBuildSetting#toString() to get a representation of the build setting to use on the command line.
-				//   Not perfect, but good enough for now.
-				.map(it -> it.getKey() + "=" + it.getValue().toString()) //
-				.collect(Collectors.toList());
-		}));
+		getAllArguments().addAll(getBuildSettings().asProvider().map(buildSettingsOverride()).map(toFlags()));
 
 		finalizeValueOnRead(disallowChanges(getAllArguments()));
 
@@ -168,6 +164,47 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				}
 			});
 		})));
+
+		buildSettings.setFrom(xcodebuildLayer());
+		buildSettings.from(overrideLayer());
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Transformer<Map<String, XCBuildSetting>, XCBuildSettings> buildSettingsOverride() {
+		return buildSettings -> {
+			val result = new LinkedHashMap<String, XCBuildSetting>();
+
+			Set<String> buildSettingsToIgnore = ImmutableSet.<String>builder()
+				.add("SDKROOT", "DEVELOPER_DIR") // let Xcode dictate the real value
+				.add("TARGET_NAME", "TARGETNAME", "PROJECT_NAME") // when using SwiftPM, the override leak into the package causing incoherent builds
+				.build();
+
+			// Visit the build settings ignoring the XcodebuildBuildSettingLayer
+			new CompositeXCBuildSettingLayer((Iterable<XCBuildSettingLayer>) buildSettings).accept(new XCBuildSettingLayer.Visitor() {
+				@Override
+				public void visit(XCBuildSettingLayer layer) {
+					if (!(layer instanceof XcodebuildBuildSettingLayer)) {
+						layer.findAll().forEach((k, v) -> {
+							if (!result.containsKey(k) && !buildSettingsToIgnore.contains(k)) {
+								result.put(k, v);
+							}
+						});
+					}
+				}
+			});
+
+			return result;
+		};
+	}
+
+	private static Transformer<List<String>, Map<String, XCBuildSetting>> toFlags() {
+		return buildSettings -> {
+			return buildSettings.entrySet().stream()
+				// We use XCBuildSetting#toString() to get a representation of the build setting to use on the command line.
+				//   Not perfect, but good enough for now.
+				.map(it -> it.getKey() + "=" + it.getValue().toString()) //
+				.collect(Collectors.toList());
+		};
 	}
 
 	private XCBuildSettingLayer overrideLayer() {
@@ -193,7 +230,13 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	}
 
 	private XCBuildSettingLayer xcodebuildLayer() {
-		return new XcodebuildBuildSettingsLayer.Builder(objects).targetReference(getTargetReference()).sdk(getSdk()).configuration(getConfiguration()).developerDir(getXcodeInstallation().map(XcodeInstallation::getDeveloperDirectory)).buildSettings(objects.mapProperty(String.class, XCBuildSetting.class).value(overrideLayer().findAll())).build();
+		return new XcodebuildBuildSettingLayer.Builder(objects)
+			.targetReference(getTargetReference())
+			.sdk(getSdk())
+			.configuration(getConfiguration())
+			.developerDir(getXcodeInstallation().map(XcodeInstallation::getDeveloperDirectory))
+			.buildSettings(objects.mapProperty(String.class, XCBuildSetting.class).value(getBuildSettings().asProvider().map(buildSettingsOverride())))
+			.build();
 	}
 
 	@TaskAction

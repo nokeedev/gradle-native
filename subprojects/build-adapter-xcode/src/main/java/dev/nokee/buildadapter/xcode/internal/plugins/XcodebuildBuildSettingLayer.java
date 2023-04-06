@@ -61,6 +61,11 @@ public final class XcodebuildBuildSettingLayer implements XCBuildSettingLayer {
 		return buildSettings.get();
 	}
 
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
+
 	@SuppressWarnings("UnstableApiUsage")
 	public static class Builder {
 		private final MapProperty<String, String> arguments;

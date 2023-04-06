@@ -103,5 +103,10 @@ class DefaultXCBuildSettingsTests {
 		public Map<String, XCBuildSetting> findAll() {
 			return buildSettings.stream().collect(ImmutableMap.toImmutableMap(XCBuildSetting::getName, Function.identity()));
 		}
+
+		@Override
+		public void accept(Visitor visitor) {
+			throw new UnsupportedOperationException();
+		}
 	};
 }
