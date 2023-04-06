@@ -19,6 +19,7 @@ import dev.nokee.buildadapter.xcode.internal.reporting.JsonReportContext;
 import dev.nokee.buildadapter.xcode.internal.reporting.Report;
 import dev.nokee.buildadapter.xcode.internal.reporting.ReportContext;
 import dev.nokee.buildadapter.xcode.internal.reporting.TextReportContext;
+import dev.nokee.util.provider.ZipProviderBuilder;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTarget;
@@ -36,7 +37,6 @@ import java.io.OutputStreamWriter;
 
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.ifPresentOrElse;
-import static dev.nokee.utils.ProviderUtils.zip;
 import static java.util.stream.Collectors.toList;
 
 @UntrackedTask(because = "Produces only non-cacheable console output")
@@ -71,10 +71,10 @@ public /*final*/ abstract class InspectXcodeTask extends DefaultTask {
 				default: throw new UnsupportedOperationException();
 			}
 		})));
-		getXcodeTarget().set(zip(() -> objects.listProperty(Object.class),
-			getXcodeProject().map(it -> getXCLoaderService().get().load(it)),
-			getTargetFlag(),
-			(project, targetName) -> project.getTargets().stream().filter(t -> t.getName().equals(targetName)).findFirst().map(XCTarget::asReference).orElse(null)));
+		getXcodeTarget().set(ZipProviderBuilder.newBuilder(objects)
+			.value(getXcodeProject().map(it -> getXCLoaderService().get().load(it)))
+			.value(getTargetFlag())
+			.zip((project, targetName) -> project.getTargets().stream().filter(t -> t.getName().equals(targetName)).findFirst().map(XCTarget::asReference).orElse(null)));
 	}
 
 	@TaskAction
