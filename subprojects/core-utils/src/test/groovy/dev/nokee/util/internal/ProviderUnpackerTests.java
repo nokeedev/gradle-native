@@ -24,13 +24,12 @@ import static dev.nokee.internal.testing.forwarding.ForwardingWrapperMatchers.fo
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static dev.nokee.util.internal.DeferredFactory.providerOf;
-import static dev.nokee.util.internal.DeferredFactory.supplierOf;
 import static dev.nokee.util.internal.DeferredFactory.throwIfResolved;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ProviderUnpackerTests {
+class ProviderUnpackerTests {
 	@Nested
 	class WhenUnpackingProvider {
 		Unpacker delegate = newAlwaysThrowingMock(Unpacker.class);
