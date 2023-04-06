@@ -22,7 +22,6 @@ import dev.nokee.internal.testing.invocations.InvocationResult;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import dev.nokee.internal.testing.reflect.MethodCallable;
 import dev.nokee.internal.testing.reflect.MethodInformation;
-import lombok.val;
 import org.mockito.Mockito;
 import org.mockito.invocation.Invocation;
 
@@ -49,7 +48,7 @@ public final class MockitoMethodWrapper<A extends ArgumentInformation> implement
 		final List<Invocation> invocationList = new ArrayList<>();
 		final Method method = mapper.resolve((Class<T>) Mockito.mockingDetails(mock).getMockHandler().getMockSettings().getTypeToMock());
 		Mockito.mockingDetails(mock).getInvocations().stream().filter(it -> it.getMethod().equals(method)).forEach(invocationList::add);
-		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.None, Void, Void>(it)).collect(Collectors.toList()));
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.None>(it)).collect(Collectors.toList()));
 	}
 
 	@SuppressWarnings({"unchecked", "overloads"})
@@ -57,29 +56,29 @@ public final class MockitoMethodWrapper<A extends ArgumentInformation> implement
 		final List<Invocation> invocationList = new ArrayList<>();
 		final Method method = mapper.resolve((Class<T>) Mockito.mockingDetails(mock).getMockHandler().getMockSettings().getTypeToMock());
 		Mockito.mockingDetails(mock).getInvocations().stream().filter(it -> it.getMethod().equals(method)).forEach(invocationList::add);
-		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<A, Void, Void>(it)).collect(Collectors.toList()));
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<A>(it)).collect(Collectors.toList()));
 	}
 
 	@SuppressWarnings("overloads")
 	public static <T> MockitoMethodWrapper<ArgumentInformation.None> method(T mock, MethodCallable.ForArg0<T, RuntimeException> mapper) {
 		List<Invocation> invocationList = new ArrayList<>();
 		mapper.call(Mockito.verify(mock, data -> invocationList.addAll(data.getAllInvocations())));
-		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.None, Void, Void>(it)).collect(Collectors.toList()));
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.None>(it)).collect(Collectors.toList()));
 	}
 
 	public static <T, A0> MockitoMethodWrapper<ArgumentInformation.Arg1<A0>> method(T mock, MethodCallable.ForArg1<T, A0, RuntimeException> mapper) {
 		List<Invocation> invocationList = new ArrayList<>();
 		mapper.call(Mockito.verify(mock, data -> invocationList.addAll(data.getAllInvocations())), Mockito.any());
-		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.Arg1<A0>, A0, Void>(it)).collect(Collectors.toList()));
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.Arg1<A0>>(it)).collect(Collectors.toList()));
 	}
 
 	public static <T, A0, A1> MockitoMethodWrapper<ArgumentInformation.Arg2<A0, A1>> method(T mock, MethodCallable.ForArg2<T, A0, A1, RuntimeException> mapper) {
 		List<Invocation> invocationList = new ArrayList<>();
 		mapper.call(Mockito.verify(mock, data -> invocationList.addAll(data.getAllInvocations())), Mockito.any(), Mockito.any());
-		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.Arg2<A0, A1>, A0, A1>(it)).collect(Collectors.toList()));
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.Arg2<A0, A1>>(it)).collect(Collectors.toList()));
 	}
 
-	private static final class DefaultInvocationResult<ArgumentInformationType extends ArgumentInformation, A0, A1> implements InvocationResult<ArgumentInformationType> {
+	private static final class DefaultInvocationResult<ArgumentInformationType extends ArgumentInformation> implements InvocationResult<ArgumentInformationType> {
 		private final Invocation invocation;
 
 		private DefaultInvocationResult(Invocation invocation) {
