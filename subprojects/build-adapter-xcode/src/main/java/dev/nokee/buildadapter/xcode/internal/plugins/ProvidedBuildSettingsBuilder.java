@@ -21,7 +21,6 @@ import dev.nokee.xcode.ProvidedMapAdapter;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingLiteral;
-import dev.nokee.xcode.XCBuildSettingsEmptyLayer;
 import dev.nokee.xcode.XCTargetReference;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
@@ -38,17 +37,10 @@ import static java.util.stream.Collectors.toMap;
 @SuppressWarnings("UnstableApiUsage")
 public final class ProvidedBuildSettingsBuilder {
 	private final MapProperty<String, String> buildSettings;
-	private XCBuildSettingLayer nextLayer = new XCBuildSettingsEmptyLayer();
 
 	public ProvidedBuildSettingsBuilder(ObjectFactory objects) {
 		assert objects != null : "'objects' must not be null";
 		buildSettings = objects.mapProperty(String.class, String.class);
-	}
-
-	public ProvidedBuildSettingsBuilder next(XCBuildSettingLayer layer) {
-		assert layer != null : "'layer' must not be null";
-		this.nextLayer = layer;
-		return this;
 	}
 
 	public ProvidedBuildSettingsBuilder derivedDataPath(Provider<Path> location) {
@@ -96,7 +88,7 @@ public final class ProvidedBuildSettingsBuilder {
 				}
 			}
 			return result;
-		})), nextLayer);
+		})));
 	}
 
 	@Nullable

@@ -24,13 +24,10 @@ import java.util.Map;
 @EqualsAndHashCode
 public final class DefaultXCBuildSettingLayer implements XCBuildSettingLayer, Serializable {
 	private final Map<String, XCBuildSetting> buildSettings;
-	private final XCBuildSettingLayer delegate;
 
-	public DefaultXCBuildSettingLayer(Map<String, XCBuildSetting> buildSettings, XCBuildSettingLayer delegate) {
+	public DefaultXCBuildSettingLayer(Map<String, XCBuildSetting> buildSettings) {
 		assert buildSettings != null : "'buildSettings' must not be null";
-		assert delegate != null : "'delegate' must not be null";
 		this.buildSettings = buildSettings;
-		this.delegate = delegate;
 	}
 
 	@Override
@@ -40,18 +37,13 @@ public final class DefaultXCBuildSettingLayer implements XCBuildSettingLayer, Se
 		if (value != null) {
 			return value;
 		} else {
-			return delegate.find(context);
+			return context.findNext();
 		}
 	}
 
 	@Override
 	public Map<String, XCBuildSetting> findAll() {
 		LinkedHashMap<String, XCBuildSetting> result = new LinkedHashMap<>(buildSettings);
-		delegate.findAll().forEach((k, v) -> {
-			if (!result.containsKey(k)) {
-				result.put(k, v);
-			}
-		});
 		return result;
 	}
 }

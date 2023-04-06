@@ -19,7 +19,6 @@ import dev.nokee.xcode.DefaultXCBuildSetting;
 import dev.nokee.xcode.DefaultXCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
-import dev.nokee.xcode.XCBuildSettingsEmptyLayer;
 import dev.nokee.xcode.XCString;
 
 import java.util.HashMap;
@@ -48,16 +47,9 @@ public class KnownBuildSettingsLayerBuilder {
 		// PODS_XCFRAMEWORKS_BUILD_DIR may be overwritten per-target
 		// PODS_ROOT is almost always declared per-target
 	}};
-	private XCBuildSettingLayer nextLayer = new XCBuildSettingsEmptyLayer();
-
-	public KnownBuildSettingsLayerBuilder next(XCBuildSettingLayer layer) {
-		assert layer != null : "'layer' must not be null";
-		this.nextLayer = layer;
-		return this;
-	}
 
 	public XCBuildSettingLayer build() {
-		return new DefaultXCBuildSettingLayer(KNOWN_BUILD_SETTINGS.entrySet().stream().map(toBuildSetting()).collect(toImmutableMap(XCBuildSetting::getName, identity())), nextLayer);
+		return new DefaultXCBuildSettingLayer(KNOWN_BUILD_SETTINGS.entrySet().stream().map(toBuildSetting()).collect(toImmutableMap(XCBuildSetting::getName, identity())));
 	}
 
 	private static Function<Map.Entry<String, XCString>, XCBuildSetting> toBuildSetting() {

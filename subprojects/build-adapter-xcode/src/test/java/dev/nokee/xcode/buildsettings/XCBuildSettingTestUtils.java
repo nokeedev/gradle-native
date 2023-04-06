@@ -16,17 +16,20 @@
 package dev.nokee.xcode.buildsettings;
 
 import com.google.common.collect.ImmutableMap;
+import dev.nokee.xcode.DefaultXCBuildSetting;
+import dev.nokee.xcode.DefaultXCBuildSettingLayer;
 import dev.nokee.xcode.DefaultXCBuildSettingSearchContext;
+import dev.nokee.xcode.DefaultXCBuildSettings;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingNull;
 import dev.nokee.xcode.XCBuildSettings;
+import dev.nokee.xcode.XCString;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -142,12 +145,6 @@ public class XCBuildSettingTestUtils {
 		final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 		builderAction.accept(builder);
 		final Map<String, String> values = builder.build();
-		return new XCBuildSettings() {
-			@Nullable
-			@Override
-			public String get(String name) {
-				return values.get(name);
-			}
-		};
+		return new DefaultXCBuildSettings(new DefaultXCBuildSettingLayer(values.entrySet().stream().map(it -> new DefaultXCBuildSetting(it.getKey(), XCString.of(it.getValue()))).collect(ImmutableMap.toImmutableMap(XCBuildSetting::getName, Function.identity()))));
 	}
 }
