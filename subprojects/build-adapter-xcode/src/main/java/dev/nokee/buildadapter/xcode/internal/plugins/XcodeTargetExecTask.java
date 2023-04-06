@@ -193,7 +193,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	}
 
 	private XCBuildSettingLayer xcodebuildLayer() {
-		return new XcodebuildBuildSettingsLayerBuilder(objects).targetReference(getTargetReference()).sdk(getSdk()).configuration(getConfiguration()).developerDir(getXcodeInstallation().map(XcodeInstallation::getDeveloperDirectory)).buildSettings(objects.mapProperty(String.class, XCBuildSetting.class).value(overrideLayer().findAll())).build();
+		return new XcodebuildBuildSettingsLayer.Builder(objects).targetReference(getTargetReference()).sdk(getSdk()).configuration(getConfiguration()).developerDir(getXcodeInstallation().map(XcodeInstallation::getDeveloperDirectory)).buildSettings(objects.mapProperty(String.class, XCBuildSetting.class).value(overrideLayer().findAll())).build();
 	}
 
 	@TaskAction
