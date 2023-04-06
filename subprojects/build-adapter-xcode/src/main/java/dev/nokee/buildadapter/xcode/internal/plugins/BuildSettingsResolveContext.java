@@ -33,11 +33,11 @@ public final class BuildSettingsResolveContext implements XCFileReference.Resolv
 
 	@Override
 	public Path getBuiltProductsDirectory() {
-		return fileSystem.getPath(Objects.requireNonNull(buildSettings.get("BUILT_PRODUCTS_DIR")));
+		return get("BUILT_PRODUCTS_DIR");
 	}
 
 	@Override
 	public Path get(String name) {
-		return fileSystem.getPath(Objects.requireNonNull(buildSettings.get(name)));
+		return fileSystem.getPath(Objects.requireNonNull(buildSettings.get(name), () -> "could not resolve build setting '" + name + "'"));
 	}
 }
