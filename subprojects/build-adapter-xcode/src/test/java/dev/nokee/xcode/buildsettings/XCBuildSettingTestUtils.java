@@ -26,7 +26,6 @@ import dev.nokee.xcode.XCBuildSettingNull;
 import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCString;
 import lombok.EqualsAndHashCode;
-import lombok.val;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
@@ -48,22 +47,7 @@ public class XCBuildSettingTestUtils {
 	}
 
 	public static XCBuildSettingLayer layerOf(XCBuildSetting... buildSettings) {
-		return new XCBuildSettingLayer() {
-			private final Map<String, XCBuildSetting> values = mapOf(buildSettings);
-			@Override
-			public XCBuildSetting find(SearchContext context) {
-				val value = values.get(context.getName());
-				if (value == null) {
-					return context.findNext();
-				}
-				return value;
-			}
-
-			@Override
-			public Map<String, XCBuildSetting> findAll() {
-				return values;
-			}
-		};
+		return new DefaultXCBuildSettingLayer(mapOf(buildSettings));
 	}
 
 	@EqualsAndHashCode(callSuper = false)
