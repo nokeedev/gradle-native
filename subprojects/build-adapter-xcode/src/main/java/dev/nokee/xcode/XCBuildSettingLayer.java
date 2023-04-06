@@ -24,5 +24,14 @@ public interface XCBuildSettingLayer {
 
 	interface SearchContext {
 		String getName();
+
+		/**
+		 * Continue the search in the next layer.
+		 *
+		 * @return the build settings found in lower layers
+		 */
+		default XCBuildSetting findNext() {
+			throw new UnsupportedOperationException();
+		}
 	}
 }
