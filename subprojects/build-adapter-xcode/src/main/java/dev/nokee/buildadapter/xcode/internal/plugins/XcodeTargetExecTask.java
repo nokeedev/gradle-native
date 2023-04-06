@@ -16,10 +16,7 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import dev.nokee.buildadapter.xcode.internal.files.PreserveLastModifiedFileSystemOperation;
 import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildPlan;
 import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildSpec;
@@ -30,12 +27,9 @@ import dev.nokee.util.provider.ZipProviderBuilder;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.CompositeXCBuildSettingLayer;
-import dev.nokee.xcode.DefaultXCBuildSettingLayer;
 import dev.nokee.xcode.DefaultXCBuildSettings;
-import dev.nokee.xcode.ProvidedMapAdapter;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
-import dev.nokee.xcode.XCBuildSettingLiteral;
 import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
@@ -95,9 +89,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	private final ObjectFactory objects;
 	private final Provider<XCTargetReference> targetReference;
 	private final Provider<XCBuildPlan> buildSpec;
-
-	@Inject
-	protected abstract ExecOperations getExecOperations();
 
 	@Internal
 	public abstract Property<XCProjectReference> getXcodeProject();
@@ -202,41 +193,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	}
 
 	private XCBuildSettingLayer xcodebuildLayer() {
-		val effectiveBuildSettings = finalizeValueOnRead(disallowChanges(objects.mapProperty(String.class, String.class)
-			.value(getAllArguments().map(allArguments -> {
-				return CommandLineTool.of("xcodebuild").withArguments(it -> {
-						it.args(allArguments);
-						it.args("-showBuildSettings", "-json");
-					}).newInvocation(it -> {
-						it.withEnvironmentVariables(inherit("PATH").putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
-						ifPresent(getWorkingDirectory(), it::workingDirectory);
-					}).submitTo(execOperations(getExecOperations())).result()
-					.getStandardOutput().parse(output -> {
-						@SuppressWarnings("unchecked")
-						val parsedOutput = (List<ShowBuildSettingsEntry>) new Gson().fromJson(output, new TypeToken<List<ShowBuildSettingsEntry>>() {}.getType());
-						return parsedOutput.get(0).getBuildSettings();
-					});
-			}))));
-
-		return new DefaultXCBuildSettingLayer(new ProvidedMapAdapter<>(effectiveBuildSettings.map(it -> {
-			ImmutableMap.Builder<String, XCBuildSetting> builder = ImmutableMap.builder();
-			it.forEach((key, value) -> {
-				builder.put(key, new XCBuildSettingLiteral(key, value));
-			});
-			return builder.build();
-		})));
-	}
-
-	private static final class ShowBuildSettingsEntry {
-		private final Map<String, String> buildSettings;
-
-		private ShowBuildSettingsEntry(Map<String, String> buildSettings) {
-			this.buildSettings = buildSettings;
-		}
-
-		public Map<String, String> getBuildSettings() {
-			return buildSettings;
-		}
+		return new XcodebuildBuildSettingsLayerBuilder(objects).targetReference(getTargetReference()).sdk(getSdk()).configuration(getConfiguration()).developerDir(getXcodeInstallation().map(XcodeInstallation::getDeveloperDirectory)).buildSettings(objects.mapProperty(String.class, XCBuildSetting.class).value(overrideLayer().findAll())).build();
 	}
 
 	@TaskAction
