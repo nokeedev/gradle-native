@@ -27,4 +27,9 @@ public final class DefaultXCBuildSettingSearchContext implements XCBuildSettingL
 	public String getName() {
 		return name;
 	}
+
+	@Override
+	public XCBuildSetting findNext() {
+		return new XCBuildSettingNull(name);
+	}
 }
