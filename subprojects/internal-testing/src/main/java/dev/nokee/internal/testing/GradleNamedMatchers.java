@@ -20,6 +20,7 @@ import org.gradle.api.NamedDomainObjectCollectionSchema;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -75,6 +76,12 @@ public final class GradleNamedMatchers {
 					if (String.class.isAssignableFrom(getNameMethod.getReturnType())) {
 						try {
 							return (String) getNameMethod.invoke(actual);
+						} catch (InvocationTargetException | IllegalAccessException e) {
+							throw new RuntimeException(e);
+						}
+					} else if (Provider.class.isAssignableFrom(getNameMethod.getReturnType())) {
+						try {
+							return (String) ((Provider) getNameMethod.invoke(actual)).getOrNull();
 						} catch (InvocationTargetException | IllegalAccessException e) {
 							throw new RuntimeException(e);
 						}
