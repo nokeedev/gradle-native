@@ -29,7 +29,6 @@ import dev.nokee.xcode.XCString;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
@@ -45,16 +44,6 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.joining;
 
 public abstract class ConfigurableXCBuildSettings implements XCBuildSettings {
-	public ConfigurableXCBuildSettings() {
-		getValue().set(getObjects().map(it -> {
-			List<Object> l = new ArrayList<>(it);
-			Collections.reverse(l);
-			// flatUnpack takes care of the Iterable, List, Set, Provider of any value, Callable of any value, etc.
-			//   toLayer only needs to consider Map, XCBuildSettingLayer
-			return new DefaultXCBuildSettings(new CompositeXCBuildSettingLayer(DeferredUtils.flatUnpack(l).stream().map(ConfigurableXCBuildSettings::toLayer).collect(Collectors.toList())));
-		}));
-	}
-
 	@Nullable
 	@Override
 	public String get(String name) {
@@ -131,5 +120,13 @@ public abstract class ConfigurableXCBuildSettings implements XCBuildSettings {
 	protected abstract ListProperty<Object> getObjects();
 
 	@Input
-	protected abstract Property<XCBuildSettings> getValue();
+	protected Provider<XCBuildSettings> getValue() {
+		return getObjects().map(it -> {
+			List<Object> l = new ArrayList<>(it);
+			Collections.reverse(l);
+			// flatUnpack takes care of the Iterable, List, Set, Provider of any value, Callable of any value, etc.
+			//   toLayer only needs to consider Map, XCBuildSettingLayer
+			return new DefaultXCBuildSettings(new CompositeXCBuildSettingLayer(DeferredUtils.flatUnpack(l).stream().map(ConfigurableXCBuildSettings::toLayer).collect(Collectors.toList())));
+		});
+	}
 }
