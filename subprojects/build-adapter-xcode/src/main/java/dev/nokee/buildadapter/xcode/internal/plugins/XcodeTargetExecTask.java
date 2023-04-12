@@ -119,6 +119,9 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		return targetReference;
 	}
 
+	@Internal
+	public abstract Property<XCBuildSettings> getAllBuildSettings();
+
 	@Nested
 	public Provider<XCBuildPlan> getBuildPlan() {
 		return buildSpec;
@@ -141,8 +144,11 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		this.targetReference = ZipProviderBuilder.newBuilder(objects).value(getXcodeProject()).value(getTargetName())
 			.zip(XCProjectReference::ofTarget);
+
+		getAllBuildSettings().value(new DefaultXCBuildSettings(new CompositeXCBuildSettingLayer(ImmutableList.of(overrideLayer(), xcodebuildLayer()))));
+
 		this.buildSpec = finalizeValueOnRead(objects.property(XCBuildPlan.class).value(getTargetReference().map(XCLoaders.buildSpecLoader()::load).map(spec -> {
-			final XCBuildSettings buildSettings = new DefaultXCBuildSettings(new CompositeXCBuildSettingLayer(ImmutableList.of(overrideLayer(), xcodebuildLayer())));
+			final XCBuildSettings buildSettings = getAllBuildSettings().get();
 
 			val context = new BuildSettingsResolveContext(FileSystems.getDefault(), buildSettings);
 			val fileRefs = XCLoaders.fileReferences().load(getXcodeProject().get());
