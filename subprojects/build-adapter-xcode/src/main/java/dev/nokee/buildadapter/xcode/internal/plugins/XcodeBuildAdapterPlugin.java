@@ -15,6 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 import dev.nokee.buildadapter.xcode.internal.DefaultGradleProjectPathService;
@@ -27,6 +28,9 @@ import dev.nokee.buildadapter.xcode.internal.components.SettingsDirectoryCompone
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetTaskComponent;
+import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.GenerateVirtualFileSystemOverlaysTask;
+import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.MergeVirtualFileSystemOverlaysTask;
+import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.VFSOverlayAction;
 import dev.nokee.buildadapter.xcode.internal.rules.AttachXCTargetToVariantRule;
 import dev.nokee.buildadapter.xcode.internal.rules.TransitionLinkedVariantToRegisterStateRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XCProjectDescriptionRule;
@@ -74,6 +78,7 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.logging.Logger;
@@ -82,7 +87,11 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.build.event.BuildEventsListenerRegistry;
+import org.gradle.process.CommandLineArgumentProvider;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -99,6 +108,7 @@ import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
+import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 import static dev.nokee.utils.TransformerUtils.Transformer.of;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
@@ -234,6 +244,31 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						});
 					});
 
+				val overlays = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("virtualFileSystemOverlays", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-overlays"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
+						});
+					})
+					.configure(configuration -> {
+						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+								return it.load(target).getDependencies().stream().filter(XCDependenciesLoader.CoordinateDependency.class::isInstance).map(dep -> ((XCDependenciesLoader.CoordinateDependency) dep).getCoordinate()).collect(Collectors.toList());
+							}).map(transformEach(asDependency(project)))
+						)).orElse(Collections.emptyList()));
+					});
+
+				val mergeTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("merge", "virtualFileSystemOverlays"), MergeVirtualFileSystemOverlaysTask.class, it -> it.ownedBy(entity)))
+					.as(MergeVirtualFileSystemOverlaysTask.class)
+					.configure(task -> {
+						task.parameters(parameters -> {
+							parameters.getSources().from(overlays);
+							parameters.getDerivedDataPath().set(derivedDataTask.flatMap(it -> it.getParameters().getXcodeDerivedDataPath()));
+							parameters.getOutputFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/all-products-headers.yaml"));
+						});
+					});
+
 				val targetTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetExecTask.class, it -> it.ownedBy(entity)))
 					.as(XcodeTargetExecTask.class)
 					.configure(task -> {
@@ -245,6 +280,22 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + task.getName()));
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getConfiguration().set(variantInfo.getName());
+						task.getArguments().add(new CommandLineArgumentProvider() {
+							@InputFile
+							@PathSensitive(PathSensitivity.ABSOLUTE)
+							public Provider<RegularFile> getAllProductsHeaders() {
+								return mergeTask.flatMap(it -> it.getParameters().getOutputFile());
+							}
+
+							@Override
+							public Iterable<String> asArguments() {
+								val allProductsHeaders = getAllProductsHeaders().get().getAsFile().getAbsolutePath();
+								ImmutableList.Builder<String> builder = ImmutableList.builder();
+								builder.add("OTHER_CFLAGS=$(inherited) -ivfsoverlay \"" + allProductsHeaders + "\"");
+								builder.add("OTHER_SWIFT_FLAGS=$(inherited) -vfsoverlay \"" + allProductsHeaders + "\"");
+								return builder.build();
+							}
+						});
 						action.execute(task);
 					});
 				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetTask)));
@@ -261,6 +312,30 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						configuration.outgoing(outgoing -> {
 							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
 							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
+						});
+					});
+
+				val generateTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("generate", "virtualFileSystemOverlays"), GenerateVirtualFileSystemOverlaysTask.class, it -> it.ownedBy(entity)))
+					.as(GenerateVirtualFileSystemOverlaysTask.class)
+					.configure(task -> {
+						task.parameters(parameters -> {
+							parameters.overlays(new VFSOverlayAction(project.getObjects(), targetTask.asProvider()));
+							parameters.getOutputFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/" + xcTarget.get().getName() + ".yaml"));
+						});
+					});
+
+				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("VirtualFileSystemOverlaysElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-overlays"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
+						});
+					})
+					.configure(configuration -> {
+						configuration.outgoing(outgoing -> {
+							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
+							outgoing.artifact(generateTask.flatMap(it -> it.getParameters().getOutputFile()));
 						});
 					});
 			})));
