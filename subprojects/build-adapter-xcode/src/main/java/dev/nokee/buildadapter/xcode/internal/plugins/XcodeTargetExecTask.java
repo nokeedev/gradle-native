@@ -53,6 +53,7 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -82,6 +83,7 @@ import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toS
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.ifPresent;
+import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
 @CacheableTask
 public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask, HasConfigurableXcodeInstallation, HasXcodeTargetReference {
@@ -99,6 +101,9 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@OutputDirectory
 	public abstract DirectoryProperty getOutputDirectory();
+
+	@Nested
+	public abstract ListProperty<CommandLineArgumentProvider> getArguments();
 
 	@Internal
 	public abstract ListProperty<String> getAllArguments();
@@ -130,6 +135,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		getAllArguments().addAll(getSdk().map(sdk -> of("-sdk", sdk)).orElse(of()));
 		getAllArguments().addAll(getConfiguration().map(buildType -> of("-configuration", buildType)).orElse(of()));
 		getAllArguments().addAll(getBuildSettings().asProvider().map(buildSettingsOverride()).map(toFlags()));
+		getAllArguments().addAll(getArguments().map(flatTransformEach(CommandLineArgumentProvider::asArguments)));
 
 		finalizeValueOnRead(disallowChanges(getAllArguments()));
 
