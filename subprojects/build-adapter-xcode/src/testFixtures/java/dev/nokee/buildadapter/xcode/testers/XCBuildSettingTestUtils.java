@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.buildsettings;
+package dev.nokee.buildadapter.xcode.testers;
 
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.DefaultXCBuildSetting;
@@ -130,5 +130,14 @@ public class XCBuildSettingTestUtils {
 		builderAction.accept(builder);
 		final Map<String, String> values = builder.build();
 		return new DefaultXCBuildSettings(new DefaultXCBuildSettingLayer(values.entrySet().stream().map(it -> new DefaultXCBuildSetting(it.getKey(), XCString.of(it.getValue()))).collect(ImmutableMap.toImmutableMap(XCBuildSetting::getName, Function.identity()))));
+	}
+
+	public static Matcher<XCBuildSettings> hasBuildSetting(String name, String resolved) {
+		return new FeatureMatcher<XCBuildSettings, String>(equalTo(resolved), "", "") {
+			@Override
+			protected String featureValueOf(XCBuildSettings actual) {
+				return actual.get(name);
+			}
+		};
 	}
 }

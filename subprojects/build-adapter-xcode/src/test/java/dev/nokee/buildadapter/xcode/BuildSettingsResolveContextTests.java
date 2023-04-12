@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.google.common.jimfs.Configuration.unix;
 import static dev.nokee.internal.testing.FileSystemMatchers.absolutePath;
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.buildSettings;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.buildSettings;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 

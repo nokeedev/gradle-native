@@ -31,11 +31,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.buildSetting;
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.evaluateTo;
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.evaluateToNested;
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.evaluateToNull;
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.throwsException;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.buildSetting;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.evaluateTo;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.evaluateToNested;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.evaluateToNull;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.throwsException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
