@@ -24,7 +24,6 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.util.provider.ZipProviderBuilder;
 import dev.nokee.utils.FileSystemLocationUtils;
-import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.CompositeXCBuildSettingLayer;
 import dev.nokee.xcode.DefaultXCBuildSettings;
 import dev.nokee.xcode.XCBuildSetting;
@@ -33,10 +32,10 @@ import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
+import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.PBXReference;
-import dev.nokee.xcode.project.PBXObjectReference;
-import dev.nokee.xcode.project.PBXProj;
-import dev.nokee.xcode.project.PBXProjReader;
+import dev.nokee.xcode.objects.targets.TargetDependenciesAwareBuilder;
+import dev.nokee.xcode.project.PBXObjectArchiver;
 import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.val;
 import org.gradle.api.DefaultTask;
@@ -310,39 +309,19 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				spec.into(isolatedProjectLocation);
 			});
 
-			try {
-				PBXProj proj;
-				try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(isolatedProjectLocation.resolve("project.pbxproj"))))) {
-					proj = reader.read();
-				}
-				val builder = PBXProj.builder();
-				val isolatedProject = builder.rootObject(proj.getRootObject()).objects(o -> {
-					for (PBXObjectReference object : proj.getObjects()) {
-						if (ImmutableSet.of("PBXNativeTarget", "PBXAggregateTarget", "PBXLegacyTarget").contains(object.isa()) && parameters.getTargetNameToIsolate().get().equals(object.getFields().get("name"))) {
-							o.add(PBXObjectReference.of(object.getGlobalID(), entryBuilder -> {
-								for (Map.Entry<String, Object> entry : object.getFields().entrySet()) {
-									if (!entry.getKey().equals("dependencies")) {
-										entryBuilder.putField(entry.getKey(), entry.getValue());
-									}
-								}
-							}));
-						} else if ("PBXProject".equals(object.isa())) {
-							o.add(PBXObjectReference.of(object.getGlobalID(), entryBuilder -> {
-								entryBuilder.putField("projectDirPath", originalProjectLocation.getParent().toString());
-								for (Map.Entry<String, Object> entry : object.getFields().entrySet()) {
-									if (!entry.getKey().equals("projectDirPath")) {
-										entryBuilder.putField(entry.getKey(), entry.getValue());
-									}
-								}
-							}));
-						} else {
-							o.add(object);
-						}
-					}
-				}).build();
-				try (val writer = new PBXProjWriter(Files.newBufferedWriter(isolatedProjectLocation.resolve("project.pbxproj")))) {
-					writer.write(isolatedProject);
-				}
+			PBXProject project = XCLoaders.pbxprojectLoader().load(XCProjectReference.of(originalProjectLocation));
+			val newProject = project.toBuilder().projectDirPath(originalProjectLocation.getParent().toString())
+				.targets(project.getTargets().stream()
+					.filter(target -> target.getName().equals(parameters.getTargetNameToIsolate().get()))
+					.map(target -> {
+						val builder = target.toBuilder();
+						((TargetDependenciesAwareBuilder<?>) builder).dependencies(ImmutableList.of());
+						return builder.build();
+					}).collect(Collectors.toList()))
+				.build();
+
+			try (val writer = new PBXProjWriter(Files.newBufferedWriter(isolatedProjectLocation.resolve("project.pbxproj")))) {
+				writer.write(new PBXObjectArchiver().encode(newProject));
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
