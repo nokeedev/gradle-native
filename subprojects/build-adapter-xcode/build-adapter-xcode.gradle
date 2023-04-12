@@ -54,6 +54,7 @@ test {
 		implementation templates(project(':xcodeIdeKit'))
 		implementation testFixtures(project(':coreExec'))
 		implementation "com.google.jimfs:jimfs:${jimfsVersion}"
+		implementation templates(project)
 		implementation testFixtures(project)
 	}
 }
@@ -63,6 +64,7 @@ integrationTest {
 		implementation 'dev.nokee:templates'
 		implementation templates(project(':xcodeIdeKit'))
 		implementation testFixtures(project)
+		implementation templates(project)
 	}
 	testTasks.configureEach {
 		maxParallelForks = Runtime.runtime.availableProcessors()
