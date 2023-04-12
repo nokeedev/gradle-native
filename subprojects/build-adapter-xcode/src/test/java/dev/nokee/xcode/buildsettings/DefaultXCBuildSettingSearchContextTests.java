@@ -18,7 +18,7 @@ package dev.nokee.xcode.buildsettings;
 import dev.nokee.xcode.DefaultXCBuildSettingSearchContext;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.nullBuildSetting;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.nullBuildSetting;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 

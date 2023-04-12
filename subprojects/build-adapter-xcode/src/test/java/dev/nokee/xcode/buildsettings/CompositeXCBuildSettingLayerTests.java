@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 
 import static com.google.common.collect.ImmutableList.of;
 import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.buildSetting;
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.buildSettingNamed;
-import static dev.nokee.xcode.buildsettings.XCBuildSettingTestUtils.layerOf;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.buildSetting;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.buildSettingNamed;
+import static dev.nokee.buildadapter.xcode.testers.XCBuildSettingTestUtils.layerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
