@@ -61,7 +61,7 @@ public abstract class ParameterizedTask<P extends WorkParameters & CopyTo<P>> ex
 		return parameters;
 	}
 
-	@Inject
+	@Inject // This method is considered private to this class, do not use!
 	protected abstract ObjectFactory getObjects();
 
 	@TaskAction
