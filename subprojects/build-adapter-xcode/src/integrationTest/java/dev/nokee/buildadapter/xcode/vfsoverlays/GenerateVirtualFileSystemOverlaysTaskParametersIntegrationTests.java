@@ -16,7 +16,6 @@
 package dev.nokee.buildadapter.xcode.vfsoverlays;
 
 import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.GenerateVirtualFileSystemOverlaysTask.Parameters;
-import dev.nokee.buildadapter.xcode.testers.VirtualFileSystemOverlayTestUtils;
 import dev.nokee.utils.FileSystemLocationUtils;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
@@ -27,6 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.nio.file.Path;
 
+import static dev.nokee.buildadapter.xcode.testers.VirtualFileSystemOverlayTestUtils.entries;
+import static dev.nokee.buildadapter.xcode.testers.VirtualFileSystemOverlayTestUtils.location;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
@@ -59,12 +60,12 @@ class GenerateVirtualFileSystemOverlaysTaskParametersIntegrationTests {
 
 		@Test
 		void copiesOverlays() {
-			assertThat(dst.getOverlays(), contains(allOf(
+			assertThat(dst.getOverlays().getElements(), providerOf(contains(allOf(
 				named("my/path/to/dir"),
-				VirtualFileSystemOverlayTestUtils.entries(contains(allOf(
+				entries(contains(allOf(
 					named("foo.h"),
-					VirtualFileSystemOverlayTestUtils.location(providerOf("/path/to/foo.h"))
-				))))));
+					location(providerOf("/path/to/foo.h"))
+				)))))));
 		}
 	}
 }

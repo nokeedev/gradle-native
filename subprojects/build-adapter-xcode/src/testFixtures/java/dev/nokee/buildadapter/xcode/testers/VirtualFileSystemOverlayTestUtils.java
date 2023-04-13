@@ -62,7 +62,7 @@ public final class VirtualFileSystemOverlayTestUtils {
 
 			@Override
 			protected Iterable<VFSOverlaySpec.EntrySpec> featureValueOf(VFSOverlaySpec actual) {
-				return actual.getEntries();
+				return actual.getEntries().getElements().get();
 			}
 		};
 	}
