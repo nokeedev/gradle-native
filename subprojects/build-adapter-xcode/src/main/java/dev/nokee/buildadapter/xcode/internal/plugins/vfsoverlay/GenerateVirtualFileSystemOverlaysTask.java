@@ -42,22 +42,6 @@ public abstract class GenerateVirtualFileSystemOverlaysTask extends Parameterize
 	@Inject
 	public GenerateVirtualFileSystemOverlaysTask(WorkerExecutor workerExecutor) {
 		super(TaskAction.class, workerExecutor::noIsolation);
-
-//		// TODO: Configure from the outside
-//		val xcodebuildLayer = new XcodebuildBuildSettingLayer.Builder(objects)
-//			.targetReference(getParameters().getTargetReference())
-//			.sdk(getParameters().getSdk())
-//			.configuration(getParameters().getConfiguration())
-//			.developerDir(getParameters().getXcodeInstallation().map(XcodeInstallation::getDeveloperDirectory))
-//			.buildSettings(getParameters().getBuildSettings().asProvider().map(buildSettingsOverride()))
-//			.build();
-//		getParameters().getBuildSettings().setFrom(xcodebuildLayer);
-//
-//		// TODO: Configure from the outside
-//		val derivedDataOverride = objects.mapProperty(String.class, String.class);
-//		derivedDataOverride.put("OBJROOT", getParameters().getDerivedDataPath().map(it -> it.dir("Build/Intermediates.noindex").getAsFile().getAbsolutePath()));
-//		derivedDataOverride.put("SYMROOT", getParameters().getDerivedDataPath().map(it -> it.dir("Build/Products").getAsFile().getAbsolutePath()));
-//		getParameters().getBuildSettings().from(derivedDataOverride);
 	}
 
 	public interface Parameters extends WorkParameters, CopyTo<Parameters> {
