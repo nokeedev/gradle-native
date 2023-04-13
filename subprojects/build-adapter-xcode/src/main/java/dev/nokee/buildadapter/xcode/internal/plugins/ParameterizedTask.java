@@ -54,7 +54,10 @@ public abstract class ParameterizedTask<P extends WorkParameters & CopyTo<P>> ex
 	}
 
 	@Nested
-	public final P getParameters() {
+	// We cannot mark this getter as `final` because of https://github.com/gradle/gradle/issues/24747
+	//   The intention here is to prevent any implementer to override this getter as they don't own the returned instance.
+	//   Please, do not override this method!
+	public /*final*/ P getParameters() {
 		return parameters;
 	}
 
