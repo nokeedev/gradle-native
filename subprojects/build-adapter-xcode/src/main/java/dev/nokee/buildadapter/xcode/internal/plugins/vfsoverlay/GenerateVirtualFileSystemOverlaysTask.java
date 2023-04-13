@@ -98,8 +98,8 @@ public abstract class GenerateVirtualFileSystemOverlaysTask extends Parameterize
 		@Override
 		public void execute() {
 			val virtualDirectories = new ArrayList<VirtualFileSystemOverlay.VirtualDirectory>();
-			for (VFSOverlaySpec overlay : getParameters().getOverlays()) {
-				virtualDirectories.add(new VirtualFileSystemOverlay.VirtualDirectory(overlay.getName().get(), Streams.stream(overlay.getEntries()).map(it -> file(it.getName().get(), fileSystem.getPath(it.getLocation().get()))).collect(Collectors.toList())));
+			for (VFSOverlaySpec overlay : getParameters().getOverlays().getElements().get()) {
+				virtualDirectories.add(new VirtualFileSystemOverlay.VirtualDirectory(overlay.getName().get(), Streams.stream(overlay.getEntries().getElements().get()).map(it -> file(it.getName().get(), fileSystem.getPath(it.getLocation().get()))).collect(Collectors.toList())));
 			}
 
 			try (val writer = new VirtualFileSystemOverlayWriter(Files.newBufferedWriter(outputFile()))) {

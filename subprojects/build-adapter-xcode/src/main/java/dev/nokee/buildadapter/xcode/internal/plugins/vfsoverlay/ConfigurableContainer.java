@@ -23,12 +23,17 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Nested;
 
 import javax.inject.Inject;
-import java.util.Iterator;
+import java.util.Map;
 import java.util.function.Function;
 
-public abstract class ConfigurableContainer<T extends NamedDomainObject> implements Iterable<T> {
+// Note: we cannot declare this class as Iterable<T> because we are typically using it in a @Nested context
+//   In a @Nested context, Gradle will prefer unpacking (iterate) the object instead of looking for more
+//   @Nested properties which would discover the implicit task dependencies. Instead, users should use
+//   #getElements() provider and iterate the value.
+public abstract class ConfigurableContainer<T extends NamedDomainObject> {
 	public T create(String name, Action<? super T> action) {
 		T result = getObjects().newInstance(defaultType());
 		result.getName().set(name);
@@ -54,6 +59,11 @@ public abstract class ConfigurableContainer<T extends NamedDomainObject> impleme
 		return true;
 	}
 
+	public boolean addAll(ConfigurableContainer<? extends T> container) {
+		getValues().putAll(container.getValues());
+		return true;
+	}
+
 	public void clear() {
 		getValues().empty();
 	}
@@ -68,9 +78,9 @@ public abstract class ConfigurableContainer<T extends NamedDomainObject> impleme
 	@Internal
 	protected abstract MapProperty<String, T> getValues();
 
-	@Override
-	public Iterator<T> iterator() {
-		return getValues().get().values().iterator();
+	@Nested
+	public Provider<Iterable<T>> getElements() {
+		return getValues().map(Map::values);
 	}
 
 	public ConfigurableContainer<T> configure(Action<? super ConfigurableContainer<T>> action) {
