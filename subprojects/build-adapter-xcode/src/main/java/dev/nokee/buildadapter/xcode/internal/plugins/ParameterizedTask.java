@@ -49,7 +49,7 @@ public abstract class ParameterizedTask<P extends WorkParameters & CopyTo<P>> ex
 	}
 
 	public final ParameterizedTask<P> parameters(Action<? super P> action) {
-		action.execute(parameters);
+		action.execute(getParameters());
 		return this;
 	}
 
@@ -63,7 +63,7 @@ public abstract class ParameterizedTask<P extends WorkParameters & CopyTo<P>> ex
 
 	@TaskAction
 	private void doGenerate() {
-		factory.create().submit(actionType, parameters::copyTo);
+		factory.create().submit(actionType, getParameters()::copyTo);
 	}
 
 	public interface WorkQueueFactory {
