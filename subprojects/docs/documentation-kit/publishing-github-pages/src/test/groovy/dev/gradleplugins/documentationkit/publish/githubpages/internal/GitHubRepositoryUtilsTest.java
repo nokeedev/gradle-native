@@ -1,8 +1,6 @@
 package dev.gradleplugins.documentationkit.publish.githubpages.internal;
 
 import dev.gradleplugins.fixtures.vcs.GitFileRepository;
-import lombok.SneakyThrows;
-import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -15,11 +13,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import spock.lang.Subject;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 
@@ -28,7 +27,13 @@ import static dev.gradleplugins.documentationkit.publish.githubpages.internal.Gi
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.createDirectories;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItemInArray;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.io.FileMatchers.aFileNamed;
 import static org.hamcrest.io.FileMatchers.anExistingFile;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -205,10 +210,10 @@ class GitHubRepositoryUtilsTest {
 
 	@Test
 	void throwsExceptionWhenRepositoryIsMissing() throws IOException {
-		val localRepo = createDirectories(testDirectory.resolve("temp")).toFile();
-		val remoteRepo = testDirectory.resolve("missing").toFile().toURI();
+		File localRepo = createDirectories(testDirectory.resolve("temp")).toFile();
+		URI remoteRepo = testDirectory.resolve("missing").toFile().toURI();
 
-		val ex = assertThrows(InvalidRemoteException.class, () -> GitHubRepositoryUtils.createOrFetchOrClone(localRepo, remoteRepo));
+		InvalidRemoteException ex = assertThrows(InvalidRemoteException.class, () -> GitHubRepositoryUtils.createOrFetchOrClone(localRepo, remoteRepo));
 		assertThat(ex.getMessage(), equalTo("Invalid remote: origin"));
 		assertThat(ex.getCause(), isA(NoRemoteRepositoryException.class));
 		assertThat(ex.getCause().getMessage().replace("file:///", "file:/"), equalTo(remoteRepo + ": not found."));
@@ -220,10 +225,13 @@ class GitHubRepositoryUtilsTest {
 
 	private static Matcher<GitFileRepository> hasHeadRef(String ref) {
 		return new FeatureMatcher<GitFileRepository, String>(equalTo(ref), "", "") {
-			@SneakyThrows
 			@Override
 			protected String featureValueOf(GitFileRepository actual) {
-				return actual.getHead().getTarget().getName();
+				try {
+					return actual.getHead().getTarget().getName();
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
 			}
 		};
 	}

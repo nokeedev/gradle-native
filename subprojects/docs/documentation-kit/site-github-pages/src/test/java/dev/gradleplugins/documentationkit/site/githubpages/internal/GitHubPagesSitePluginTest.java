@@ -3,7 +3,6 @@ package dev.gradleplugins.documentationkit.site.githubpages.internal;
 import com.google.common.collect.ImmutableMap;
 import dev.gradleplugins.documentationkit.publish.githubpages.tasks.PublishToGitHubPages;
 import dev.gradleplugins.documentationkit.site.githubpages.GitHubPagesSite;
-import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.Test;
@@ -20,14 +19,14 @@ class GitHubPagesSitePluginTest {
 
 	@Test
 	void configuresGitHubPagesPublishUriWithRepositorySlug() {
-		val project = applyPluginUnderTest();
+		Project project = applyPluginUnderTest();
 		project.getExtensions().getByType(GitHubPagesSite.class).getRepositorySlug().set("foo/bar");
 		assertThat(project.getTasks().withType(PublishToGitHubPages.class).getByName("publishToGitHubPages").getUri().get(),
 			hasToString("https://github.com/foo/bar.git"));
 	}
 
 	private static Project applyPluginUnderTest() {
-		val project = ProjectBuilder.builder().build();
+		Project project = ProjectBuilder.builder().build();
 		project.apply(ImmutableMap.of("plugin", "dev.gradleplugins.documentation.github-pages-site"));
 		return project;
 	}
