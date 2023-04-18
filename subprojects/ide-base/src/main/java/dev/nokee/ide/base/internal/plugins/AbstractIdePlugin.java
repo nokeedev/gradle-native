@@ -324,9 +324,7 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 		}
 
 		if (isRootProject(project)) {
-			if (project.getGradle().getStartParameter().getSettingsFile() != null) {
-				result.add(project.getGradle().getStartParameter().getSettingsFile());
-			} else if (project.file("settings.gradle").exists()) {
+			if (project.file("settings.gradle").exists()) {
 				result.add(project.file("settings.gradle"));
 			} else if (project.file("settings.gradle.kts").exists()) {
 				result.add(project.file("settings.gradle.kts"));
