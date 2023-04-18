@@ -19,7 +19,7 @@ public abstract class GenerateRobots extends DefaultTask {
 
 	@TaskAction
 	private void doGenerate() throws FileNotFoundException {
-		try (PrintWriter out = new PrintWriter(getGeneratedRobotsFile().get().getAsFile())) {
+		try (final PrintWriter out = new PrintWriter(getGeneratedRobotsFile().get().getAsFile())) {
 			out.println("User-agent: *");
 			out.println("sitemap: https://" + getHost().get() + "/sitemap.xml");
 		}
