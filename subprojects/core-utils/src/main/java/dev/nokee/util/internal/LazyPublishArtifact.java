@@ -15,11 +15,11 @@
  */
 package dev.nokee.util.internal;
 
+import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.internal.artifacts.dsl.ArtifactFile;
-import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact;
 import org.gradle.api.internal.artifacts.publish.DefaultPublishArtifact;
 import org.gradle.api.internal.tasks.AbstractTaskDependency;
 import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
@@ -27,6 +27,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Date;
 
@@ -79,12 +80,11 @@ public class LazyPublishArtifact implements PublishArtifact {
         if (delegate == null) {
             Object value = provider.get();
             if (value instanceof FileSystemLocation) {
-                FileSystemLocation location = (FileSystemLocation) value;
-                delegate = fromFile(location.getAsFile());
+                delegate = fromFile(((FileSystemLocation) value).getAsFile());
             } else if (value instanceof File) {
                 delegate = fromFile((File)value);
             } else if (value instanceof AbstractArchiveTask) {
-                delegate = new ArchivePublishArtifact((AbstractArchiveTask)value);
+                delegate = fromArchiveTask((AbstractArchiveTask) value);
             } else {
                 throw new InvalidUserDataException(String.format("Cannot convert provided value (%s) to a file.", value));
             }
@@ -106,4 +106,53 @@ public class LazyPublishArtifact implements PublishArtifact {
             }
         };
     }
+
+	private PublishArtifact fromArchiveTask(AbstractArchiveTask archiveTask) {
+		return new PublishArtifact() {
+			@Override
+			public String getName() {
+				String baseName = archiveTask.getArchiveBaseName().getOrNull();
+				if (baseName != null) {
+					return withAppendix(baseName);
+				}
+				return archiveTask.getArchiveAppendix().get(); // cannot be null
+			}
+
+			private String withAppendix(String baseName) {
+				String appendix = archiveTask.getArchiveAppendix().getOrNull();
+				return baseName + (appendix != null ? "-" + appendix : "");
+			}
+
+			@Override
+			public String getExtension() {
+				return archiveTask.getArchiveExtension().get(); // cannot be null
+			}
+
+			@Override
+			public String getType() {
+				return archiveTask.getArchiveExtension().get(); // cannot be null
+			}
+
+			@Nullable
+			@Override
+			public String getClassifier() {
+				return archiveTask.getArchiveClassifier().getOrNull();
+			}
+
+			@Override
+			public File getFile() {
+				return archiveTask.getArchiveFile().get().getAsFile();
+			}
+
+			@Override
+			public Date getDate() {
+				return new Date(archiveTask.getArchiveFile().get().getAsFile().lastModified());
+			}
+
+			@Override
+			public TaskDependency getBuildDependencies() {
+				return TaskDependencyUtils.of(archiveTask);
+			}
+		};
+	}
 }
