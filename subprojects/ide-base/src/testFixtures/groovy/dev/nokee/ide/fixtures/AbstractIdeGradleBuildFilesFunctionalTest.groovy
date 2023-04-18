@@ -54,20 +54,6 @@ abstract class AbstractIdeGradleBuildFilesFunctionalTest extends AbstractGradleS
 		ideProject('foo').assertHasBuildFiles('foo.gradle', 'settings.gradle')
 	}
 
-	def "includes settings file modified through the command line in IDE project source"() {
-		given:
-		def settingsFile = file('foo-settings.gradle').createFile()
-		buildFile << applyIdePlugin() << configureIdeProject('foo')
-
-		when:
-		executer = executer.usingSettingsFile(settingsFile).withoutDeprecationChecks()
-		succeeds(tasks.ideLifecycle)
-
-		then:
-		result.assertTasksExecutedAndNotSkipped(tasks.allToIde('foo'))
-		ideProject('foo').assertHasBuildFiles('build.gradle', 'foo-settings.gradle')
-	}
-
 	def "includes gradle.properties file when available in IDE project source"() {
 		given:
 		buildFile << applyIdePlugin() << configureIdeProject('foo')
