@@ -1,14 +1,5 @@
 package dev.gradleplugins.documentationkit.site.base.tasks;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import dev.gradleplugins.documentationkit.site.base.Sitemap;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
@@ -17,12 +8,14 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.time.LocalDate;
+import java.io.Writer;
 import java.time.format.DateTimeFormatter;
+
+import static java.nio.file.Files.newBufferedWriter;
 
 // See https://www.sitemaps.org/
 // You can ping google and bing via http://<host>/ping?sitemap=https://nokee.dev/sitemap.xml
@@ -34,27 +27,54 @@ public abstract class GenerateSitemap extends DefaultTask {
 	public abstract RegularFileProperty getGeneratedSitemapFile();
 
 	@TaskAction
-	private void doGenerate() throws IOException {
-		XmlMapper xmlMapper = new XmlMapper();
-		SimpleModule simpleModule = new SimpleModule("LocalDateAsYearMonthDayString", new Version(1, 0, 0, null, null, null));
-		simpleModule.addSerializer(LocalDate.class, new SitemapLocalDateSerializer());
-		xmlMapper.registerModule(simpleModule);
-		xmlMapper.enable(ToXmlGenerator.Feature.WRITE_XML_DECLARATION);
-		xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
-		String xml = xmlMapper.writeValueAsString(new Sitemap(getSitemapUrls().get()));
-
-		try (final OutputStream outStream = Files.newOutputStream(getGeneratedSitemapFile().get().getAsFile().toPath())) {
-			outStream.write(xml.getBytes(StandardCharsets.UTF_8));
+	private void doGenerate() throws IOException, XMLStreamException {
+		try (final SitemapWriter writer = new SitemapWriter(newBufferedWriter(getGeneratedSitemapFile().get().getAsFile().toPath()))) {
+			writer.write(new Sitemap(getSitemapUrls().get()));
 		}
 	}
 
-
-	private static class SitemapLocalDateSerializer extends JsonSerializer<LocalDate> {
+	private static final class SitemapWriter implements AutoCloseable {
 		private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		private final XMLStreamWriter writer;
+
+		private SitemapWriter(Writer writer) throws XMLStreamException {
+			this.writer = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
+		}
+
+		public void write(Sitemap sitemap) throws XMLStreamException {
+			writer.writeStartDocument("1.0");
+			writer.writeStartElement("urlset");
+			writer.writeNamespace("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+			for (Sitemap.Url url : sitemap) {
+				writeUrl(url);
+			}
+
+			writer.writeEndElement(); // urlset
+			writer.writeEndDocument();
+
+			writer.flush();
+		}
+
+		private void writeUrl(Sitemap.Url url) throws XMLStreamException {
+			writer.writeStartElement("url");
+
+			writer.writeStartElement("loc");
+			writer.writeCharacters(url.getLocation().toString());
+			writer.writeEndElement(); // loc
+
+			if (url.getLastModified() != null) {
+				writer.writeStartElement("lastmod");
+				writer.writeCharacters(DATE_FORMAT.format(url.getLastModified()));
+				writer.writeEndElement(); // lastmod
+			}
+
+			writer.writeEndElement(); // url
+		}
 
 		@Override
-		public void serialize(LocalDate value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-			jgen.writeString(DATE_FORMAT.format(value));
+		public void close() throws XMLStreamException {
+			writer.close();
 		}
 	}
 }

@@ -1,33 +1,38 @@
 package dev.gradleplugins.documentationkit.site.base;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Value;
-
 import java.io.Serializable;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Iterator;
 
-@Value
-@JacksonXmlRootElement(localName = "urlset")
-public class Sitemap {
-	@JacksonXmlProperty(isAttribute = true)
-	@Getter(AccessLevel.PRIVATE) String xmlns = "https://www.sitemaps.org/schemas/sitemap/0.9";
+public final class Sitemap implements Iterable<Sitemap.Url>{
+	private final Collection<Url> urls;
 
-	@JacksonXmlElementWrapper(useWrapping = false)
-	@JacksonXmlProperty(localName = "url")
-	Collection<Url> urls;
+	public Sitemap(Collection<Url> urls) {
+		this.urls = urls;
+	}
 
-	@Value
-	public static class Url implements Serializable {
-		@JacksonXmlProperty(localName = "loc")
-		URL location;
+	@Override
+	public Iterator<Url> iterator() {
+		return urls.iterator();
+	}
 
-		@JacksonXmlProperty(localName = "lastmod")
-		LocalDate lastModified;
+	public static final class Url implements Serializable {
+		private final URL location;
+		private final LocalDate lastModified;
+
+		public Url(URL location, LocalDate lastModified) {
+			this.location = location;
+			this.lastModified = lastModified;
+		}
+
+		public URL getLocation() {
+			return location;
+		}
+
+		public LocalDate getLastModified() {
+			return lastModified;
+		}
 	}
 }
