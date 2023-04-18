@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import dev.gradleplugins.documentationkit.site.base.Sitemap;
-import lombok.val;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.SetProperty;
@@ -18,9 +17,10 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -43,7 +43,7 @@ public abstract class GenerateSitemap extends DefaultTask {
 		xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
 		String xml = xmlMapper.writeValueAsString(new Sitemap(getSitemapUrls().get()));
 
-		try (val outStream = new FileOutputStream(getGeneratedSitemapFile().get().getAsFile())) {
+		try (final OutputStream outStream = Files.newOutputStream(getGeneratedSitemapFile().get().getAsFile().toPath())) {
 			outStream.write(xml.getBytes(StandardCharsets.UTF_8));
 		}
 	}
