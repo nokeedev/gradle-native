@@ -17,11 +17,13 @@ package dev.nokee.util.internal;
 
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.InvalidUserDataException;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.internal.artifacts.dsl.ArtifactFile;
 import org.gradle.api.internal.artifacts.publish.DefaultPublishArtifact;
 import org.gradle.api.internal.tasks.AbstractTaskDependency;
+import org.gradle.api.internal.tasks.TaskDependencyContainer;
 import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskDependency;
@@ -30,6 +32,7 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Date;
+import java.util.Set;
 
 public class LazyPublishArtifact implements PublishArtifact {
     private final Provider<?> provider;
@@ -99,13 +102,20 @@ public class LazyPublishArtifact implements PublishArtifact {
 
     @Override
     public TaskDependency getBuildDependencies() {
-        return new AbstractTaskDependency() {
-            @Override
-            public void visitDependencies(TaskDependencyResolveContext context) {
-                context.add(provider);
-            }
-        };
+        return new PublishArtifactTaskDependency();
     }
+
+	private final class PublishArtifactTaskDependency implements TaskDependency, TaskDependencyContainer {
+		@Override
+		public void visitDependencies(TaskDependencyResolveContext context) {
+			context.add(provider);
+		}
+
+		@Override
+		public Set<? extends Task> getDependencies(@Nullable Task task) {
+			throw new UnsupportedOperationException(); // Gradle should be using TaskDependencyContainer instead
+		}
+	}
 
 	private PublishArtifact fromArchiveTask(AbstractArchiveTask archiveTask) {
 		return new PublishArtifact() {
