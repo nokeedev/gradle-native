@@ -2,7 +2,6 @@ package dev.gradleplugins.documentationkit.publish.githubpages.tasks;
 
 import com.google.common.hash.Hashing;
 import dev.gradleplugins.documentationkit.publish.githubpages.internal.GitHubRepositoryUtils;
-import lombok.val;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.credentials.PasswordCredentials;
@@ -36,7 +35,7 @@ public abstract class PublishToGitHubPages extends DefaultTask {
 
 	@TaskAction
 	private void doPublish() throws GitAPIException, IOException {
-		val repositoryDirectory = new File(getTemporaryDir(), BigInteger.valueOf(Hashing.md5().hashString(getUri().get().toString(), Charset.defaultCharset()).asLong()).toString(36));
+		final File repositoryDirectory = new File(getTemporaryDir(), BigInteger.valueOf(Hashing.md5().hashString(getUri().get().toString(), Charset.defaultCharset()).asLong()).toString(36));
 		repositoryDirectory.mkdirs();
 		GitHubRepositoryUtils.createOrFetchOrClone(repositoryDirectory, getUri().get());
 

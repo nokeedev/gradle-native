@@ -1,14 +1,14 @@
 package dev.gradleplugins.documentationkit.publish.githubpages.internal;
 
-import lombok.val;
-import lombok.var;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.gradle.api.credentials.PasswordCredentials;
@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.List;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.rethrow;
 
@@ -59,7 +60,7 @@ public final class GitHubRepositoryUtils {
 			git.add().addFilepattern(".").call();
 			git.commit().setAuthor("nokeedevbot", "bot@nokee.dev").setMessage("Publish by nokeedevbot").setAll(true).call();
 
-			var pushCommand = git.push();
+			PushCommand pushCommand = git.push();
 			if (credentials != null) {
 				pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
 			}
@@ -81,16 +82,16 @@ public final class GitHubRepositoryUtils {
 	}
 
 	public static URI inferGitHubHttpRepositoryUri(File repositoryDirectory) throws IOException, GitAPIException {
-		try (val git = Git.open(repositoryDirectory)) {
-			val remotes = git.remoteList().call();
+		try (final Git git = Git.open(repositoryDirectory)) {
+			final List<RemoteConfig> remotes = git.remoteList().call();
 			if (remotes.isEmpty()) {
 				throw new RuntimeException(String.format("Unable to infer GitHub HTTP repository URI at '%s' because no remotes are available.", repositoryDirectory.getAbsolutePath()));
 			}
-			val uris = remotes.iterator().next().getURIs();
+			final List<URIish> uris = remotes.iterator().next().getURIs();
 			if (uris.isEmpty()) {
 				throw new RuntimeException(String.format("Unable to infer GitHub HTTP repository URI at '%s' because no remotes are available.", repositoryDirectory.getAbsolutePath()));
 			}
-			val uri = uris.iterator().next();
+			final URIish uri = uris.iterator().next();
 			try {
 				return new URI(uri.toASCIIString());
 			} catch (URISyntaxException e) {
