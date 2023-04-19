@@ -53,7 +53,7 @@ public final class VFSOverlayAction implements Action<ConfigurableContainer<VFSO
 	private final Provider<Path> derivedDataPathProvider;
 
 	public VFSOverlayAction(ObjectFactory objects, Provider<XcodeTargetExecTask> targetTask) {
-		this(objects, targetTask.flatMap(it -> it.getTargetReference()), targetTask.flatMap(it -> it.getBuildSettings().asProvider()), targetTask.flatMap(it -> it.getOutputDirectory().map(FileSystemLocationUtils::asPath)));
+		this(objects, targetTask.flatMap(it -> it.getTargetReference()), targetTask.flatMap(it -> it.getBuildSettings().asProvider()), targetTask.flatMap(it -> it.getOutputDirectory().getLocationOnly().map(FileSystemLocationUtils::asPath)));
 	}
 
 	public VFSOverlayAction(ObjectFactory objects, Provider<XCTargetReference> targetReferenceProvider, Provider<XCBuildSettings> buildSettingsProvider, Provider<Path> derivedDataPathProvider) {
