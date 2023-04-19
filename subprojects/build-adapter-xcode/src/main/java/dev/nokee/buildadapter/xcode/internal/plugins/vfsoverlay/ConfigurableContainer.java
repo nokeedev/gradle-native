@@ -45,8 +45,7 @@ public abstract class ConfigurableContainer<T extends NamedDomainObject> {
 
 	@SuppressWarnings("unchecked")
 	private Class<T> defaultType() {
-		return (Class<T>) new TypeToken<T>(getClass()) {
-		}.getRawType();
+		return (Class<T>) new TypeToken<T>(getClass()) {}.getRawType();
 	}
 
 	public boolean addAll(Iterable<? extends T> l) {
