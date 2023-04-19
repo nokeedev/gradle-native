@@ -30,6 +30,7 @@ import static dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.VirtualFi
 import static dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.VirtualFileSystemOverlay.VirtualDirectory.from;
 import static dev.nokee.buildadapter.xcode.testers.VirtualFileSystemOverlayTestUtils.overlayOf;
 import static dev.nokee.buildadapter.xcode.testers.VirtualFileSystemOverlayTestUtils.remappedFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -70,12 +71,12 @@ public interface VirtualFileSystemOverlayMergeTester {
 		try (val reader = new VirtualFileSystemOverlayReader(Files.newBufferedReader(outputFile()))) {
 			val result = reader.read();
 			assertThat(result, contains(
-				allOf(named(endsWith("Build/Products/Foo.framework/Headers")),
+				allOf(named(aFile(withAbsolutePath(endsWith("Build/Products/Foo.framework/Headers")))),
 					containsInAnyOrder(
 						remappedFile("Foo.h", withAbsolutePath(endsWith("/Foo/Foo.h"))),
 						remappedFile("MyFoo.h", withAbsolutePath(endsWith("/Foo/MyFoo.h")))
 					)),
-				allOf(named(endsWith("Build/Products/Bar.framework/Headers")),
+				allOf(named(aFile(withAbsolutePath(endsWith("Build/Products/Bar.framework/Headers")))),
 					containsInAnyOrder(
 						remappedFile("Bar.h", withAbsolutePath(endsWith("/Bar/Bar.h")))
 					))
