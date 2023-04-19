@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static dev.nokee.utils.DeferUtils.asToStringObject;
+import static java.util.stream.Collectors.groupingBy;
 
 public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 	@SneakyThrows
@@ -107,7 +108,7 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 		}
 
 		val configurationName = configuration.getName();
-		configuration.getTargets().forEach(target -> {
+		configuration.getTargets().stream().collect(groupingBy(CodemodelV2.Configuration.Target::getName)).values().stream().map(it -> it.get(0)).forEach(target -> {
 			settings.include(target.getName());
 			settings.getGradle().rootProject(rootProject -> {
 				rootProject.project(target.getName(), new Action<Project>() {
