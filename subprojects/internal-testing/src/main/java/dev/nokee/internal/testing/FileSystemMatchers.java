@@ -30,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
@@ -69,6 +70,8 @@ public final class FileSystemMatchers {
 					return ((Path) actual).toFile();
 				} else if (actual instanceof DescendantFile) {
 					return ((DescendantFile) actual).getFile();
+				} else if (actual instanceof String) {
+					return Paths.get((String) actual).toFile(); // TODO: we should validate the string represent a path
 				} else if (actual instanceof Provider) {
 					throw new IllegalArgumentException("Please make sure there is not confusion between Provider#map vs Provider#flatMap. Otherwise, use GradleProviderMatchers#providerOf.");
 				} else {
