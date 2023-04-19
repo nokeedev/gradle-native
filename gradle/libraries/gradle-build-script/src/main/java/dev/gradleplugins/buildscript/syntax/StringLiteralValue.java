@@ -22,7 +22,7 @@ final class StringLiteralValue implements Expression {
 	private final CharSequence value;
 
 	public StringLiteralValue(CharSequence value) {
-		this.value = value;
+		this.value = value.toString().replace("\\", "\\\\");
 	}
 
 	CharSequence get() {
