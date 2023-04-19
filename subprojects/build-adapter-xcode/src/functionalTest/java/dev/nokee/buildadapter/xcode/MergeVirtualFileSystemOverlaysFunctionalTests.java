@@ -33,6 +33,7 @@ import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.classpath;
 import static dev.gradleplugins.buildscript.blocks.DependencyNotation.files;
 import static dev.gradleplugins.buildscript.syntax.Syntax.groovy;
 import static java.util.stream.Collectors.joining;
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class MergeVirtualFileSystemOverlaysFunctionalTests implements VirtualFileSystemOverlayMergeTester {
@@ -46,9 +47,9 @@ class MergeVirtualFileSystemOverlaysFunctionalTests implements VirtualFileSystem
 				"import " + MergeVirtualFileSystemOverlaysTask.class.getCanonicalName(),
 				"tasks.register('verify', " + MergeVirtualFileSystemOverlaysTask.class.getSimpleName() + ") {",
 				"  parameters {",
-				"    sources.from(" + inputFiles().stream().map(it -> "new File('" + it + "')").collect(joining(", ")) + ")",
-				"    derivedDataPath = new File('" + derivedDataPath() + "')",
-				"    outputFile = new File('" + outputFile() + "')",
+				"    sources.from(" + inputFiles().stream().map(it -> "new File('" + separatorsToUnix(it.toString()) + "')").collect(joining(", ")) + ")",
+				"    derivedDataPath = new File('" + separatorsToUnix(derivedDataPath().toString()) + "')",
+				"    outputFile = new File('" + separatorsToUnix(outputFile().toString()) + "')",
 				"  }",
 				"}",
 				"").collect(joining("\n")))))

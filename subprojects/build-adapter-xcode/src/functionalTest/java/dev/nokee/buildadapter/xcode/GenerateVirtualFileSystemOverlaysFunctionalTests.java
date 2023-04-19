@@ -46,6 +46,7 @@ import static dev.gradleplugins.buildscript.syntax.Syntax.groovy;
 import static dev.gradleplugins.buildscript.syntax.Syntax.invoke;
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 import static dev.gradleplugins.buildscript.syntax.Syntax.string;
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class GenerateVirtualFileSystemOverlaysFunctionalTests implements VirtualFileSystemOverlayGenerateTester {
@@ -64,7 +65,7 @@ class GenerateVirtualFileSystemOverlaysFunctionalTests implements VirtualFileSys
 				"  parameters {").collect(Collectors.joining("\n")))))
 			.add(toOverlays(overlay()))
 			.add(ExpressionStatement.of(groovy(Stream.of(
-				"    outputFile = new File('" + outputFile().toString() + "')",
+				"    outputFile = new File('" + separatorsToUnix(outputFile().toString()) + "')",
 				"  }",
 				"}",
 				"").collect(Collectors.joining("\n")))))
