@@ -63,10 +63,10 @@ class VFSOverlayActionIntegrationTests {
 	void hasAllPublicHeaders() {
 		assertThat(property.getElements(), providerOf(contains(allOf(
 			named("Build/Products/MyFramework.framework/Headers"),
-			entries(contains(allOf(
-				named("MyFramework.h"), location(providerOf(endsWith("/MyFramework/MyFramework.h"))),
-				named("MyPublicHeader.h"), location(providerOf(endsWith("/MyFramework/MyPublicHeader.h")))
-			)))
+			entries(contains(
+				allOf(named("MyPublicHeader.h"), location(providerOf(endsWith("/MyFramework/MyPublicHeader.h")))),
+				allOf(named("MyFramework.h"), location(providerOf(endsWith("/MyFramework/MyFramework.h"))))
+			))
 		))));
 	}
 }
