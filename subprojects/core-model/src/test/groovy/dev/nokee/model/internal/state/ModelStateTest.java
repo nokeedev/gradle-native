@@ -15,9 +15,10 @@
  */
 package dev.nokee.model.internal.state;
 
+import dev.nokee.internal.testing.MockitoUtils;
+import dev.nokee.model.internal.core.DefaultComponentRegistry;
+import dev.nokee.model.internal.core.ModelComponentRegistry;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeListener;
-import dev.nokee.model.internal.core.ModelNodeListenerComponent;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -27,17 +28,13 @@ import org.mockito.Mockito;
 import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 
 class ModelStateTest {
-	private final ModelNode subject = newEntity();
-	private final ModelNodeListener listener = Mockito.mock(ModelNodeListener.class);
-
-	@BeforeEach
-	void setUpListener() {
-		subject.addComponent(new ModelNodeListenerComponent(listener));
-	}
+	private final ModelComponentRegistry registry = MockitoUtils.spy(ModelComponentRegistry.class, new DefaultComponentRegistry());
+	private final ModelNode subject = newEntity(registry);
 
 	@Test
 	void isAtLeastCreated() {
@@ -106,16 +103,16 @@ class ModelStateTest {
 
 		@Test
 		void changeStateBeforeAddingTag() {
-			val inOrder = Mockito.inOrder(listener);
-			inOrder.verify(listener).projectionAdded(subject, ModelState.Created);
-			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastCreated.class));
+			val inOrder = Mockito.inOrder(registry);
+			inOrder.verify(registry).set(eq(subject.getId()), any(), eq(ModelState.Created));
+			inOrder.verify(registry).set(eq(subject.getId()), any(), isA(ModelState.IsAtLeastCreated.class));
 		}
 
 		@Test
 		void doesNotChangeStateWhenCreateMultipleTime() {
-			Mockito.reset(listener);
+			Mockito.reset(registry);
 			ModelStates.create(subject);
-			Mockito.verifyNoInteractions(listener);
+			Mockito.verifyNoInteractions(registry);
 		}
 	}
 
@@ -133,16 +130,16 @@ class ModelStateTest {
 
 		@Test
 		void changeStateBeforeAddingTag() {
-			val inOrder = Mockito.inOrder(listener);
-			inOrder.verify(listener).projectionAdded(subject, ModelState.Initialized);
-			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastInitialized.class));
+			val inOrder = Mockito.inOrder(registry);
+			inOrder.verify(registry).set(eq(subject.getId()), any(), eq(ModelState.Initialized));
+			inOrder.verify(registry).set(eq(subject.getId()), any(), isA(ModelState.IsAtLeastInitialized.class));
 		}
 
 		@Test
 		void doesNotChangeStateWhenInitializeMultipleTime() {
-			Mockito.reset(listener);
+			Mockito.reset(registry);
 			ModelStates.initialize(subject);
-			Mockito.verifyNoInteractions(listener);
+			Mockito.verifyNoInteractions(registry);
 		}
 	}
 
@@ -160,16 +157,16 @@ class ModelStateTest {
 
 		@Test
 		void changeStateBeforeAddingTag() {
-			val inOrder = Mockito.inOrder(listener);
-			inOrder.verify(listener).projectionAdded(subject, ModelState.Registered);
-			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastRegistered.class));
+			val inOrder = Mockito.inOrder(registry);
+			inOrder.verify(registry).set(eq(subject.getId()), any(), eq(ModelState.Registered));
+			inOrder.verify(registry).set(eq(subject.getId()), any(), isA(ModelState.IsAtLeastRegistered.class));
 		}
 
 		@Test
 		void doesNotChangeStateWhenRegisterMultipleTime() {
-			Mockito.reset(listener);
+			Mockito.reset(registry);
 			ModelStates.register(subject);
-			Mockito.verifyNoInteractions(listener);
+			Mockito.verifyNoInteractions(registry);
 		}
 	}
 
@@ -187,16 +184,16 @@ class ModelStateTest {
 
 		@Test
 		void changeStateBeforeAddingTag() {
-			val inOrder = Mockito.inOrder(listener);
-			inOrder.verify(listener).projectionAdded(subject, ModelState.Realized);
-			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastRealized.class));
+			val inOrder = Mockito.inOrder(registry);
+			inOrder.verify(registry).set(eq(subject.getId()), any(), eq(ModelState.Realized));
+			inOrder.verify(registry).set(eq(subject.getId()), any(), isA(ModelState.IsAtLeastRealized.class));
 		}
 
 		@Test
 		void doesNotChangeStateWhenRealizeMultipleTime() {
-			Mockito.reset(listener);
+			Mockito.reset(registry);
 			ModelStates.realize(subject);
-			Mockito.verifyNoInteractions(listener);
+			Mockito.verifyNoInteractions(registry);
 		}
 	}
 
@@ -214,16 +211,16 @@ class ModelStateTest {
 
 		@Test
 		void changeStateBeforeAddingTag() {
-			val inOrder = Mockito.inOrder(listener);
-			inOrder.verify(listener).projectionAdded(subject, ModelState.Finalized);
-			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastFinalized.class));
+			val inOrder = Mockito.inOrder(registry);
+			inOrder.verify(registry).set(eq(subject.getId()), any(), eq(ModelState.Finalized));
+			inOrder.verify(registry).set(eq(subject.getId()), any(), isA(ModelState.IsAtLeastFinalized.class));
 		}
 
 		@Test
 		void doesNotChangeStateWhenFinalizeMultipleTime() {
-			Mockito.reset(listener);
+			Mockito.reset(registry);
 			ModelStates.finalize(subject);
-			Mockito.verifyNoInteractions(listener);
+			Mockito.verifyNoInteractions(registry);
 		}
 	}
 }
