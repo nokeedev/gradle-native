@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.buildadapter.xcode.TestProjectReference.project;
 import static dev.nokee.buildadapter.xcode.TestTargetReference.target;
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -59,7 +60,7 @@ class XCTargetComponentDiscoveryRuleTests {
 	@Mock ModelRegistry registry;
 	@Mock XCLoader<Iterable<XCTargetReference>, XCProjectReference> loader;
 	@InjectMocks XCTargetComponentDiscoveryRule subject;
-	ModelNode target = new ModelNode();
+	ModelNode target = newEntity();
 
 	@BeforeEach
 	void givenValidTarget() {
@@ -83,8 +84,8 @@ class XCTargetComponentDiscoveryRuleTests {
 
 	@Nested
 	class WhenProjectHasTargets {
-		ModelNode componentA = new ModelNode();
-		ModelNode componentB = new ModelNode();
+		ModelNode componentA = newEntity();
+		ModelNode componentB = newEntity();
 
 		@BeforeEach
 		void givenProjectWithTargets() {

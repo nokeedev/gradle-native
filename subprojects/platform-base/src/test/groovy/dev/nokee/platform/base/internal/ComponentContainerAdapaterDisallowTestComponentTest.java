@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -42,7 +43,7 @@ class ComponentContainerAdapaterDisallowTestComponentTest {
 
 	@BeforeEach
 	void createSubject() {
-		subject = new ComponentContainerAdapter(delegate, registry, new ModelNode());
+		subject = new ComponentContainerAdapter(delegate, registry, newEntity());
 	}
 
 	@Test

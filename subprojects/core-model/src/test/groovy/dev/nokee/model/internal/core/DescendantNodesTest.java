@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -31,8 +32,8 @@ class DescendantNodesTest {
 	private final ModelLookup lookup = Mockito.mock(ModelLookup.class);
 	private final ModelPath path = ModelPath.path("dker.lske");
 	private final DescendantNodes subject = new DescendantNodes(lookup, path);
-	private final ModelNode erds = new ModelNode();
-	private final ModelNode klrs = new ModelNode();
+	private final ModelNode erds = newEntity();
+	private final ModelNode klrs = newEntity();
 
 	@BeforeEach
 	void setUp() {

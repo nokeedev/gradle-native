@@ -24,6 +24,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
+
 @ExtendWith(MockitoExtension.class)
 class ComponentContainerAdapterTest implements ViewDelegateTester<Component> {
 	@Mock private View<Component> delegate;
@@ -32,7 +34,7 @@ class ComponentContainerAdapterTest implements ViewDelegateTester<Component> {
 
 	@BeforeEach
 	void createSubject() {
-		subject = new ComponentContainerAdapter(delegate, registry, new ModelNode());
+		subject = new ComponentContainerAdapter(delegate, registry, newEntity());
 	}
 
 	@Override

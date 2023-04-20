@@ -7,6 +7,7 @@ plugins {
 dependencies {
 	implementation project(':coreModel')
 	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation testFixtures(project(':coreModel'))
 	testImplementation project(':internalTesting')
 }
 

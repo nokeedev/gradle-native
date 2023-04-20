@@ -20,15 +20,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.names.FullyQualifiedName.toFullyQualifiedName;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class FullyQualifiedNameFromEntityStreamTest {
-	private final ModelNode parent = new ModelNode();
-	private final ModelNode grandParent = new ModelNode();
-	private final ModelNode greatGrandParent = new ModelNode();
+	private final ModelNode parent = newEntity();
+	private final ModelNode grandParent = newEntity();
+	private final ModelNode greatGrandParent = newEntity();
 
 	@Test
 	void computesFullyQualifiedNameUsingElementNameOfEachParents() {

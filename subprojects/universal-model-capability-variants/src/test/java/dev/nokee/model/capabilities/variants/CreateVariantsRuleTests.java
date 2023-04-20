@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -47,7 +48,7 @@ import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 class CreateVariantsRuleTests {
 	@Mock ModelRegistry registry;
 	ModelAction subject;
-	ModelNode target = new ModelNode();
+	ModelNode target = newEntity();
 
 	@BeforeEach
 	void createSubject() {
@@ -56,8 +57,8 @@ class CreateVariantsRuleTests {
 
 	@Nested
 	class WhenVariantsAreKnown {
-		ModelNode variantA = new ModelNode();
-		ModelNode variantB = new ModelNode();
+		ModelNode variantA = newEntity();
+		ModelNode variantB = newEntity();
 
 		@BeforeEach
 		void givenKnownVariants() {

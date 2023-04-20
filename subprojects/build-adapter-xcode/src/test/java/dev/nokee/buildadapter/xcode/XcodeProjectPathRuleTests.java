@@ -37,6 +37,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.gradle.util.Path.path;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -57,7 +58,7 @@ class XcodeProjectPathRuleTests {
 
 	@Test
 	void addGradleProjectPathComponentFromProjectPathService() {
-		val entity = new ModelNode();
+		val entity = newEntity();
 		entity.addComponent(tag(GradleProjectTag.class));
 		entity.addComponent(new XCProjectComponent(reference));
 		Mockito.when(projectPathService.toProjectPath(reference)).thenReturn(path(":foo:bar"));

@@ -18,12 +18,13 @@ package dev.nokee.model.internal.ancestors;
 import dev.nokee.model.internal.core.ModelNode;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 class AncestorsContainsTest {
-	private final ModelNode ancestor = new ModelNode();
-	private final ModelNode notAncestor = new ModelNode();
+	private final ModelNode ancestor = newEntity();
+	private final ModelNode notAncestor = newEntity();
 	private final Ancestors subject = Ancestors.of(AncestorRef.of(ancestor));
 
 	@Test

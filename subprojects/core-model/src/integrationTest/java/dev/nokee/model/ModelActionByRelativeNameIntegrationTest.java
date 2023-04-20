@@ -23,14 +23,15 @@ import dev.nokee.model.internal.names.RelativeName;
 import dev.nokee.model.internal.names.RelativeNames;
 import dev.nokee.model.internal.names.RelativeNamesComponent;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.actions.ModelSpec.has;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 class ModelActionByRelativeNameIntegrationTest extends ModelActionIntegrationTester {
-	private final ModelNode grandParent = new ModelNode();
-	private final ModelNode parent = new ModelNode();
-	private final ModelNode unrelated = new ModelNode();
+	private final ModelNode grandParent = newEntity();
+	private final ModelNode parent = newEntity();
+	private final ModelNode unrelated = newEntity();
 
 	@Override
 	public ModelSpec spec() {

@@ -34,6 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static dev.nokee.buildadapter.xcode.TestTargetReference.target;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.buffers.ModelBuffers.typeOf;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static java.util.Arrays.asList;
@@ -47,7 +48,7 @@ class XCTargetVariantDiscoveryRuleTests {
 	@Mock XCLoader<Iterable<String>, XCTargetReference> configurationLoader;
 	@Mock XcodeConfigurationParameter configuration;
 	@InjectMocks XCTargetVariantDiscoveryRule subject;
-	ModelNode target = new ModelNode();
+	ModelNode target = newEntity();
 
 	@BeforeEach
 	void givenConfigurations() {

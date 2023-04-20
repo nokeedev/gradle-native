@@ -18,12 +18,12 @@ package dev.nokee.model.internal.core;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ModelEntityCheckModelComponentExistenceTest {
-	private final ModelNode subject = new ModelNode();
+	private final ModelNode subject = newEntity();
 
 	@BeforeEach
 	void setUp() {

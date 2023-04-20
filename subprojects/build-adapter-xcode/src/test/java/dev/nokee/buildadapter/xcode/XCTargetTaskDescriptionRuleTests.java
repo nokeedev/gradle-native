@@ -24,6 +24,7 @@ import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -34,9 +35,9 @@ class XCTargetTaskDescriptionRuleTests {
 
 	@BeforeEach
 	void createEntities() {
-		task = new ModelNode();
+		task = newEntity();
 
-		target = new ModelNode();
+		target = newEntity();
 		target.addComponent(new DisplayNameComponent("my awesome target"));
 		target.addComponent(new XCTargetTaskComponent(task));
 	}

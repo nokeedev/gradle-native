@@ -56,6 +56,7 @@ test {
 		implementation "com.google.jimfs:jimfs:${jimfsVersion}"
 		implementation templates(project)
 		implementation testFixtures(project)
+		implementation testFixtures(project(':coreModel'))
 	}
 }
 

@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.of;
 import static dev.nokee.buildadapter.xcode.TestProjectReference.project;
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -55,7 +56,7 @@ class XCProjectsDiscoveryRuleTests {
 	@Mock XCProjectLocator locator;
 	@Mock ModelRegistry registry;
 	@InjectMocks XCProjectsDiscoveryRule subject;
-	ModelNode settingsEntity = new ModelNode();
+	ModelNode settingsEntity = newEntity();
 
 	@BeforeEach
 	void createEntities() {

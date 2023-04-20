@@ -24,13 +24,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 
 class ModelStateTest {
-	private final ModelNode subject = new ModelNode();
+	private final ModelNode subject = newEntity();
 	private final ModelNodeListener listener = Mockito.mock(ModelNodeListener.class);
 
 	@BeforeEach
