@@ -16,17 +16,5 @@
 
 package dev.nokee.model.internal.core;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Set;
-
-public interface ModelComponentRegistry {
-	@Nullable
-	ModelComponent set(ModelEntityId entityId, ModelComponentId componentId, ModelComponent component);
-
-	@Nullable
-	ModelComponent get(ModelEntityId entityId, ModelComponentId componentId);
-
-	Set<? extends ModelComponentId> getAllIds(ModelEntityId entityId);
-	Collection<ModelComponent> getAll(ModelEntityId entityId);
+public interface ModelComponentId {
 }

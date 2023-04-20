@@ -27,6 +27,7 @@ import lombok.val;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -121,7 +122,9 @@ public final class ModelNode {
 	}
 
 	public ModelComponentTypes getComponentTypes() {
-		return new ModelComponentTypes(components.getAllIds(id));
+		@SuppressWarnings("unchecked")
+		final Set<ModelComponentType<?>> allIds = (Set<ModelComponentType<?>>) components.getAllIds(id);
+		return new ModelComponentTypes(allIds);
 	}
 
 	public <T extends ModelComponent> T get(Class<T> type) {
@@ -139,12 +142,16 @@ public final class ModelNode {
 	}
 
 	public <T extends ModelComponent> Optional<T> findComponent(ModelComponentType<T> componentType) {
-		return Optional.ofNullable(components.get(id, componentType));
+		@SuppressWarnings("unchecked")
+		final T result = (T) components.get(id, componentType);
+		return Optional.ofNullable(result);
 	}
 
 	@Nullable
 	public <T extends ModelComponent> T findComponentNullable(ModelComponentType<T> componentType) {
-		return components.get(id, componentType);
+		@SuppressWarnings("unchecked")
+		final T result = (T) components.get(id, componentType);
+		return result;
 	}
 
 	public boolean hasComponent(ModelComponentType<? extends ModelComponent> componentType) {
@@ -165,7 +172,8 @@ public final class ModelNode {
 		if (components.get(id, componentType) == null) {
 			throw new RuntimeException();
 		}
-		componentBits = components.getAllIds(id).stream().map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
+		componentBits = components.getAllIds(id).stream().map(it -> (ModelComponentType<?>) it)
+			.map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
 		components.set(id, componentType, component);
 		notifyComponentAdded(component);
 	}

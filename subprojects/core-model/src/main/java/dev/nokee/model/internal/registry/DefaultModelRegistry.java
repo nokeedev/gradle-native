@@ -30,6 +30,7 @@ import dev.nokee.model.internal.core.HasInputs;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.core.ModelComponentId;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentRegistry;
 import dev.nokee.model.internal.core.ModelComponentType;
@@ -227,7 +228,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		@Override
-		public void componentChanged(ModelEntityId entityId, ModelComponentType<?> componentId, ModelComponent component) {
+		public void componentChanged(ModelEntityId entityId, ModelComponentId componentId, ModelComponent component) {
 			projectionAdded(idToEntities.get(entityId), component);
 		}
 	}

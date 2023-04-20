@@ -26,27 +26,24 @@ import java.util.Map;
 import java.util.Set;
 
 public final class DefaultComponentRegistry implements ModelComponentRegistry {
-	private final Map<ModelEntityId, Map<ModelComponentType<?>, ModelComponent>> components = new LinkedHashMap<>();
+	private final Map<ModelEntityId, Map<ModelComponentId, ModelComponent>> components = new LinkedHashMap<>();
 
 	@Override
-	public <T extends ModelComponent> T set(ModelEntityId entityId, ModelComponentType<T> componentId, T newComponent) {
+	public ModelComponent set(ModelEntityId entityId, ModelComponentId componentId, ModelComponent newComponent) {
 		val idToComponents = components.computeIfAbsent(entityId, __ -> new LinkedHashMap<>());
-		@SuppressWarnings("unchecked")
-		val oldComponent = (T) idToComponents.get(componentId);
+		val oldComponent = idToComponents.get(componentId);
 		idToComponents.put(componentId, newComponent);
 		return oldComponent;
 	}
 
 	@Nullable
 	@Override
-	public <T extends ModelComponent> T get(ModelEntityId entityId, ModelComponentType<T> componentId) {
-		@SuppressWarnings("unchecked")
-		final T result = (T) components.getOrDefault(entityId, ImmutableMap.of()).get(componentId);
-		return result;
+	public ModelComponent get(ModelEntityId entityId, ModelComponentId componentId) {
+		return components.getOrDefault(entityId, ImmutableMap.of()).get(componentId);
 	}
 
 	@Override
-	public Set<ModelComponentType<?>> getAllIds(ModelEntityId entityId) {
+	public Set<ModelComponentId> getAllIds(ModelEntityId entityId) {
 		return components.getOrDefault(entityId, ImmutableMap.of()).keySet();
 	}
 
