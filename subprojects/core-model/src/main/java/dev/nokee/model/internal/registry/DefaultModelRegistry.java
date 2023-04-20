@@ -24,24 +24,26 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.BindManagedProjectionService;
 import dev.nokee.model.internal.core.Bits;
+import dev.nokee.model.internal.core.DefaultComponentRegistry;
 import dev.nokee.model.internal.core.DescendantNodes;
 import dev.nokee.model.internal.core.HasInputs;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelComponentRegistry;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
-import dev.nokee.model.internal.core.ModelNodeListenerComponent;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpec;
+import dev.nokee.model.internal.core.ObservableComponentRegistry;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.RelativeRegistrationService;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -62,12 +64,14 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final Instantiator instantiator;
 	private final List<ModelNode> entities = new ArrayList<>();
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
+	private final Map<ModelEntityId, ModelNode> idToEntities = new LinkedHashMap<>();
 	private final List<ModelAction> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
 	private final BindManagedProjectionService bindingService;
 	private final ModelNode rootNode;
 	private final ModelElementFactory elementFactory;
 	private final Multimap<ModelComponentType<?>, ModelAction> config = ArrayListMultimap.create();
+	private final ModelComponentRegistry components = new ObservableComponentRegistry(new DefaultComponentRegistry(), nodeStateListener);
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
@@ -113,9 +117,9 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private ModelNode createRootNode() {
 		val path = ModelPath.root();
-		val entity = new ModelNode();
+		val entity = new ModelNode(components);
+		idToEntities.put(entity.getId(), entity);
 		entities.add(entity);
-		entity.addComponent(new ModelNodeListenerComponent(nodeStateListener));
 		entity.addComponent(new ModelPathComponent(path));
 		return entity;
 	}
@@ -131,7 +135,8 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public ModelNode instantiate(ModelRegistration registration) {
-		val node = new ModelNode(nodeStateListener);
+		val node = new ModelNode(components);
+		idToEntities.put(node.getId(), node);
 		entities.add(node);
 		return newNode(node, registration);
 	}
@@ -200,7 +205,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 	}
 
-	private final class NodeStateListener implements ModelNodeListener {
+	private final class NodeStateListener implements ModelNodeListener, ObservableComponentRegistry.Listener {
 		@Override
 		public void projectionAdded(ModelNode node, ModelComponent newComponent) {
 			List<ModelAction> c = null;
@@ -219,6 +224,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					configuration.execute(node);
 				}
 			}
+		}
+
+		@Override
+		public void componentChanged(ModelEntityId entityId, ModelComponentType<?> componentId, ModelComponent component) {
+			projectionAdded(idToEntities.get(entityId), component);
 		}
 	}
 }
