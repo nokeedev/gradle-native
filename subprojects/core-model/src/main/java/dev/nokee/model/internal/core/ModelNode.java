@@ -25,8 +25,6 @@ import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 
 import javax.annotation.Nullable;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,15 +54,18 @@ import java.util.stream.Stream;
 public final class ModelNode {
 	private static final ModelComponentType<ModelNodeListenerComponent> LISTENER_COMPONENT_TYPE = ModelComponentType.componentOf(ModelNodeListenerComponent.class);
 	private final ModelEntityId id = ModelEntityId.nextId();
-	private final Map<ModelComponentType<?>, ModelComponent> components = new LinkedHashMap<>();
+	private final ModelComponentRegistry components;
 	private ModelNodeListener listener = null;
 
 	// Represent all components this entity has.
 	private Bits componentBits = Bits.empty();
 
-	public ModelNode() {}
+	public ModelNode() {
+		components = new DefaultComponentRegistry();
+	}
 
 	public ModelNode(ModelNodeListener listener) {
+		this();
 		this.listener = listener;
 		addComponent(new ModelNodeListenerComponent(listener));
 	}
@@ -78,10 +79,11 @@ public final class ModelNode {
 	}
 
 	public <T extends ModelComponent> T addComponent(T component) {
-		ModelComponentType<?> componentType = component.getComponentType();
-		val oldComponent = components.get(componentType);
+		@SuppressWarnings("unchecked")
+		final ModelComponentType<T> componentType = (ModelComponentType<T>) component.getComponentType();
+		val oldComponent = components.get(id, componentType);
 		if (oldComponent == null || !oldComponent.equals(component)) {
-			components.put(componentType, component);
+			components.set(id, componentType, component);
 			if (oldComponent == null) {
 				componentBits = componentBits.or(componentType.familyBits());
 			}
@@ -91,10 +93,11 @@ public final class ModelNode {
 	}
 
 	public <T extends ModelProjection> T addComponent(T component) {
-		ModelComponentType<?> componentType = component.getComponentType();
-		val oldComponent = components.get(componentType);
+		@SuppressWarnings("unchecked")
+		final ModelComponentType<T> componentType = (ModelComponentType<T>) component.getComponentType();
+		val oldComponent = components.get(id, componentType);
 		if (oldComponent == null) {
-			components.put(componentType, component);
+			components.set(id, componentType, component);
 			componentBits = componentBits.or(componentType.familyBits());
 			notifyComponentAdded(component);
 		}
@@ -103,7 +106,7 @@ public final class ModelNode {
 
 	private void notifyComponentAdded(ModelComponent newComponent) {
 		if (listener == null) {
-			val listener = ((ModelNodeListenerComponent) components.get(LISTENER_COMPONENT_TYPE));
+			val listener = components.get(id, LISTENER_COMPONENT_TYPE);
 			if (listener != null) {
 				this.listener = listener.get();
 				this.listener.projectionAdded(this, newComponent);
@@ -114,16 +117,16 @@ public final class ModelNode {
 	}
 
 	public ModelComponentTypes getComponentTypes() {
-		return new ModelComponentTypes(components.keySet());
+		return new ModelComponentTypes(components.getAllIds(id));
 	}
 
 	public <T extends ModelComponent> T get(Class<T> type) {
 		return getComponent(ModelComponentType.componentOf(type));
 	}
 
-	public <T> T getComponent(ModelComponentType<T> componentType) {
+	public <T extends ModelComponent> T getComponent(ModelComponentType<T> componentType) {
 		return findComponent(componentType).orElseThrow(() -> {
-			return new RuntimeException(String.format("No components of type '%s'. Available: %s", componentType, components.keySet().stream().map(Objects::toString).collect(Collectors.joining(", "))));
+			return new RuntimeException(String.format("No components of type '%s'. Available: %s", componentType, components.getAllIds(id).stream().map(Objects::toString).collect(Collectors.joining(", "))));
 		});
 	}
 
@@ -131,21 +134,17 @@ public final class ModelNode {
 		return findComponent(ModelComponentType.componentOf(type));
 	}
 
-	public <T> Optional<T> findComponent(ModelComponentType<T> componentType) {
-		@SuppressWarnings("unchecked")
-		val result = (T) components.get(componentType);
-		return Optional.ofNullable(result);
+	public <T extends ModelComponent> Optional<T> findComponent(ModelComponentType<T> componentType) {
+		return Optional.ofNullable(components.get(id, componentType));
 	}
 
 	@Nullable
-	public <T> T findComponentNullable(ModelComponentType<T> componentType) {
-		@SuppressWarnings("unchecked")
-		val result = (T) components.get(componentType);
-		return result;
+	public <T extends ModelComponent> T findComponentNullable(ModelComponentType<T> componentType) {
+		return components.get(id, componentType);
 	}
 
-	public boolean hasComponent(ModelComponentType<?> componentType) {
-		return components.containsKey(componentType);
+	public boolean hasComponent(ModelComponentType<? extends ModelComponent> componentType) {
+		return components.get(id, componentType) != null;
 	}
 
 	public <T extends ModelComponent> boolean has(Class<T> type) {
@@ -157,17 +156,18 @@ public final class ModelNode {
 	}
 
 	public <T extends ModelComponent> void setComponent(T component) {
-		val componentType = component.getComponentType();
-		if (!components.containsKey(componentType)) {
+		@SuppressWarnings("unchecked")
+		val componentType = (ModelComponentType<T>) component.getComponentType();
+		if (components.get(id, componentType) == null) {
 			throw new RuntimeException();
 		}
-		components.put(componentType, component);
-		componentBits = components.keySet().stream().map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
+		components.set(id, componentType, component);
+		componentBits = components.getAllIds(id).stream().map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
 		notifyComponentAdded(component);
 	}
 
 	public Stream<ModelComponent> getComponents() {
-		return components.values().stream();
+		return components.getAll(id).stream();
 	}
 
 	@Override
