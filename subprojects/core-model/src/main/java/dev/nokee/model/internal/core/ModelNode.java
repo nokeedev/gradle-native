@@ -70,6 +70,10 @@ public final class ModelNode {
 		addComponent(new ModelNodeListenerComponent(listener));
 	}
 
+	public ModelNode(ModelComponentRegistry components) {
+		this.components = components;
+	}
+
 	public ModelEntityId getId() {
 		return id;
 	}
@@ -83,10 +87,10 @@ public final class ModelNode {
 		final ModelComponentType<T> componentType = (ModelComponentType<T>) component.getComponentType();
 		val oldComponent = components.get(id, componentType);
 		if (oldComponent == null || !oldComponent.equals(component)) {
-			components.set(id, componentType, component);
 			if (oldComponent == null) {
 				componentBits = componentBits.or(componentType.familyBits());
 			}
+			components.set(id, componentType, component);
 			notifyComponentAdded(component);
 		}
 		return component;
@@ -97,8 +101,8 @@ public final class ModelNode {
 		final ModelComponentType<T> componentType = (ModelComponentType<T>) component.getComponentType();
 		val oldComponent = components.get(id, componentType);
 		if (oldComponent == null) {
-			components.set(id, componentType, component);
 			componentBits = componentBits.or(componentType.familyBits());
+			components.set(id, componentType, component);
 			notifyComponentAdded(component);
 		}
 		return component;
@@ -161,8 +165,8 @@ public final class ModelNode {
 		if (components.get(id, componentType) == null) {
 			throw new RuntimeException();
 		}
-		components.set(id, componentType, component);
 		componentBits = components.getAllIds(id).stream().map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
+		components.set(id, componentType, component);
 		notifyComponentAdded(component);
 	}
 

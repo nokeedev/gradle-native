@@ -16,42 +16,48 @@
 
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.ImmutableMap;
 import lombok.val;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
-public final class DefaultComponentRegistry implements ModelComponentRegistry {
-	private final Map<ModelEntityId, Map<ModelComponentType<?>, ModelComponent>> components = new LinkedHashMap<>();
+public final class ObservableComponentRegistry implements ModelComponentRegistry {
+	private final ModelComponentRegistry delegate;
+	private final Listener listener;
 
+	public ObservableComponentRegistry(ModelComponentRegistry delegate, Listener listener) {
+		this.delegate = delegate;
+		this.listener = listener;
+	}
+
+	@Nullable
 	@Override
 	public <T extends ModelComponent> T set(ModelEntityId entityId, ModelComponentType<T> componentId, T newComponent) {
-		val idToComponents = components.computeIfAbsent(entityId, __ -> new LinkedHashMap<>());
-		@SuppressWarnings("unchecked")
-		val oldComponent = (T) idToComponents.get(componentId);
-		idToComponents.put(componentId, newComponent);
+		val oldComponent = delegate.set(entityId, componentId, newComponent);
+		if (oldComponent == null || !oldComponent.equals(newComponent)) {
+			listener.componentChanged(entityId, componentId, newComponent);
+		}
 		return oldComponent;
 	}
 
 	@Nullable
 	@Override
 	public <T extends ModelComponent> T get(ModelEntityId entityId, ModelComponentType<T> componentId) {
-		@SuppressWarnings("unchecked")
-		final T result = (T) components.getOrDefault(entityId, ImmutableMap.of()).get(componentId);
-		return result;
+		return delegate.get(entityId, componentId);
 	}
 
 	@Override
 	public Set<ModelComponentType<?>> getAllIds(ModelEntityId entityId) {
-		return components.getOrDefault(entityId, ImmutableMap.of()).keySet();
+		return delegate.getAllIds(entityId);
 	}
 
 	@Override
 	public Collection<ModelComponent> getAll(ModelEntityId entityId) {
-		return components.getOrDefault(entityId, ImmutableMap.of()).values();
+		return delegate.getAll(entityId);
+	}
+
+	public interface Listener {
+		void componentChanged(ModelEntityId entityId, ModelComponentType<?> componentId, ModelComponent component);
 	}
 }

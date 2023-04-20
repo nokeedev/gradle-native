@@ -21,7 +21,8 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface ModelComponentRegistry {
-	<T extends ModelComponent> void set(ModelEntityId entityId, ModelComponentType<T> componentId, T component);
+	@Nullable
+	<T extends ModelComponent> T set(ModelEntityId entityId, ModelComponentType<T> componentId, T component);
 
 	@Nullable
 	<T extends ModelComponent> T get(ModelEntityId entityId, ModelComponentType<T> componentId);
