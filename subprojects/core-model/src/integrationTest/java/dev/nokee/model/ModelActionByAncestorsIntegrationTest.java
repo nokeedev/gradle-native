@@ -22,14 +22,15 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import org.junit.jupiter.api.BeforeEach;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 class ModelActionByAncestorsIntegrationTest extends ModelActionIntegrationTester {
-	private final ModelNode ancestor = new ModelNode();
-	private final ModelNode parent = new ModelNode();
-	private final ModelNode unrelated = new ModelNode();
+	private final ModelNode ancestor = newEntity();
+	private final ModelNode parent = newEntity();
+	private final ModelNode unrelated = newEntity();
 
 	@BeforeEach
 	void createEntities() {

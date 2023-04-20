@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -54,7 +55,7 @@ class ModelElementFactoryModelPropertyTest {
 	private final ModelNode entity = createPropertyEntity();
 
 	private static ModelNode createPropertyEntity() {
-		val result = new ModelNode();
+		val result = newEntity();
 		result.addComponent(tag(ModelPropertyTag.class));
 		result.addComponent(ofInstance(objectFactory().newInstance(MyOtherType.class)));
 		return result;

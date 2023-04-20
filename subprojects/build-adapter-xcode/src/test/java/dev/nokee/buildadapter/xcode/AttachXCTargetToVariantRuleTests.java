@@ -26,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static dev.nokee.buildadapter.xcode.TestTargetReference.target;
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -33,9 +34,9 @@ import static org.hamcrest.Matchers.equalTo;
 @ExtendWith(MockitoExtension.class)
 class AttachXCTargetToVariantRuleTests {
 	@InjectMocks AttachXCTargetToVariantRule subject;
-	ModelNode target = new ModelNode();
-	ModelNode variant1 = new ModelNode();
-	ModelNode variant2 = new ModelNode();
+	ModelNode target = newEntity();
+	ModelNode variant1 = newEntity();
+	ModelNode variant2 = newEntity();
 
 	@BeforeEach
 	void givenTargetWithLinkedVariants() {

@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -39,7 +40,7 @@ class XCProjectDescriptionRuleTests {
 	@Mock XCProjectReferenceToStringer service;
 	@InjectMocks XCProjectDescriptionRule subject;
 	@Mock XCProjectReference projectReference;
-	ModelNode projectEntity = new ModelNode();
+	ModelNode projectEntity = newEntity();
 
 	@BeforeEach
 	void createEntities() {

@@ -19,13 +19,14 @@ import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ModelEntityGetModelComponentTest {
-	private final ModelNode subject = new ModelNode();
+	private final ModelNode subject = newEntity();
 	private final ModelComponent component = new MyComponent();
 
 	@BeforeEach

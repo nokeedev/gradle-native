@@ -22,13 +22,14 @@ import org.junit.jupiter.api.Test;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.core.ModelNodeUtils.getParent;
 import static dev.nokee.model.internal.core.ModelNodeUtils.setParent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class ModelNodeParentTest {
-	private final ModelNode subject = new ModelNode();
+	private final ModelNode subject = newEntity();
 
 	@Test
 	void hasNoParent() {
@@ -37,7 +38,7 @@ class ModelNodeParentTest {
 
 	@Nested
 	class ParentTest {
-		private final ModelNode parent = new ModelNode();
+		private final ModelNode parent = newEntity();
 
 		@BeforeEach
 		void setUp() {

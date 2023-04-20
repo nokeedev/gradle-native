@@ -20,11 +20,12 @@ import org.junit.jupiter.api.Test;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 class ModelEntityFindModelComponentTest {
-	private final ModelNode subject = new ModelNode();
+	private final ModelNode subject = newEntity();
 	private final ModelComponent component = new MyComponent();
 
 	@BeforeEach

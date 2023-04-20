@@ -45,6 +45,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
@@ -157,7 +158,7 @@ abstract class ModelActionIntegrationTester {
 		OWNER {
 			@Override
 			public ModelComponent g() {
-				return new ParentComponent(new ModelNode());
+				return new ParentComponent(newEntity());
 			}
 		},
 		STATE {
@@ -169,8 +170,8 @@ abstract class ModelActionIntegrationTester {
 		ANCESTOR {
 			@Override
 			public ModelComponent g() {
-				final ModelNode g = new ModelNode();
-				g.addComponent(new ParentComponent(new ModelNode()));
+				final ModelNode g = newEntity();
+				g.addComponent(new ParentComponent(newEntity()));
 				return new ParentComponent(g);
 			}
 		},

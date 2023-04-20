@@ -17,11 +17,12 @@ package dev.nokee.model.internal.core;
 
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class ModeNodeComponentBitsTest {
-	private final ModelNode subject = new ModelNode();
+	private final ModelNode subject = newEntity();
 
 	@Test
 	void hasNoComponentBitsOnNewEntity() {

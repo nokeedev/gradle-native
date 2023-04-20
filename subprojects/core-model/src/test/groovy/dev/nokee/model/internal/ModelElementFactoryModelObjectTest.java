@@ -21,6 +21,7 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,7 +34,7 @@ class ModelElementFactoryModelObjectTest {
 	private final ModelNode entity = createObjectEntity();
 
 	private static ModelNode createObjectEntity() {
-		val result = new ModelNode();
+		val result = newEntity();
 		result.addComponent(ofInstance(objectFactory().newInstance(MyType.class)));
 		result.addComponent(ofInstance(objectFactory().newInstance(MyOtherType.class)));
 		return result;
