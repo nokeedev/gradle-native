@@ -23,6 +23,7 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -53,22 +54,14 @@ import java.util.stream.Stream;
 //    Actually, we shouldn't allow attaching configuration (applyTo, applyToSelf).
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode {
-	private static final ModelComponentType<ModelNodeListenerComponent> LISTENER_COMPONENT_TYPE = ModelComponentType.componentOf(ModelNodeListenerComponent.class);
 	private final ModelEntityId id = ModelEntityId.nextId();
 	private final ModelComponentRegistry components;
-	private ModelNodeListener listener = null;
 
 	// Represent all components this entity has.
 	private Bits componentBits = Bits.empty();
 
 	public ModelNode() {
 		components = new DefaultComponentRegistry();
-	}
-
-	public ModelNode(ModelNodeListener listener) {
-		this();
-		this.listener = listener;
-		addComponent(new ModelNodeListenerComponent(listener));
 	}
 
 	public ModelNode(ModelComponentRegistry components) {
@@ -92,7 +85,6 @@ public final class ModelNode {
 				componentBits = componentBits.or(componentType.familyBits());
 			}
 			components.set(id, componentType, component);
-			notifyComponentAdded(component);
 		}
 		return component;
 	}
@@ -104,21 +96,8 @@ public final class ModelNode {
 		if (oldComponent == null) {
 			componentBits = componentBits.or(componentType.familyBits());
 			components.set(id, componentType, component);
-			notifyComponentAdded(component);
 		}
 		return component;
-	}
-
-	private void notifyComponentAdded(ModelComponent newComponent) {
-		if (listener == null) {
-			val listener = components.get(id, LISTENER_COMPONENT_TYPE);
-			if (listener != null) {
-				this.listener = listener.get();
-				this.listener.projectionAdded(this, newComponent);
-			}
-		} else {
-			listener.projectionAdded(this, newComponent);
-		}
 	}
 
 	public ModelComponentTypes getComponentTypes() {
@@ -175,7 +154,6 @@ public final class ModelNode {
 		componentBits = components.getAllIds(id).stream().map(it -> (ModelComponentType<?>) it)
 			.map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
 		components.set(id, componentType, component);
-		notifyComponentAdded(component);
 	}
 
 	public Stream<ModelComponent> getComponents() {
@@ -235,7 +213,14 @@ public final class ModelNode {
 		}
 
 		public ModelNode build() {
-			val entity = new ModelNode(listener);
+			MutableObject<ModelNode> self = new MutableObject<>();
+			val entity = new ModelNode(new ObservableComponentRegistry(new DefaultComponentRegistry(), new ObservableComponentRegistry.Listener() {
+				@Override
+				public void componentChanged(ModelEntityId entityId, ModelComponentId componentId, ModelComponent component) {
+					listener.projectionAdded(self.getValue(), component);
+				}
+			}));
+			self.setValue(entity);
 			entity.addComponent(new DescendantNodes(lookup, path));
 			entity.addComponent(new RelativeRegistrationService(registry));
 			entity.addComponent(new BindManagedProjectionService(instantiator));

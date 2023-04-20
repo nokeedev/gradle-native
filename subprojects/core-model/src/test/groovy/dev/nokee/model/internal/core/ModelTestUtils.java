@@ -51,10 +51,6 @@ public final class ModelTestUtils {
 		return ModelNode.builder().withPath(ModelPath.root()).withInstantiator(objectFactory()::newInstance).build();
 	}
 
-	public static ModelNode node(ModelNodeListener listener) {
-		return childNode(ROOT, DEFAULT_NODE_NAME, builder -> builder.withListener(listener));
-	}
-
 	public static ModelNode node(ModelProjection... projections) {
 		val result = childNode(ROOT, DEFAULT_NODE_NAME, DO_NOTHING);
 		stream(projections).forEach(result::addComponent);

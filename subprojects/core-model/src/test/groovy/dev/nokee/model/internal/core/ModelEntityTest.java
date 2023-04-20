@@ -20,12 +20,15 @@ import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -45,13 +48,10 @@ class ModelEntityTest {
 	@Nested
 	class ExistingComponentTest {
 		private final ModelComponent existingComponent = new ModelEntityTest.TestComponent("foo");
-		private final ModelNodeListener listener = Mockito.mock(ModelNodeListener.class);
 
 		@BeforeEach
 		void addComponent() {
 			subject.addComponent(existingComponent);
-			subject.addComponent(new ModelNodeListenerComponent(listener));
-			Mockito.reset(listener);
 		}
 
 		@Test
@@ -67,14 +67,12 @@ class ModelEntityTest {
 			val newComponent = new ModelEntityTest.TestComponent("bar");
 			subject.addComponent(newComponent);
 			assertThat(subject.getComponents().collect(toList()), allOf(hasItem(newComponent), not(hasItem(existingComponent))));
-			Mockito.verify(listener).projectionAdded(subject, newComponent);
 		}
 
 		@Test
 		void doesNotReplaceComponentWhenAddingSameComponent() {
 			subject.addComponent(existingComponent);
 			assertThat(subject.getComponents().collect(toList()), hasItem(existingComponent));
-			Mockito.verifyNoInteractions(listener);
 		}
 
 		@Test
@@ -82,7 +80,6 @@ class ModelEntityTest {
 			val newComponent = new ModelEntityTest.TestComponent("foo");
 			subject.addComponent(newComponent);
 			assertThat(subject.getComponents().collect(toList()), hasItem(existingComponent));
-			Mockito.verifyNoInteractions(listener);
 		}
 	}
 
