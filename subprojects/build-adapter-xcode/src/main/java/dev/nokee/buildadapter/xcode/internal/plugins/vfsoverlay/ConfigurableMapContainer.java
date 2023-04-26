@@ -35,7 +35,16 @@ import java.util.function.Function;
 //   #getElements() provider and iterate the value.
 public abstract class ConfigurableMapContainer<T extends NamedDomainObject> {
 	public T create(String name, Action<? super T> action) {
-		T result = getObjects().newInstance(defaultType());
+		final T result = getObjects().newInstance(defaultType());
+		result.getName().set(name);
+		result.getName().finalizeValue();
+		action.execute(result);
+		getValues().put(name, result);
+		return result;
+	}
+
+	public <S extends T> S create(String name, Class<S> type, Action<? super S> action) {
+		final S result = getObjects().newInstance(type);
 		result.getName().set(name);
 		result.getName().finalizeValue();
 		action.execute(result);
