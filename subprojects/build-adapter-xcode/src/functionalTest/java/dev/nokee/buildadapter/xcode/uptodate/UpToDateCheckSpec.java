@@ -154,9 +154,7 @@ public abstract class UpToDateCheckSpec {
 		executer = runner.withTasks(targetUnderTestName() + "Debug").withArgument("-Dsdk=macosx");
 	}
 
-	protected String targetUnderTestName() {
-		return "ComponentUnderTest";
-	}
+	protected abstract String targetUnderTestName();
 
 	protected final BuildTask targetUnderTestExecution() {
 		return executer.build().task(":UpToDateCheck:" + targetUnderTestName() + "Debug");
