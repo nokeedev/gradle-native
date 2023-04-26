@@ -319,7 +319,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.as(XcodeTargetExecTask.class)
 					.configure(task -> {
 						task.dependsOn(derivedDataTask, isolateTask);
-						task.getXcodeProject().set(isolateTask.flatMap(it -> it.getParameters().getIsolatedProjectLocation().getLocationOnly()).map(it -> XCProjectReference.of(it.getAsFile().toPath())));
+						task.getXcodeProject().set(isolateTask.flatMap(it -> it.getParameters().getIsolatedProjectLocation()).map(it -> XCProjectReference.of(it.getAsFile().toPath())));
 						task.getTargetName().set(target.getName());
 						task.getOutputs().upToDateWhen(because(String.format("a shell script build phase of %s has no inputs or outputs defined", reference.ofTarget(target.getName())), everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs()));
 						task.getDerivedDataPath().set(derivedDataTask.flatMap(it -> it.getParameters().getXcodeDerivedDataPath()));
@@ -365,6 +365,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				val generateVirtualSystemOverlaysTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("generate", "virtualFileSystemOverlays"), GenerateVirtualFileSystemOverlaysTask.class, it -> it.ownedBy(entity)))
 					.as(GenerateVirtualFileSystemOverlaysTask.class)
 					.configure(task -> {
+						task.dependsOn(targetTask);
 						task.parameters(parameters -> {
 							parameters.overlays(new VFSOverlayAction(project.getObjects(), project.provider(() -> target), targetTask.flatMap(it -> it.getBuildSettings().asProvider()), targetTask.flatMap(it -> it.getDerivedDataPath().getLocationOnly().map(FileSystemLocationUtils::asPath))));
 							parameters.getOutputFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/" + xcTarget.get().getName() + ".yaml"));

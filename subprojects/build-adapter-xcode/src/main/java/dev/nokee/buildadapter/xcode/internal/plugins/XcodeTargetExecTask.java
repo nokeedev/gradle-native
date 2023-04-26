@@ -233,7 +233,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			.configuration(getConfiguration())
 			.developerDir(getXcodeInstallation().map(XcodeInstallation::getDeveloperDirectory))
 			.platformName(getSdk())
-			.targetReference(getTargetReference())
+			.targetReference(getTargetReference()) // trigger resolution of projectReference as well
 			.build();
 	}
 
