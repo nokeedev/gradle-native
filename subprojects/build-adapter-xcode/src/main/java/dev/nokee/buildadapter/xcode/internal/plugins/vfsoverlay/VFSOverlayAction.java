@@ -17,9 +17,7 @@ package dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.buildadapter.xcode.internal.plugins.BuildSettingsResolveContext;
-import dev.nokee.buildadapter.xcode.internal.plugins.XcodeTargetExecTask;
 import dev.nokee.util.provider.ZipProviderBuilder;
-import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.utils.Optionals;
 import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCFileReference;
@@ -51,10 +49,6 @@ public final class VFSOverlayAction implements Action<ConfigurableMapContainer<V
 	private final Provider<XCTargetReference> targetReferenceProvider;
 	private final Provider<XCBuildSettings> buildSettingsProvider;
 	private final Provider<Path> derivedDataPathProvider;
-
-	public VFSOverlayAction(ObjectFactory objects, Provider<XcodeTargetExecTask> targetTask) {
-		this(objects, targetTask.flatMap(it -> it.getTargetReference()), targetTask.flatMap(it -> it.getBuildSettings().asProvider()), targetTask.flatMap(it -> it.getDerivedDataPath().getLocationOnly().map(FileSystemLocationUtils::asPath)));
-	}
 
 	public VFSOverlayAction(ObjectFactory objects, Provider<XCTargetReference> targetReferenceProvider, Provider<XCBuildSettings> buildSettingsProvider, Provider<Path> derivedDataPathProvider) {
 		this.objects = objects;

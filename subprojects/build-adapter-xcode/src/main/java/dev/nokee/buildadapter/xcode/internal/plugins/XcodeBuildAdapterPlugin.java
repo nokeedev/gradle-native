@@ -366,7 +366,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.as(GenerateVirtualFileSystemOverlaysTask.class)
 					.configure(task -> {
 						task.parameters(parameters -> {
-							parameters.overlays(new VFSOverlayAction(project.getObjects(), targetTask.asProvider()));
+							parameters.overlays(new VFSOverlayAction(project.getObjects(), project.provider(() -> target), targetTask.flatMap(it -> it.getBuildSettings().asProvider()), targetTask.flatMap(it -> it.getDerivedDataPath().getLocationOnly().map(FileSystemLocationUtils::asPath))));
 							parameters.getOutputFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/" + xcTarget.get().getName() + ".yaml"));
 						});
 					});
