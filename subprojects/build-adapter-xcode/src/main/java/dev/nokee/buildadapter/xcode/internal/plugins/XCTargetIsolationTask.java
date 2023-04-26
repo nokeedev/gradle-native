@@ -15,11 +15,14 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import com.google.common.collect.MoreCollectors;
 import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.ConfigurableSetContainer;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.objects.PBXProject;
+import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.TargetDependenciesAwareBuilder;
+import dev.nokee.xcode.project.CodeableXCRemoteSwiftPackageReference;
 import dev.nokee.xcode.project.PBXObjectArchiver;
 import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.EqualsAndHashCode;
@@ -27,6 +30,7 @@ import lombok.val;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.Nested;
@@ -110,6 +114,37 @@ public abstract class XCTargetIsolationTask extends ParameterizedTask<XCTargetIs
 
 		public String getGlobalId() {
 			return globalId;
+		}
+	}
+
+	public static abstract class AddPackageProductDependenciesSpec implements IsolationSpec {
+		@Input
+		public abstract SetProperty<PackageRef> getPackageProductDependencies();
+
+		@Input
+		public abstract Property<String> getTargetNameToIsolate();
+
+		@Override
+		public PBXProject apply(PBXProject project) {
+			return project.toBuilder()
+				.targets(project.getTargets().stream()
+					.map(target -> {
+						if (target.getName().equals(getTargetNameToIsolate().get()) && target instanceof PBXNativeTarget) {
+							val builder = target.toBuilder();
+
+							for (val ref : getPackageProductDependencies().get()) {
+								val productName = ref.getProductName();
+								val gidPackageRef = ref.getGlobalId();
+								val packageRef = project.getPackageReferences().stream().map(CodeableXCRemoteSwiftPackageReference.class::cast).filter(it -> it.globalId().equals(gidPackageRef)).collect(MoreCollectors.onlyElement());
+								((PBXNativeTarget.Builder) builder).packageProductDependency(it -> it.productName(productName).packageReference(packageRef));
+							}
+
+							return builder.build();
+						} else {
+							return target;
+						}
+					}).collect(Collectors.toList()))
+				.build();
 		}
 	}
 

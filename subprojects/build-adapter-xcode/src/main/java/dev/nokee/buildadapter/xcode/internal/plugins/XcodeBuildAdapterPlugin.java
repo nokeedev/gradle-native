@@ -63,12 +63,14 @@ import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.ActionUtils;
+import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.utils.TransformerUtils;
 import dev.nokee.xcode.XCDependenciesLoader;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
 import lombok.val;
+import org.apache.commons.lang3.SerializationUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -95,10 +97,14 @@ import org.gradle.process.CommandLineArgumentProvider;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -235,6 +241,21 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						)).orElse(Collections.emptyList()));
 					});
 
+				val remoteSwiftPackages = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("remoteSwiftPackages", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-swift-packages"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
+						});
+					})
+					.configure(configuration -> {
+						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+								return it.load(target).getDependencies().stream().filter(XCDependenciesLoader.CoordinateDependency.class::isInstance).map(dep -> ((XCDependenciesLoader.CoordinateDependency) dep).getCoordinate()).collect(Collectors.toList());
+							}).map(transformEach(asDependency(project)))
+						)).orElse(Collections.emptyList()));
+					});
+
 				val derivedDataTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("assemble", "derivedDataDir"), AssembleDerivedDataDirectoryTask.class, it -> it.ownedBy(entity)))
 					.as(AssembleDerivedDataDirectoryTask.class)
 					.configure(task -> {
@@ -277,6 +298,19 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 							parameters.getIsolatedProjectLocation().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/" + reference.getLocation().getFileName().toString()));
 							parameters.getIsolations().create(XCTargetIsolationTask.IsolateTargetSpec.class, it -> {
 								it.getTargetNameToIsolate().set(target.getName());
+							});
+							parameters.getIsolations().create(XCTargetIsolationTask.AddPackageProductDependenciesSpec.class, it -> {
+								it.getTargetNameToIsolate().set(target.getName());
+								it.getPackageProductDependencies().addAll(remoteSwiftPackages.flatMap(t -> t.getElements()).map(t -> {
+									return t.stream().map(FileSystemLocationUtils::asPath).flatMap(a -> {
+										try (val inStream = Files.newInputStream(a)) {
+											List<XCTargetIsolationTask.PackageRef> result = SerializationUtils.deserialize(inStream);
+											return result.stream();
+										} catch (IOException e) {
+											throw new UncheckedIOException(e);
+										}
+									}).collect(Collectors.toList());
+								}));
 							});
 						});
 					});
@@ -349,6 +383,31 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						configuration.outgoing(outgoing -> {
 							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
 							outgoing.artifact(generateVirtualSystemOverlaysTask.flatMap(it -> it.getParameters().getOutputFile()));
+						});
+					});
+
+				val generateRemoteSwiftPackagesTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("generate", "remoteSwiftPackages"), GenerateSwiftPackageManifestTask.class, it -> it.ownedBy(entity)))
+					.as(GenerateSwiftPackageManifestTask.class)
+					.configure(task -> {
+						task.parameters(parameters -> {
+							parameters.getProjectLocation().set(reference.getLocation().toFile());
+							parameters.getTargetName().set(target.getName());
+							parameters.getManifestFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/remote-swift-packages.manifest"));
+						});
+					});
+
+				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("RemoteSwiftPackagesElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-swift-packages"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
+						});
+					})
+					.configure(configuration -> {
+						configuration.outgoing(outgoing -> {
+							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
+							outgoing.artifact(generateRemoteSwiftPackagesTask.flatMap(it -> it.getParameters().getManifestFile()));
 						});
 					});
 			})));
