@@ -53,7 +53,7 @@ import java.util.stream.Stream;
 //      aka prevent further changes to the node.
 //    Actually, we shouldn't allow attaching configuration (applyTo, applyToSelf).
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
-public final class ModelNode {
+public final class ModelNode implements Entity {
 	private final ModelEntityId id = ModelEntityId.nextId();
 	private final ModelComponentRegistry components;
 

@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
  * Represent an entity at its simplest form.
  */
 @EqualsAndHashCode
-public final class ModelEntityId {
+public final class ModelEntityId implements Entity.Id {
 	private static long nextId = 0;
 	private final long id;
 
