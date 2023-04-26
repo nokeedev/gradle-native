@@ -69,11 +69,6 @@ class ProvidedBuildSettingsBuilderTests {
 	}
 
 	@Test
-	void hasSrcRoot() {
-		assertThat(subject.build().findAll(), hasBuildSetting("SRCROOT", "/test"));
-	}
-
-	@Test
 	void hasConfiguration() {
 		assertThat(subject.build().findAll(), hasBuildSetting("CONFIGURATION", "Debug"));
 	}
