@@ -28,6 +28,7 @@ import dev.nokee.xcode.project.KeyedObject;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static com.google.common.collect.Streams.stream;
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
@@ -123,6 +124,13 @@ public interface PBXNativeTarget extends PBXTarget {
 
 		public Builder packageProductDependencies(Iterable<? extends XCSwiftPackageProductDependency> packageProductDependencies) {
 			builder.put(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, packageProductDependencies);
+			return this;
+		}
+
+		public Builder packageProductDependency(Consumer<? super XCSwiftPackageProductDependency.Builder> builderConsumer) {
+			XCSwiftPackageProductDependency.Builder builder = new XCSwiftPackageProductDependency.Builder();
+			builderConsumer.accept(builder);
+			this.builder.add(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, builder.build());
 			return this;
 		}
 
