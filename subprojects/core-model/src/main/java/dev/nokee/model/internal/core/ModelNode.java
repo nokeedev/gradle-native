@@ -216,7 +216,7 @@ public final class ModelNode {
 			MutableObject<ModelNode> self = new MutableObject<>();
 			val entity = new ModelNode(new ObservableComponentRegistry(new DefaultComponentRegistry(), new ObservableComponentRegistry.Listener() {
 				@Override
-				public void componentChanged(ModelEntityId entityId, ModelComponentId componentId, ModelComponent component) {
+				public void componentChanged(ModelEntityId entityId, Component.Id componentId, ModelComponent component) {
 					listener.projectionAdded(self.getValue(), component);
 				}
 			}));

@@ -34,7 +34,7 @@ class ObservableComponentRegistryTests {
 		ObservableComponentRegistry.Listener listener = Mockito.mock(ObservableComponentRegistry.Listener.class);
 		ModelComponentRegistry subject = new ObservableComponentRegistry(newComponentRegistry(), listener);
 
-		ModelComponentId componentId = aComponentId();
+		Component.Id componentId = aComponentId();
 		ModelComponent component = Mockito.mock(ModelComponent.class);
 
 		@BeforeEach
@@ -112,7 +112,7 @@ class ObservableComponentRegistryTests {
 	private static ObservableComponentRegistry.Listener noOpListener() {
 		return new ObservableComponentRegistry.Listener() {
 			@Override
-			public void componentChanged(ModelEntityId entityId, ModelComponentId componentId, ModelComponent component) {
+			public void componentChanged(ModelEntityId entityId, Component.Id componentId, ModelComponent component) {
 				// do nothing
 			}
 		};

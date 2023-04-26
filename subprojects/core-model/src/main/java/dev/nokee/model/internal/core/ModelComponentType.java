@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 @SuppressWarnings("unchecked")
-public abstract class ModelComponentType<T> implements ModelComponentId {
+public abstract class ModelComponentType<T> implements Component.Id {
 	private static final ConcurrentHashMap<Type, Bits> assignedComponentTypes = new ConcurrentHashMap<>();
 	public static Bits componentBits(Type type) {
 		return assignedComponentTypes.computeIfAbsent(type, ModelComponentType::computeComponentBits);
