@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package dev.nokee.model.internal.core;
 
-public interface ModelComponent extends Component {
-	default ModelComponentType<?> getComponentType() {
-		return ModelComponentType.componentOf(getClass());
-	}
-}
+/**
+ * Represents a component in the Entity Component System (ECS).
+ * Components are the data containers that store properties or attributes of an entity.
+ * Implement this interface to create new types of components.
+ * <p>
+ * To associate a component with an entity, use a unique instance of the component's {@link Id} as a key in an entity's component storage.
+ */
+public interface Component {}
