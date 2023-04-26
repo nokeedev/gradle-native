@@ -269,11 +269,23 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						});
 					});
 
+				val isolateTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("isolate", "target"), XCTargetIsolationTask.class, it -> it.ownedBy(entity)))
+					.as(XCTargetIsolationTask.class)
+					.configure(task -> {
+						task.parameters(parameters -> {
+							parameters.getOriginalProjectLocation().set(reference.getLocation().toFile());
+							parameters.getIsolatedProjectLocation().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/" + reference.getLocation().getFileName().toString()));
+							parameters.getIsolations().create(XCTargetIsolationTask.IsolateTargetSpec.class, it -> {
+								it.getTargetNameToIsolate().set(target.getName());
+							});
+						});
+					});
+
 				val targetTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetExecTask.class, it -> it.ownedBy(entity)))
 					.as(XcodeTargetExecTask.class)
 					.configure(task -> {
-						task.dependsOn(derivedDataTask);
-						task.getXcodeProject().set(reference);
+						task.dependsOn(derivedDataTask, isolateTask);
+						task.getXcodeProject().set(isolateTask.flatMap(it -> it.getParameters().getIsolatedProjectLocation().getLocationOnly()).map(it -> XCProjectReference.of(it.getAsFile().toPath())));
 						task.getTargetName().set(target.getName());
 						task.getOutputs().upToDateWhen(because(String.format("a shell script build phase of %s has no inputs or outputs defined", reference.ofTarget(target.getName())), everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs()));
 						task.getDerivedDataPath().set(derivedDataTask.flatMap(it -> it.getParameters().getXcodeDerivedDataPath()));

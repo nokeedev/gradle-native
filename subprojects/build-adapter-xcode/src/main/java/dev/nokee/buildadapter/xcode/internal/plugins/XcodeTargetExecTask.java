@@ -31,11 +31,7 @@ import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
-import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.PBXReference;
-import dev.nokee.xcode.objects.targets.TargetDependenciesAwareBuilder;
-import dev.nokee.xcode.project.PBXObjectArchiver;
-import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.val;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Transformer;
@@ -60,8 +56,6 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -246,10 +240,8 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@TaskAction
 	private void doExec() {
-		val isolatedProjectLocation = new File(getTemporaryDir(), getXcodeProject().get().getLocation().getFileName().toString());
-
 		val invocation = CommandLineTool.of("xcodebuild").withArguments(it -> {
-			it.args(getAllArguments().map(allArguments -> concat(of("-project", isolatedProjectLocation.getAbsolutePath()), skip(allArguments, 2))));
+			it.args(getAllArguments().map(allArguments -> concat(of("-project", getXcodeProject().get().getLocation()), skip(allArguments, 2))));
 		}).newInvocation(it -> {
 			it.withEnvironmentVariables(inherit("PATH").putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
 			ifPresent(getWorkingDirectory(), it::workingDirectory);
@@ -259,10 +251,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		workerExecutor.noIsolation().submit(XcodebuildExec.class, spec -> {
 			spec.getOutgoingDerivedDataPath().set(getOutputDirectory());
 			spec.getXcodeDerivedDataPath().set(getDerivedDataPath());
-
-			spec.getOriginalProjectLocation().set(getXcodeProject().get().getLocation().toFile());
-			spec.getIsolatedProjectLocation().set(isolatedProjectLocation);
-			spec.getTargetNameToIsolate().set(getTargetName());
 
 			spec.getInvocation().set(invocation);
 		});
@@ -295,53 +283,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		}
 	}
 
-	public static final class XcodeProjectIsolationRunnable implements Runnable {
-		private final FileSystemOperations fileOperations;
-		private final Parameters parameters;
-		private final Runnable delegate;
-
-		public XcodeProjectIsolationRunnable(FileSystemOperations fileOperations, Parameters parameters, Runnable delegate) {
-			this.fileOperations = fileOperations;
-			this.parameters = parameters;
-			this.delegate = delegate;
-		}
-
-		@Override
-		public void run() {
-			val originalProjectLocation = parameters.getOriginalProjectLocation().get().getAsFile().toPath();
-			val isolatedProjectLocation = parameters.getIsolatedProjectLocation().get().getAsFile().toPath();
-			fileOperations.sync(spec -> {
-				spec.from(originalProjectLocation);
-				spec.into(isolatedProjectLocation);
-			});
-
-			PBXProject project = XCLoaders.pbxprojectLoader().load(XCProjectReference.of(originalProjectLocation));
-			val newProject = project.toBuilder().projectDirPath(originalProjectLocation.getParent().toString())
-				.targets(project.getTargets().stream()
-					.filter(target -> target.getName().equals(parameters.getTargetNameToIsolate().get()))
-					.map(target -> {
-						val builder = target.toBuilder();
-						((TargetDependenciesAwareBuilder<?>) builder).dependencies(ImmutableList.of());
-						return builder.build();
-					}).collect(Collectors.toList()))
-				.build();
-
-			try (val writer = new PBXProjWriter(Files.newBufferedWriter(isolatedProjectLocation.resolve("project.pbxproj")))) {
-				writer.write(new PBXObjectArchiver().encode(newProject));
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-
-			delegate.run();
-		}
-
-		public interface Parameters {
-			DirectoryProperty getOriginalProjectLocation();
-			DirectoryProperty getIsolatedProjectLocation();
-			Property<String> getTargetNameToIsolate();
-		}
-	}
-
 	public static final class ProcessExecutionRunnable implements Runnable {
 		private final ExecOperations execOperations;
 		private final Parameters parameters;
@@ -362,7 +303,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	}
 
 	public static abstract class XcodebuildExec implements WorkAction<XcodebuildExec.Parameters> {
-		interface Parameters extends WorkParameters, DerivedDataAssemblingRunnable.Parameters, ProcessExecutionRunnable.Parameters, XcodeProjectIsolationRunnable.Parameters {}
+		interface Parameters extends WorkParameters, DerivedDataAssemblingRunnable.Parameters, ProcessExecutionRunnable.Parameters {}
 
 		@Inject
 		protected abstract ExecOperations getExecOperations();
@@ -372,15 +313,11 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		@Override
 		public void execute() {
-			derivedDataPath(isolateProject(executeBuild())).run();
+			derivedDataPath(executeBuild()).run();
 		}
 
 		private Runnable executeBuild() {
 			return new ProcessExecutionRunnable(getExecOperations(), getParameters());
-		}
-
-		private Runnable isolateProject(Runnable action) {
-			return new XcodeProjectIsolationRunnable(getFileOperations(), getParameters(), action);
 		}
 
 		private Runnable derivedDataPath(Runnable action) {
