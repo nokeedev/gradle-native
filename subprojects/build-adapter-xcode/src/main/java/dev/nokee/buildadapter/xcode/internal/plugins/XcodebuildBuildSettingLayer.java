@@ -26,14 +26,18 @@ import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingLiteral;
 import dev.nokee.xcode.XCTargetReference;
 import lombok.val;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.slf4j.Logger;
 
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,7 +49,9 @@ import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public final class XcodebuildBuildSettingLayer implements XCBuildSettingLayer {
+	private static final Logger LOGGER = Logging.getLogger(XcodebuildBuildSettingLayer.class);
 	private final Provider<Map<String, XCBuildSetting>> buildSettings;
+	private final Set<String> queriedBuildSettings = new HashSet<>();
 
 	public XcodebuildBuildSettingLayer(Provider<Map<String, XCBuildSetting>> buildSettings) {
 		this.buildSettings = buildSettings;
@@ -53,7 +59,11 @@ public final class XcodebuildBuildSettingLayer implements XCBuildSettingLayer {
 
 	@Override
 	public XCBuildSetting find(SearchContext context) {
-		return buildSettings.get().get(context.getName());
+		val result = buildSettings.get().get(context.getName());
+		if (queriedBuildSettings.add(context.getName())) {
+			LOGGER.info("Unknown build setting '" + context.getName() + "' requiring xcodebuild query to find value '" + result + "'");
+		}
+		return result;
 	}
 
 	@Override
