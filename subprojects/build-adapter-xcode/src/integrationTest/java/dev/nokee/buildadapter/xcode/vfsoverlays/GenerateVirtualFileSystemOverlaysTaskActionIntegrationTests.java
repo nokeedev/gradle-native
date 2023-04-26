@@ -15,7 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode.vfsoverlays;
 
-import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.ConfigurableContainer;
+import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.ConfigurableMapContainer;
 import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.GenerateVirtualFileSystemOverlaysTask.Parameters;
 import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.GenerateVirtualFileSystemOverlaysTask.TaskAction;
 import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.VFSOverlaySpec;
@@ -50,7 +50,7 @@ class GenerateVirtualFileSystemOverlaysTaskActionIntegrationTests implements Vir
 		subject.execute();
 	}
 
-	static Action<ConfigurableContainer<VFSOverlaySpec>> toOverlays(Iterable<VirtualFileSystemOverlay.VirtualDirectory> roots) {
+	static Action<ConfigurableMapContainer<VFSOverlaySpec>> toOverlays(Iterable<VirtualFileSystemOverlay.VirtualDirectory> roots) {
 		return it -> {
 			for (VirtualFileSystemOverlay.VirtualDirectory root : roots) {
 				it.create(root.getName(), toEntries(root));

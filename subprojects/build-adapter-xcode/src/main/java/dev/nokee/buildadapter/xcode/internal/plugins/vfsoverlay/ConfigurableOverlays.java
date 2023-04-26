@@ -15,5 +15,5 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay;
 
-public abstract class ConfigurableOverlays extends ConfigurableContainer<VFSOverlaySpec> {
+public abstract class ConfigurableOverlays extends ConfigurableMapContainer<VFSOverlaySpec> {
 }

@@ -46,7 +46,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public final class VFSOverlayAction implements Action<ConfigurableContainer<VFSOverlaySpec>> {
+public final class VFSOverlayAction implements Action<ConfigurableMapContainer<VFSOverlaySpec>> {
 	private final ObjectFactory objects;
 	private final Provider<XCTargetReference> targetReferenceProvider;
 	private final Provider<XCBuildSettings> buildSettingsProvider;
@@ -64,7 +64,7 @@ public final class VFSOverlayAction implements Action<ConfigurableContainer<VFSO
 	}
 
 	@Override
-	public void execute(ConfigurableContainer<VFSOverlaySpec> specs) {
+	public void execute(ConfigurableMapContainer<VFSOverlaySpec> specs) {
 		specs.addAll(ZipProviderBuilder.newBuilder(objects)
 			.value(targetReferenceProvider)
 			.value(buildSettingsProvider)
