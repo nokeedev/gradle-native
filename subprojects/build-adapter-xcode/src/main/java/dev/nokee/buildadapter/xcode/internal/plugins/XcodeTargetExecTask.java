@@ -25,7 +25,6 @@ import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.util.provider.ZipProviderBuilder;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.CompositeXCBuildSettingLayer;
-import dev.nokee.xcode.DefaultXCBuildSettings;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettings;
@@ -119,9 +118,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		return targetReference;
 	}
 
-	@Internal
-	public abstract Property<XCBuildSettings> getAllBuildSettings();
-
 	@Nested
 	public Provider<XCBuildPlan> getBuildPlan() {
 		return buildSpec;
@@ -145,10 +141,8 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		this.targetReference = ZipProviderBuilder.newBuilder(objects).value(getXcodeProject()).value(getTargetName())
 			.zip(XCProjectReference::ofTarget);
 
-		getAllBuildSettings().value(new DefaultXCBuildSettings(new CompositeXCBuildSettingLayer(ImmutableList.of(overrideLayer(), xcodebuildLayer()))));
-
 		this.buildSpec = finalizeValueOnRead(objects.property(XCBuildPlan.class).value(getTargetReference().map(XCLoaders.buildSpecLoader()::load).map(spec -> {
-			final XCBuildSettings buildSettings = getAllBuildSettings().get();
+			final XCBuildSettings buildSettings = getBuildSettings();
 
 			val context = new BuildSettingsResolveContext(FileSystems.getDefault(), buildSettings);
 			val fileRefs = XCLoaders.fileReferences().load(getXcodeProject().get());
