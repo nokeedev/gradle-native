@@ -15,8 +15,8 @@
  */
 package dev.nokee.model.fixtures;
 
+import dev.nokee.model.internal.core.Component;
 import dev.nokee.model.internal.core.DefaultComponentRegistry;
-import dev.nokee.model.internal.core.ModelComponentId;
 import dev.nokee.model.internal.core.ModelComponentRegistry;
 import dev.nokee.model.internal.core.ModelNode;
 import lombok.EqualsAndHashCode;
@@ -36,12 +36,12 @@ public final class ModelEntityTestUtils {
 
 	private static long nextId = 0;
 
-	public static ModelComponentId aComponentId() {
+	public static Component.Id aComponentId() {
 		return new TestComponentId(nextId++);
 	}
 
 	@EqualsAndHashCode
-	private static final class TestComponentId implements ModelComponentId {
+	private static final class TestComponentId implements Component.Id {
 		private final long id;
 
 		private TestComponentId(long id) {

@@ -32,7 +32,7 @@ public final class ObservableComponentRegistry implements ModelComponentRegistry
 
 	@Nullable
 	@Override
-	public ModelComponent set(ModelEntityId entityId, ModelComponentId componentId, ModelComponent newComponent) {
+	public ModelComponent set(ModelEntityId entityId, Component.Id componentId, ModelComponent newComponent) {
 		val oldComponent = delegate.set(entityId, componentId, newComponent);
 		if (oldComponent == null || !oldComponent.equals(newComponent)) {
 			listener.componentChanged(entityId, componentId, newComponent);
@@ -42,12 +42,12 @@ public final class ObservableComponentRegistry implements ModelComponentRegistry
 
 	@Nullable
 	@Override
-	public ModelComponent get(ModelEntityId entityId, ModelComponentId componentId) {
+	public ModelComponent get(ModelEntityId entityId, Component.Id componentId) {
 		return delegate.get(entityId, componentId);
 	}
 
 	@Override
-	public Set<? extends ModelComponentId> getAllIds(ModelEntityId entityId) {
+	public Set<? extends Component.Id> getAllIds(ModelEntityId entityId) {
 		return delegate.getAllIds(entityId);
 	}
 
@@ -57,6 +57,6 @@ public final class ObservableComponentRegistry implements ModelComponentRegistry
 	}
 
 	public interface Listener {
-		void componentChanged(ModelEntityId entityId, ModelComponentId componentId, ModelComponent component);
+		void componentChanged(ModelEntityId entityId, Component.Id componentId, ModelComponent component);
 	}
 }

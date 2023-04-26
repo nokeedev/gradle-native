@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.Set;
 
 public final class DefaultComponentRegistry implements ModelComponentRegistry {
-	private final Map<ModelEntityId, Map<ModelComponentId, ModelComponent>> components = new LinkedHashMap<>();
+	private final Map<ModelEntityId, Map<Component.Id, ModelComponent>> components = new LinkedHashMap<>();
 
 	@Override
-	public ModelComponent set(ModelEntityId entityId, ModelComponentId componentId, ModelComponent newComponent) {
+	public ModelComponent set(ModelEntityId entityId, Component.Id componentId, ModelComponent newComponent) {
 		val idToComponents = components.computeIfAbsent(entityId, __ -> new LinkedHashMap<>());
 		val oldComponent = idToComponents.get(componentId);
 		idToComponents.put(componentId, newComponent);
@@ -37,12 +37,12 @@ public final class DefaultComponentRegistry implements ModelComponentRegistry {
 
 	@Nullable
 	@Override
-	public ModelComponent get(ModelEntityId entityId, ModelComponentId componentId) {
+	public ModelComponent get(ModelEntityId entityId, Component.Id componentId) {
 		return components.getOrDefault(entityId, ImmutableMap.of()).get(componentId);
 	}
 
 	@Override
-	public Set<ModelComponentId> getAllIds(ModelEntityId entityId) {
+	public Set<Component.Id> getAllIds(ModelEntityId entityId) {
 		return components.getOrDefault(entityId, ImmutableMap.of()).keySet();
 	}
 

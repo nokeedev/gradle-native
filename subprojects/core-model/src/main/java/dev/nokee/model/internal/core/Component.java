@@ -23,4 +23,13 @@ package dev.nokee.model.internal.core;
  * <p>
  * To associate a component with an entity, use a unique instance of the component's {@link Id} as a key in an entity's component storage.
  */
-public interface Component {}
+public interface Component {
+	/**
+	 * Represents the unique identifier for a specific type of component.
+	 * <p>
+	 * Component types can have its own implementation of this interface, creating groups of Id class for each type of component.
+	 * <p>
+	 * Use an instance of this class as a key to store and retrieve component instances from an entity's component storage.
+	 */
+	interface Id {}
+}
