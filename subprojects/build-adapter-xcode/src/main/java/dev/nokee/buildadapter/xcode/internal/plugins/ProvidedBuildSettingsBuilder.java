@@ -54,7 +54,6 @@ public final class ProvidedBuildSettingsBuilder {
 		assert reference != null : "'reference' must not be null";
 		buildSettings.put("PROJECT_NAME", reference.map(it -> it.getProject().getName()));
 		buildSettings.put("TARGET_NAME", reference.map(it -> it.getName()));
-		buildSettings.put("SRCROOT", reference.map(it -> it.getProject().getLocation().getParent().toString()));
 		return this;
 	}
 

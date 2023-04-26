@@ -280,6 +280,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + task.getName()));
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getConfiguration().set(variantInfo.getName());
+						task.getBuildSettings().from(ImmutableMap.of("SRCROOT", reference.getLocation().getParent().toString()));
 						task.getArguments().add(new CommandLineArgumentProvider() {
 							@InputFile
 							@PathSensitive(PathSensitivity.ABSOLUTE)
