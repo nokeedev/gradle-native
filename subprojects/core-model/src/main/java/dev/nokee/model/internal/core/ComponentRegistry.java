@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
-public interface ModelComponentRegistry {
+public interface ComponentRegistry {
 	@Nullable
 	ModelComponent set(ModelEntityId entityId, Component.Id componentId, ModelComponent component);
 

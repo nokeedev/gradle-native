@@ -32,7 +32,7 @@ class ObservableComponentRegistryTests {
 	class ListenerNotifyTests {
 		ModelEntityId entityId = ModelEntityId.nextId();
 		ObservableComponentRegistry.Listener listener = Mockito.mock(ObservableComponentRegistry.Listener.class);
-		ModelComponentRegistry subject = new ObservableComponentRegistry(newComponentRegistry(), listener);
+		ComponentRegistry subject = new ObservableComponentRegistry(newComponentRegistry(), listener);
 
 		Component.Id componentId = aComponentId();
 		ModelComponent component = Mockito.mock(ModelComponent.class);
@@ -82,29 +82,29 @@ class ObservableComponentRegistryTests {
 	class ForwardingTests {
 		@Test
 		void forwardsSetToDelegate() {
-			assertThat(forwarding(ModelComponentRegistry.class, this::newWrapper),
-				forwardsToDelegate(method(ModelComponentRegistry::set)));
+			assertThat(forwarding(ComponentRegistry.class, this::newWrapper),
+				forwardsToDelegate(method(ComponentRegistry::set)));
 		}
 
 		@Test
 		void forwardsGetToDelegate() {
-			assertThat(forwarding(ModelComponentRegistry.class, this::newWrapper),
-				forwardsToDelegate(method(ModelComponentRegistry::get)));
+			assertThat(forwarding(ComponentRegistry.class, this::newWrapper),
+				forwardsToDelegate(method(ComponentRegistry::get)));
 		}
 
 		@Test
 		void forwardsGetAllIdsToDelegate() {
-			assertThat(forwarding(ModelComponentRegistry.class, this::newWrapper),
-				forwardsToDelegate(method(ModelComponentRegistry::getAllIds)));
+			assertThat(forwarding(ComponentRegistry.class, this::newWrapper),
+				forwardsToDelegate(method(ComponentRegistry::getAllIds)));
 		}
 
 		@Test
 		void forwardsGetAllToDelegate() {
-			assertThat(forwarding(ModelComponentRegistry.class, this::newWrapper),
-				forwardsToDelegate(method(ModelComponentRegistry::getAll)));
+			assertThat(forwarding(ComponentRegistry.class, this::newWrapper),
+				forwardsToDelegate(method(ComponentRegistry::getAll)));
 		}
 
-		private ModelComponentRegistry newWrapper(ModelComponentRegistry delegate) {
+		private ComponentRegistry newWrapper(ComponentRegistry delegate) {
 			return new ObservableComponentRegistry(delegate, noOpListener());
 		}
 	}

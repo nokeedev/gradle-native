@@ -17,7 +17,7 @@ package dev.nokee.model.internal.state;
 
 import dev.nokee.internal.testing.MockitoUtils;
 import dev.nokee.model.internal.core.DefaultComponentRegistry;
-import dev.nokee.model.internal.core.ModelComponentRegistry;
+import dev.nokee.model.internal.core.ComponentRegistry;
 import dev.nokee.model.internal.core.ModelNode;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +34,7 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.never;
 
 class ModelStateTest {
-	private final ModelComponentRegistry registry = MockitoUtils.spy(ModelComponentRegistry.class, new DefaultComponentRegistry());
+	private final ComponentRegistry registry = MockitoUtils.spy(ComponentRegistry.class, new DefaultComponentRegistry());
 	private final ModelNode subject = newEntity(registry);
 
 	@Test

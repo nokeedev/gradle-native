@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class DefaultComponentRegistry implements ModelComponentRegistry {
+public final class DefaultComponentRegistry implements ComponentRegistry {
 	private final Map<ModelEntityId, Map<Component.Id, ModelComponent>> components = new LinkedHashMap<>();
 
 	@Override
