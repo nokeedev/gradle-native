@@ -33,7 +33,7 @@ import java.util.function.Function;
 //   In a @Nested context, Gradle will prefer unpacking (iterate) the object instead of looking for more
 //   @Nested properties which would discover the implicit task dependencies. Instead, users should use
 //   #getElements() provider and iterate the value.
-public abstract class ConfigurableContainer<T extends NamedDomainObject> {
+public abstract class ConfigurableMapContainer<T extends NamedDomainObject> {
 	public T create(String name, Action<? super T> action) {
 		T result = getObjects().newInstance(defaultType());
 		result.getName().set(name);
@@ -58,7 +58,7 @@ public abstract class ConfigurableContainer<T extends NamedDomainObject> {
 		return true;
 	}
 
-	public boolean addAll(ConfigurableContainer<? extends T> container) {
+	public boolean addAll(ConfigurableMapContainer<? extends T> container) {
 		getValues().putAll(container.getValues());
 		return true;
 	}
@@ -82,7 +82,7 @@ public abstract class ConfigurableContainer<T extends NamedDomainObject> {
 		return getValues().map(Map::values);
 	}
 
-	public ConfigurableContainer<T> configure(Action<? super ConfigurableContainer<T>> action) {
+	public ConfigurableMapContainer<T> configure(Action<? super ConfigurableMapContainer<T>> action) {
 		action.execute(this);
 		return this;
 	}
