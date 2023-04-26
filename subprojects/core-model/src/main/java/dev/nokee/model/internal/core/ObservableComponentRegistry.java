@@ -21,11 +21,11 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
-public final class ObservableComponentRegistry implements ModelComponentRegistry {
-	private final ModelComponentRegistry delegate;
+public final class ObservableComponentRegistry implements ComponentRegistry {
+	private final ComponentRegistry delegate;
 	private final Listener listener;
 
-	public ObservableComponentRegistry(ModelComponentRegistry delegate, Listener listener) {
+	public ObservableComponentRegistry(ComponentRegistry delegate, Listener listener) {
 		this.delegate = delegate;
 		this.listener = listener;
 	}

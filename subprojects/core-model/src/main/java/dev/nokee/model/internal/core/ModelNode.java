@@ -55,7 +55,7 @@ import java.util.stream.Stream;
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode implements Entity {
 	private final ModelEntityId id = ModelEntityId.nextId();
-	private final ModelComponentRegistry components;
+	private final ComponentRegistry components;
 
 	// Represent all components this entity has.
 	private Bits componentBits = Bits.empty();
@@ -64,7 +64,7 @@ public final class ModelNode implements Entity {
 		components = new DefaultComponentRegistry();
 	}
 
-	public ModelNode(ModelComponentRegistry components) {
+	public ModelNode(ComponentRegistry components) {
 		this.components = components;
 	}
 

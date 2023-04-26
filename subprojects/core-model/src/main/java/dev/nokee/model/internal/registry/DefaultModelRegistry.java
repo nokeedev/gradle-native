@@ -32,7 +32,7 @@ import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelComponentRegistry;
+import dev.nokee.model.internal.core.ComponentRegistry;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelEntityId;
@@ -72,7 +72,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final ModelNode rootNode;
 	private final ModelElementFactory elementFactory;
 	private final Multimap<ModelComponentType<?>, ModelAction> config = ArrayListMultimap.create();
-	private final ModelComponentRegistry components = new ObservableComponentRegistry(new DefaultComponentRegistry(), nodeStateListener);
+	private final ComponentRegistry components = new ObservableComponentRegistry(new DefaultComponentRegistry(), nodeStateListener);
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
