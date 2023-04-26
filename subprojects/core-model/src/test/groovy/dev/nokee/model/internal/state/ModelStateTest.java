@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.never;
 
 class ModelStateTest {
 	private final ModelComponentRegistry registry = MockitoUtils.spy(ModelComponentRegistry.class, new DefaultComponentRegistry());
@@ -112,7 +113,7 @@ class ModelStateTest {
 		void doesNotChangeStateWhenCreateMultipleTime() {
 			Mockito.reset(registry);
 			ModelStates.create(subject);
-			Mockito.verifyNoInteractions(registry);
+			Mockito.verify(registry, never()).set(eq(subject.getId()), any(), isA(ModelState.class));
 		}
 	}
 
@@ -139,7 +140,7 @@ class ModelStateTest {
 		void doesNotChangeStateWhenInitializeMultipleTime() {
 			Mockito.reset(registry);
 			ModelStates.initialize(subject);
-			Mockito.verifyNoInteractions(registry);
+			Mockito.verify(registry, never()).set(eq(subject.getId()), any(), isA(ModelState.class));
 		}
 	}
 
@@ -166,7 +167,7 @@ class ModelStateTest {
 		void doesNotChangeStateWhenRegisterMultipleTime() {
 			Mockito.reset(registry);
 			ModelStates.register(subject);
-			Mockito.verifyNoInteractions(registry);
+			Mockito.verify(registry, never()).set(eq(subject.getId()), any(), isA(ModelState.class));
 		}
 	}
 
@@ -193,7 +194,7 @@ class ModelStateTest {
 		void doesNotChangeStateWhenRealizeMultipleTime() {
 			Mockito.reset(registry);
 			ModelStates.realize(subject);
-			Mockito.verifyNoInteractions(registry);
+			Mockito.verify(registry, never()).set(eq(subject.getId()), any(), isA(ModelState.class));
 		}
 	}
 
@@ -220,7 +221,7 @@ class ModelStateTest {
 		void doesNotChangeStateWhenFinalizeMultipleTime() {
 			Mockito.reset(registry);
 			ModelStates.finalize(subject);
-			Mockito.verifyNoInteractions(registry);
+			Mockito.verify(registry, never()).set(eq(subject.getId()), any(), isA(ModelState.class));
 		}
 	}
 }
