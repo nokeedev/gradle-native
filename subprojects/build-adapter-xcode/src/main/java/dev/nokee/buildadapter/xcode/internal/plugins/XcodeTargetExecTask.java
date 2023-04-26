@@ -44,6 +44,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
@@ -123,11 +124,23 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		this.objects = objects;
 		this.buildSettings = objects.newInstance(ConfigurableXCBuildSettings.class);
 
+		// Account for build settings overrides
+		getArguments().add(new CommandLineArgumentProvider() {
+			@Input
+			public Provider<List<String>> getAdditionalBuildSettings() {
+				return getBuildSettings().asProvider().map(buildSettingsOverride()).map(toFlags());
+			}
+
+			@Override
+			public Iterable<String> asArguments() {
+				return getAdditionalBuildSettings().get();
+			}
+		});
+
 		getAllArguments().addAll(getXcodeProject().map(it -> of("-project", it.getLocation().toString())));
 		getAllArguments().addAll(getTargetName().map(it -> of("-target", it)));
 		getAllArguments().addAll(getSdk().map(sdk -> of("-sdk", sdk)).orElse(of()));
 		getAllArguments().addAll(getConfiguration().map(buildType -> of("-configuration", buildType)).orElse(of()));
-		getAllArguments().addAll(getBuildSettings().asProvider().map(buildSettingsOverride()).map(toFlags()));
 		getAllArguments().addAll(getArguments().map(flatTransformEach(CommandLineArgumentProvider::asArguments)));
 
 		finalizeValueOnRead(disallowChanges(getAllArguments()));
