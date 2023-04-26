@@ -316,7 +316,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						});
 					});
 
-				val generateTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("generate", "virtualFileSystemOverlays"), GenerateVirtualFileSystemOverlaysTask.class, it -> it.ownedBy(entity)))
+				val generateVirtualSystemOverlaysTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("generate", "virtualFileSystemOverlays"), GenerateVirtualFileSystemOverlaysTask.class, it -> it.ownedBy(entity)))
 					.as(GenerateVirtualFileSystemOverlaysTask.class)
 					.configure(task -> {
 						task.parameters(parameters -> {
@@ -336,7 +336,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.configure(configuration -> {
 						configuration.outgoing(outgoing -> {
 							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
-							outgoing.artifact(generateTask.flatMap(it -> it.getParameters().getOutputFile()));
+							outgoing.artifact(generateVirtualSystemOverlaysTask.flatMap(it -> it.getParameters().getOutputFile()));
 						});
 					});
 			})));
