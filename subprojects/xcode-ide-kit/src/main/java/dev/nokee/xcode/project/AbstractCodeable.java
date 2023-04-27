@@ -16,10 +16,12 @@
 package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @EqualsAndHashCode
@@ -58,6 +60,15 @@ abstract class AbstractCodeable implements Codeable {
 		final List<T> value = delegate.tryDecode(key);
 		if (value == null) {
 			return ImmutableList.of();
+		} else {
+			return value;
+		}
+	}
+
+	protected <K> Map<K, ?> getOrEmptyMap(CodingKey key) {
+		final Map<K, ?> value = delegate.tryDecode(key);
+		if (value == null) {
+			return ImmutableMap.of();
 		} else {
 			return value;
 		}

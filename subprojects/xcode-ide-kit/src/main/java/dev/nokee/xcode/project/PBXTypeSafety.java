@@ -15,17 +15,10 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableMap;
-
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public final class PBXTypeSafety {
 	public static boolean orFalse(@Nullable Boolean value) {
 		return value == null ? false : value.booleanValue();
-	}
-
-	public static <K> Map<K, ?> orEmptyMap(@Nullable Map<K, ?> value) {
-		return value == null ? ImmutableMap.of() : value;
 	}
 }

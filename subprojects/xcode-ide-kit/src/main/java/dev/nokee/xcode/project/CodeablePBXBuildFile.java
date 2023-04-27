@@ -21,7 +21,6 @@ import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import java.util.Map;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyMap;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXBuildFile extends AbstractCodeable implements PBXBuildFile {
@@ -53,7 +52,7 @@ public final class CodeablePBXBuildFile extends AbstractCodeable implements PBXB
 
 	@Override
 	public Map<String, ?> getSettings() {
-		return orEmptyMap(tryDecode(CodingKeys.settings));
+		return getOrEmptyMap(CodingKeys.settings);
 	}
 
 	@Override
