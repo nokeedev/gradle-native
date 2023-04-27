@@ -32,31 +32,31 @@ abstract class AbstractCodeable implements Codeable {
 		this.delegate = delegate;
 	}
 
-	protected KeyedObject delegate() {
+	protected final KeyedObject delegate() {
 		return delegate;
 	}
 
 	@Override
-	public String isa() {
+	public final String isa() {
 		return delegate.isa();
 	}
 
 	@Nullable
 	@Override
-	public String globalId() {
+	public final String globalId() {
 		return delegate.globalId();
 	}
 
 	@Override
-	public <T> T tryDecode(CodingKey key) {
+	public final <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
 	}
 
-	protected <T> Optional<T> getAsOptional(CodingKey key) {
+	protected final <T> Optional<T> getAsOptional(CodingKey key) {
 		return Optional.ofNullable(tryDecode(key));
 	}
 
-	protected <T> List<T> getOrEmptyList(CodingKey key) {
+	protected final <T> List<T> getOrEmptyList(CodingKey key) {
 		final List<T> value = delegate.tryDecode(key);
 		if (value == null) {
 			return ImmutableList.of();
@@ -65,7 +65,7 @@ abstract class AbstractCodeable implements Codeable {
 		}
 	}
 
-	protected <K> Map<K, ?> getOrEmptyMap(CodingKey key) {
+	protected final <K> Map<K, ?> getOrEmptyMap(CodingKey key) {
 		final Map<K, ?> value = delegate.tryDecode(key);
 		if (value == null) {
 			return ImmutableMap.of();
@@ -74,7 +74,7 @@ abstract class AbstractCodeable implements Codeable {
 		}
 	}
 
-	protected boolean getOrFalse(CodingKey key) {
+	protected final boolean getOrFalse(CodingKey key) {
 		final Boolean value = delegate.tryDecode(key);
 		if (value == null) {
 			return false;
@@ -84,17 +84,17 @@ abstract class AbstractCodeable implements Codeable {
 	}
 
 	@Nullable
-	protected <T> T getOrNull(CodingKey key) {
+	protected final <T> T getOrNull(CodingKey key) {
 		return tryDecode(key);
 	}
 
 	@Override
-	public long age() {
+	public final long age() {
 		return delegate.age();
 	}
 
 	@Override
-	public void encode(EncodeContext context) {
+	public final void encode(EncodeContext context) {
 		delegate.encode(context);
 	}
 }
