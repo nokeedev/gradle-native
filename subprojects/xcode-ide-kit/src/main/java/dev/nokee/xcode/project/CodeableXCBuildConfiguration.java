@@ -21,7 +21,6 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeableXCBuildConfiguration extends AbstractCodeable implements XCBuildConfiguration {
@@ -53,7 +52,7 @@ public final class CodeableXCBuildConfiguration extends AbstractCodeable impleme
 
 	@Override
 	public Optional<PBXFileReference> getBaseConfigurationReference() {
-		return orEmpty(tryDecode(CodingKeys.baseConfigurationReference));
+		return getAsOptional(CodingKeys.baseConfigurationReference);
 	}
 
 	@Override

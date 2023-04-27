@@ -21,7 +21,6 @@ import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import java.util.Map;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyMap;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
@@ -44,12 +43,12 @@ public final class CodeablePBXBuildFile extends AbstractCodeable implements PBXB
 
 	@Override
 	public Optional<FileReference> getFileRef() {
-		return orEmpty(tryDecode(CodingKeys.fileRef));
+		return getAsOptional(CodingKeys.fileRef);
 	}
 
 	@Override
 	public Optional<XCSwiftPackageProductDependency> getProductRef() {
-		return orEmpty(tryDecode(CodingKeys.productRef));
+		return getAsOptional(CodingKeys.productRef);
 	}
 
 	@Override

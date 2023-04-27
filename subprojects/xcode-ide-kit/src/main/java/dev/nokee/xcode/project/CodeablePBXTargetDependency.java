@@ -21,7 +21,6 @@ import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXTargetDependency extends AbstractCodeable implements PBXTargetDependency {
@@ -43,12 +42,12 @@ public final class CodeablePBXTargetDependency extends AbstractCodeable implemen
 
 	@Override
 	public Optional<String> getName() {
-		return orEmpty(tryDecode(CodingKeys.name));
+		return getAsOptional(CodingKeys.name);
 	}
 
 	@Override
 	public Optional<PBXTarget> getTarget() {
-		return orEmpty(tryDecode(CodingKeys.target));
+		return getAsOptional(CodingKeys.target);
 	}
 
 	@Override

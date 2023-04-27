@@ -18,6 +18,7 @@ package dev.nokee.xcode.project;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 @EqualsAndHashCode
 abstract class AbstractCodeable implements Codeable {
@@ -45,6 +46,10 @@ abstract class AbstractCodeable implements Codeable {
 	@Override
 	public <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
+	}
+
+	protected <T> Optional<T> getAsOptional(CodingKey key) {
+		return Optional.ofNullable(tryDecode(key));
 	}
 
 	@Override

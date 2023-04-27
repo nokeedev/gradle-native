@@ -19,7 +19,6 @@ import dev.nokee.xcode.objects.PBXContainerItemProxy;
 
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXContainerItemProxy extends AbstractCodeable implements PBXContainerItemProxy {
@@ -57,7 +56,7 @@ public final class CodeablePBXContainerItemProxy extends AbstractCodeable implem
 
 	@Override
 	public Optional<String> getRemoteInfo() {
-		return orEmpty(tryDecode(CodingKeys.remoteInfo));
+		return getAsOptional(CodingKeys.remoteInfo);
 	}
 
 	@Override
