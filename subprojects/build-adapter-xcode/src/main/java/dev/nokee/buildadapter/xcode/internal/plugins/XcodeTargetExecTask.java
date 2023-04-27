@@ -32,9 +32,11 @@ import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.XCString;
 import dev.nokee.xcode.XCTargetReference;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReference;
 import lombok.val;
@@ -255,7 +257,9 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 						.forEach(references::addAll);
 				}
 			}
-			references.add(PBXFileReference.ofAbsolutePath("$(CONFIGURATION_BUILD_DIR)/$(SWIFT_MODULE_NAME).swiftmodule"));
+			if (target.getBuildPhases().stream().filter(PBXSourcesBuildPhase.class::isInstance).flatMap(it -> it.getFiles().stream()).flatMap(it -> Optionals.stream(it.getFileRef())).filter(PBXFileReference.class::isInstance).map(PBXFileReference.class::cast).flatMap(it -> Optionals.stream(it.getLastKnownFileType())).anyMatch("sourcecode.swift"::equals)) {
+				references.add(PBXFileReference.ofAbsolutePath(XCString.of("$(CONFIGURATION_BUILD_DIR)/$(SWIFT_MODULE_NAME).swiftmodule").resolve(buildSettings::get)));
+			}
 
 			final ImmutableSet.Builder<Path> paths = ImmutableSet.builder();
 			for (PBXReference reference : references.build()) {
