@@ -24,6 +24,7 @@ import dev.nokee.core.exec.LoggingEngine;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingLiteral;
+import dev.nokee.xcode.XCBuildSettingNull;
 import dev.nokee.xcode.XCTargetReference;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -65,7 +66,11 @@ public final class XcodebuildBuildSettingLayer implements XCBuildSettingLayer {
 		if (queriedBuildSettings.add(context.getName())) {
 			LOGGER.info("Unknown build setting '" + context.getName() + "' requiring xcodebuild query to find value '" + result + "'");
 		}
-		return result;
+		if (result == null) {
+			return new XCBuildSettingNull(context.getName());
+		} else {
+			return result;
+		}
 	}
 
 	@Override
