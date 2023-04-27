@@ -62,7 +62,7 @@ public final class CodeablePBXNativeTarget extends AbstractCodeable implements P
 
 	@Override
 	public String getName() {
-		return tryDecode(CodingKeys.name);
+		return getOrNull(CodingKeys.name);
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public final class CodeablePBXNativeTarget extends AbstractCodeable implements P
 
 	@Override
 	public XCConfigurationList getBuildConfigurationList() {
-		return tryDecode(CodingKeys.buildConfigurationList);
+		return getOrNull(CodingKeys.buildConfigurationList);
 	}
 
 	@Override

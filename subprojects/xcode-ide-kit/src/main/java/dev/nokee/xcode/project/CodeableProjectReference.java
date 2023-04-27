@@ -38,12 +38,12 @@ public final class CodeableProjectReference extends AbstractCodeable implements 
 
 	@Override
 	public PBXGroup getProductGroup() {
-		return tryDecode(CodingKeys.ProductGroup);
+		return getOrNull(CodingKeys.ProductGroup);
 	}
 
 	@Override
 	public PBXFileReference getProjectReference() {
-		return tryDecode(CodingKeys.ProjectRef);
+		return getOrNull(CodingKeys.ProjectRef);
 	}
 
 	public static CodeableProjectReference newInstance(KeyedObject delegate) {

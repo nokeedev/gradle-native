@@ -63,7 +63,7 @@ public final class CodeableXCVersionGroup extends AbstractCodeable implements XC
 
 	@Override
 	public PBXSourceTree getSourceTree() {
-		return tryDecode(CodingKeys.sourceTree);
+		return getOrNull(CodingKeys.sourceTree);
 	}
 
 	@Override

@@ -41,17 +41,17 @@ public final class CodeablePBXContainerItemProxy extends AbstractCodeable implem
 
 	@Override
 	public ContainerPortal getContainerPortal() {
-		return tryDecode(CodingKeys.containerPortal);
+		return getOrNull(CodingKeys.containerPortal);
 	}
 
 	@Override
 	public String getRemoteGlobalIDString() {
-		return tryDecode(CodingKeys.remoteGlobalIDString);
+		return getOrNull(CodingKeys.remoteGlobalIDString);
 	}
 
 	@Override
 	public ProxyType getProxyType() {
-		return tryDecode(CodingKeys.proxyType);
+		return getOrNull(CodingKeys.proxyType);
 	}
 
 	@Override

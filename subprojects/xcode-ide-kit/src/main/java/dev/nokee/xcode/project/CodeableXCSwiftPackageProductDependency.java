@@ -41,12 +41,12 @@ public final class CodeableXCSwiftPackageProductDependency extends AbstractCodea
 
 	@Override
 	public String getProductName() {
-		return tryDecode(CodingKeys.productName);
+		return getOrNull(CodingKeys.productName);
 	}
 
 	@Override
 	public XCRemoteSwiftPackageReference getPackageReference() {
-		return tryDecode(CodingKeys.packageReference);
+		return getOrNull(CodingKeys.packageReference);
 	}
 
 	@Override

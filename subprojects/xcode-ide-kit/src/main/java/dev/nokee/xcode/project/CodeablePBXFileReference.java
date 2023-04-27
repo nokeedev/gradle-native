@@ -64,7 +64,7 @@ public final class CodeablePBXFileReference extends AbstractCodeable implements 
 
 	@Override
 	public PBXSourceTree getSourceTree() {
-		return tryDecode(CodingKeys.sourceTree);
+		return getOrNull(CodingKeys.sourceTree);
 	}
 
 	@Override

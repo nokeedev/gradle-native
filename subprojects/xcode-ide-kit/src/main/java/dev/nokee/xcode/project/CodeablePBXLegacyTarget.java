@@ -53,17 +53,17 @@ public final class CodeablePBXLegacyTarget extends AbstractCodeable implements P
 
 	@Override
 	public String getBuildArgumentsString() {
-		return tryDecode(CodingKeys.buildArgumentsString);
+		return getOrNull(CodingKeys.buildArgumentsString);
 	}
 
 	@Override
 	public String getBuildToolPath() {
-		return tryDecode(CodingKeys.buildToolPath);
+		return getOrNull(CodingKeys.buildToolPath);
 	}
 
 	@Override
 	public String getBuildWorkingDirectory() {
-		return tryDecode(CodingKeys.buildWorkingDirectory);
+		return getOrNull(CodingKeys.buildWorkingDirectory);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public final class CodeablePBXLegacyTarget extends AbstractCodeable implements P
 
 	@Override
 	public String getName() {
-		return tryDecode(CodingKeys.name);
+		return getOrNull(CodingKeys.name);
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public final class CodeablePBXLegacyTarget extends AbstractCodeable implements P
 
 	@Override
 	public XCConfigurationList getBuildConfigurationList() {
-		return tryDecode(CodingKeys.buildConfigurationList);
+		return getOrNull(CodingKeys.buildConfigurationList);
 	}
 
 	@Override

@@ -52,7 +52,7 @@ public final class CodeablePBXTargetDependency extends AbstractCodeable implemen
 
 	@Override
 	public PBXContainerItemProxy getTargetProxy() {
-		return tryDecode(CodingKeys.targetProxy);
+		return getOrNull(CodingKeys.targetProxy);
 	}
 
 	@Override

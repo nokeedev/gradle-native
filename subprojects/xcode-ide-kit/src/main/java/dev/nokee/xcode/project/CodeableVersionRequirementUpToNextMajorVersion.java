@@ -42,11 +42,11 @@ public final class CodeableVersionRequirementUpToNextMajorVersion extends Abstra
 
 	@Override
 	public Kind getKind() {
-		return tryDecode(CodingKeys.kind);
+		return getOrNull(CodingKeys.kind);
 	}
 
 	public String getMinimumVersion() {
-		return tryDecode(CodingKeys.minimumVersion);
+		return getOrNull(CodingKeys.minimumVersion);
 	}
 
 	@Override

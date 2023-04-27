@@ -50,7 +50,7 @@ public final class CodeablePBXAggregateTarget extends AbstractCodeable implement
 
 	@Override
 	public String getName() {
-		return tryDecode(CodingKeys.name);
+		return getOrNull(CodingKeys.name);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public final class CodeablePBXAggregateTarget extends AbstractCodeable implement
 
 	@Override
 	public XCConfigurationList getBuildConfigurationList() {
-		return tryDecode(CodingKeys.buildConfigurationList);
+		return getOrNull(CodingKeys.buildConfigurationList);
 	}
 
 	@Override

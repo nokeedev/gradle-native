@@ -60,7 +60,7 @@ public final class CodeablePBXVariantGroup extends AbstractCodeable implements P
 
 	@Override
 	public PBXSourceTree getSourceTree() {
-		return tryDecode(CodingKeys.sourceTree);
+		return getOrNull(CodingKeys.sourceTree);
 	}
 
 	@Override

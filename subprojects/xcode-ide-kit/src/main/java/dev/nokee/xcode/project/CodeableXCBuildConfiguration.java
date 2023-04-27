@@ -42,12 +42,12 @@ public final class CodeableXCBuildConfiguration extends AbstractCodeable impleme
 
 	@Override
 	public String getName() {
-		return tryDecode(CodingKeys.name);
+		return getOrNull(CodingKeys.name);
 	}
 
 	@Override
 	public BuildSettings getBuildSettings() {
-		return tryDecode(CodingKeys.buildSettings); // TODO: Should return empty BuildSettings if empty
+		return getOrNull(CodingKeys.buildSettings); // TODO: Should return empty BuildSettings if empty
 	}
 
 	@Override
