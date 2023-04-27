@@ -41,11 +41,11 @@ public final class CodeableVersionRequirementBranch extends AbstractCodeable imp
 
 	@Override
 	public Kind getKind() {
-		return tryDecode(CodingKeys.kind);
+		return getOrNull(CodingKeys.kind);
 	}
 
 	public String getBranch() {
-		return tryDecode(CodingKeys.branch);
+		return getOrNull(CodingKeys.branch);
 	}
 
 	@Override

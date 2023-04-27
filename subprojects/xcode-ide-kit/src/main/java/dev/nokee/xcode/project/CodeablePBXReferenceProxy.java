@@ -55,17 +55,17 @@ public final class CodeablePBXReferenceProxy extends AbstractCodeable implements
 
 	@Override
 	public PBXSourceTree getSourceTree() {
-		return tryDecode(CodingKeys.sourceTree);
+		return getOrNull(CodingKeys.sourceTree);
 	}
 
 	@Override
 	public PBXContainerItemProxy getRemoteReference() {
-		return tryDecode(CodingKeys.remoteRef);
+		return getOrNull(CodingKeys.remoteRef);
 	}
 
 	@Override
 	public String getFileType() {
-		return tryDecode(CodingKeys.fileType);
+		return getOrNull(CodingKeys.fileType);
 	}
 
 	@Override

@@ -83,6 +83,11 @@ abstract class AbstractCodeable implements Codeable {
 		}
 	}
 
+	@Nullable
+	protected <T> T getOrNull(CodingKey key) {
+		return tryDecode(key);
+	}
+
 	@Override
 	public long age() {
 		return delegate.age();

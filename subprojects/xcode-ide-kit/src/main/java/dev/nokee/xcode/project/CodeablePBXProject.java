@@ -49,7 +49,7 @@ public final class CodeablePBXProject extends AbstractCodeable implements PBXPro
 
 	@Override
 	public PBXGroup getMainGroup() {
-		return tryDecode(CodingKeys.mainGroup);
+		return getOrNull(CodingKeys.mainGroup);
 	}
 
 	@Override
@@ -59,12 +59,12 @@ public final class CodeablePBXProject extends AbstractCodeable implements PBXPro
 
 	@Override
 	public XCConfigurationList getBuildConfigurationList() {
-		return tryDecode(CodingKeys.buildConfigurationList);
+		return getOrNull(CodingKeys.buildConfigurationList);
 	}
 
 	@Override
 	public String getCompatibilityVersion() {
-		return tryDecode(CodingKeys.compatibilityVersion);
+		return getOrNull(CodingKeys.compatibilityVersion);
 	}
 
 	@Override

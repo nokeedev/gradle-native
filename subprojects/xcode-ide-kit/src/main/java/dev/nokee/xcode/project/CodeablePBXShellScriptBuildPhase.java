@@ -77,12 +77,12 @@ public final class CodeablePBXShellScriptBuildPhase extends AbstractCodeable imp
 
 	@Override
 	public String getShellPath() {
-		return tryDecode(CodingKeys.shellPath);
+		return getOrNull(CodingKeys.shellPath);
 	}
 
 	@Override
 	public String getShellScript() {
-		return tryDecode(CodingKeys.shellScript);
+		return getOrNull(CodingKeys.shellScript);
 	}
 
 	@Override

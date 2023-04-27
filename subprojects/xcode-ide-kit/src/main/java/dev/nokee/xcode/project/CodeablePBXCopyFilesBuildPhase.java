@@ -53,12 +53,12 @@ public final class CodeablePBXCopyFilesBuildPhase extends AbstractCodeable imple
 
 	@Override
 	public String getDstPath() {
-		return tryDecode(CodingKeys.dstPath);
+		return getOrNull(CodingKeys.dstPath);
 	}
 
 	@Override
 	public SubFolder getDstSubfolderSpec() {
-		return tryDecode(CodingKeys.dstSubfolderSpec);
+		return getOrNull(CodingKeys.dstSubfolderSpec);
 	}
 
 	@Override

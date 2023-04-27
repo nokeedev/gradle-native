@@ -36,12 +36,12 @@ public final class CodeableXCRemoteSwiftPackageReference extends AbstractCodeabl
 
 	@Override
 	public String getRepositoryUrl() {
-		return tryDecode(CodingKeys.repositoryUrl);
+		return getOrNull(CodingKeys.repositoryUrl);
 	}
 
 	@Override
 	public VersionRequirement getRequirement() {
-		return tryDecode(CodingKeys.requirement);
+		return getOrNull(CodingKeys.requirement);
 	}
 
 	@Override

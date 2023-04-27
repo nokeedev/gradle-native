@@ -42,11 +42,11 @@ public final class CodeableVersionRequirementExact extends AbstractCodeable impl
 
 	@Override
 	public Kind getKind() {
-		return tryDecode(CodingKeys.kind);
+		return getOrNull(CodingKeys.kind);
 	}
 
 	public String getVersion() {
-		return tryDecode(CodingKeys.version);
+		return getOrNull(CodingKeys.version);
 	}
 
 	@Override

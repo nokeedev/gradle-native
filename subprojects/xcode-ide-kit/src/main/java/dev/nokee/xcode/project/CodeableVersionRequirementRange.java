@@ -43,15 +43,15 @@ public final class CodeableVersionRequirementRange extends AbstractCodeable impl
 
 	@Override
 	public Kind getKind() {
-		return tryDecode(CodingKeys.kind);
+		return getOrNull(CodingKeys.kind);
 	}
 
 	public String getMinimumVersion() {
-		return tryDecode(CodingKeys.minimumVersion);
+		return getOrNull(CodingKeys.minimumVersion);
 	}
 
 	public String getMaximumVersion() {
-		return tryDecode(CodingKeys.maximumVersion);
+		return getOrNull(CodingKeys.maximumVersion);
 	}
 
 	@Override
