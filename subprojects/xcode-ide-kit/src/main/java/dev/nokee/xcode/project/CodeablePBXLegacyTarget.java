@@ -25,7 +25,6 @@ import dev.nokee.xcode.objects.targets.ProductType;
 import java.util.List;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orFalse;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXLegacyTarget extends AbstractCodeable implements PBXLegacyTarget {
@@ -69,7 +68,7 @@ public final class CodeablePBXLegacyTarget extends AbstractCodeable implements P
 
 	@Override
 	public boolean isPassBuildSettingsInEnvironment() {
-		return orFalse(tryDecode(CodingKeys.passBuildSettingsInEnvironment));
+		return getOrFalse(CodingKeys.passBuildSettingsInEnvironment);
 	}
 
 	@Override

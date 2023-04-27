@@ -74,6 +74,15 @@ abstract class AbstractCodeable implements Codeable {
 		}
 	}
 
+	protected boolean getOrFalse(CodingKey key) {
+		final Boolean value = delegate.tryDecode(key);
+		if (value == null) {
+			return false;
+		} else {
+			return value;
+		}
+	}
+
 	@Override
 	public long age() {
 		return delegate.age();
