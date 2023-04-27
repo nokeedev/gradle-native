@@ -15,18 +15,12 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Map;
 
 public final class PBXTypeSafety {
-	public static <E> List<E> orEmptyList(@Nullable List<E> value) {
-		return value == null ? ImmutableList.of() : value;
-	}
-
 	public static boolean orFalse(@Nullable Boolean value) {
 		return value == null ? false : value.booleanValue();
 	}

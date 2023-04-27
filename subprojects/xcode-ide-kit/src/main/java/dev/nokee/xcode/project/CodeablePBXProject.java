@@ -23,7 +23,6 @@ import dev.nokee.xcode.objects.targets.PBXTarget;
 
 import java.util.List;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXProject extends AbstractCodeable implements PBXProject {
@@ -55,7 +54,7 @@ public final class CodeablePBXProject extends AbstractCodeable implements PBXPro
 
 	@Override
 	public List<PBXTarget> getTargets() {
-		return orEmptyList(tryDecode(CodingKeys.targets));
+		return getOrEmptyList(CodingKeys.targets);
 	}
 
 	@Override
@@ -70,12 +69,12 @@ public final class CodeablePBXProject extends AbstractCodeable implements PBXPro
 
 	@Override
 	public List<ProjectReference> getProjectReferences() {
-		return orEmptyList(tryDecode(CodingKeys.projectReferences));
+		return getOrEmptyList(CodingKeys.projectReferences);
 	}
 
 	@Override
 	public List<XCRemoteSwiftPackageReference> getPackageReferences() {
-		return orEmptyList(tryDecode(CodingKeys.packageReferences));
+		return getOrEmptyList(CodingKeys.packageReferences);
 	}
 
 	@Override

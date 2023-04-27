@@ -25,7 +25,6 @@ import dev.nokee.xcode.objects.targets.ProductType;
 import java.util.List;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXAggregateTarget extends AbstractCodeable implements PBXAggregateTarget {
@@ -61,7 +60,7 @@ public final class CodeablePBXAggregateTarget extends AbstractCodeable implement
 
 	@Override
 	public List<PBXBuildPhase> getBuildPhases() {
-		return orEmptyList(tryDecode(CodingKeys.buildPhases));
+		return getOrEmptyList(CodingKeys.buildPhases);
 	}
 
 	@Override
@@ -71,7 +70,7 @@ public final class CodeablePBXAggregateTarget extends AbstractCodeable implement
 
 	@Override
 	public List<PBXTargetDependency> getDependencies() {
-		return orEmptyList(tryDecode(CodingKeys.dependencies));
+		return getOrEmptyList(CodingKeys.dependencies);
 	}
 
 	@Override

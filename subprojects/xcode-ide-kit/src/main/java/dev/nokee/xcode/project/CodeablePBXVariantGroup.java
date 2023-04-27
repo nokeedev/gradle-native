@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXVariantGroup extends AbstractCodeable implements PBXVariantGroup {
@@ -46,7 +45,7 @@ public final class CodeablePBXVariantGroup extends AbstractCodeable implements P
 
 	@Override
 	public List<GroupChild> getChildren() {
-		return orEmptyList(tryDecode(CodingKeys.children));
+		return getOrEmptyList(CodingKeys.children);
 	}
 
 	@Override

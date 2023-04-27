@@ -15,9 +15,11 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 
 @EqualsAndHashCode
@@ -50,6 +52,15 @@ abstract class AbstractCodeable implements Codeable {
 
 	protected <T> Optional<T> getAsOptional(CodingKey key) {
 		return Optional.ofNullable(tryDecode(key));
+	}
+
+	protected <T> List<T> getOrEmptyList(CodingKey key) {
+		final List<T> value = delegate.tryDecode(key);
+		if (value == null) {
+			return ImmutableList.of();
+		} else {
+			return value;
+		}
 	}
 
 	@Override
