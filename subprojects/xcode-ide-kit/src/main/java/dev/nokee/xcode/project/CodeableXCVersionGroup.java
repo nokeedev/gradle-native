@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeableXCVersionGroup extends AbstractCodeable implements XCVersionGroup {
@@ -49,7 +48,7 @@ public final class CodeableXCVersionGroup extends AbstractCodeable implements XC
 
 	@Override
 	public List<GroupChild> getChildren() {
-		return orEmptyList(tryDecode(CodingKeys.children));
+		return getOrEmptyList(CodingKeys.children);
 	}
 
 	@Override

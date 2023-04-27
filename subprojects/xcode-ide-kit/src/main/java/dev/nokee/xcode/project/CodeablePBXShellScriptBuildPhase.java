@@ -21,7 +21,6 @@ import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import java.util.List;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXShellScriptBuildPhase extends AbstractCodeable implements PBXShellScriptBuildPhase {
@@ -48,7 +47,7 @@ public final class CodeablePBXShellScriptBuildPhase extends AbstractCodeable imp
 
 	@Override
 	public List<PBXBuildFile> getFiles() {
-		return orEmptyList(tryDecode(CodingKeys.files));
+		return getOrEmptyList(CodingKeys.files);
 	}
 
 	@Override
@@ -58,22 +57,22 @@ public final class CodeablePBXShellScriptBuildPhase extends AbstractCodeable imp
 
 	@Override
 	public List<String> getInputPaths() {
-		return orEmptyList(tryDecode(CodingKeys.inputPaths));
+		return getOrEmptyList(CodingKeys.inputPaths);
 	}
 
 	@Override
 	public List<String> getInputFileListPaths() {
-		return orEmptyList(tryDecode(CodingKeys.inputFileListPaths));
+		return getOrEmptyList(CodingKeys.inputFileListPaths);
 	}
 
 	@Override
 	public List<String> getOutputPaths() {
-		return orEmptyList(tryDecode(CodingKeys.outputPaths));
+		return getOrEmptyList(CodingKeys.outputPaths);
 	}
 
 	@Override
 	public List<String> getOutputFileListPaths() {
-		return orEmptyList(tryDecode(CodingKeys.outputFileListPaths));
+		return getOrEmptyList(CodingKeys.outputFileListPaths);
 	}
 
 	@Override

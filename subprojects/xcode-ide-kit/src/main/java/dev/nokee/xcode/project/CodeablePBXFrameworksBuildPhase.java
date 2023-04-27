@@ -20,7 +20,6 @@ import dev.nokee.xcode.objects.buildphase.PBXFrameworksBuildPhase;
 
 import java.util.List;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXFrameworksBuildPhase extends AbstractCodeable implements PBXFrameworksBuildPhase {
@@ -40,7 +39,7 @@ public final class CodeablePBXFrameworksBuildPhase extends AbstractCodeable impl
 
 	@Override
 	public List<PBXBuildFile> getFiles() {
-		return orEmptyList(tryDecode(CodingKeys.files));
+		return getOrEmptyList(CodingKeys.files);
 	}
 
 	@Override

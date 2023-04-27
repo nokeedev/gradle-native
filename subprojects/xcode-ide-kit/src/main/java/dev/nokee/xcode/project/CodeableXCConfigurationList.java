@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.PBXTypeSafety.orFalse;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
@@ -49,7 +48,7 @@ public final class CodeableXCConfigurationList extends AbstractCodeable implemen
 	}
 
 	public List<XCBuildConfiguration> getBuildConfigurations() {
-		return orEmptyList(tryDecode(CodingKeys.buildConfigurations));
+		return getOrEmptyList(CodingKeys.buildConfigurations);
 	}
 
 	@Override
