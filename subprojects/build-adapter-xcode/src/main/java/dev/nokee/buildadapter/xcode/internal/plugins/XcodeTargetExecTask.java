@@ -392,6 +392,18 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 						it.include(outputPath);
 						it.include(outputPath + "/**/*");
 					}
+
+					// Normalize .modulemap files
+					it.eachFile(new Action<FileCopyDetails>() {
+						private final Path derivedDataPath = parameters.getXcodeDerivedDataPath().get().getAsFile().toPath();
+
+						@Override
+						public void execute(FileCopyDetails details) {
+							if (details.getName().endsWith(".modulemap")) {
+								details.filter(line -> line.replace(derivedDataPath.resolve(details.getRelativePath().getParent().toString()) + "/", ""));
+							}
+						}
+					});
 				});
 				spec.into(parameters.getOutgoingDerivedDataPath());
 				spec.setIncludeEmptyDirs(false);
