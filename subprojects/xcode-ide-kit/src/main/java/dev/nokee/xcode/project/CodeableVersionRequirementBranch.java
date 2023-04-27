@@ -16,14 +16,10 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
-import lombok.EqualsAndHashCode;
-
-import javax.annotation.Nullable;
 
 import static dev.nokee.xcode.project.RecodeableKeyedObject.of;
 
-@EqualsAndHashCode
-public final class CodeableVersionRequirementBranch implements XCRemoteSwiftPackageReference.VersionRequirement.Branch, Codeable {
+public final class CodeableVersionRequirementBranch extends AbstractCodeable implements XCRemoteSwiftPackageReference.VersionRequirement.Branch {
 	public enum CodingKeys implements CodingKey {
 		kind,
 		branch,
@@ -35,49 +31,21 @@ public final class CodeableVersionRequirementBranch implements XCRemoteSwiftPack
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeableVersionRequirementBranch(String branch) {
 		this(new DefaultKeyedObject.Builder().put(CodingKeys.kind, Kind.BRANCH).put(CodingKeys.branch, branch).build());
 	}
 
 	public CodeableVersionRequirementBranch(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public Kind getKind() {
-		return delegate.tryDecode(CodingKeys.kind);
+		return tryDecode(CodingKeys.kind);
 	}
 
 	public String getBranch() {
-		return delegate.tryDecode(CodingKeys.branch);
-	}
-
-	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
+		return tryDecode(CodingKeys.branch);
 	}
 
 	@Override

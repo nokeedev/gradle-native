@@ -17,9 +17,7 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,8 +27,7 @@ import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.PBXTypeSafety.orFalse;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeableXCConfigurationList implements XCConfigurationList, Codeable {
+public final class CodeableXCConfigurationList extends AbstractCodeable implements XCConfigurationList {
 	public enum CodingKeys implements CodingKey {
 		buildConfigurations,
 		defaultConfigurationName,
@@ -43,10 +40,8 @@ public final class CodeableXCConfigurationList implements XCConfigurationList, C
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeableXCConfigurationList(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
@@ -55,53 +50,27 @@ public final class CodeableXCConfigurationList implements XCConfigurationList, C
 	}
 
 	public List<XCBuildConfiguration> getBuildConfigurations() {
-		return orEmptyList(delegate.tryDecode(CodingKeys.buildConfigurations));
+		return orEmptyList(tryDecode(CodingKeys.buildConfigurations));
 	}
 
 	@Override
 	public Optional<String> getDefaultConfigurationName() {
-		return orEmpty(delegate.tryDecode(CodingKeys.defaultConfigurationName));
+		return orEmpty(tryDecode(CodingKeys.defaultConfigurationName));
 	}
 
 	@Override
 	public boolean isDefaultConfigurationIsVisible() {
-		return orFalse(delegate.tryDecode(CodingKeys.defaultConfigurationIsVisible));
+		return orFalse(tryDecode(CodingKeys.defaultConfigurationIsVisible));
 	}
 
 	@Override
 	public Builder toBuilder() {
-		return new Builder(delegate);
+		return new Builder(delegate());
 	}
 
 	@Override
 	public String toString() {
 		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeableXCConfigurationList newInstance(KeyedObject delegate) {

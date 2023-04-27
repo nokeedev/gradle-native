@@ -16,16 +16,13 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeablePBXContainerItemProxy implements PBXContainerItemProxy, Codeable {
+public final class CodeablePBXContainerItemProxy extends AbstractCodeable implements PBXContainerItemProxy {
 	public enum CodingKeys implements CodingKey {
 		containerPortal,
 		remoteGlobalIDString,
@@ -39,30 +36,28 @@ public final class CodeablePBXContainerItemProxy implements PBXContainerItemProx
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeablePBXContainerItemProxy(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public ContainerPortal getContainerPortal() {
-		return delegate.tryDecode(CodingKeys.containerPortal);
+		return tryDecode(CodingKeys.containerPortal);
 	}
 
 	@Override
 	public String getRemoteGlobalIDString() {
-		return delegate.tryDecode(CodingKeys.remoteGlobalIDString);
+		return tryDecode(CodingKeys.remoteGlobalIDString);
 	}
 
 	@Override
 	public ProxyType getProxyType() {
-		return delegate.tryDecode(CodingKeys.proxyType);
+		return tryDecode(CodingKeys.proxyType);
 	}
 
 	@Override
 	public Optional<String> getRemoteInfo() {
-		return orEmpty(delegate.tryDecode(CodingKeys.remoteInfo));
+		return orEmpty(tryDecode(CodingKeys.remoteInfo));
 	}
 
 	@Override
@@ -71,34 +66,8 @@ public final class CodeablePBXContainerItemProxy implements PBXContainerItemProx
 	}
 
 	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
 	public int stableHash() {
 		return getRemoteGlobalIDString().hashCode();
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeablePBXContainerItemProxy newInstance(KeyedObject delegate) {

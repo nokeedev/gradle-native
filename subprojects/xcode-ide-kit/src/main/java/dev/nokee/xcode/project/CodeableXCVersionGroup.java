@@ -19,9 +19,7 @@ import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.files.XCVersionGroup;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,8 +28,7 @@ import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeableXCVersionGroup implements XCVersionGroup, Codeable {
+public final class CodeableXCVersionGroup extends AbstractCodeable implements XCVersionGroup {
 	public enum CodingKeys implements CodingKey {
 		children,
 		name,
@@ -47,40 +44,38 @@ public final class CodeableXCVersionGroup implements XCVersionGroup, Codeable {
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeableXCVersionGroup(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public List<GroupChild> getChildren() {
-		return orEmptyList(delegate.tryDecode(CodingKeys.children));
+		return orEmptyList(tryDecode(CodingKeys.children));
 	}
 
 	@Override
 	public Optional<String> getName() {
-		return orEmpty(delegate.tryDecode(CodingKeys.name));
+		return orEmpty(tryDecode(CodingKeys.name));
 	}
 
 	@Override
 	public Optional<String> getPath() {
-		return orEmpty(delegate.tryDecode(CodingKeys.path));
+		return orEmpty(tryDecode(CodingKeys.path));
 	}
 
 	@Override
 	public PBXSourceTree getSourceTree() {
-		return delegate.tryDecode(CodingKeys.sourceTree);
+		return tryDecode(CodingKeys.sourceTree);
 	}
 
 	@Override
 	public Optional<PBXFileReference> getCurrentVersion() {
-		return orEmpty(delegate.tryDecode(CodingKeys.currentVersion));
+		return orEmpty(tryDecode(CodingKeys.currentVersion));
 	}
 
 	@Override
 	public Optional<String> getVersionGroupType() {
-		return orEmpty(delegate.tryDecode(CodingKeys.versionGroupType));
+		return orEmpty(tryDecode(CodingKeys.versionGroupType));
 	}
 
 	@Override
@@ -96,34 +91,8 @@ public final class CodeableXCVersionGroup implements XCVersionGroup, Codeable {
 	}
 
 	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
 	public int stableHash() {
 		return Objects.hash(getName().orElse(null));
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeableXCVersionGroup newInstance(KeyedObject delegate) {

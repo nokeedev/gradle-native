@@ -18,16 +18,13 @@ package dev.nokee.xcode.project;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeablePBXTargetDependency implements PBXTargetDependency, Codeable {
+public final class CodeablePBXTargetDependency extends AbstractCodeable implements PBXTargetDependency {
 	public enum CodingKeys implements CodingKey {
 		name,
 		target,
@@ -40,25 +37,23 @@ public final class CodeablePBXTargetDependency implements PBXTargetDependency, C
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeablePBXTargetDependency(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public Optional<String> getName() {
-		return orEmpty(delegate.tryDecode(CodingKeys.name));
+		return orEmpty(tryDecode(CodingKeys.name));
 	}
 
 	@Override
 	public Optional<PBXTarget> getTarget() {
-		return orEmpty(delegate.tryDecode(CodingKeys.target));
+		return orEmpty(tryDecode(CodingKeys.target));
 	}
 
 	@Override
 	public PBXContainerItemProxy getTargetProxy() {
-		return delegate.tryDecode(CodingKeys.targetProxy);
+		return tryDecode(CodingKeys.targetProxy);
 	}
 
 	@Override
@@ -67,34 +62,8 @@ public final class CodeablePBXTargetDependency implements PBXTargetDependency, C
 	}
 
 	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
 	public int stableHash() {
 		return ((Codeable) getTargetProxy()).stableHash();
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeablePBXTargetDependency newInstance(KeyedObject delegate) {

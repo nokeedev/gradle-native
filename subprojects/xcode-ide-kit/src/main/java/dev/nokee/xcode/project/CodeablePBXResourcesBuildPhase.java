@@ -15,19 +15,15 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeablePBXResourcesBuildPhase implements PBXResourcesBuildPhase, Codeable {
+public final class CodeablePBXResourcesBuildPhase extends AbstractCodeable implements PBXResourcesBuildPhase {
 	public enum CodingKeys implements CodingKey {
 		files,
 		;
@@ -39,51 +35,23 @@ public final class CodeablePBXResourcesBuildPhase implements PBXResourcesBuildPh
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeablePBXResourcesBuildPhase(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public List<PBXBuildFile> getFiles() {
-		return orEmptyList(delegate.tryDecode(CodingKeys.files));
+		return orEmptyList(tryDecode(CodingKeys.files));
 	}
 
 	@Override
 	public Builder toBuilder() {
-		return new Builder(delegate);
+		return new Builder(delegate());
 	}
 
 	@Override
 	public String toString() {
 		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeablePBXResourcesBuildPhase newInstance(KeyedObject delegate) {

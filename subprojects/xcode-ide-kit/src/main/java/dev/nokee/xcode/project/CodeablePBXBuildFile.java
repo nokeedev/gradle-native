@@ -17,9 +17,7 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,8 +25,7 @@ import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyMap;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeablePBXBuildFile implements PBXBuildFile, Codeable {
+public final class CodeablePBXBuildFile extends AbstractCodeable implements PBXBuildFile {
 	public enum CodingKeys implements CodingKey {
 		fileRef,
 		productRef,
@@ -41,30 +38,28 @@ public final class CodeablePBXBuildFile implements PBXBuildFile, Codeable {
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeablePBXBuildFile(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public Optional<FileReference> getFileRef() {
-		return orEmpty(delegate.tryDecode(CodingKeys.fileRef));
+		return orEmpty(tryDecode(CodingKeys.fileRef));
 	}
 
 	@Override
 	public Optional<XCSwiftPackageProductDependency> getProductRef() {
-		return orEmpty(delegate.tryDecode(CodingKeys.productRef));
+		return orEmpty(tryDecode(CodingKeys.productRef));
 	}
 
 	@Override
 	public Map<String, ?> getSettings() {
-		return orEmptyMap(delegate.tryDecode(CodingKeys.settings));
+		return orEmptyMap(tryDecode(CodingKeys.settings));
 	}
 
 	@Override
 	public Builder toBuilder() {
-		return new Builder(delegate);
+		return new Builder(delegate());
 	}
 
 	@Override
@@ -73,35 +68,9 @@ public final class CodeablePBXBuildFile implements PBXBuildFile, Codeable {
 	}
 
 	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
 	public int stableHash() {
 		return getFileRef().map(Codeable.class::cast).map(Codeable::stableHash)
 			.orElseGet(() -> getProductRef().map(Codeable.class::cast).map(Codeable::stableHash).orElse(0));
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeablePBXBuildFile newInstance(KeyedObject delegate) {

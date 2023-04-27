@@ -18,14 +18,10 @@ package dev.nokee.xcode.project;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
-import lombok.EqualsAndHashCode;
-
-import javax.annotation.Nullable;
 
 import static dev.nokee.xcode.project.RecodeableKeyedObject.of;
 
-@EqualsAndHashCode
-public final class CodeableProjectReference implements PBXProject.ProjectReference, Codeable {
+public final class CodeableProjectReference extends AbstractCodeable implements PBXProject.ProjectReference {
 	public enum CodingKeys implements CodingKey {
 		ProductGroup,
 		ProjectRef,
@@ -36,46 +32,18 @@ public final class CodeableProjectReference implements PBXProject.ProjectReferen
 			return name();
 		}
 	}
-	private final KeyedObject delegate;
-
 	public CodeableProjectReference(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public PBXGroup getProductGroup() {
-		return delegate.tryDecode(CodingKeys.ProductGroup);
+		return tryDecode(CodingKeys.ProductGroup);
 	}
 
 	@Override
 	public PBXFileReference getProjectReference() {
-		return delegate.tryDecode(CodingKeys.ProjectRef);
-	}
-
-	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
+		return tryDecode(CodingKeys.ProjectRef);
 	}
 
 	public static CodeableProjectReference newInstance(KeyedObject delegate) {
