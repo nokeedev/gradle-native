@@ -17,15 +17,12 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeableXCSwiftPackageProductDependency implements XCSwiftPackageProductDependency, Codeable {
+public final class CodeableXCSwiftPackageProductDependency extends AbstractCodeable implements XCSwiftPackageProductDependency {
 	public enum CodingKeys implements CodingKey {
 		productName,
 		packageReference,
@@ -38,20 +35,18 @@ public final class CodeableXCSwiftPackageProductDependency implements XCSwiftPac
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeableXCSwiftPackageProductDependency(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public String getProductName() {
-		return delegate.tryDecode(CodingKeys.productName);
+		return tryDecode(CodingKeys.productName);
 	}
 
 	@Override
 	public XCRemoteSwiftPackageReference getPackageReference() {
-		return delegate.tryDecode(CodingKeys.packageReference);
+		return tryDecode(CodingKeys.packageReference);
 	}
 
 	@Override
@@ -60,34 +55,8 @@ public final class CodeableXCSwiftPackageProductDependency implements XCSwiftPac
 	}
 
 	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
 	public int stableHash() {
 		return Objects.hash(getProductName(), getPackageReference().getRepositoryUrl());
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeableXCSwiftPackageProductDependency newInstance(KeyedObject delegate) {

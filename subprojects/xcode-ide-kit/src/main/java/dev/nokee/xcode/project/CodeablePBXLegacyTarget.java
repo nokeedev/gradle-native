@@ -21,9 +21,7 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.objects.targets.ProductType;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,8 +30,7 @@ import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.PBXTypeSafety.orFalse;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeablePBXLegacyTarget implements PBXLegacyTarget, Codeable {
+public final class CodeablePBXLegacyTarget extends AbstractCodeable implements PBXLegacyTarget {
 	public enum CodingKeys implements CodingKey {
 		buildArgumentsString,
 		buildToolPath,
@@ -53,35 +50,33 @@ public final class CodeablePBXLegacyTarget implements PBXLegacyTarget, Codeable 
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeablePBXLegacyTarget(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public String getBuildArgumentsString() {
-		return delegate.tryDecode(CodingKeys.buildArgumentsString);
+		return tryDecode(CodingKeys.buildArgumentsString);
 	}
 
 	@Override
 	public String getBuildToolPath() {
-		return delegate.tryDecode(CodingKeys.buildToolPath);
+		return tryDecode(CodingKeys.buildToolPath);
 	}
 
 	@Override
 	public String getBuildWorkingDirectory() {
-		return delegate.tryDecode(CodingKeys.buildWorkingDirectory);
+		return tryDecode(CodingKeys.buildWorkingDirectory);
 	}
 
 	@Override
 	public boolean isPassBuildSettingsInEnvironment() {
-		return orFalse(delegate.tryDecode(CodingKeys.passBuildSettingsInEnvironment));
+		return orFalse(tryDecode(CodingKeys.passBuildSettingsInEnvironment));
 	}
 
 	@Override
 	public Builder toBuilder() {
-		return new Builder(delegate);
+		return new Builder(delegate());
 	}
 
 	@Override
@@ -91,68 +86,42 @@ public final class CodeablePBXLegacyTarget implements PBXLegacyTarget, Codeable 
 
 	@Override
 	public String getName() {
-		return delegate.tryDecode(CodingKeys.name);
+		return tryDecode(CodingKeys.name);
 	}
 
 	@Override
 	public Optional<ProductType> getProductType() {
-		return orEmpty(delegate.tryDecode(CodingKeys.productType));
+		return orEmpty(tryDecode(CodingKeys.productType));
 	}
 
 	@Override
 	public List<PBXBuildPhase> getBuildPhases() {
-		return orEmptyList(delegate.tryDecode(CodingKeys.buildPhases));
+		return orEmptyList(tryDecode(CodingKeys.buildPhases));
 	}
 
 	@Override
 	public XCConfigurationList getBuildConfigurationList() {
-		return delegate.tryDecode(CodingKeys.buildConfigurationList);
+		return tryDecode(CodingKeys.buildConfigurationList);
 	}
 
 	@Override
 	public List<PBXTargetDependency> getDependencies() {
-		return orEmptyList(delegate.tryDecode(CodingKeys.dependencies));
+		return orEmptyList(tryDecode(CodingKeys.dependencies));
 	}
 
 	@Override
 	public Optional<String> getProductName() {
-		return orEmpty(delegate.tryDecode(CodingKeys.productName));
+		return orEmpty(tryDecode(CodingKeys.productName));
 	}
 
 	@Override
 	public Optional<PBXFileReference> getProductReference() {
-		return orEmpty(delegate.tryDecode(CodingKeys.productReference));
-	}
-
-	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
+		return orEmpty(tryDecode(CodingKeys.productReference));
 	}
 
 	@Override
 	public int stableHash() {
 		return getName().hashCode();
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeablePBXLegacyTarget newInstance(KeyedObject delegate) {

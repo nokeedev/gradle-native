@@ -21,9 +21,7 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.targets.PBXAggregateTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.objects.targets.ProductType;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,8 +29,7 @@ import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeablePBXAggregateTarget implements PBXAggregateTarget, Codeable {
+public final class CodeablePBXAggregateTarget extends AbstractCodeable implements PBXAggregateTarget {
 	public enum CodingKeys implements CodingKey {
 		name,
 		productType,
@@ -49,86 +46,58 @@ public final class CodeablePBXAggregateTarget implements PBXAggregateTarget, Cod
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeablePBXAggregateTarget(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public String getName() {
-		return delegate.tryDecode(CodingKeys.name);
+		return tryDecode(CodingKeys.name);
 	}
 
 	@Override
 	public Optional<ProductType> getProductType() {
-		return Optional.ofNullable(delegate.tryDecode(CodingKeys.productType));
+		return Optional.ofNullable(tryDecode(CodingKeys.productType));
 	}
 
 	@Override
 	public List<PBXBuildPhase> getBuildPhases() {
-		return orEmptyList(delegate.tryDecode(CodingKeys.buildPhases));
+		return orEmptyList(tryDecode(CodingKeys.buildPhases));
 	}
 
 	@Override
 	public XCConfigurationList getBuildConfigurationList() {
-		return delegate.tryDecode(CodingKeys.buildConfigurationList);
+		return tryDecode(CodingKeys.buildConfigurationList);
 	}
 
 	@Override
 	public List<PBXTargetDependency> getDependencies() {
-		return orEmptyList(delegate.tryDecode(CodingKeys.dependencies));
+		return orEmptyList(tryDecode(CodingKeys.dependencies));
 	}
 
 	@Override
 	public Optional<String> getProductName() {
-		return orEmpty(delegate.tryDecode(CodingKeys.productName));
+		return orEmpty(tryDecode(CodingKeys.productName));
 	}
 
 	@Override
 	public Optional<PBXFileReference> getProductReference() {
-		return orEmpty(delegate.tryDecode(CodingKeys.productReference));
+		return orEmpty(tryDecode(CodingKeys.productReference));
 	}
 
 	@Override
 	public Builder toBuilder() {
-		return new Builder(delegate);
-	}
-
-	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
+		return new Builder(delegate());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s", delegate);
+		return String.format("%s", delegate());
 	}
 
 	@Override
 	public int stableHash() {
 		return getName().hashCode();
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeablePBXAggregateTarget newInstance(KeyedObject delegate) {

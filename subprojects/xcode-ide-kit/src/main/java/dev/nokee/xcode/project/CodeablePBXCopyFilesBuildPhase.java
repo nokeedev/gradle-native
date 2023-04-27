@@ -17,9 +17,7 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,8 +25,7 @@ import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
-@EqualsAndHashCode
-public final class CodeablePBXCopyFilesBuildPhase implements PBXCopyFilesBuildPhase, Codeable {
+public final class CodeablePBXCopyFilesBuildPhase extends AbstractCodeable implements PBXCopyFilesBuildPhase {
 	public enum CodingKeys implements CodingKey {
 		files,
 		name,
@@ -42,66 +39,38 @@ public final class CodeablePBXCopyFilesBuildPhase implements PBXCopyFilesBuildPh
 		}
 	}
 
-	private final KeyedObject delegate;
-
 	public CodeablePBXCopyFilesBuildPhase(KeyedObject delegate) {
-		this.delegate = delegate;
+		super(delegate);
 	}
 
 	@Override
 	public List<PBXBuildFile> getFiles() {
-		return orEmptyList(delegate.tryDecode(CodingKeys.files));
+		return orEmptyList(tryDecode(CodingKeys.files));
 	}
 
 	@Override
 	public Optional<String> getName() {
-		return orEmpty(delegate.tryDecode(CodingKeys.name));
+		return orEmpty(tryDecode(CodingKeys.name));
 	}
 
 	@Override
 	public String getDstPath() {
-		return delegate.tryDecode(CodingKeys.dstPath);
+		return tryDecode(CodingKeys.dstPath);
 	}
 
 	@Override
 	public SubFolder getDstSubfolderSpec() {
-		return delegate.tryDecode(CodingKeys.dstSubfolderSpec);
+		return tryDecode(CodingKeys.dstSubfolderSpec);
 	}
 
 	@Override
 	public Builder toBuilder() {
-		return new Builder(delegate);
+		return new Builder(delegate());
 	}
 
 	@Override
 	public String toString() {
 		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	@Override
-	public String isa() {
-		return delegate.isa();
-	}
-
-	@Nullable
-	@Override
-	public String globalId() {
-		return delegate.globalId();
-	}
-
-	@Override
-	public long age() {
-		return delegate.age();
-	}
-
-	@Override
-	public void encode(EncodeContext context) {
-		delegate.encode(context);
-	}
-
-	@Override
-	public <T> T tryDecode(CodingKey key) {
-		return delegate.tryDecode(key);
 	}
 
 	public static CodeablePBXCopyFilesBuildPhase newInstance(KeyedObject delegate) {
