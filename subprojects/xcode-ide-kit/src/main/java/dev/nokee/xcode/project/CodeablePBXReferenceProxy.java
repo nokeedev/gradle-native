@@ -22,7 +22,6 @@ import dev.nokee.xcode.objects.files.PBXSourceTree;
 import java.util.Objects;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeablePBXReferenceProxy extends AbstractCodeable implements PBXReferenceProxy {
@@ -46,12 +45,12 @@ public final class CodeablePBXReferenceProxy extends AbstractCodeable implements
 
 	@Override
 	public Optional<String> getName() {
-		return orEmpty(tryDecode(CodingKeys.name));
+		return getAsOptional(CodingKeys.name);
 	}
 
 	@Override
 	public Optional<String> getPath() {
-		return orEmpty(tryDecode(CodingKeys.path));
+		return getAsOptional(CodingKeys.path);
 	}
 
 	@Override

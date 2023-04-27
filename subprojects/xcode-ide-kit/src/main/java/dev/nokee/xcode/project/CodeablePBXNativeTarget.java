@@ -26,7 +26,6 @@ import dev.nokee.xcode.objects.targets.ProductType;
 import java.util.List;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
@@ -69,7 +68,7 @@ public final class CodeablePBXNativeTarget extends AbstractCodeable implements P
 
 	@Override
 	public Optional<ProductType> getProductType() {
-		return orEmpty(tryDecode(CodingKeys.productType));
+		return getAsOptional(CodingKeys.productType);
 	}
 
 	@Override
@@ -89,12 +88,12 @@ public final class CodeablePBXNativeTarget extends AbstractCodeable implements P
 
 	@Override
 	public Optional<String> getProductName() {
-		return orEmpty(tryDecode(CodingKeys.productName));
+		return getAsOptional(CodingKeys.productName);
 	}
 
 	@Override
 	public Optional<PBXFileReference> getProductReference() {
-		return orEmpty(tryDecode(CodingKeys.productReference));
+		return getAsOptional(CodingKeys.productReference);
 	}
 
 	@Override

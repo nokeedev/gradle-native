@@ -21,7 +21,6 @@ import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import java.util.List;
 import java.util.Optional;
 
-import static dev.nokee.xcode.project.PBXTypeSafety.orEmpty;
 import static dev.nokee.xcode.project.PBXTypeSafety.orEmptyList;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
@@ -54,7 +53,7 @@ public final class CodeablePBXShellScriptBuildPhase extends AbstractCodeable imp
 
 	@Override
 	public Optional<String> getName() {
-		return orEmpty(tryDecode(CodingKeys.name));
+		return getAsOptional(CodingKeys.name);
 	}
 
 	@Override

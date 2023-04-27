@@ -21,13 +21,8 @@ import com.google.common.collect.ImmutableMap;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public final class PBXTypeSafety {
-	public static <T> Optional<T> orEmpty(@Nullable T value) {
-		return Optional.ofNullable(value);
-	}
-
 	public static <E> List<E> orEmptyList(@Nullable List<E> value) {
 		return value == null ? ImmutableList.of() : value;
 	}
