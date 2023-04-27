@@ -52,7 +52,7 @@ public final class XcodeTargetExecTaskOutOfDateSpec implements Spec<HasXcodeTarg
 	public static final class DefaultPredicate implements AlwaysOutOfDateShellScriptBuildPhasePredicate {
 		@Override
 		public boolean test(PBXShellScriptBuildPhase buildPhase) {
-			return !hasAtLeastOneInputFile(buildPhase) || !hasAtLeastOneOutputFile(buildPhase) || useXCFileList(buildPhase);
+			return !hasAtLeastOneInputFile(buildPhase) || !hasAtLeastOneOutputFile(buildPhase);
 		}
 
 		private boolean hasAtLeastOneInputFile(PBXShellScriptBuildPhase buildPhase) {
@@ -61,10 +61,6 @@ public final class XcodeTargetExecTaskOutOfDateSpec implements Spec<HasXcodeTarg
 
 		private boolean hasAtLeastOneOutputFile(PBXShellScriptBuildPhase buildPhase) {
 			return !buildPhase.getOutputPaths().isEmpty() || !buildPhase.getOutputFileListPaths().isEmpty();
-		}
-
-		private boolean useXCFileList(PBXShellScriptBuildPhase buildPhase) {
-			return !buildPhase.getInputFileListPaths().isEmpty() || !buildPhase.getOutputFileListPaths().isEmpty();
 		}
 	}
 }

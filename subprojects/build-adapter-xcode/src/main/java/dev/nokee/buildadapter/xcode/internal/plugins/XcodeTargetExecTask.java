@@ -20,10 +20,12 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.buildadapter.xcode.internal.files.PreserveLastModifiedFileSystemOperation;
 import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildPlan;
 import dev.nokee.buildadapter.xcode.internal.plugins.specs.XCBuildSpec;
+import dev.nokee.buildadapter.xcode.internal.plugins.xcfilelist.XCFileListReader;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.util.provider.ZipProviderBuilder;
 import dev.nokee.utils.FileSystemLocationUtils;
+import dev.nokee.utils.Optionals;
 import dev.nokee.xcode.CompositeXCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
@@ -31,23 +33,33 @@ import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
+import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
+import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReference;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Transformer;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileCopyDetails;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.process.ExecOperations;
@@ -57,6 +69,7 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,6 +87,7 @@ import static dev.nokee.core.exec.CommandLineToolExecutionEngine.execOperations;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toFile;
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toStandardStream;
+import static dev.nokee.util.internal.NotPredicate.not;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.ifPresent;
@@ -117,6 +131,13 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	public Provider<XCBuildPlan> getBuildPlan() {
 		return buildSpec;
 	}
+
+	@InputFiles
+	@PathSensitive(PathSensitivity.ABSOLUTE)
+	protected abstract ConfigurableFileCollection getInputFiles();
+
+	@Internal
+	protected abstract SetProperty<String> getOutputPaths();
 
 	@Inject
 	public XcodeTargetExecTask(WorkerExecutor workerExecutor, ObjectFactory objects, ProviderFactory providers) {
@@ -179,6 +200,86 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 		buildSettings.setFrom(xcodebuildLayer());
 		buildSettings.from(overrideLayer());
+
+		getInputFiles().from(ZipProviderBuilder.newBuilder(objects).value(getTargetReference()).value(getBuildSettings().asProvider()).zip((targetReference, buildSettings) -> {
+			val context = new BuildSettingsResolveContext(FileSystems.getDefault(), buildSettings);
+			val fileRefs = XCLoaders.fileReferences().load(targetReference.getProject());
+			val target = XCLoaders.pbxtargetLoader().load(targetReference);
+
+			final ImmutableList.Builder<PBXReference> references = ImmutableList.builder();
+			for (PBXBuildPhase buildPhase : target.getBuildPhases()) {
+				buildPhase.getFiles().stream().flatMap(it -> Optionals.stream(it.getFileRef())).map(PBXReference.class::cast).forEach(references::add);
+				if (buildPhase instanceof PBXShellScriptBuildPhase) {
+					((PBXShellScriptBuildPhase) buildPhase).getInputPaths().stream()
+						.map(String::trim).filter(not(String::isEmpty))
+						.map(PBXFileReference::ofAbsolutePath)
+						.forEach(references::add);
+					((PBXShellScriptBuildPhase) buildPhase).getInputFileListPaths().stream()
+						.map(String::trim).filter(not(String::isEmpty))
+						.map(PBXFileReference::ofAbsolutePath)
+						.map(it -> fileRefs.get(it).resolve(context))
+						.map(XcodeTargetExecTask::readFileList)
+						.forEach(references::addAll);
+				}
+			}
+
+			final ImmutableSet.Builder<Path> paths = ImmutableSet.builder();
+			for (PBXReference reference : references.build()) {
+				paths.add(fileRefs.get(reference).resolve(context));
+			}
+
+			return paths.build();
+		}));
+
+		getOutputPaths().addAll(ZipProviderBuilder.newBuilder(objects).value(getTargetReference()).value(getBuildSettings().asProvider()).value(getDerivedDataPath().map(FileSystemLocationUtils::asPath)).zip((values) -> {
+			final XCTargetReference targetReference = values.get(0);
+			final XCBuildSettings buildSettings = values.get(1);
+			final Path derivedDataPath = values.get(2);
+			val context = new BuildSettingsResolveContext(FileSystems.getDefault(), buildSettings);
+			val fileRefs = XCLoaders.fileReferences().load(targetReference.getProject());
+			val target = XCLoaders.pbxtargetLoader().load(targetReference);
+
+			final ImmutableList.Builder<PBXReference> references = ImmutableList.builder();
+			target.getProductReference().ifPresent(references::add);
+			for (PBXBuildPhase buildPhase : target.getBuildPhases()) {
+				if (buildPhase instanceof PBXShellScriptBuildPhase) {
+					((PBXShellScriptBuildPhase) buildPhase).getOutputPaths().stream()
+						.map(String::trim).filter(not(String::isEmpty))
+						.map(PBXFileReference::ofAbsolutePath)
+						.forEach(references::add);
+					((PBXShellScriptBuildPhase) buildPhase).getOutputFileListPaths().stream()
+						.map(String::trim).filter(not(String::isEmpty))
+						.map(PBXFileReference::ofAbsolutePath)
+						.map(it -> fileRefs.get(it).resolve(context))
+						.map(XcodeTargetExecTask::readFileList)
+						.forEach(references::addAll);
+				}
+			}
+			references.add(PBXFileReference.ofAbsolutePath("$(CONFIGURATION_BUILD_DIR)/$(SWIFT_MODULE_NAME).swiftmodule"));
+
+			final ImmutableSet.Builder<Path> paths = ImmutableSet.builder();
+			for (PBXReference reference : references.build()) {
+				paths.add(fileRefs.get(reference).resolve(context));
+			}
+
+			val productPath = derivedDataPath.resolve("Build/Products");
+			final ImmutableList.Builder<String> result = ImmutableList.builder();
+			for (Path path : paths.build()) {
+				if (path.startsWith(productPath)) {
+					result.add(derivedDataPath.relativize(path).toString());
+				}
+			}
+
+			return result.build();
+		}));
+	}
+
+	private static List<PBXReference> readFileList(Path path) {
+		try (val reader = new XCFileListReader(Files.newBufferedReader(path))) {
+			return reader.read().stream().map(PBXFileReference::ofAbsolutePath).collect(ImmutableList.toImmutableList());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -264,6 +365,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		workerExecutor.noIsolation().submit(XcodebuildExec.class, spec -> {
 			spec.getOutgoingDerivedDataPath().set(getOutputDirectory());
 			spec.getXcodeDerivedDataPath().set(getDerivedDataPath());
+			spec.getOutputPaths().addAll(getOutputPaths());
 
 			spec.getInvocation().set(invocation);
 		});
@@ -285,14 +387,21 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			delegate.run();
 
 			new PreserveLastModifiedFileSystemOperation(fileOperations::sync).execute(spec -> {
-				spec.from(parameters.getXcodeDerivedDataPath(), it -> it.include("Build/Products/**/*"));
+				spec.from(parameters.getXcodeDerivedDataPath(), it -> {
+					for (String outputPath : parameters.getOutputPaths().get()) {
+						it.include(outputPath);
+						it.include(outputPath + "/**/*");
+					}
+				});
 				spec.into(parameters.getOutgoingDerivedDataPath());
+				spec.setIncludeEmptyDirs(false);
 			});
 		}
 
 		public interface Parameters {
 			DirectoryProperty getXcodeDerivedDataPath();
 			DirectoryProperty getOutgoingDerivedDataPath();
+			ListProperty<String> getOutputPaths();
 		}
 	}
 
