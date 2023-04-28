@@ -33,7 +33,6 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.google.common.collect.ImmutableSet.of;
@@ -94,15 +93,12 @@ class XcodeTargetExecTaskOutOfDateSpecDefaultPredicateTests {
 				of(noInputFileListPaths, hasEmptyInputFileListPaths, hasNonEmptyInputFileListPaths),
 				of(noOutputFileListPaths, hasEmptyOutputFileListPaths, hasNonEmptyOutputFileListPaths)
 			).stream().map(specs -> arguments(ImmutableList.builder()
-				.add(specs.stream().anyMatch(xcFileListSpec()) || !(specs.contains(hasInputPaths) && specs.contains(hasOutputPaths)))
+				.add(!((specs.contains(hasInputPaths) || specs.contains(hasEmptyInputFileListPaths) || specs.contains(hasNonEmptyInputFileListPaths))
+					&& (specs.contains(hasOutputPaths) || specs.contains(hasEmptyOutputFileListPaths) || specs.contains(hasNonEmptyOutputFileListPaths))))
 				.addAll(specs)
 				.build().toArray(new Object[0])
 			));
 		}
-	}
-
-	static Predicate<GivenSpec> xcFileListSpec() {
-		return of(hasEmptyInputFileListPaths, hasNonEmptyInputFileListPaths, hasEmptyOutputFileListPaths, hasNonEmptyOutputFileListPaths)::contains;
 	}
 
 	enum GivenSpec {
