@@ -62,7 +62,6 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketS
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.utils.TransformerUtils;
 import dev.nokee.xcode.XCDependenciesLoader;
@@ -144,7 +143,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		listenerRegistry.onTaskCompletion(service);
 		service.get(); // hypothetically, make sure the service clear the cache even if configuration phase fails
 
-		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(GradleBuildLayout.forSettings(settings), providers));
+		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(GradleBuildLayout.forSettings(settings), providers, objects));
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectPathRule(new DefaultGradleProjectPathService(settings.getSettingsDir().toPath())));
 
 		// This custom locator also capture inputs to the build
@@ -324,7 +323,6 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getOutputs().upToDateWhen(because(String.format("a shell script build phase of %s has no inputs or outputs defined", reference.ofTarget(target.getName())), everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs()));
 						task.getDerivedDataPath().set(derivedDataTask.flatMap(it -> it.getParameters().getXcodeDerivedDataPath()));
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + task.getName()));
-						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getConfiguration().set(variantInfo.getName());
 						task.getBuildSettings().from(ImmutableMap.of("SRCROOT", reference.getLocation().getParent().toString()));
 						task.getArguments().add(new CommandLineArgumentProvider() {
