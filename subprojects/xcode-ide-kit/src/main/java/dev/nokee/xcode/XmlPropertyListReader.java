@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
 public final class XmlPropertyListReader implements PropertyListReader, AutoCloseable {
+	private static final XMLInputFactory XML_FACTORY = XMLInputFactory.newFactory();
 	private final Reader reader;
 	private final XMLStreamReader delegate;
 	private Context next;
@@ -35,7 +36,7 @@ public final class XmlPropertyListReader implements PropertyListReader, AutoClos
 	public XmlPropertyListReader(Reader reader) {
 		this.reader = reader;
 		try {
-			this.delegate = XMLInputFactory.newFactory().createXMLStreamReader(reader);
+			this.delegate = XML_FACTORY.createXMLStreamReader(reader);
 			this.next = findNext();
 		} catch (
 			XMLStreamException e) {
