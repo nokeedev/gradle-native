@@ -16,6 +16,6 @@
 
 package dev.nokee.model.internal.tags;
 
-public interface ComponentTagAwareFactory {
-	<T extends ModelTag> ComponentTag addComponentTag(Class<T> type);
-}
+import dev.nokee.model.internal.core.Component;
+
+public interface ComponentTag extends Component {}
