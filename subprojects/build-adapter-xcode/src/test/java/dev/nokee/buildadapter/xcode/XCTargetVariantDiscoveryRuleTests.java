@@ -36,7 +36,6 @@ import static dev.nokee.buildadapter.xcode.TestTargetReference.target;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.buffers.ModelBuffers.typeOf;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -54,7 +53,7 @@ class XCTargetVariantDiscoveryRuleTests {
 	void givenConfigurations() {
 		Mockito.when(configurationLoader.load(any())).thenReturn(asList("Debug", "Release"));
 		target.addComponent(new XCTargetComponent(target("MyTarget")));
-		target.addComponent(tag(IsComponent.class));
+		target.addComponentTag(IsComponent.class);
 	}
 
 	@Nested

@@ -29,7 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.list;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,7 +41,7 @@ class ModelPropertyListPropertyIntegrationTest {
 	void setUp() {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(list(of(MyType.class))))
 			.build());
 	}

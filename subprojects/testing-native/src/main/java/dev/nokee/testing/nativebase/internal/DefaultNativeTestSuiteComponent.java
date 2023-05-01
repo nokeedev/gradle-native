@@ -109,7 +109,6 @@ import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
@@ -246,15 +245,15 @@ public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeCompone
 
 			// TODO: We won't need this once testSuites container will be maintained on component themselves
 			if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportCSourceSetTag.class))) {
-				ModelNodes.of(this).addComponent(tag(SupportCSourceSetTag.class));
+				ModelNodes.of(this).addComponentTag(SupportCSourceSetTag.class);
 			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportCppSourceSetTag.class))) {
-				ModelNodes.of(this).addComponent(tag(SupportCppSourceSetTag.class));
+				ModelNodes.of(this).addComponentTag(SupportCppSourceSetTag.class);
 			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportObjectiveCSourceSetTag.class))) {
-				ModelNodes.of(this).addComponent(tag(SupportObjectiveCSourceSetTag.class));
+				ModelNodes.of(this).addComponentTag(SupportObjectiveCSourceSetTag.class);
 			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportObjectiveCppSourceSetTag.class))) {
-				ModelNodes.of(this).addComponent(tag(SupportObjectiveCppSourceSetTag.class));
+				ModelNodes.of(this).addComponentTag(SupportObjectiveCppSourceSetTag.class);
 			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportSwiftSourceSetTag.class))) {
-				ModelNodes.of(this).addComponent(tag(SupportSwiftSourceSetTag.class));
+				ModelNodes.of(this).addComponentTag(SupportSwiftSourceSetTag.class);
 			}
 			if (component instanceof BaseNativeComponent) {
 				val testedComponentDependencies = ((BaseNativeComponent<?>) component).getDependencies();

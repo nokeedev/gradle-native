@@ -23,14 +23,12 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
-
 public class SwiftLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(SupportSwiftSourceSetTag.class));
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponentTag(SupportSwiftSourceSetTag.class);
 	}
 
 	@Override

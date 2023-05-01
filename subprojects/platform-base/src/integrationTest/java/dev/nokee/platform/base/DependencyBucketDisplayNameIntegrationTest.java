@@ -17,34 +17,23 @@ package dev.nokee.platform.base;
 
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.core.DisplayName;
 import dev.nokee.model.internal.core.DisplayNameComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketTag;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketTag;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketTag;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import javax.annotation.Nonnull;
-import java.util.Iterator;
-
 import static dev.nokee.model.internal.core.DisplayName.of;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -56,7 +45,7 @@ class DependencyBucketDisplayNameIntegrationTest {
 	@BeforeEach
 	void createSubject(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.build());
 	}
 
@@ -69,21 +58,21 @@ class DependencyBucketDisplayNameIntegrationTest {
 
 	@Test
 	void computesDisplayNameFromElementNameToDeclarableDependencyBucketIfAbsent() {
-		subject.addComponent(tag(DeclarableDependencyBucketTag.class));
+		subject.addComponentTag(DeclarableDependencyBucketTag.class);
 		subject.addComponent(new ElementNameComponent("runtimeOnly"));
 		assertThat(ModelStates.create(subject).get(DisplayNameComponent.class).get(), equalTo(of("runtime only dependencies")));
 	}
 
 	@Test
 	void computesDisplayNameFromElementNameToConsumableDependencyBucketIfAbsent() {
-		subject.addComponent(tag(ConsumableDependencyBucketTag.class));
+		subject.addComponentTag(ConsumableDependencyBucketTag.class);
 		subject.addComponent(new ElementNameComponent("linkElements"));
 		assertThat(ModelStates.create(subject).get(DisplayNameComponent.class).get(), equalTo(of("link elements")));
 	}
 
 	@Test
 	void computesDisplayNameFromElementNameToResolvableDependencyBucketIfAbsent() {
-		subject.addComponent(tag(ResolvableDependencyBucketTag.class));
+		subject.addComponentTag(ResolvableDependencyBucketTag.class);
 		subject.addComponent(new ElementNameComponent("linkLibraries"));
 		assertThat(ModelStates.create(subject).get(DisplayNameComponent.class).get(), equalTo(of("link libraries")));
 	}

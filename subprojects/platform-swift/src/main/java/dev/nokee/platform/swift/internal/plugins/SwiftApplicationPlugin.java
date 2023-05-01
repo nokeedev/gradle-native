@@ -59,7 +59,6 @@ import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
@@ -92,7 +91,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration swiftApplication(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Swift application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeApplicationComponentModelRegistrationFactory(DefaultSwiftApplication.class, project).create(identifier).withComponent(tag(SupportSwiftSourceSetTag.class)).build();
+		return new NativeApplicationComponentModelRegistrationFactory(DefaultSwiftApplication.class, project).create(identifier).withComponentTag(SupportSwiftSourceSetTag.class).build();
 	}
 
 	public static abstract class DefaultSwiftApplication implements SwiftApplication, ModelNodeAware

@@ -25,8 +25,6 @@ import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
@@ -43,9 +41,9 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 		Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
 
 		return ModelRegistration.builder()
-			.withComponent(tag(ConfigurableTag.class))
+			.withComponentTag(ConfigurableTag.class)
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(JniLibraryVariantTag.class))
+			.withComponentTag(JniLibraryVariantTag.class)
 			.mergeFrom(tagsOf(JniLibraryInternal.class))
 			.withComponent(createdUsing(of(JniLibraryInternal.class), () -> objects.newInstance(JniLibraryInternal.class)))
 			.build();

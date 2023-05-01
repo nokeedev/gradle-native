@@ -27,7 +27,6 @@ import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
 import static dev.nokee.model.internal.actions.ModelSpec.self;
 import static dev.nokee.model.internal.actions.ModelSpec.stateAtLeast;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 /**
@@ -139,7 +138,7 @@ public interface ModelAction {
 		return ModelRegistration.builder()
 			.withComponent(new ModelSpecComponent(spec))
 			.withComponent(new ModelActionComponent(action))
-			.withComponent(tag(ModelActionTag.class))
+			.withComponentTag(ModelActionTag.class)
 			.build();
 	}
 }

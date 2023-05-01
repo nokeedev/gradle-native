@@ -65,7 +65,6 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
@@ -106,9 +105,9 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration nativeApplicationVariant(VariantIdentifier identifier, DefaultNativeApplicationComponent component, Project project) {
 		return ModelRegistration.builder()
-			.withComponent(tag(ConfigurableTag.class))
+			.withComponentTag(ConfigurableTag.class)
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(NativeVariantTag.class))
+			.withComponentTag(NativeVariantTag.class)
 			.mergeFrom(tagsOf(DefaultNativeApplicationVariant.class))
 			.withComponent(createdUsing(of(DefaultNativeApplicationVariant.class), () -> {
 				val result = project.getObjects().newInstance(DefaultNativeApplicationVariant.class);

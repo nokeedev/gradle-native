@@ -25,8 +25,6 @@ import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
-
 public final class CreateVariantsRule extends ModelActionWithInputs.ModelAction1<ModelBufferComponent<KnownVariantInformationElement>> {
 	private final ModelRegistry registry;
 
@@ -41,7 +39,7 @@ public final class CreateVariantsRule extends ModelActionWithInputs.ModelAction1
 			val variantEntity = registry.instantiate(ModelRegistration.builder()
 				.withComponent(new ParentComponent(entity))
 				.withComponent(new ElementNameComponent(variant.getName()))
-				.withComponent(tag(IsVariant.class))
+				.withComponentTag(IsVariant.class)
 				.withComponent(new VariantInformationComponent(variant))
 				.build());
 			builder.add(variantEntity);

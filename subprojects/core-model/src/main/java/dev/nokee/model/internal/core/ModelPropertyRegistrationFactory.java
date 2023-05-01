@@ -17,21 +17,20 @@ package dev.nokee.model.internal.core;
 
 import java.io.File;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public final class ModelPropertyRegistrationFactory {
 	public <T> ModelRegistration createProperty(Class<T> type) {
 		return ModelRegistration.builder()
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(of(type)))
 			.build();
 	}
 
 	public static <T> ModelRegistration property(Class<T> type) {
 		return ModelRegistration.builder()
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(of(type)))
 			.build();
 	}
@@ -39,21 +38,21 @@ public final class ModelPropertyRegistrationFactory {
 	public static <T> ModelRegistration setProperty(Class<T> type) {
 		assert !File.class.isAssignableFrom(type);
 		return ModelRegistration.builder()
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(set(of(type))))
 			.build();
 	}
 
 	public static ModelRegistration fileCollectionProperty() {
 		return ModelRegistration.builder()
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
 			.build();
 	}
 
 	public <T> ModelRegistration createFileCollectionProperty() {
 		return ModelRegistration.builder()
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
 			.build();
 	}

@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -50,7 +49,7 @@ class DependencyBucketConfigurationFinalizerIntegrationTest {
 		@BeforeEach
 		void setUp(Project project) {
 			dependencyBucket = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-				.withComponent(tag(IsDependencyBucket.class))
+				.withComponentTag(IsDependencyBucket.class)
 				.withComponent(new ConfigurationComponent(bucketConfiguration = project.getConfigurations().register("test")))
 				.build());
 			subject = project.getConfigurations().create("subject", configureExtendsFrom(bucketConfiguration));
@@ -73,11 +72,11 @@ class DependencyBucketConfigurationFinalizerIntegrationTest {
 		@BeforeEach
 		void setUp(Project project) {
 			dependencyBucket = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-				.withComponent(tag(IsDependencyBucket.class))
+				.withComponentTag(IsDependencyBucket.class)
 				.withComponent(new ConfigurationComponent(bucketConfiguration = project.getConfigurations().register("test")))
 				.build());
 			subjectBucket = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-				.withComponent(tag(IsDependencyBucket.class))
+				.withComponentTag(IsDependencyBucket.class)
 				.withComponent(new ConfigurationComponent(subjectConfiguration = project.getConfigurations().register("subject", configureExtendsFrom(bucketConfiguration))))
 				.build());
 		}
@@ -106,12 +105,12 @@ class DependencyBucketConfigurationFinalizerIntegrationTest {
 		@BeforeEach
 		void setUp(Project project) {
 			topMostDependencyBucket = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-				.withComponent(tag(IsDependencyBucket.class))
+				.withComponentTag(IsDependencyBucket.class)
 				.withComponent(new ConfigurationComponent(topMostBucketConfiguration = project.getConfigurations().register("topMost")))
 				.build());
 			middleConfiguration = project.getConfigurations().create("middle", configureExtendsFrom(topMostBucketConfiguration));
 			subjectDependencyBucket = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-				.withComponent(tag(IsDependencyBucket.class))
+				.withComponentTag(IsDependencyBucket.class)
 				.withComponent(new ConfigurationComponent(subjectConfiguration = project.getConfigurations().register("subject", configureExtendsFrom(middleConfiguration))))
 				.build());
 		}

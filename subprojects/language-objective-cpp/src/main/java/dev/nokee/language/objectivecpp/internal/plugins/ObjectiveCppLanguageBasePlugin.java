@@ -60,7 +60,6 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
@@ -131,12 +130,12 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
 			ParentUtils.stream(parent).filter(has(SupportObjectiveCppSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponent(tag(SupportObjectiveCppSourceSetTag.class));
+				entity.addComponentTag(SupportObjectiveCppSourceSetTag.class);
 			});
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportObjectiveCppSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponent(tag(HasObjectiveCppSourcesMixIn.Tag.class));
-			entity.addComponent(tag(HasPrivateHeadersMixIn.Tag.class));
+			entity.addComponentTag(HasObjectiveCppSourcesMixIn.Tag.class);
+			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
 		}));
 	}
 

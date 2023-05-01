@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.names.ElementName.of;
 import static dev.nokee.model.internal.names.RelativeNames.toRelativeNames;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
@@ -54,7 +53,7 @@ class RelativeNameFromEntityStreamTest {
 	void reusesRelativeNameForMainEntity() {
 		parent.addComponent(new ElementNameComponent("tomo"));
 		grandParent.addComponent(new ElementNameComponent("wova"));
-		grandParent.addComponent(tag(ExcludeFromQualifyingNameTag.class));
+		grandParent.addComponentTag(ExcludeFromQualifyingNameTag.class);
 		greatGrandParent.addComponent(new ElementNameComponent("buqe"));
 
 		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toRelativeNames(of("kles"))), containsInAnyOrder(RelativeName.of(parent, "kles"), RelativeName.of(grandParent, "tomoKles"), RelativeName.of(greatGrandParent, "tomoKles")));

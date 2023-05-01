@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -70,8 +69,8 @@ class CppSourcesAwareIntegrationTest {
 	class SupportOnSubjectEntityTest extends Tester {
 		@BeforeEach
 		void setUp() {
-			subject.addComponent(tag(SupportCppSourceSetTag.class));
-			subject.addComponent(tag(NativeSourcesAwareTag.class));
+			subject.addComponentTag(SupportCppSourceSetTag.class);
+			subject.addComponentTag(NativeSourcesAwareTag.class);
 		}
 	}
 
@@ -79,8 +78,8 @@ class CppSourcesAwareIntegrationTest {
 	class SupportOnDirectParentEntityTest extends Tester {
 		@BeforeEach
 		void setUp() {
-			parent.addComponent(tag(SupportCppSourceSetTag.class));
-			subject.addComponent(tag(NativeSourcesAwareTag.class));
+			parent.addComponentTag(SupportCppSourceSetTag.class);
+			subject.addComponentTag(NativeSourcesAwareTag.class);
 		}
 	}
 
@@ -88,8 +87,8 @@ class CppSourcesAwareIntegrationTest {
 	class SupportOnIndirectParentEntityTest extends Tester {
 		@BeforeEach
 		void setUp() {
-			grandParent.addComponent(tag(SupportCppSourceSetTag.class));
-			subject.addComponent(tag(NativeSourcesAwareTag.class));
+			grandParent.addComponentTag(SupportCppSourceSetTag.class);
+			subject.addComponentTag(NativeSourcesAwareTag.class);
 		}
 	}
 }

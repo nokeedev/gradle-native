@@ -36,7 +36,6 @@ import static dev.nokee.internal.testing.ConfigurationMatchers.consumable;
 import static dev.nokee.internal.testing.ConfigurationMatchers.declarable;
 import static dev.nokee.internal.testing.ConfigurationMatchers.resolvable;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
@@ -48,26 +47,26 @@ class DependencyBucketConfigurationTypeIntegrationTest {
 	@BeforeEach
 	void setUp(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.withComponent(new ConfigurationComponent(configuration = project.getConfigurations().register("test")))
 			.build());
 	}
 
 	@Test
 	void setsConfigurationAsConsumableForConsumableDependencyBucket() {
-		subject.addComponent(tag(ConsumableDependencyBucketTag.class));
+		subject.addComponentTag(ConsumableDependencyBucketTag.class);
 		assertThat(configuration.get(), consumable());
 	}
 
 	@Test
 	void setsConfigurationAsResolvableForResolvableDependencyBucket() {
-		subject.addComponent(tag(ResolvableDependencyBucketTag.class));
+		subject.addComponentTag(ResolvableDependencyBucketTag.class);
 		assertThat(configuration.get(), resolvable());
 	}
 
 	@Test
 	void setsConfigurationAsDeclarableForDeclarableDependencyBucket() {
-		subject.addComponent(tag(DeclarableDependencyBucketTag.class));
+		subject.addComponentTag(DeclarableDependencyBucketTag.class);
 		assertThat(configuration.get(), declarable());
 	}
 }

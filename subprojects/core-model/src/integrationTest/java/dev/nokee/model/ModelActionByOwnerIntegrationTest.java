@@ -24,7 +24,6 @@ import dev.nokee.model.internal.core.ParentComponent;
 import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 class ModelActionByOwnerIntegrationTest extends ModelActionIntegrationTester {
 	private final ModelNode owner = newEntity();
@@ -37,11 +36,11 @@ class ModelActionByOwnerIntegrationTest extends ModelActionIntegrationTester {
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new ParentComponent(owner)).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(new ParentComponent(owner)).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new ParentComponent(unrelated)).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(new ParentComponent(unrelated)).build();
 	}
 }

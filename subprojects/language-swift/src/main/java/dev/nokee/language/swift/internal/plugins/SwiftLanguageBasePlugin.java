@@ -55,7 +55,6 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
@@ -128,12 +127,12 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
 			ParentUtils.stream(parent).filter(has(SupportSwiftSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponent(tag(SupportSwiftSourceSetTag.class));
+				entity.addComponentTag(SupportSwiftSourceSetTag.class);
 			});
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportSwiftSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponent(tag(HasSwiftSourcesMixIn.Tag.class));
-			entity.addComponent(tag(HasPrivateHeadersMixIn.Tag.class));
+			entity.addComponentTag(HasSwiftSourcesMixIn.Tag.class);
+			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
 		}));
 	}
 

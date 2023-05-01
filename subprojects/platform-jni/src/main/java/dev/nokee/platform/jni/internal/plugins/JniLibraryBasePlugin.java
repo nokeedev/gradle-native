@@ -167,7 +167,6 @@ import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.state.ModelStates.realize;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
@@ -273,10 +272,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		})));
 		// TODO: When discovery will be a real feature, we shouldn't need this anymore
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, ignored) -> {
-			project.getPluginManager().withPlugin("dev.nokee.c-language", __ -> entity.addComponent(tag(SupportCSourceSetTag.class)));
-			project.getPluginManager().withPlugin("dev.nokee.cpp-language", __ -> entity.addComponent(tag(SupportCppSourceSetTag.class)));
-			project.getPluginManager().withPlugin("dev.nokee.objective-c-language", __ -> entity.addComponent(tag(SupportObjectiveCSourceSetTag.class)));
-			project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", __ -> entity.addComponent(tag(SupportObjectiveCppSourceSetTag.class)));
+			project.getPluginManager().withPlugin("dev.nokee.c-language", __ -> entity.addComponentTag(SupportCSourceSetTag.class));
+			project.getPluginManager().withPlugin("dev.nokee.cpp-language", __ -> entity.addComponentTag(SupportCppSourceSetTag.class));
+			project.getPluginManager().withPlugin("dev.nokee.objective-c-language", __ -> entity.addComponentTag(SupportObjectiveCSourceSetTag.class));
+			project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", __ -> entity.addComponentTag(SupportObjectiveCppSourceSetTag.class));
 		})));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(JniLibraryComponentTag.class), (entity, developmentVariant, ignored1) -> {
@@ -423,7 +422,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"));
 					val jvmJar = registry.instantiate(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 						.withComponent(new ParentComponent(entity))
-						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
+						.withComponentTag(ExcludeFromQualifyingNameTag.class)
 						.build());
 					registry.instantiate(configure(jvmJar.getId(), JvmJarBinary.class, binary -> {
 						binary.getJarTask().configure(task -> task.getArchiveBaseName().set(project.provider(() -> {
@@ -466,7 +465,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			if (!((VariantIdentifier) id.get()).getUnambiguousName().isEmpty()) {
-				entity.addComponent(tag(MultiVariantTag.class));
+				entity.addComponentTag(MultiVariantTag.class);
 			}
 
 			val implementation = registry.register(newEntity("nativeImplementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
@@ -515,8 +514,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
 			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 				.withComponent(new ParentComponent(entity))
-				.withComponent(tag(JniJarArtifactTag.class))
-				.withComponent(tag(ExcludeFromQualifyingNameTag.class))
+				.withComponentTag(JniJarArtifactTag.class)
+				.withComponentTag(ExcludeFromQualifyingNameTag.class)
 				.build());
 			entity.addComponent(new JniJarArtifactComponent(jniJar));
 			ModelStates.register(jniJar);

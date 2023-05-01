@@ -45,7 +45,6 @@ import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.ProjectMatchers.buildDependencies;
 import static dev.nokee.model.internal.state.ModelStates.discover;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -101,7 +100,7 @@ class HasPrivateHeadersMixInIntegrationTest {
 	@Test
 	@PluginRequirement.Require(type = ComponentModelBasePlugin.class)
 	void mountPropertyAsExtension() {
-		discover(entity).addComponent(tag(ExtensionAwareMixIn.Tag.class));
+		discover(entity).addComponentTag(ExtensionAwareMixIn.Tag.class);
 		assertThat(entity.get(ExtensionAwareComponent.class).get().findByName("privateHeaders"),
 			isA(ConfigurableFileCollection.class));
 	}

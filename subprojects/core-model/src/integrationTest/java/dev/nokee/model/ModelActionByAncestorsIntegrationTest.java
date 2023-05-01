@@ -25,7 +25,6 @@ import org.junit.jupiter.api.BeforeEach;
 import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 class ModelActionByAncestorsIntegrationTest extends ModelActionIntegrationTester {
 	private final ModelNode ancestor = newEntity();
@@ -44,11 +43,11 @@ class ModelActionByAncestorsIntegrationTest extends ModelActionIntegrationTester
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new ParentComponent(parent)).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(new ParentComponent(parent)).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new ParentComponent(unrelated)).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(new ParentComponent(unrelated)).build();
 	}
 }

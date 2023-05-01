@@ -22,7 +22,6 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 class ModelActionByTypeIntegrationTest extends ModelActionIntegrationTester {
@@ -33,12 +32,12 @@ class ModelActionByTypeIntegrationTest extends ModelActionIntegrationTester {
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(managed(of(MyType.class))).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(managed(of(MyType.class))).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(managed(of(MyOtherType.class))).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(managed(of(MyOtherType.class))).build();
 	}
 
 	private interface MyType {}

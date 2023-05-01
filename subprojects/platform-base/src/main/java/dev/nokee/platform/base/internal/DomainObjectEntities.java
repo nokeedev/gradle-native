@@ -25,7 +25,6 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
@@ -77,7 +76,7 @@ public final class DomainObjectEntities {
 		findAnnotations(type, Tag.class, tagAnnotations);
 		for (Tag tags : tagAnnotations) {
 			for (Class<? extends ModelTag> tag : tags.value()) {
-				builder.withComponent(ModelTags.tag(tag));
+				builder.withComponentTag(tag);
 			}
 		}
 		return builder.build();
@@ -89,13 +88,13 @@ public final class DomainObjectEntities {
 		findAnnotations(type, Tag.class, tagAnnotations);
 		for (Tag tags : tagAnnotations) {
 			for (Class<? extends ModelTag> tag : tags.value()) {
-				builder.withComponent(ModelTags.tag(tag));
+				builder.withComponentTag(tag);
 			}
 		}
 
 		if (Task.class.isAssignableFrom(type)) {
-			builder.withComponent(ModelTags.tag(IsTask.class));
-			builder.withComponent(ModelTags.tag(ConfigurableTag.class));
+			builder.withComponentTag(IsTask.class);
+			builder.withComponentTag(ConfigurableTag.class);
 
 			@SuppressWarnings("unchecked")
 			val taskType = (Class<Task>) type;
@@ -155,7 +154,7 @@ public final class DomainObjectEntities {
 		}
 
 		public <T extends ModelTag> Builder withTag(Class<T> tag) {
-			delegate.withComponent(ModelTags.tag(tag));
+			delegate.withComponentTag(tag);
 			return this;
 		}
 

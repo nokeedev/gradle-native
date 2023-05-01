@@ -40,7 +40,6 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.model.internal.core.ModelProperties.add;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.state.ModelStates.discover;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.endsWith;
@@ -55,20 +54,20 @@ class DependencyBucketArtifactsIntegrationTest {
 	@BeforeEach
 	void setUp(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.build());
 	}
 
 	@Test
 	void doesNotHaveBucketArtifactsPropertyOnDeclarableBuckets() {
-		subject.addComponent(tag(DeclarableDependencyBucketTag.class));
+		subject.addComponentTag(DeclarableDependencyBucketTag.class);
 		assertFalse(subject.has(BucketArtifactsProperty.class));
 		assertFalse(discover(subject).has(BucketArtifactsProperty.class));
 	}
 
 	@Test
 	void doesNotHaveBucketArtifactsPropertyOnResolvableBuckets() {
-		subject.addComponent(tag(ResolvableDependencyBucketTag.class));
+		subject.addComponentTag(ResolvableDependencyBucketTag.class);
 		assertFalse(subject.has(BucketArtifactsProperty.class));
 		assertFalse(discover(subject).has(BucketArtifactsProperty.class));
 	}
@@ -77,7 +76,7 @@ class DependencyBucketArtifactsIntegrationTest {
 	class ConsumableDependencyBucketTest {
 		@BeforeEach
 		void setUp() {
-			subject.addComponent(tag(ConsumableDependencyBucketTag.class));
+			subject.addComponentTag(ConsumableDependencyBucketTag.class);
 		}
 
 		@Test

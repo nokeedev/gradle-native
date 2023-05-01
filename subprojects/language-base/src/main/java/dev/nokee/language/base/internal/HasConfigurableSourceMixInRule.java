@@ -37,7 +37,6 @@ import java.io.File;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
@@ -57,7 +56,7 @@ public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.
 		val element = registry.register(ModelRegistration.builder()
 			.withComponent(new ElementNameComponent("source"))
 			.withComponent(new ParentComponent(entity))
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
 			.withComponent(createdUsing(of(ConfigurableSourceSet.class), () -> {
 				val result = sourceSetFactory.create();
