@@ -112,7 +112,7 @@ class ObservableComponentRegistryTests {
 	private static ObservableComponentRegistry.Listener noOpListener() {
 		return new ObservableComponentRegistry.Listener() {
 			@Override
-			public void componentChanged(ModelEntityId entityId, Component.Id componentId, ModelComponent component) {
+			public void componentChanged(Entity.Id entityId, Component.Id componentId, Component component) {
 				// do nothing
 			}
 		};

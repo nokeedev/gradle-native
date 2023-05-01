@@ -25,14 +25,15 @@ import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.BindManagedProjectionService;
 import dev.nokee.model.internal.core.Bits;
 import dev.nokee.model.internal.core.Component;
+import dev.nokee.model.internal.core.ComponentRegistry;
 import dev.nokee.model.internal.core.DefaultComponentRegistry;
 import dev.nokee.model.internal.core.DescendantNodes;
+import dev.nokee.model.internal.core.Entity;
 import dev.nokee.model.internal.core.HasInputs;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ComponentRegistry;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelEntityId;
@@ -65,7 +66,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final Instantiator instantiator;
 	private final List<ModelNode> entities = new ArrayList<>();
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
-	private final Map<ModelEntityId, ModelNode> idToEntities = new LinkedHashMap<>();
+	private final Map<Entity.Id, ModelNode> idToEntities = new LinkedHashMap<>();
 	private final List<ModelAction> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
 	private final BindManagedProjectionService bindingService;
@@ -228,8 +229,8 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		@Override
-		public void componentChanged(ModelEntityId entityId, Component.Id componentId, ModelComponent component) {
-			projectionAdded(idToEntities.get(entityId), component);
+		public void componentChanged(Entity.Id entityId, Component.Id componentId, Component component) {
+			projectionAdded(idToEntities.get(entityId), (ModelComponent) component);
 		}
 	}
 }

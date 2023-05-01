@@ -21,11 +21,11 @@ import java.util.Set;
 
 public interface ComponentRegistry {
 	@Nullable
-	ModelComponent set(ModelEntityId entityId, Component.Id componentId, ModelComponent component);
+	Component set(Entity.Id entityId, Component.Id componentId, Component component);
 
 	@Nullable
-	ModelComponent get(ModelEntityId entityId, Component.Id componentId);
+	Component get(Entity.Id entityId, Component.Id componentId);
 
-	Set<? extends Component.Id> getAllIds(ModelEntityId entityId);
-	Collection<ModelComponent> getAll(ModelEntityId entityId);
+	Set<? extends Component.Id> getAllIds(Entity.Id entityId);
+	Collection<Component> getAll(Entity.Id entityId);
 }
