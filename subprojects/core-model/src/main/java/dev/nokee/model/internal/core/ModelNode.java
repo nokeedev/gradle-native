@@ -157,7 +157,7 @@ public final class ModelNode implements Entity {
 	}
 
 	public Stream<ModelComponent> getComponents() {
-		return components.getAll(id).stream();
+		return components.getAll(id).stream().map(ModelComponent.class::cast);
 	}
 
 	@Override
@@ -216,8 +216,8 @@ public final class ModelNode implements Entity {
 			MutableObject<ModelNode> self = new MutableObject<>();
 			val entity = new ModelNode(new ObservableComponentRegistry(new DefaultComponentRegistry(), new ObservableComponentRegistry.Listener() {
 				@Override
-				public void componentChanged(ModelEntityId entityId, Component.Id componentId, ModelComponent component) {
-					listener.projectionAdded(self.getValue(), component);
+				public void componentChanged(Entity.Id entityId, Component.Id componentId, Component component) {
+					listener.projectionAdded(self.getValue(), (ModelComponent) component);
 				}
 			}));
 			self.setValue(entity);
