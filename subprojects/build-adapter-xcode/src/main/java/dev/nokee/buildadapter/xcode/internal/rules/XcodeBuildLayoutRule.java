@@ -18,9 +18,13 @@ package dev.nokee.buildadapter.xcode.internal.rules;
 import dev.nokee.buildadapter.xcode.internal.GradleBuildLayout;
 import dev.nokee.buildadapter.xcode.internal.components.GradleProjectPathComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
+import dev.nokee.buildadapter.xcode.internal.plugins.CurrentXcodeInstallationValueSource;
+import dev.nokee.buildadapter.xcode.internal.plugins.XcodeInstallation;
 import dev.nokee.buildadapter.xcode.internal.plugins.XcodebuildExecTask;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.utils.ActionUtils;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
@@ -28,15 +32,19 @@ import static dev.nokee.buildadapter.xcode.internal.plugins.HasWorkingDirectory.
 import static dev.nokee.buildadapter.xcode.internal.plugins.XcodeBuildAdapterPlugin.forXcodeProject;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.utils.ActionUtils.composite;
+import static dev.nokee.utils.ProviderUtils.disallowChanges;
+import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 
 public final class XcodeBuildLayoutRule extends ModelActionWithInputs.ModelAction2<GradleProjectPathComponent, XCProjectComponent> {
 	private final GradleBuildLayout buildLayout;
 	private final ProviderFactory providers;
+	private final Provider<XcodeInstallation> defaultXcodeInstallation;
 
-	public XcodeBuildLayoutRule(GradleBuildLayout buildLayout, ProviderFactory providers) {
+	public XcodeBuildLayoutRule(GradleBuildLayout buildLayout, ProviderFactory providers, ObjectFactory objects) {
 		this.buildLayout = buildLayout;
 		this.providers = providers;
+		this.defaultXcodeInstallation = finalizeValueOnRead(disallowChanges(objects.property(XcodeInstallation.class).value(providers.of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()))));
 	}
 
 	@Override
@@ -46,7 +54,8 @@ public final class XcodeBuildLayoutRule extends ModelActionWithInputs.ModelActio
 			project.getPluginManager().apply("dev.nokee.model-base");
 			forXcodeProject(projectReference.get(), composite(
 				workingDirectory(set(project.getRootProject().getLayout().getProjectDirectory())),
-				(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk"))
+				(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
+				(XcodebuildExecTask task) -> task.getXcodeInstallation().set(defaultXcodeInstallation)
 			)).execute(project);
 		});
 	}

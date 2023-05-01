@@ -22,7 +22,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 
-public interface XcodebuildExecTask extends Task, HasDerivedDataPath, HasWorkingDirectory {
+public interface XcodebuildExecTask extends Task, HasDerivedDataPath, HasWorkingDirectory, HasConfigurableXcodeInstallation {
 	@Input
 	@Optional
 	Property<String> getSdk();

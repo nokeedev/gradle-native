@@ -80,7 +80,7 @@ import static dev.nokee.utils.ProviderUtils.ifPresent;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
 @CacheableTask
-public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask, HasConfigurableXcodeInstallation, HasXcodeTargetReference {
+public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask, HasXcodeTargetReference {
 	private final WorkerExecutor workerExecutor;
 	private final ObjectFactory objects;
 	private final Provider<XCTargetReference> targetReference;
