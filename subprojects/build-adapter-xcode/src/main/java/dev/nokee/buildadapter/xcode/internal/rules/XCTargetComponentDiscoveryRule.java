@@ -30,8 +30,6 @@ import dev.nokee.xcode.XCLoader;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
-
 public final class XCTargetComponentDiscoveryRule extends ModelActionWithInputs.ModelAction2<XCProjectComponent, DisplayNameComponent> {
 	private final ModelRegistry registry;
 	private final XCLoader<Iterable<XCTargetReference>, XCProjectReference> targetLoader;
@@ -47,7 +45,7 @@ public final class XCTargetComponentDiscoveryRule extends ModelActionWithInputs.
 			ModelStates.register(registry.instantiate(ModelRegistration.builder()
 				.withComponent(new ElementNameComponent(target.getName()))
 				.withComponent(new XCTargetComponent(target))
-				.withComponent(tag(IsComponent.class))
+				.withComponentTag(IsComponent.class)
 				.withComponent(new DisplayNameComponent(String.format("target '%s' of %s", target.getName(), displayName.get())))
 				.withComponent(new ParentComponent(entity))
 				.build()));

@@ -15,16 +15,15 @@
  */
 package dev.nokee.model;
 
-import dev.nokee.model.internal.names.FullyQualifiedName;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.names.FullyQualifiedName;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import org.junit.jupiter.api.BeforeAll;
 
 import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class ModelActionByFullyQualifiedNameIntegrationTest extends ModelActionIntegrationTester {
@@ -43,11 +42,11 @@ class ModelActionByFullyQualifiedNameIntegrationTest extends ModelActionIntegrat
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new FullyQualifiedNameComponent(NAME)).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(new FullyQualifiedNameComponent(NAME)).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new FullyQualifiedNameComponent(OTHER_NAME)).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(new FullyQualifiedNameComponent(OTHER_NAME)).build();
 	}
 }

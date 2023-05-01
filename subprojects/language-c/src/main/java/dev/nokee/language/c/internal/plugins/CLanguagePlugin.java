@@ -23,15 +23,13 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
-
 public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(SupportCSourceSetTag.class));
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponentTag(SupportCSourceSetTag.class);
 	}
 
 	@Override

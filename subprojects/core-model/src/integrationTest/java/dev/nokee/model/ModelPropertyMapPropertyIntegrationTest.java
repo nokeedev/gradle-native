@@ -25,12 +25,10 @@ import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Project;
 import org.gradle.api.provider.MapProperty;
-import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.map;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,7 +41,7 @@ class ModelPropertyMapPropertyIntegrationTest {
 	void setUp() {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(MyType.class))))
 			.build());
 	}

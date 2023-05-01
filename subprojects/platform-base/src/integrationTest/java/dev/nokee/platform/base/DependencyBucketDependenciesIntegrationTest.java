@@ -50,7 +50,6 @@ import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.state.ModelStates.discover;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.externalDependency;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.projectDependency;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -67,7 +66,7 @@ class DependencyBucketDependenciesIntegrationTest {
 	@BeforeEach
 	void setUp(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.build());
 	}
 

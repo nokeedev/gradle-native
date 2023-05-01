@@ -16,14 +16,12 @@
 package dev.nokee.platform.base;
 
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.BucketArtifacts;
-import dev.nokee.platform.base.internal.dependencies.BucketDependencies;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.util.internal.LazyPublishArtifact;
@@ -34,13 +32,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
 import static dev.nokee.internal.testing.ConfigurationMatchers.ofFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
-import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasItems;
@@ -54,7 +49,7 @@ class DependencyBucketConfigurationArtifactsIntegrationTest {
 	@BeforeEach
 	void createSubject(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.withComponent(new ConfigurationComponent(configuration = project.getConfigurations().register("lope")))
 			.build());
 		subject.addComponent(new BucketArtifacts(ImmutableSet.of(new LazyPublishArtifact(providerFactory().provider(() -> project.file("foo.txt"))), new LazyPublishArtifact(providerFactory().provider(() -> project.file("bar.txt"))))));

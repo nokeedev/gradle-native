@@ -33,7 +33,6 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.model.internal.core.ModelNodeUtils.canBeViewedAs;
 import static dev.nokee.model.internal.core.ModelNodeUtils.get;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -48,7 +47,7 @@ class DependencyBucketConfigurationProjectionIntegrationTest {
 	@BeforeEach
 	void createSubject(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.build());
 	}
 

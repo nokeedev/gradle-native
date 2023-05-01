@@ -34,7 +34,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 
@@ -47,7 +46,7 @@ class DependencyBucketConfigurationDependenciesIntegrationTest {
 	@BeforeEach
 	void createSubject(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.withComponent(new ConfigurationComponent(configuration = project.getConfigurations().register("xune")))
 			.build());
 		subject.addComponent(new BucketDependencies(ImmutableSet.of(createDependency("com.example:test:4.2"), createDependency("com.example:other:5.2"))));

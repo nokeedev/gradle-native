@@ -37,7 +37,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static java.util.stream.Collectors.joining;
@@ -128,10 +127,10 @@ public final class DimensionPropertyRegistrationFactory {
 			val result = ModelRegistration.builder();
 
 			result
-				.withComponent(tag(ModelPropertyTag.class))
+				.withComponentTag(ModelPropertyTag.class)
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
 				.withComponent(new GradlePropertyComponent(property))
-				.withComponent(tag(VariantDimensionTag.class))
+				.withComponentTag(VariantDimensionTag.class)
 				.withComponent(new VariantDimensionAxisComponent(axis));
 
 			if (filters != null && !filters.isEmpty()) {
@@ -143,7 +142,7 @@ public final class DimensionPropertyRegistrationFactory {
 			}
 
 			if (includeEmptyCoordinate) {
-				result.withComponent(tag(VariantDimensionAxisOptionalTag.class));
+				result.withComponentTag(VariantDimensionAxisOptionalTag.class);
 			}
 
 			return result.build();
@@ -156,7 +155,7 @@ public final class DimensionPropertyRegistrationFactory {
 		property.finalizeValueOnRead();
 		property.disallowChanges();
 		return ModelRegistration.builder()
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(set(of(BuildVariant.class))))
 			.withComponent(new GradlePropertyComponent(property))
 			.build();

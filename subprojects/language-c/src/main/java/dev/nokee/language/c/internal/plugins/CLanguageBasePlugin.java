@@ -29,7 +29,6 @@ import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
-import dev.nokee.language.nativebase.internal.SupportLanguageSourceSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -52,7 +51,6 @@ import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
-import dev.nokee.utils.Optionals;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -62,7 +60,6 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
@@ -133,12 +130,12 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
 			ParentUtils.stream(parent).filter(has(SupportCSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponent(tag(SupportCSourceSetTag.class));
+				entity.addComponentTag(SupportCSourceSetTag.class);
 			});
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportCSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponent(tag(HasCSourcesMixIn.Tag.class));
-			entity.addComponent(tag(HasPrivateHeadersMixIn.Tag.class));
+			entity.addComponentTag(HasCSourcesMixIn.Tag.class);
+			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
 		}));
 	}
 

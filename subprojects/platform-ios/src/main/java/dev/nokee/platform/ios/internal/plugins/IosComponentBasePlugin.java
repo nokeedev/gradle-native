@@ -84,7 +84,6 @@ import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
@@ -175,8 +174,8 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 	private static ModelRegistration iosApplicationVariant(VariantIdentifier identifier, DefaultIosApplicationComponent component, Project project) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(tag(NativeVariantTag.class))
+			.withComponentTag(ConfigurableTag.class)
+			.withComponentTag(NativeVariantTag.class)
 			.mergeFrom(tagsOf(DefaultIosApplicationVariant.class))
 			.withComponent(createdUsing(of(DefaultIosApplicationVariant.class), () -> {
 				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class);

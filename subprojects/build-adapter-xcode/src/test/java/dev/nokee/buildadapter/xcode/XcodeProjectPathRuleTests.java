@@ -20,12 +20,10 @@ import dev.nokee.buildadapter.xcode.internal.components.GradleProjectPathCompone
 import dev.nokee.buildadapter.xcode.internal.components.GradleProjectTag;
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.samples.xcode.EmptyProject;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -35,10 +33,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.gradle.util.Path.path;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -59,7 +55,7 @@ class XcodeProjectPathRuleTests {
 	@Test
 	void addGradleProjectPathComponentFromProjectPathService() {
 		val entity = newEntity();
-		entity.addComponent(tag(GradleProjectTag.class));
+		entity.addComponentTag(GradleProjectTag.class);
 		entity.addComponent(new XCProjectComponent(reference));
 		Mockito.when(projectPathService.toProjectPath(reference)).thenReturn(path(":foo:bar"));
 		subject.execute(entity);

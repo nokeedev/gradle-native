@@ -59,7 +59,6 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
@@ -92,7 +91,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration objectiveCppApplication(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C++ application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeApplicationComponentModelRegistrationFactory(DefaultObjectiveCppApplication.class, project).create(identifier).withComponent(tag(SupportObjectiveCppSourceSetTag.class)).build();
+		return new NativeApplicationComponentModelRegistrationFactory(DefaultObjectiveCppApplication.class, project).create(identifier).withComponentTag(SupportObjectiveCppSourceSetTag.class).build();
 	}
 
 	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication, ModelNodeAware

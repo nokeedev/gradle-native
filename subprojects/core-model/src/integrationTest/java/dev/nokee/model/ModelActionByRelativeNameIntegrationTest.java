@@ -26,7 +26,6 @@ import dev.nokee.model.internal.names.RelativeNamesComponent;
 import static dev.nokee.model.fixtures.ModelEntityTestUtils.newEntity;
 import static dev.nokee.model.internal.actions.ModelSpec.has;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 class ModelActionByRelativeNameIntegrationTest extends ModelActionIntegrationTester {
 	private final ModelNode grandParent = newEntity();
@@ -40,11 +39,11 @@ class ModelActionByRelativeNameIntegrationTest extends ModelActionIntegrationTes
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new RelativeNamesComponent(RelativeNames.of(RelativeName.of(parent, "jkel"), RelativeName.of(grandParent, "orleJkel")))).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(new RelativeNamesComponent(RelativeNames.of(RelativeName.of(parent, "jkel"), RelativeName.of(grandParent, "orleJkel")))).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new RelativeNamesComponent(RelativeNames.of(RelativeName.of(unrelated, "unre")))).build();
+		return builder().withComponentTag(ConfigurableTag.class).withComponent(new RelativeNamesComponent(RelativeNames.of(RelativeName.of(unrelated, "unre")))).build();
 	}
 }

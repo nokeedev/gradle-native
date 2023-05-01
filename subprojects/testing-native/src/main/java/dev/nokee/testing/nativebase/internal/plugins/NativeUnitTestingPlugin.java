@@ -113,7 +113,6 @@ import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
@@ -221,15 +220,15 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), (entity, ignored1) -> {
 			if (project.getPlugins().hasPlugin(CLanguageBasePlugin.class)) {
-				entity.addComponent(tag(SupportCSourceSetTag.class));
+				entity.addComponentTag(SupportCSourceSetTag.class);
 			} else if (project.getPlugins().hasPlugin(CppLanguageBasePlugin.class)) {
-				entity.addComponent(tag(SupportCppSourceSetTag.class));
+				entity.addComponentTag(SupportCppSourceSetTag.class);
 			} else if (project.getPlugins().hasPlugin(ObjectiveCLanguageBasePlugin.class)) {
-				entity.addComponent(tag(SupportObjectiveCSourceSetTag.class));
+				entity.addComponentTag(SupportObjectiveCSourceSetTag.class);
 			} else if (project.getPlugins().hasPlugin(ObjectiveCppLanguageBasePlugin.class)) {
-				entity.addComponent(tag(SupportObjectiveCppSourceSetTag.class));
+				entity.addComponentTag(SupportObjectiveCppSourceSetTag.class);
 			} else if (project.getPlugins().hasPlugin(SwiftLanguageBasePlugin.class)) {
-				entity.addComponent(tag(SupportSwiftSourceSetTag.class));
+				entity.addComponentTag(SupportSwiftSourceSetTag.class);
 			}
 		}));
 
@@ -247,9 +246,9 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		return builder()
 			.withComponent(new ModelPathComponent(entityPath))
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteComponent.class), () -> project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class))))
-			.withComponent(tag(IsTestComponent.class))
-			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(tag(NativeTestSuiteComponentTag.class))
+			.withComponentTag(IsTestComponent.class)
+			.withComponentTag(ConfigurableTag.class)
+			.withComponentTag(NativeTestSuiteComponentTag.class)
 			.withComponent(new IdentifierComponent(identifier))
 			.mergeFrom(tagsOf(DefaultNativeTestSuiteComponent.class))
 			.build()
@@ -258,9 +257,9 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 	private static ModelRegistration nativeTestSuiteVariant(VariantIdentifier identifier, DefaultNativeTestSuiteComponent component, Project project) {
 		return builder()
-			.withComponent(tag(ConfigurableTag.class))
+			.withComponentTag(ConfigurableTag.class)
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(NativeVariantTag.class))
+			.withComponentTag(NativeVariantTag.class)
 			.mergeFrom(tagsOf(DefaultNativeTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteVariant.class), () -> {
 				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class);

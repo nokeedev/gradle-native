@@ -39,7 +39,6 @@ import java.io.File;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction2<ModelComponentTag<HasConfigurableHeadersMixIn.Tag>, ModelComponentTag<IsLanguageSourceSet>> {
@@ -58,7 +57,7 @@ public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs
 		val element = registry.register(ModelRegistration.builder()
 			.withComponent(new ElementNameComponent("headers"))
 			.withComponent(new ParentComponent(entity))
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
 			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), () -> {
 				val result = sourceSetFactory.sourceSet();

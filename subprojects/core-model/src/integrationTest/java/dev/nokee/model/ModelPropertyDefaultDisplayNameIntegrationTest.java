@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -46,7 +45,7 @@ class ModelPropertyDefaultDisplayNameIntegrationTest {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		parent = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder().build());
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(ModelPropertyTag.class))
+			.withComponentTag(ModelPropertyTag.class)
 			.build());
 	}
 

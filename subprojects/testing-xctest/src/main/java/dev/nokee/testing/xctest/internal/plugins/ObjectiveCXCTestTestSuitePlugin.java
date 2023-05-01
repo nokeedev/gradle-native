@@ -103,7 +103,6 @@ import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
@@ -231,10 +230,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(createdUsing(of(DefaultUnitTestXCTestTestSuiteComponent.class), () -> {
 				return newUnitTestFactory(project).create(identifier);
 			}))
-			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(tag(IsTestComponent.class))
-			.withComponent(tag(XCTestTestSuiteComponentTag.class))
-			.withComponent(tag(SupportObjectiveCSourceSetTag.class))
+			.withComponentTag(ConfigurableTag.class)
+			.withComponentTag(IsTestComponent.class)
+			.withComponentTag(XCTestTestSuiteComponentTag.class)
+			.withComponentTag(SupportObjectiveCSourceSetTag.class)
 			.mergeFrom(tagsOf(DefaultUnitTestXCTestTestSuiteComponent.class))
 			.build()
 			;
@@ -250,10 +249,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("XCTest test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(tag(IsTestComponent.class))
-			.withComponent(tag(XCTestTestSuiteComponentTag.class))
-			.withComponent(tag(SupportObjectiveCSourceSetTag.class))
+			.withComponentTag(ConfigurableTag.class)
+			.withComponentTag(IsTestComponent.class)
+			.withComponentTag(XCTestTestSuiteComponentTag.class)
+			.withComponentTag(SupportObjectiveCSourceSetTag.class)
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
 			}))
@@ -271,8 +270,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	private static ModelRegistration xcTestTestSuiteVariant(VariantIdentifier identifier, BaseXCTestTestSuiteComponent component, Project project) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(tag(NativeVariantTag.class))
+			.withComponentTag(ConfigurableTag.class)
+			.withComponentTag(NativeVariantTag.class)
 			.mergeFrom(tagsOf(DefaultXCTestTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> {
 				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class);

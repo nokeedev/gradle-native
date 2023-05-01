@@ -60,7 +60,7 @@ class XCProjectsDiscoveryRuleTests {
 
 	@BeforeEach
 	void createEntities() {
-		settingsEntity.addComponent(tag(GradleSettingsTag.class));
+		settingsEntity.addComponentTag(GradleSettingsTag.class);
 		settingsEntity.addComponent(new SettingsDirectoryComponent(Paths.get("/test")));
 	}
 

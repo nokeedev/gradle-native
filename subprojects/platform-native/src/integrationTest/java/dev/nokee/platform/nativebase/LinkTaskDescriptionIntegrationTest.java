@@ -25,7 +25,6 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
-import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import org.gradle.api.Project;
@@ -34,11 +33,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.annotation.Nonnull;
-
 import java.util.Iterator;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,7 +50,7 @@ class LinkTaskDescriptionIntegrationTest {
 	void createSubject(Project project) {
 		taskEntity = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder().build());
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.withComponent(new NativeLinkTask(taskEntity))
 			.withComponent(new IdentifierComponent(new DomainObjectIdentifier() {
 				@Nonnull

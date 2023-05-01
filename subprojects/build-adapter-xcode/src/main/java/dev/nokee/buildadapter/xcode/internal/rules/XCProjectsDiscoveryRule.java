@@ -28,8 +28,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import lombok.val;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
-
 public final class XCProjectsDiscoveryRule extends ModelActionWithInputs.ModelAction2<SettingsDirectoryComponent, ModelComponentTag<GradleSettingsTag>> {
 	private final ModelRegistry registry;
 	private final XCProjectLocator locator;
@@ -44,7 +42,7 @@ public final class XCProjectsDiscoveryRule extends ModelActionWithInputs.ModelAc
 		val actualProjects = locator.findProjects(settingsDirectory.get());
 
 		actualProjects.forEach(project -> {
-			registry.instantiate(ModelRegistration.builder().withComponent(new ParentComponent(entity)).withComponent(tag(GradleProjectTag.class)).withComponent(new XCProjectComponent(project)).build());
+			registry.instantiate(ModelRegistration.builder().withComponent(new ParentComponent(entity)).withComponentTag(GradleProjectTag.class).withComponent(new XCProjectComponent(project)).build());
 		});
 	}
 }

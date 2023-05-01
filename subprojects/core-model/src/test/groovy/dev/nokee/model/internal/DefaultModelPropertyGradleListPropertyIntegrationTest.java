@@ -16,14 +16,24 @@
 package dev.nokee.model.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProperty;
+import dev.nokee.model.internal.core.ModelPropertyTag;
+import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.provider.*;
+import org.gradle.api.provider.HasConfigurableValue;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.MapProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.SetProperty;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,13 +44,15 @@ import java.util.List;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.listProperty;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.list;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DefaultModelPropertyGradleListPropertyIntegrationTest {
 	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
@@ -51,7 +63,7 @@ class DefaultModelPropertyGradleListPropertyIntegrationTest {
 	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
 		val property = objectFactory().listProperty(MyType.class);
 		val entity = node("jeja", builder -> builder.withConfigurer(modelConfigurer));
-		entity.addComponent(tag(ModelPropertyTag.class));
+		entity.addComponentTag(ModelPropertyTag.class);
 		entity.addComponent(new GradlePropertyComponent(property));
 		entity.addComponent(new ModelPropertyTypeComponent(list(of(MyType.class))));
 		entity.addComponent(new IdentifierComponent(ModelIdentifier.of("jeja", Object.class)));

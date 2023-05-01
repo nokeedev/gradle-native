@@ -18,6 +18,8 @@ package dev.nokee.model.internal.core;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
@@ -94,6 +96,10 @@ public final class ModelRegistration {
 
 		public Builder withComponent(ModelProjection component) {
 			return withComponent((Object) component);
+		}
+
+		public <T extends ModelTag> Builder withComponentTag(Class<T> type) {
+			return withComponent((Object) ModelTags.tag(type));
 		}
 
 		public Builder mergeFrom(ModelRegistration other) {

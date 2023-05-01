@@ -36,7 +36,6 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.canBeViewedAs;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -51,7 +50,7 @@ class TaskRegistrationIntegrationTest {
 	@BeforeEach
 	void createSubject(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsTask.class))
+			.withComponentTag(IsTask.class)
 			.withComponent(new FullyQualifiedNameComponent("klseWlde"))
 			.withComponent(new TaskTypeComponent(MyTask.class))
 			.build());

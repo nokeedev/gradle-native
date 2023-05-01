@@ -18,24 +18,19 @@ package dev.nokee.platform.base;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.IsTask;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskProjectionComponent;
-import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
-import dev.nokee.utils.ProviderUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.utils.ProviderUtils.resolve;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -48,7 +43,7 @@ class TaskRealizerIntegrationTest {
 	@BeforeEach
 	void createSubject(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsTask.class))
+			.withComponentTag(IsTask.class)
 			.withComponent(new TaskProjectionComponent(task = project.getTasks().register("lekw")))
 			.build());
 	}

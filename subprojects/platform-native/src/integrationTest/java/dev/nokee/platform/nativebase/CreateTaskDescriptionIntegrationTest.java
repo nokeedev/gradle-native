@@ -36,7 +36,6 @@ import javax.annotation.Nonnull;
 import java.util.Iterator;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -51,7 +50,7 @@ class CreateTaskDescriptionIntegrationTest {
 	void createSubject(Project project) {
 		taskEntity = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder().build());
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.withComponent(new NativeArchiveTask(taskEntity))
 			.withComponent(new IdentifierComponent(new DomainObjectIdentifier() {
 				@Nonnull

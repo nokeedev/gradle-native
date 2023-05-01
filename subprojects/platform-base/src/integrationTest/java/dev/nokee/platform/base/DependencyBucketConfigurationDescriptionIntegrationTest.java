@@ -40,7 +40,6 @@ import javax.annotation.Nonnull;
 import java.util.Iterator;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
@@ -54,7 +53,7 @@ class DependencyBucketConfigurationDescriptionIntegrationTest {
 	void createSubject(Project project) {
 		owner = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder().build());
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class))
+			.withComponentTag(IsDependencyBucket.class)
 			.withComponent(new DisplayNameComponent("xune dependencies"))
 			.withComponent(new ConfigurationComponent(configuration = project.getConfigurations().register("xune")))
 			.build());

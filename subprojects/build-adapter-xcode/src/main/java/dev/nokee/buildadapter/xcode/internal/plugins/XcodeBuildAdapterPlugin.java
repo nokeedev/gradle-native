@@ -108,7 +108,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.util.internal.OutOfDateReasonSpec.because;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
@@ -158,7 +157,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 		val settingsEntity = settings.getExtensions().getByType(ModelLookup.class).get(ModelPath.root());
 		settingsEntity.addComponent(new SettingsDirectoryComponent(settings.getSettingsDir().toPath()));
-		settingsEntity.addComponent(tag(GradleSettingsTag.class));
+		settingsEntity.addComponentTag(GradleSettingsTag.class);
 
 		registerBuildServiceIfAbsent(settings, XcodeDependenciesService.class, it -> {
 			it.getProjectReferences().putAll(providers.provider(() -> {
@@ -413,7 +412,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 			val projectEntity = project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root());
 			projectEntity.addComponent(new XCProjectComponent(reference));
-			projectEntity.addComponent(tag(GradleProjectTag.class));
+			projectEntity.addComponentTag(GradleProjectTag.class);
 		};
 	}
 

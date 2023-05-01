@@ -50,7 +50,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
@@ -64,9 +63,9 @@ public final class ExecutableBinaryRegistrationFactory {
 	public ModelRegistration create(BinaryIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(IsBinary.class))
-			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
+			.withComponentTag(IsBinary.class)
+			.withComponentTag(ConfigurableTag.class)
+			.withComponentTag(NativeLanguageSourceSetAwareTag.class)
 			.withComponent(createdUsing(of(ModelBackedExecutableBinary.class), () -> new ModelBackedExecutableBinary(objectFactory)))
 			.build();
 	}
