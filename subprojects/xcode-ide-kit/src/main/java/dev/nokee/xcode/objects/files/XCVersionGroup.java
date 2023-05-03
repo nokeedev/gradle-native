@@ -18,7 +18,6 @@ package dev.nokee.xcode.objects.files;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import dev.nokee.xcode.project.CodeablePBXGroup;
 import dev.nokee.xcode.project.CodeableXCVersionGroup;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
@@ -49,7 +48,8 @@ public interface XCVersionGroup extends PBXReference, GroupChild, PBXBuildFile.F
 	final class Builder implements org.apache.commons.lang3.builder.Builder<XCVersionGroup>, LenientAwareBuilder<Builder> {
 		private PBXFileReference currentVersion;
 		private String versionGroupType;
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder()
+			.knownKeys(KeyedCoders.ISA).knownKeys(CodeableXCVersionGroup.CodingKeys.values());
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "XCVersionGroup");

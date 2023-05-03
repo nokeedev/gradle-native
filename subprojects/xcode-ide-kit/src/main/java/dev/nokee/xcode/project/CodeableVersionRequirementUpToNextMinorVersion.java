@@ -33,7 +33,9 @@ public final class CodeableVersionRequirementUpToNextMinorVersion extends Abstra
 	}
 
 	public CodeableVersionRequirementUpToNextMinorVersion(String minimumVersion) {
-		this(new DefaultKeyedObject.Builder().put(CodingKeys.kind, Kind.UP_TO_NEXT_MINOR_VERSION).put(CodingKeys.minimumVersion, minimumVersion).build());
+		this(new DefaultKeyedObject.Builder().knownKeys(CodingKeys.values())
+			.put(CodingKeys.kind, Kind.UP_TO_NEXT_MINOR_VERSION)
+			.put(CodingKeys.minimumVersion, minimumVersion).build());
 	}
 
 	public CodeableVersionRequirementUpToNextMinorVersion(KeyedObject delegate) {

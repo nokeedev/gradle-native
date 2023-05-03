@@ -33,7 +33,8 @@ public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<XCSwiftPackageProductDependency>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder()
+			.knownKeys(KeyedCoders.ISA).knownKeys(CodeableXCSwiftPackageProductDependency.CodingKeys.values());
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "XCSwiftPackageProductDependency");

@@ -47,7 +47,7 @@ public interface PBXGroup extends GroupChild {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this(new DefaultKeyedObject.Builder());
+			this(new DefaultKeyedObject.Builder().knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXGroup.CodingKeys.values()));
 		}
 
 		public Builder(KeyedObject parent) {

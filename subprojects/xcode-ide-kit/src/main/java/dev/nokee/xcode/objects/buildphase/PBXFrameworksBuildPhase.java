@@ -37,7 +37,7 @@ public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this(new DefaultKeyedObject.Builder());
+			this(new DefaultKeyedObject.Builder().knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXFrameworksBuildPhase.CodingKeys.values()));
 		}
 
 		public Builder(KeyedObject parent) {

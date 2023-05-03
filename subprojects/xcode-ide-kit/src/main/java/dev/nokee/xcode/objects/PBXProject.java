@@ -64,7 +64,8 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		}
 
 		final class Builder implements org.apache.commons.lang3.builder.Builder<ProjectReference>, LenientAwareBuilder<Builder> {
-			private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder()
+				.knownKeys(CodeableProjectReference.CodingKeys.values());
 
 			public Builder() {
 				// There is no ISA value for this model
@@ -103,7 +104,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this(new DefaultKeyedObject.Builder());
+			this(new DefaultKeyedObject.Builder().knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXProject.CodingKeys.values()));
 		}
 
 		public Builder(KeyedObject parent) {

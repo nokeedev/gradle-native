@@ -32,7 +32,9 @@ public final class CodeableVersionRequirementBranch extends AbstractCodeable imp
 	}
 
 	public CodeableVersionRequirementBranch(String branch) {
-		this(new DefaultKeyedObject.Builder().put(CodingKeys.kind, Kind.BRANCH).put(CodingKeys.branch, branch).build());
+		this(new DefaultKeyedObject.Builder().knownKeys(CodingKeys.values())
+			.put(CodingKeys.kind, Kind.BRANCH)
+			.put(CodingKeys.branch, branch).build());
 	}
 
 	public CodeableVersionRequirementBranch(KeyedObject delegate) {

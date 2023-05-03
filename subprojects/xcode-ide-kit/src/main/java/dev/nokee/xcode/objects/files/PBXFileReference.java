@@ -79,7 +79,8 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXFileReference>, LenientAwareBuilder<Builder> {
 		private String name;
 		private String path;
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder()
+			.knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXFileReference.CodingKeys.values());
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXFileReference");

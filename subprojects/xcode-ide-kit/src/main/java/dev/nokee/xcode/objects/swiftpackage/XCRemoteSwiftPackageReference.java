@@ -183,7 +183,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<XCRemoteSwiftPackageReference>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder()
+			.knownKeys(KeyedCoders.ISA).knownKeys(CodeableXCRemoteSwiftPackageReference.CodingKeys.values());
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "XCRemoteSwiftPackageReference");
