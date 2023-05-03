@@ -25,7 +25,6 @@ public final class CodeableVersionRequirementExact extends AbstractCodeable impl
 		version,
 		;
 
-
 		@Override
 		public String getName() {
 			return name();
@@ -47,6 +46,7 @@ public final class CodeableVersionRequirementExact extends AbstractCodeable impl
 		return getOrNull(CodingKeys.kind);
 	}
 
+	@Override
 	public String getVersion() {
 		return getOrNull(CodingKeys.version);
 	}

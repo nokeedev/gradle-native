@@ -26,7 +26,6 @@ public final class CodeableVersionRequirementRange extends AbstractCodeable impl
 		maximumVersion,
 		;
 
-
 		@Override
 		public String getName() {
 			return name();
@@ -48,10 +47,12 @@ public final class CodeableVersionRequirementRange extends AbstractCodeable impl
 		return getOrNull(CodingKeys.kind);
 	}
 
+	@Override
 	public String getMinimumVersion() {
 		return getOrNull(CodingKeys.minimumVersion);
 	}
 
+	@Override
 	public String getMaximumVersion() {
 		return getOrNull(CodingKeys.maximumVersion);
 	}
