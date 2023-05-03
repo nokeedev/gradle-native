@@ -33,4 +33,12 @@ public interface Codeable extends Encodeable, Decodeable {
 	default boolean has(CodingKey key) {
 		return tryDecode(key) != null;
 	}
+
+	default void accept(Visitor visitor) {
+		getAsMap().forEach(visitor::visit);
+	}
+
+	interface Visitor {
+		void visit(CodingKey key, Object value);
+	}
 }
