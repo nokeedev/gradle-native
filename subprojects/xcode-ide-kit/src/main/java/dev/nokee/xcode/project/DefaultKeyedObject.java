@@ -17,24 +17,30 @@ package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.MoreCollectors;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 
 import javax.annotation.Nullable;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 public final class DefaultKeyedObject implements KeyedObject {
 	@EqualsAndHashCode.Exclude private final long age = System.nanoTime(); // signal this object is newer than parent
 	private final KeyedObject parent;
 	private final ImmutableMap<CodingKey, Object> values;
+	private final Set<CodingKey> knownKeys;
 
 	public DefaultKeyedObject(ImmutableMap<CodingKey, Object> values) {
 		this(null, values, values.keySet());
@@ -43,6 +49,7 @@ public final class DefaultKeyedObject implements KeyedObject {
 	public DefaultKeyedObject(KeyedObject parent, ImmutableMap<CodingKey, Object> values, Set<CodingKey> knownKeys) {
 		this.parent = parent;
 		this.values = values;
+		this.knownKeys = knownKeys;
 	}
 
 	@Nullable
@@ -52,6 +59,26 @@ public final class DefaultKeyedObject implements KeyedObject {
 			return null;
 		} else {
 			return parent.globalId();
+		}
+	}
+
+	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		if (parent == null) {
+			return values;
+		} else {
+			val result = new LinkedHashMap<CodingKey, Object>();
+			result.putAll(parent.getAsMap().entrySet().stream().map(it -> {
+				val key = it.getKey();
+				val knownKey = knownKeys.stream().filter(t -> key.getName().equals(t.getName())).collect(MoreCollectors.toOptional());
+				if (knownKey.isPresent()) {
+					return new AbstractMap.SimpleImmutableEntry<>(knownKey.get(), tryDecode(knownKey.get()));
+				} else {
+					return it;
+				}
+			}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+			result.putAll(values);
+			return result;
 		}
 	}
 

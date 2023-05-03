@@ -15,11 +15,13 @@
  */
 package dev.nokee.xcode.project.coders;
 
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.project.CodingKey;
 import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.KeyedObject;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 public final class NullIsaKeyedObject implements KeyedObject {
 	private final long age = System.nanoTime();
@@ -33,6 +35,11 @@ public final class NullIsaKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		return ImmutableMap.of();
 	}
 
 	@Override

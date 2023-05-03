@@ -17,13 +17,17 @@ package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.MoreCollectors;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 
 import javax.annotation.Nullable;
 import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.collect.Streams.stream;
@@ -51,6 +55,18 @@ public final class RecodeableKeyedObject implements KeyedObject {
 	}
 
 	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		return delegate.getAsMap().entrySet().stream().map(it -> {
+			val knownKey = knownKeys.knows(it.getKey());
+			if (knownKey.isPresent()) {
+				return new AbstractMap.SimpleImmutableEntry<>(knownKey.get(), tryDecode(knownKey.get()));
+			} else {
+				return it;
+			}
+		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+	}
+
+	@Override
 	public long age() {
 		return delegate.age();
 	}
@@ -73,7 +89,9 @@ public final class RecodeableKeyedObject implements KeyedObject {
 		}).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 
-	public interface KnownCodingKeys extends Iterable<CodingKey> {}
+	public interface KnownCodingKeys extends Iterable<CodingKey> {
+		Optional<CodingKey> knows(CodingKey key);
+	}
 
 	public static KnownCodingKeys ofIsaAnd(CodingKey[] values) {
 		return new DefaultKnownCodingKeys(ImmutableSet.<CodingKey>builder().add(KeyedCoders.ISA).add(values).build());
@@ -89,6 +107,10 @@ public final class RecodeableKeyedObject implements KeyedObject {
 
 		private DefaultKnownCodingKeys(Set<CodingKey> knownKeys) {
 			this.knownKeys = knownKeys;
+		}
+
+		public Optional<CodingKey> knows(CodingKey key) {
+			return knownKeys.stream().filter(it -> key.getName().equals(it.getName())).collect(MoreCollectors.toOptional());
 		}
 
 		@Override

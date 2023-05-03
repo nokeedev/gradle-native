@@ -52,6 +52,11 @@ abstract class AbstractCodeable implements Codeable {
 		return delegate.tryDecode(key);
 	}
 
+	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		return delegate.getAsMap();
+	}
+
 	protected final <T> Optional<T> getAsOptional(CodingKey key) {
 		return Optional.ofNullable(tryDecode(key));
 	}

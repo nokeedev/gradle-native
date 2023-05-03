@@ -20,6 +20,7 @@ import lombok.EqualsAndHashCode;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableMap.copyOf;
 
@@ -72,6 +73,11 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 					}
 
 					@Override
+					public Map<CodingKey, Object> getAsMap() {
+						return object.entrySet().stream().collect(Collectors.toMap(it -> (CodingKey) it::getKey, Map.Entry::getValue));
+					}
+
+					@Override
 					public long age() {
 						return PBXObjectReferenceKeyedObject.this.age;
 					}
@@ -106,6 +112,11 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		return reference.getGlobalID();
+	}
+
+	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		return reference.getFields().entrySet().stream().collect(Collectors.toMap(it -> it::getKey, Map.Entry::getValue));
 	}
 
 	@Override
