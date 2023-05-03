@@ -25,7 +25,6 @@ public final class CodeableVersionRequirementUpToNextMinorVersion extends Abstra
 		minimumVersion,
 		;
 
-
 		@Override
 		public String getName() {
 			return name();
@@ -47,6 +46,7 @@ public final class CodeableVersionRequirementUpToNextMinorVersion extends Abstra
 		return getOrNull(CodingKeys.kind);
 	}
 
+	@Override
 	public String getMinimumVersion() {
 		return getOrNull(CodingKeys.minimumVersion);
 	}

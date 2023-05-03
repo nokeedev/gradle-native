@@ -25,7 +25,6 @@ public final class CodeableVersionRequirementRevision extends AbstractCodeable i
 		revision,
 		;
 
-
 		@Override
 		public String getName() {
 			return name();
@@ -47,6 +46,7 @@ public final class CodeableVersionRequirementRevision extends AbstractCodeable i
 		return getOrNull(CodingKeys.kind);
 	}
 
+	@Override
 	public String getRevision() {
 		return getOrNull(CodingKeys.revision);
 	}

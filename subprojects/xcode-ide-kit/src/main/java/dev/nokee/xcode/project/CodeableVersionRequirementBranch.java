@@ -46,6 +46,7 @@ public final class CodeableVersionRequirementBranch extends AbstractCodeable imp
 		return getOrNull(CodingKeys.kind);
 	}
 
+	@Override
 	public String getBranch() {
 		return getOrNull(CodingKeys.branch);
 	}
