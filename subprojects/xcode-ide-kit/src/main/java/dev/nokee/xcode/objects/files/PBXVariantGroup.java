@@ -39,7 +39,8 @@ public interface PBXVariantGroup extends PBXReference, GroupChild, PBXBuildFile.
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXVariantGroup>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder()
+			.knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXVariantGroup.CodingKeys.values());
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXVariantGroup");

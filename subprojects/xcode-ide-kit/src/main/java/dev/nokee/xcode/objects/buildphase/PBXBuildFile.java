@@ -63,7 +63,7 @@ public interface PBXBuildFile extends PBXProjectItem {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this(new DefaultKeyedObject.Builder());
+			this(new DefaultKeyedObject.Builder().knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXBuildFile.CodingKeys.values()));
 		}
 
 		public Builder(KeyedObject parent) {

@@ -42,7 +42,8 @@ public interface PBXTargetDependency extends PBXProjectItem {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXTargetDependency>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder()
+			.knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXTargetDependency.CodingKeys.values());
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXTargetDependency");

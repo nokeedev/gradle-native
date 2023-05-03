@@ -21,10 +21,13 @@ import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode
@@ -34,10 +37,10 @@ public final class DefaultKeyedObject implements KeyedObject {
 	private final ImmutableMap<CodingKey, Object> values;
 
 	public DefaultKeyedObject(ImmutableMap<CodingKey, Object> values) {
-		this(null, values);
+		this(null, values, values.keySet());
 	}
 
-	public DefaultKeyedObject(KeyedObject parent, ImmutableMap<CodingKey, Object> values) {
+	public DefaultKeyedObject(KeyedObject parent, ImmutableMap<CodingKey, Object> values, Set<CodingKey> knownKeys) {
 		this.parent = parent;
 		this.values = values;
 	}
@@ -90,6 +93,12 @@ public final class DefaultKeyedObject implements KeyedObject {
 		private final LinkedHashMap<CodingKey, Object> defaultValues = new LinkedHashMap<>();
 		private final List<Predicate<? super KeyedObject>> requirements = new ArrayList<>();
 		private boolean lenient = false;
+		private final Set<CodingKey> knownKeys = new HashSet<>();
+
+		public Builder knownKeys(CodingKey... keys) {
+			knownKeys.addAll(Arrays.asList(keys));
+			return this;
+		}
 
 		public Builder put(CodingKey key, Object object) {
 			Objects.requireNonNull(object, () -> String.format("'%s' must not be null", key.getName()));
@@ -125,7 +134,7 @@ public final class DefaultKeyedObject implements KeyedObject {
 					builder.put(k, v);
 				}
 			});
-			DefaultKeyedObject result = new DefaultKeyedObject(parent, ImmutableMap.copyOf(builder));
+			DefaultKeyedObject result = new DefaultKeyedObject(parent, ImmutableMap.copyOf(builder), knownKeys);
 			if (!lenient) {
 				for (Predicate<? super KeyedObject> requirement : requirements) {
 					if (!requirement.test(result)) {

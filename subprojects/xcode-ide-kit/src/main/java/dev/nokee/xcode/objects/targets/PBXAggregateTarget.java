@@ -47,7 +47,7 @@ public interface PBXAggregateTarget extends PBXTarget {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this(new DefaultKeyedObject.Builder());
+			this(new DefaultKeyedObject.Builder().knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXAggregateTarget.CodingKeys.values()));
 		}
 
 		public Builder(KeyedObject parent) {

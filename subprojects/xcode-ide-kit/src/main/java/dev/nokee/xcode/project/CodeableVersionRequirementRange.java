@@ -34,7 +34,9 @@ public final class CodeableVersionRequirementRange extends AbstractCodeable impl
 	}
 
 	public CodeableVersionRequirementRange(String minimumVersion, String maximumVersion) {
-		this(new DefaultKeyedObject.Builder().put(CodingKeys.kind, Kind.RANGE).put(CodingKeys.minimumVersion, minimumVersion).put(CodingKeys.maximumVersion, maximumVersion).build());
+		this(new DefaultKeyedObject.Builder().knownKeys(CodingKeys.values())
+			.put(CodingKeys.kind, Kind.RANGE)
+			.put(CodingKeys.minimumVersion, minimumVersion).put(CodingKeys.maximumVersion, maximumVersion).build());
 	}
 
 	public CodeableVersionRequirementRange(KeyedObject delegate) {

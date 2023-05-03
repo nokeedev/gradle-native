@@ -37,7 +37,7 @@ public interface PBXHeadersBuildPhase extends PBXBuildPhase {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this(new DefaultKeyedObject.Builder());
+			this(new DefaultKeyedObject.Builder().knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXHeadersBuildPhase.CodingKeys.values()));
 		}
 
 		public Builder(KeyedObject parent) {

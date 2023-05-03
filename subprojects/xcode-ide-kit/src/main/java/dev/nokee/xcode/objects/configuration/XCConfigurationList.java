@@ -51,7 +51,7 @@ public interface XCConfigurationList extends PBXProjectItem {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this(new DefaultKeyedObject.Builder());
+			this(new DefaultKeyedObject.Builder().knownKeys(KeyedCoders.ISA).knownKeys(CodeableXCConfigurationList.CodingKeys.values()));
 		}
 
 		public Builder(KeyedObject parent) {
@@ -59,9 +59,9 @@ public interface XCConfigurationList extends PBXProjectItem {
 		}
 
 		private Builder(DefaultKeyedObject.Builder builder) {
-			this.builder = builder
-				.put(KeyedCoders.ISA, "XCConfigurationList")
-				.ifAbsent(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, false);
+			this.builder = builder;
+			builder.put(KeyedCoders.ISA, "XCConfigurationList");
+			builder.ifAbsent(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, false);
 		}
 
 		@Override

@@ -50,7 +50,7 @@ public interface PBXNativeTarget extends PBXTarget {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this(new DefaultKeyedObject.Builder());
+			this(new DefaultKeyedObject.Builder().knownKeys(KeyedCoders.ISA).knownKeys(CodeablePBXNativeTarget.CodingKeys.values()));
 		}
 
 		public Builder(KeyedObject parent) {

@@ -43,7 +43,7 @@ public interface XCBuildConfiguration extends PBXBuildStyle {
 		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this(new DefaultKeyedObject.Builder());
+			this(new DefaultKeyedObject.Builder().knownKeys(KeyedCoders.ISA).knownKeys(CodeableXCBuildConfiguration.CodingKeys.values()));
 		}
 
 		public Builder(KeyedObject parent) {

@@ -33,7 +33,9 @@ public final class CodeableVersionRequirementExact extends AbstractCodeable impl
 	}
 
 	public CodeableVersionRequirementExact(String version) {
-		this(new DefaultKeyedObject.Builder().put(CodingKeys.kind, Kind.EXACT).put(CodingKeys.version, version).build());
+		this(new DefaultKeyedObject.Builder().knownKeys(CodingKeys.values())
+			.put(CodingKeys.kind, Kind.EXACT)
+			.put(CodingKeys.version, version).build());
 	}
 
 	public CodeableVersionRequirementExact(KeyedObject delegate) {

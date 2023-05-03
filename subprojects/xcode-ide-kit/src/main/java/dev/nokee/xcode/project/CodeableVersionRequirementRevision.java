@@ -33,7 +33,9 @@ public final class CodeableVersionRequirementRevision extends AbstractCodeable i
 	}
 
 	public CodeableVersionRequirementRevision(String revision) {
-		this(new DefaultKeyedObject.Builder().put(CodingKeys.kind, Kind.REVISION).put(CodingKeys.revision, revision).build());
+		this(new DefaultKeyedObject.Builder().knownKeys(CodingKeys.values())
+			.put(CodingKeys.kind, Kind.REVISION)
+			.put(CodingKeys.revision, revision).build());
 	}
 
 	public CodeableVersionRequirementRevision(KeyedObject delegate) {
