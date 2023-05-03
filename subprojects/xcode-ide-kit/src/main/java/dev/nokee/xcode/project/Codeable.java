@@ -16,6 +16,7 @@
 package dev.nokee.xcode.project;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 public interface Codeable extends Encodeable, Decodeable {
 	String isa();
@@ -26,6 +27,8 @@ public interface Codeable extends Encodeable, Decodeable {
 	default int stableHash() {
 		return 0;
 	}
+
+	Map<CodingKey, Object> getAsMap();
 
 	default boolean has(CodingKey key) {
 		return tryDecode(key) != null;

@@ -16,6 +16,7 @@
 package dev.nokee.xcode.project;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 import java.util.function.Function;
 
 public final class KeyedObjectCodeableAdapter implements KeyedObject {
@@ -33,6 +34,11 @@ public final class KeyedObjectCodeableAdapter implements KeyedObject {
 	@Override
 	public String globalId() {
 		return delegate.globalId();
+	}
+
+	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		return delegate.getAsMap();
 	}
 
 	@Override

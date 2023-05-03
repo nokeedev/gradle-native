@@ -50,6 +50,11 @@ public final class CachingKeyedObject implements KeyedObject {
 	}
 
 	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		return delegate.getAsMap();
+	}
+
+	@Override
 	public long age() {
 		return delegate.age();
 	}

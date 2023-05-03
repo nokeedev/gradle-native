@@ -20,6 +20,7 @@ import dev.nokee.xcode.project.KeyedObject;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 @EqualsAndHashCode
 public final class RefKeyedObject implements KeyedObject {
@@ -39,6 +40,11 @@ public final class RefKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		return globalId;
+	}
+
+	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

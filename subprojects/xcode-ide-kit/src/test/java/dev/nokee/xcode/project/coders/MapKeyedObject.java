@@ -21,6 +21,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 public final class MapKeyedObject implements KeyedObject {
@@ -40,6 +41,11 @@ public final class MapKeyedObject implements KeyedObject {
 	@Override
 	public String globalId() {
 		return null;
+	}
+
+	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		return values.entrySet().stream().collect(Collectors.toMap(it -> (CodingKey) it::getKey, Map.Entry::getValue));
 	}
 
 	@Override
