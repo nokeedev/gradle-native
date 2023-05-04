@@ -90,27 +90,31 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 	private XCTargetReference toTargetReference(XCProjectReference project, PBXContainerItemProxy targetProxy) {
 		checkArgument(PBXContainerItemProxy.ProxyType.TARGET_REFERENCE.equals(targetProxy.getProxyType()), "'targetProxy' is expected to be a target reference");
 
-		if (targetProxy.getContainerPortal() instanceof PBXProject) {
-			return new DefaultXCTargetReference(project, targetProxy.getRemoteInfo()
-				.orElseThrow(XCDependenciesLoader::missingRemoteInfoException));
-		} else if (targetProxy.getContainerPortal() instanceof PBXFileReference) {
-			return new DefaultXCTargetReference(new DefaultXCProjectReference(project.load(fileReferencesLoader).get((PBXFileReference) targetProxy.getContainerPortal()).resolve(new XCFileReference.ResolveContext() {
-				@Override
-				public Path getBuiltProductsDirectory() {
-					throw new UnsupportedOperationException("Should not call");
-				}
+		return targetProxy.getContainerPortal().accept(new PBXContainerItemProxy.ContainerPortal.Visitor<XCTargetReference>() {
+			@Override
+			public XCTargetReference visit(PBXProject container) {
+				return new DefaultXCTargetReference(project, targetProxy.getRemoteInfo()
+					.orElseThrow(XCDependenciesLoader::missingRemoteInfoException));
+			}
 
-				@Override
-				public Path get(String name) {
-					if ("SOURCE_ROOT".equals(name)) {
-						return project.getLocation().getParent();
+			@Override
+			public XCTargetReference visit(PBXFileReference container) {
+				return new DefaultXCTargetReference(new DefaultXCProjectReference(project.load(fileReferencesLoader).get((PBXFileReference) targetProxy.getContainerPortal()).resolve(new XCFileReference.ResolveContext() {
+					@Override
+					public Path getBuiltProductsDirectory() {
+						throw new UnsupportedOperationException("Should not call");
 					}
-					throw new UnsupportedOperationException(String.format("Could not resolve '%s' build setting.", name));
-				}
-			})), targetProxy.getRemoteInfo().orElseThrow(XCDependenciesLoader::missingRemoteInfoException));
-		} else {
-			throw new UnsupportedOperationException("Unknown container portal.");
-		}
+
+					@Override
+					public Path get(String name) {
+						if ("SOURCE_ROOT".equals(name)) {
+							return project.getLocation().getParent();
+						}
+						throw new UnsupportedOperationException(String.format("Could not resolve '%s' build setting.", name));
+					}
+				})), targetProxy.getRemoteInfo().orElseThrow(XCDependenciesLoader::missingRemoteInfoException));
+			}
+		});
 	}
 
 	private static RuntimeException missingRemoteInfoException() {
