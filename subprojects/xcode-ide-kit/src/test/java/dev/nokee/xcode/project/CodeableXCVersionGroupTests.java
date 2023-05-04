@@ -16,11 +16,13 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import lombok.val;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -106,5 +108,26 @@ class CodeableXCVersionGroupTests extends CodeableAdapterTester<CodeableXCVersio
 	@Test
 	void isPBXReference() {
 		assertThat(newSubject(), isA(PBXReference.class));
+	}
+
+	@Test
+	void isFileReference() {
+		assertThat(newSubject(), isA(PBXBuildFile.FileReference.class));
+	}
+
+	@Nested
+	class FileReferenceVisitorTests implements VisitableTester<PBXBuildFile.FileReference.Visitor> {
+		@Override
+		public Object newSubject() {
+			return CodeableXCVersionGroupTests.this.newSubject();
+		}
+	}
+
+	@Nested
+	class ChildGroupVisitorTests implements VisitableTester<GroupChild.Visitor> {
+		@Override
+		public Object newSubject() {
+			return CodeableXCVersionGroupTests.this.newSubject();
+		}
 	}
 }

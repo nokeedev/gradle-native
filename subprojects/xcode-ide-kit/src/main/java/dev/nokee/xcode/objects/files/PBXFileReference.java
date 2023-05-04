@@ -44,6 +44,16 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 
 	Optional<String> getLastKnownFileType();
 
+	@Override
+	default void accept(PBXBuildFile.FileReference.Visitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
+	default void accept(GroupChild.Visitor visitor) {
+		visitor.visit(this);
+	}
+
 	static PBXFileReference ofAbsolutePath(File path) {
 		return PBXFileReference.builder().name(path.getName()).path(path.getAbsolutePath()).sourceTree(PBXSourceTree.ABSOLUTE).build();
 	}

@@ -26,4 +26,14 @@ public interface GroupChild {
 	Optional<String> getPath();
 
 	PBXSourceTree getSourceTree();
+
+	void accept(Visitor visitor);
+
+	interface Visitor {
+		void visit(PBXFileReference fileReference);
+		void visit(PBXReferenceProxy referenceProxy);
+		void visit(PBXVariantGroup variantGroup);
+		void visit(XCVersionGroup versionGroup);
+		void visit(PBXGroup group);
+	}
 }

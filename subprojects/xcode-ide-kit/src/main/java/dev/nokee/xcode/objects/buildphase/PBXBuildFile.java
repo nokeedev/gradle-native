@@ -18,6 +18,10 @@ package dev.nokee.xcode.objects.buildphase;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXProjectItem;
+import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.objects.files.PBXReferenceProxy;
+import dev.nokee.xcode.objects.files.PBXVariantGroup;
+import dev.nokee.xcode.objects.files.XCVersionGroup;
 import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import dev.nokee.xcode.project.CodeablePBXBuildFile;
 import dev.nokee.xcode.project.DefaultKeyedObject;
@@ -106,5 +110,14 @@ public interface PBXBuildFile extends PBXProjectItem {
 	/**
 	 * Represent a file reference for a {@link PBXBuildFile}.
 	 */
-	interface FileReference {}
+	interface FileReference {
+		void accept(Visitor visitor);
+
+		interface Visitor {
+			void visit(PBXFileReference fileReference);
+			void visit(PBXReferenceProxy referenceProxy);
+			void visit(PBXVariantGroup variantGroup);
+			void visit(XCVersionGroup versionGroup);
+		}
+	}
 }

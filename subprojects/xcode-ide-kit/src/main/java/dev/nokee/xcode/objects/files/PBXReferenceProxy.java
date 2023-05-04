@@ -30,6 +30,16 @@ public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileRefere
 
 	String getFileType();
 
+	@Override
+	default void accept(PBXBuildFile.FileReference.Visitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
+	default void accept(GroupChild.Visitor visitor) {
+		visitor.visit(this);
+	}
+
 	static Builder builder() {
 		return new Builder();
 	}

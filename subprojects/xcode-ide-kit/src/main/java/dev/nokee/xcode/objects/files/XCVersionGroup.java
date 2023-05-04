@@ -41,6 +41,16 @@ public interface XCVersionGroup extends PBXReference, GroupChild, PBXBuildFile.F
 	// TODO: find better explaination
 	Optional<String> getVersionGroupType();
 
+	@Override
+	default void accept(PBXBuildFile.FileReference.Visitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
+	default void accept(GroupChild.Visitor visitor) {
+		visitor.visit(this);
+	}
+
 	static Builder builder() {
 		return new Builder();
 	}
