@@ -25,6 +25,7 @@ import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXFrameworksBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXHeadersBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReference;
@@ -209,19 +210,37 @@ public final class XCDependenciesLoader implements XCLoader<Set<XCDependency>, X
 		}
 
 		private static String toString(PBXBuildPhase buildPhase) {
-			if (buildPhase instanceof PBXCopyFilesBuildPhase) {
-				return "build phase '" + ((PBXCopyFilesBuildPhase) buildPhase).getName().orElse("copy files") + "'";
-			} else if (buildPhase instanceof PBXFrameworksBuildPhase) {
-				return "build phase 'Link Binary'";
-			} else if (buildPhase instanceof PBXHeadersBuildPhase) {
-				return "build phase 'Headers'";
-			} else if (buildPhase instanceof PBXResourcesBuildPhase) {
-				return "build phase 'Copy Resources'";
-			} else if (buildPhase instanceof PBXSourcesBuildPhase) {
-				return "build phase 'Compile Sources'";
-			} else {
-				return "a build phase";
-			}
+			return buildPhase.accept(new PBXBuildPhase.Visitor<String>() {
+				@Override
+				public String visit(PBXCopyFilesBuildPhase buildPhase) {
+					return "build phase '" + buildPhase.getName().orElse("copy files") + "'";
+				}
+
+				@Override
+				public String visit(PBXFrameworksBuildPhase buildPhase) {
+					return "build phase 'Link Binary'";
+				}
+
+				@Override
+				public String visit(PBXHeadersBuildPhase buildPhase) {
+					return "build phase 'Headers'";
+				}
+
+				@Override
+				public String visit(PBXResourcesBuildPhase buildPhase) {
+					return "build phase 'Copy Resources'";
+				}
+
+				@Override
+				public String visit(PBXShellScriptBuildPhase buildPhase) {
+					return "a build phase";
+				}
+
+				@Override
+				public String visit(PBXSourcesBuildPhase buildPhase) {
+					return "build phase 'Compile Sources'";
+				}
+			});
 		}
 
 		private static String toString(XCFileReference file) {

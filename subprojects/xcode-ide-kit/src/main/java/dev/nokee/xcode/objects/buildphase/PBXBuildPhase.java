@@ -25,7 +25,7 @@ import java.util.List;
 public interface PBXBuildPhase extends PBXProjectItem {
 	List<PBXBuildFile> getFiles();
 
-	void accept(Visitor visitor);
+	<R> R accept(Visitor<R> visitor);
 
 	Builder toBuilder();
 
@@ -33,17 +33,17 @@ public interface PBXBuildPhase extends PBXProjectItem {
 		PBXBuildPhase build();
 	}
 
-	interface Visitor {
-		void visit(PBXCopyFilesBuildPhase buildPhase);
+	interface Visitor<R> {
+		R visit(PBXCopyFilesBuildPhase buildPhase);
 
-		void visit(PBXFrameworksBuildPhase buildPhase);
+		R visit(PBXFrameworksBuildPhase buildPhase);
 
-		void visit(PBXHeadersBuildPhase buildPhase);
+		R visit(PBXHeadersBuildPhase buildPhase);
 
-		void visit(PBXResourcesBuildPhase buildPhase);
+		R visit(PBXResourcesBuildPhase buildPhase);
 
-		void visit(PBXShellScriptBuildPhase buildPhase);
+		R visit(PBXShellScriptBuildPhase buildPhase);
 
-		void visit(PBXSourcesBuildPhase buildPhase);
+		R visit(PBXSourcesBuildPhase buildPhase);
 	}
 }
