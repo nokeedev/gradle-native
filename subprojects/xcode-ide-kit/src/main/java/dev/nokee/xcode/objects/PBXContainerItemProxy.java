@@ -105,5 +105,12 @@ public interface PBXContainerItemProxy extends PBXContainerItem {
 	/**
 	 * Represent a container portal for a {@link PBXContainerItemProxy}.
 	 */
-	interface ContainerPortal {}
+	interface ContainerPortal {
+		<R> R accept(Visitor<R> visitor);
+
+		interface Visitor<R> {
+			R visit(PBXProject container);
+			R visit(PBXFileReference container);
+		}
+	}
 }

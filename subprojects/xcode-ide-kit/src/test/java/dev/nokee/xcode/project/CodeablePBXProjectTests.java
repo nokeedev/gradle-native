@@ -16,6 +16,7 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
+import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXGroup;
@@ -43,7 +44,7 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesIterable;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CodeablePBXProjectTests extends CodeableAdapterTester<CodeablePBXProject> {
+class CodeablePBXProjectTests extends CodeableAdapterTester<CodeablePBXProject> implements VisitableTester<PBXContainerItemProxy.ContainerPortal.Visitor<?>> {
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"Xcode 3.0"})
