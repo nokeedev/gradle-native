@@ -17,6 +17,7 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
+import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -48,7 +49,7 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CodeablePBXShellScriptBuildPhaseTests extends CodeableAdapterTester<CodeablePBXShellScriptBuildPhase> {
+class CodeablePBXShellScriptBuildPhaseTests extends CodeableAdapterTester<CodeablePBXShellScriptBuildPhase> implements VisitableTester<PBXBuildPhase.Visitor> {
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXTargetBuildFilesProvider.class)
 	void checkGetFiles(List<PBXBuildFile> expectedValue) {

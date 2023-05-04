@@ -16,6 +16,7 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
+import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
 @ExtendWith(MockitoExtension.class)
-class CodeableVersionRequirementUpToNextMajorVersionTests extends CodeableAdapterTester<CodeableVersionRequirementUpToNextMajorVersion> {
+class CodeableVersionRequirementUpToNextMajorVersionTests extends CodeableAdapterTester<CodeableVersionRequirementUpToNextMajorVersion> implements VisitableTester<XCRemoteSwiftPackageReference.VersionRequirement.Visitor> {
 	@ParameterizedTest
 	@NullSource
 	@EnumSource(value = Kind.class, names = "UP_TO_NEXT_MAJOR_VERSION")

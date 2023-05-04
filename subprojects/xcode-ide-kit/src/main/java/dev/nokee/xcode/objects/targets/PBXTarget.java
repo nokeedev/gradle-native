@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.targets;
 
 import dev.nokee.xcode.objects.PBXProjectItem;
+import dev.nokee.xcode.objects.Visitable;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -26,7 +27,7 @@ import java.util.Optional;
 /**
  * Information for building a specific artifact (a library, binary, or test).
  */
-public interface PBXTarget extends PBXProjectItem {
+public interface PBXTarget extends PBXProjectItem, Visitable<PBXTarget.Visitor> {
 	String getName();
 
 	Optional<ProductType> getProductType();
@@ -42,6 +43,14 @@ public interface PBXTarget extends PBXProjectItem {
 	Optional<PBXFileReference> getProductReference();
 
 	Builder toBuilder();
+
+	interface Visitor {
+		void visit(PBXAggregateTarget target);
+
+		void visit(PBXLegacyTarget target);
+
+		void visit(PBXNativeTarget target);
+	}
 
 	interface Builder {
 		Builder productName(String productName);
