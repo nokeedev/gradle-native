@@ -106,6 +106,7 @@ public interface PBXContainerItemProxy extends PBXContainerItem {
 	 * Represent a container portal for a {@link PBXContainerItemProxy}.
 	 */
 	interface ContainerPortal {
+		@Visitable
 		<R> R accept(Visitor<R> visitor);
 
 		interface Visitor<R> {

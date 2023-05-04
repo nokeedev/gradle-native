@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import dev.nokee.xcode.objects.PBXProjectItem;
+import dev.nokee.xcode.objects.Visitable;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ import java.util.List;
 public interface PBXBuildPhase extends PBXProjectItem {
 	List<PBXBuildFile> getFiles();
 
+	@Visitable
 	<R> R accept(Visitor<R> visitor);
 
 	Builder toBuilder();

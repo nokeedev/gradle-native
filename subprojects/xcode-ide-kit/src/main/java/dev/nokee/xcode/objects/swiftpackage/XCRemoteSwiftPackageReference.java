@@ -17,6 +17,7 @@ package dev.nokee.xcode.objects.swiftpackage;
 
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXContainerItem;
+import dev.nokee.xcode.objects.Visitable;
 import dev.nokee.xcode.project.CodeableVersionRequirementBranch;
 import dev.nokee.xcode.project.CodeableVersionRequirementExact;
 import dev.nokee.xcode.project.CodeableVersionRequirementRange;
@@ -97,6 +98,7 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			UP_TO_NEXT_MAJOR_VERSION
 		}
 
+		@Visitable
 		void accept(Visitor visitor);
 
 		interface Visitor {
