@@ -25,13 +25,22 @@ import org.mockito.Mockito;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
-public interface VisitableTester<V> {
+/**
+ * Tests visitable API matching the specified visitor type.
+ * <p>
+ * A visitable API is method with the following prototype <code>void accept(VisitorType visitor)}</code>.
+ * The VisitorType is expected to have a method with the following prototype <code>void visitMethod(SubjectType subject)</code>.
+ * Note the {@literal visitMethod} can be named however the user want but there can only be a single method that match the {@code SubjectType}.
+ * Typically, the {@literal visitMethod} is named {@literal visit}.
+ * @param <VisitorType> the visitor type
+ */
+public interface VisitableTester<VisitorType> {
 	Object newSubject();
 
 	@Test
 	default void canVisit() {
 		@SuppressWarnings({"UnstableApiUsage", "unchecked"})
-		val visitorType = (Class<V>) new TypeToken<V>(getClass()) {}.getRawType();
+		val visitorType = (Class<VisitorType>) new TypeToken<VisitorType>(getClass()) {}.getRawType();
 		val visitor = Mockito.mock(visitorType);
 		val subject = newSubject();
 
