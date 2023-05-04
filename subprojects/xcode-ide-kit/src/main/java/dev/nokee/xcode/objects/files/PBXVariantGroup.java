@@ -34,6 +34,16 @@ import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 public interface PBXVariantGroup extends PBXReference, GroupChild, PBXBuildFile.FileReference {
 	List<GroupChild> getChildren();
 
+	@Override
+	default void accept(PBXBuildFile.FileReference.Visitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
+	default void accept(GroupChild.Visitor visitor) {
+		visitor.visit(this);
+	}
+
 	static Builder builder() {
 		return new Builder();
 	}

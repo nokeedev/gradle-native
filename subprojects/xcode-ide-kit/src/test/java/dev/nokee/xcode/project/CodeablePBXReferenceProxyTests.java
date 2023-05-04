@@ -17,8 +17,12 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
+import dev.nokee.xcode.objects.files.GroupChild;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import lombok.val;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -37,6 +41,7 @@ import static dev.nokee.xcode.project.CodeablePBXReferenceProxy.CodingKeys.sourc
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
 
 class CodeablePBXReferenceProxyTests extends CodeableAdapterTester<CodeablePBXReferenceProxy> {
 	@ParameterizedTest
@@ -82,8 +87,34 @@ class CodeablePBXReferenceProxyTests extends CodeableAdapterTester<CodeablePBXRe
 	}
 
 	@Test
+	void isPBXReference() {
+		assertThat(newSubject(), isA(PBXReference.class));
+	}
+
+	@Test
+	void isFileReference() {
+		assertThat(newSubject(), isA(PBXBuildFile.FileReference.class));
+	}
+
+	@Test
 	void encodesIsaCodingKeyOnNewInstance() {
 		val delegate = MockitoBuilder.newAlwaysThrowingMock(KeyedObject.class);
 		assertThat(newSubjectInstance(delegate), encodeIsaCodingKeys(delegate));
+	}
+
+	@Nested
+	class FileReferenceVisitorTests implements VisitableTester<PBXBuildFile.FileReference.Visitor> {
+		@Override
+		public Object newSubject() {
+			return CodeablePBXReferenceProxyTests.this.newSubject();
+		}
+	}
+
+	@Nested
+	class ChildGroupVisitorTests implements VisitableTester<GroupChild.Visitor> {
+		@Override
+		public Object newSubject() {
+			return CodeablePBXReferenceProxyTests.this.newSubject();
+		}
 	}
 }

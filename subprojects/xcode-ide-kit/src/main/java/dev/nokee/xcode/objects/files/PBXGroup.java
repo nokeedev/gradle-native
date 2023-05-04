@@ -37,6 +37,11 @@ public interface PBXGroup extends GroupChild {
 
 	List<GroupChild> getChildren();
 
+	@Override
+	default void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
+
 	Builder toBuilder();
 
 	static Builder builder() {
