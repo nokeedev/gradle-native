@@ -17,7 +17,6 @@ package dev.nokee.xcode.objects.swiftpackage;
 
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXContainerItem;
-import dev.nokee.xcode.objects.Visitable;
 import dev.nokee.xcode.project.CodeableVersionRequirementBranch;
 import dev.nokee.xcode.project.CodeableVersionRequirementExact;
 import dev.nokee.xcode.project.CodeableVersionRequirementRange;
@@ -40,7 +39,7 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 	 * Represents a version requirement for a Swift package.
 	 * There are three categories of requirement: version-based requirement, branch-based requirement, and commit-based requirement.
 	 */
-	interface VersionRequirement extends Visitable<VersionRequirement.Visitor> {
+	interface VersionRequirement {
 		Kind getKind();
 
 		/**
@@ -97,6 +96,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			 */
 			UP_TO_NEXT_MAJOR_VERSION
 		}
+
+		void accept(Visitor visitor);
 
 		interface Visitor {
 			void visit(Revision versionRequirement);

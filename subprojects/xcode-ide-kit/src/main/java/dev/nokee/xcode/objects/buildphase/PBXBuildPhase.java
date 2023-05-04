@@ -16,15 +16,16 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import dev.nokee.xcode.objects.PBXProjectItem;
-import dev.nokee.xcode.objects.Visitable;
 
 import java.util.List;
 
 /**
  * Superclass of build phases. Each build phase represents one step in building a target.
  */
-public interface PBXBuildPhase extends PBXProjectItem, Visitable<PBXBuildPhase.Visitor> {
+public interface PBXBuildPhase extends PBXProjectItem {
 	List<PBXBuildFile> getFiles();
+
+	void accept(Visitor visitor);
 
 	Builder toBuilder();
 

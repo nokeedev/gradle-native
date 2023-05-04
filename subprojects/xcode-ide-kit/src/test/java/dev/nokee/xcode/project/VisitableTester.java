@@ -17,7 +17,6 @@ package dev.nokee.xcode.project;
 
 import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
-import dev.nokee.xcode.objects.Visitable;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 public interface VisitableTester<V> {
-	Visitable<V> newSubject();
+	Object newSubject();
 
 	@Test
 	default void canVisit() {
@@ -36,7 +35,15 @@ public interface VisitableTester<V> {
 		val visitor = Mockito.mock(visitorType);
 		val subject = newSubject();
 
-		subject.accept(visitor);
+		val acceptMethod = Arrays.stream(subject.getClass().getMethods())
+			// find a method with the following prototype: void accept(VisitorType)
+			.filter(it -> it.getReturnType().equals(Void.TYPE) && it.getName().equals("accept") && it.getParameterTypes().length == 1 && it.getParameterTypes()[0].equals(visitorType))
+			.collect(MoreCollectors.onlyElement());
+		try {
+			acceptMethod.invoke(subject, visitor);
+		} catch (InvocationTargetException | IllegalAccessException e) {
+			Assertions.fail(e);
+		}
 
 		val visitMethod = Arrays.stream(visitorType.getDeclaredMethods())
 			// find a method that takes only one parameter of a compatible type with the subject
