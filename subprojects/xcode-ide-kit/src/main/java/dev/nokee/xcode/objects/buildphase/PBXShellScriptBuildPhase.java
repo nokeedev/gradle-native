@@ -152,8 +152,18 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 			return this;
 		}
 
+		public Builder inputFileListPath(String inputFileListPath) {
+			builder.add(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, inputFileListPath);
+			return this;
+		}
+
 		public Builder outputFileListPaths(Iterable<String> outputFileListPaths) {
 			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, outputFileListPaths);
+			return this;
+		}
+
+		public Builder outputFileListPath(String outputFileListPath) {
+			builder.add(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, outputFileListPath);
 			return this;
 		}
 
