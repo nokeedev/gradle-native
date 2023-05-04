@@ -38,7 +38,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
 @ExtendWith(MockitoExtension.class)
-class CodeableVersionRequirementUpToNextMajorVersionTests extends CodeableAdapterTester<CodeableVersionRequirementUpToNextMajorVersion> implements VisitableTester<XCRemoteSwiftPackageReference.VersionRequirement.Visitor> {
+class CodeableVersionRequirementUpToNextMajorVersionTests extends CodeableAdapterTester<CodeableVersionRequirementUpToNextMajorVersion> implements VisitableTester<XCRemoteSwiftPackageReference.VersionRequirement.Visitor<?>> {
 	@ParameterizedTest
 	@NullSource
 	@EnumSource(value = Kind.class, names = "UP_TO_NEXT_MAJOR_VERSION")

@@ -81,7 +81,7 @@ class CodeablePBXGroupTests extends CodeableAdapterTester<CodeablePBXGroup> {
 	}
 
 	@Nested
-	class ChildGroupVisitorTests implements VisitableTester<GroupChild.Visitor> {
+	class ChildGroupVisitorTests implements VisitableTester<GroupChild.Visitor<?>> {
 		@Override
 		public Object newSubject() {
 			return CodeablePBXGroupTests.this.newSubject();

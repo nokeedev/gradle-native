@@ -36,7 +36,7 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
-class CodeableVersionRequirementRangeTests extends CodeableAdapterTester<CodeableVersionRequirementRange> implements VisitableTester<XCRemoteSwiftPackageReference.VersionRequirement.Visitor> {
+class CodeableVersionRequirementRangeTests extends CodeableAdapterTester<CodeableVersionRequirementRange> implements VisitableTester<XCRemoteSwiftPackageReference.VersionRequirement.Visitor<?>> {
 	@ParameterizedTest
 	@NullSource
 	@EnumSource(value = Kind.class, names = "RANGE")

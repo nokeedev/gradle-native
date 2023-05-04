@@ -46,7 +46,7 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CodeablePBXAggregateTargetTests extends CodeableAdapterTester<CodeablePBXAggregateTarget> implements VisitableTester<PBXTarget.Visitor> {
+class CodeablePBXAggregateTargetTests extends CodeableAdapterTester<CodeablePBXAggregateTarget> implements VisitableTester<PBXTarget.Visitor<?>> {
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXObjectNamesProvider.class)
 	void checkGetName(String expectedValue) {

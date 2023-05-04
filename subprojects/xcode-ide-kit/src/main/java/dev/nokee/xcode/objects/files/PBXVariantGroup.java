@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.project.CodeablePBXVariantGroup;
-import dev.nokee.xcode.project.CodeableXCVersionGroup;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
@@ -35,13 +34,13 @@ public interface PBXVariantGroup extends PBXReference, GroupChild, PBXBuildFile.
 	List<GroupChild> getChildren();
 
 	@Override
-	default void accept(PBXBuildFile.FileReference.Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(PBXBuildFile.FileReference.Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override
-	default void accept(GroupChild.Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(GroupChild.Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	static Builder builder() {

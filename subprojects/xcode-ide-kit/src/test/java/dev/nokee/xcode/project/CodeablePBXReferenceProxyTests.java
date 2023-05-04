@@ -103,7 +103,7 @@ class CodeablePBXReferenceProxyTests extends CodeableAdapterTester<CodeablePBXRe
 	}
 
 	@Nested
-	class FileReferenceVisitorTests implements VisitableTester<PBXBuildFile.FileReference.Visitor> {
+	class FileReferenceVisitorTests implements VisitableTester<PBXBuildFile.FileReference.Visitor<?>> {
 		@Override
 		public Object newSubject() {
 			return CodeablePBXReferenceProxyTests.this.newSubject();
@@ -111,7 +111,7 @@ class CodeablePBXReferenceProxyTests extends CodeableAdapterTester<CodeablePBXRe
 	}
 
 	@Nested
-	class ChildGroupVisitorTests implements VisitableTester<GroupChild.Visitor> {
+	class ChildGroupVisitorTests implements VisitableTester<GroupChild.Visitor<?>> {
 		@Override
 		public Object newSubject() {
 			return CodeablePBXReferenceProxyTests.this.newSubject();

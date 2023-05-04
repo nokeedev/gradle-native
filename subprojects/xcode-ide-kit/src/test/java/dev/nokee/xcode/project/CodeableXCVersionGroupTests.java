@@ -116,7 +116,7 @@ class CodeableXCVersionGroupTests extends CodeableAdapterTester<CodeableXCVersio
 	}
 
 	@Nested
-	class FileReferenceVisitorTests implements VisitableTester<PBXBuildFile.FileReference.Visitor> {
+	class FileReferenceVisitorTests implements VisitableTester<PBXBuildFile.FileReference.Visitor<?>> {
 		@Override
 		public Object newSubject() {
 			return CodeableXCVersionGroupTests.this.newSubject();
@@ -124,7 +124,7 @@ class CodeableXCVersionGroupTests extends CodeableAdapterTester<CodeableXCVersio
 	}
 
 	@Nested
-	class ChildGroupVisitorTests implements VisitableTester<GroupChild.Visitor> {
+	class ChildGroupVisitorTests implements VisitableTester<GroupChild.Visitor<?>> {
 		@Override
 		public Object newSubject() {
 			return CodeableXCVersionGroupTests.this.newSubject();

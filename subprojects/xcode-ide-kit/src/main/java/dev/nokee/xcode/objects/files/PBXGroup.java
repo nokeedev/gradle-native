@@ -38,8 +38,8 @@ public interface PBXGroup extends GroupChild {
 	List<GroupChild> getChildren();
 
 	@Override
-	default void accept(Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	Builder toBuilder();
