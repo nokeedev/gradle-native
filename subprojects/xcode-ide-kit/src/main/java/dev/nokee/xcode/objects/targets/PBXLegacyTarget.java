@@ -36,8 +36,8 @@ public interface PBXLegacyTarget extends PBXTarget {
 	boolean isPassBuildSettingsInEnvironment();
 
 	@Override
-	default void accept(Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override

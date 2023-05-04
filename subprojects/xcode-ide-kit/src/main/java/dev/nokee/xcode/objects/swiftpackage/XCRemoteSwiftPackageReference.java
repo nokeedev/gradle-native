@@ -99,20 +99,20 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 		}
 
 		@Visitable
-		void accept(Visitor visitor);
+		<R> R accept(Visitor<R> visitor);
 
-		interface Visitor {
-			void visit(Revision versionRequirement);
+		interface Visitor<R> {
+			R visit(Revision versionRequirement);
 
-			void visit(Branch versionRequirement);
+			R visit(Branch versionRequirement);
 
-			void visit(Exact versionRequirement);
+			R visit(Exact versionRequirement);
 
-			void visit(Range versionRequirement);
+			R visit(Range versionRequirement);
 
-			void visit(UpToNextMinorVersion versionRequirement);
+			R visit(UpToNextMinorVersion versionRequirement);
 
-			void visit(UpToNextMajorVersion versionRequirement);
+			R visit(UpToNextMajorVersion versionRequirement);
 		}
 
 		interface Revision extends VersionRequirement {
@@ -124,8 +124,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			String getRevision();
 
 			@Override
-			default void accept(Visitor visitor) {
-				visitor.visit(this);
+			default <R> R accept(Visitor<R> visitor) {
+				return visitor.visit(this);
 			}
 		}
 
@@ -142,8 +142,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			String getBranch();
 
 			@Override
-			default void accept(Visitor visitor) {
-				visitor.visit(this);
+			default <R> R accept(Visitor<R> visitor) {
+				return visitor.visit(this);
 			}
 		}
 
@@ -160,8 +160,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			String getVersion();
 
 			@Override
-			default void accept(Visitor visitor) {
-				visitor.visit(this);
+			default <R> R accept(Visitor<R> visitor) {
+				return visitor.visit(this);
 			}
 		}
 
@@ -180,8 +180,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			String getMaximumVersion();
 
 			@Override
-			default void accept(Visitor visitor) {
-				visitor.visit(this);
+			default <R> R accept(Visitor<R> visitor) {
+				return visitor.visit(this);
 			}
 		}
 
@@ -198,8 +198,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			String getMinimumVersion();
 
 			@Override
-			default void accept(Visitor visitor) {
-				visitor.visit(this);
+			default <R> R accept(Visitor<R> visitor) {
+				return visitor.visit(this);
 			}
 		}
 
@@ -216,8 +216,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			String getMinimumVersion();
 
 			@Override
-			default void accept(Visitor visitor) {
-				visitor.visit(this);
+			default <R> R accept(Visitor<R> visitor) {
+				return visitor.visit(this);
 			}
 		}
 

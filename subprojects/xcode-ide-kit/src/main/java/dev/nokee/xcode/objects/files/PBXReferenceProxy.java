@@ -31,13 +31,13 @@ public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileRefere
 	String getFileType();
 
 	@Override
-	default void accept(PBXBuildFile.FileReference.Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(PBXBuildFile.FileReference.Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override
-	default void accept(GroupChild.Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(GroupChild.Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	static Builder builder() {

@@ -40,8 +40,8 @@ public interface PBXNativeTarget extends PBXTarget {
 	List<XCSwiftPackageProductDependency> getPackageProductDependencies();
 
 	@Override
-	default void accept(Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override

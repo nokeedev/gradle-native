@@ -30,13 +30,13 @@ public interface GroupChild {
 	PBXSourceTree getSourceTree();
 
 	@Visitable
-	void accept(Visitor visitor);
+	<R> R accept(Visitor<R> visitor);
 
-	interface Visitor {
-		void visit(PBXFileReference fileReference);
-		void visit(PBXReferenceProxy referenceProxy);
-		void visit(PBXVariantGroup variantGroup);
-		void visit(XCVersionGroup versionGroup);
-		void visit(PBXGroup group);
+	interface Visitor<R> {
+		R visit(PBXFileReference fileReference);
+		R visit(PBXReferenceProxy referenceProxy);
+		R visit(PBXVariantGroup variantGroup);
+		R visit(XCVersionGroup versionGroup);
+		R visit(PBXGroup group);
 	}
 }

@@ -35,7 +35,7 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
-class CodeableVersionRequirementBranchTests extends CodeableAdapterTester<CodeableVersionRequirementBranch> implements VisitableTester<XCRemoteSwiftPackageReference.VersionRequirement.Visitor> {
+class CodeableVersionRequirementBranchTests extends CodeableAdapterTester<CodeableVersionRequirementBranch> implements VisitableTester<XCRemoteSwiftPackageReference.VersionRequirement.Visitor<?>> {
 	@ParameterizedTest
 	@NullSource
 	@EnumSource(value = Kind.class, names = "BRANCH")

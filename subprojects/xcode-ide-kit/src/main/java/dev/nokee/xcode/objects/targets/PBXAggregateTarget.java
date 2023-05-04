@@ -37,8 +37,8 @@ import static dev.nokee.xcode.project.DefaultKeyedObject.key;
  */
 public interface PBXAggregateTarget extends PBXTarget {
 	@Override
-	default void accept(Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override

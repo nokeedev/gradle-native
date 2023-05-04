@@ -43,16 +43,16 @@ public interface PBXTarget extends PBXProjectItem {
 	Optional<PBXFileReference> getProductReference();
 
 	@Visitable
-	void accept(Visitor visitor);
+	<R> R accept(Visitor<R> visitor);
 
 	Builder toBuilder();
 
-	interface Visitor {
-		void visit(PBXAggregateTarget target);
+	interface Visitor<R> {
+		R visit(PBXAggregateTarget target);
 
-		void visit(PBXLegacyTarget target);
+		R visit(PBXLegacyTarget target);
 
-		void visit(PBXNativeTarget target);
+		R visit(PBXNativeTarget target);
 	}
 
 	interface Builder {
