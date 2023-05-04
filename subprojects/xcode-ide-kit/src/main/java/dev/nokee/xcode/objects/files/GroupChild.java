@@ -15,6 +15,8 @@
  */
 package dev.nokee.xcode.objects.files;
 
+import dev.nokee.xcode.objects.Visitable;
+
 import java.util.Optional;
 
 public interface GroupChild {
@@ -27,6 +29,7 @@ public interface GroupChild {
 
 	PBXSourceTree getSourceTree();
 
+	@Visitable
 	void accept(Visitor visitor);
 
 	interface Visitor {

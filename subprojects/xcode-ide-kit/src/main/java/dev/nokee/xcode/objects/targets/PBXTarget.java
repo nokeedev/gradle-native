@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.targets;
 
 import dev.nokee.xcode.objects.PBXProjectItem;
+import dev.nokee.xcode.objects.Visitable;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -41,6 +42,7 @@ public interface PBXTarget extends PBXProjectItem {
 
 	Optional<PBXFileReference> getProductReference();
 
+	@Visitable
 	void accept(Visitor visitor);
 
 	Builder toBuilder();

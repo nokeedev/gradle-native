@@ -18,6 +18,7 @@ package dev.nokee.xcode.objects.buildphase;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXProjectItem;
+import dev.nokee.xcode.objects.Visitable;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReferenceProxy;
 import dev.nokee.xcode.objects.files.PBXVariantGroup;
@@ -111,6 +112,7 @@ public interface PBXBuildFile extends PBXProjectItem {
 	 * Represent a file reference for a {@link PBXBuildFile}.
 	 */
 	interface FileReference {
+		@Visitable
 		void accept(Visitor visitor);
 
 		interface Visitor {
