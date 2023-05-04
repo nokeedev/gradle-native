@@ -31,7 +31,7 @@ import static dev.nokee.xcode.project.CodeablePBXFrameworksBuildPhase.CodingKeys
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesIterable;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CodeablePBXFrameworksBuildPhaseTests extends CodeableAdapterTester<CodeablePBXFrameworksBuildPhase> implements VisitableTester<PBXBuildPhase.Visitor> {
+class CodeablePBXFrameworksBuildPhaseTests extends CodeableAdapterTester<CodeablePBXFrameworksBuildPhase> implements VisitableTester<PBXBuildPhase.Visitor<?>> {
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXTargetBuildFilesProvider.class)
 	void checkGetFiles(Iterable<PBXBuildFile> expectedValue) {

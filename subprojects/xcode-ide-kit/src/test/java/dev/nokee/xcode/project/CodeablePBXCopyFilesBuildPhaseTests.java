@@ -42,7 +42,7 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class CodeablePBXCopyFilesBuildPhaseTests extends CodeableAdapterTester<CodeablePBXCopyFilesBuildPhase> implements VisitableTester<PBXBuildPhase.Visitor> {
+class CodeablePBXCopyFilesBuildPhaseTests extends CodeableAdapterTester<CodeablePBXCopyFilesBuildPhase> implements VisitableTester<PBXBuildPhase.Visitor<?>> {
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXTargetBuildFilesProvider.class)
 	void checkGetFiles(List<PBXBuildFile> expectedValue) {

@@ -77,8 +77,8 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 	String getShellScript();
 
 	@Override
-	default void accept(Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override

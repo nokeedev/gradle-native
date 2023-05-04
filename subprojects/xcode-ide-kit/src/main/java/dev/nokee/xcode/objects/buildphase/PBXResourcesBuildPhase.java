@@ -23,8 +23,8 @@ import dev.nokee.xcode.project.KeyedObject;
 
 public interface PBXResourcesBuildPhase extends PBXBuildPhase {
 	@Override
-	default void accept(Visitor visitor) {
-		visitor.visit(this);
+	default <R> R accept(Visitor<R> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override
