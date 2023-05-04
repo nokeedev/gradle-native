@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static dev.nokee.xcode.project.DefaultKeyedObject.key;
-
 /**
  * List of build configurations.
  */

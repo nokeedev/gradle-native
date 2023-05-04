@@ -29,6 +29,11 @@ import dev.nokee.xcode.project.KeyedObject;
  */
 public interface PBXSourcesBuildPhase extends PBXBuildPhase {
 	@Override
+	default void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
 	Builder toBuilder();
 
 	static Builder builder() {

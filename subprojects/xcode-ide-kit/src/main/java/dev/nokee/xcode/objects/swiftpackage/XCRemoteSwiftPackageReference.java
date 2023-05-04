@@ -17,6 +17,7 @@ package dev.nokee.xcode.objects.swiftpackage;
 
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXContainerItem;
+import dev.nokee.xcode.objects.Visitable;
 import dev.nokee.xcode.project.CodeableVersionRequirementBranch;
 import dev.nokee.xcode.project.CodeableVersionRequirementExact;
 import dev.nokee.xcode.project.CodeableVersionRequirementRange;
@@ -39,7 +40,7 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 	 * Represents a version requirement for a Swift package.
 	 * There are three categories of requirement: version-based requirement, branch-based requirement, and commit-based requirement.
 	 */
-	interface VersionRequirement {
+	interface VersionRequirement extends Visitable<VersionRequirement.Visitor> {
 		Kind getKind();
 
 		/**
@@ -97,6 +98,20 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			UP_TO_NEXT_MAJOR_VERSION
 		}
 
+		interface Visitor {
+			void visit(Revision versionRequirement);
+
+			void visit(Branch versionRequirement);
+
+			void visit(Exact versionRequirement);
+
+			void visit(Range versionRequirement);
+
+			void visit(UpToNextMinorVersion versionRequirement);
+
+			void visit(UpToNextMajorVersion versionRequirement);
+		}
+
 		interface Revision extends VersionRequirement {
 			@Override
 			default Kind getKind() {
@@ -104,6 +119,11 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			}
 
 			String getRevision();
+
+			@Override
+			default void accept(Visitor visitor) {
+				visitor.visit(this);
+			}
 		}
 
 		static Revision revision(String revision) {
@@ -117,6 +137,11 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			}
 
 			String getBranch();
+
+			@Override
+			default void accept(Visitor visitor) {
+				visitor.visit(this);
+			}
 		}
 
 		static Branch branch(String branchName) {
@@ -130,6 +155,11 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			}
 
 			String getVersion();
+
+			@Override
+			default void accept(Visitor visitor) {
+				visitor.visit(this);
+			}
 		}
 
 		static Exact exact(String version) {
@@ -145,6 +175,11 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			String getMinimumVersion();
 
 			String getMaximumVersion();
+
+			@Override
+			default void accept(Visitor visitor) {
+				visitor.visit(this);
+			}
 		}
 
 		static Range range(String fromVersion, String toVersion) {
@@ -158,6 +193,11 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			}
 
 			String getMinimumVersion();
+
+			@Override
+			default void accept(Visitor visitor) {
+				visitor.visit(this);
+			}
 		}
 
 		static UpToNextMinorVersion upToNextMinorVersion(String minimumVersion) {
@@ -171,6 +211,11 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			}
 
 			String getMinimumVersion();
+
+			@Override
+			default void accept(Visitor visitor) {
+				visitor.visit(this);
+			}
 		}
 
 		static UpToNextMajorVersion upToNextMajorVersion(String minimumVersion) {

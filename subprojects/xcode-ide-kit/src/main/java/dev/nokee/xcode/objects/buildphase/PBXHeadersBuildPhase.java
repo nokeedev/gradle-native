@@ -27,6 +27,11 @@ public interface PBXHeadersBuildPhase extends PBXBuildPhase {
 	//   We can use utility methods to extract the "project" vs "public" vs "private" headers.
 
 	@Override
+	default void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
 	Builder toBuilder();
 
 	static Builder builder() {

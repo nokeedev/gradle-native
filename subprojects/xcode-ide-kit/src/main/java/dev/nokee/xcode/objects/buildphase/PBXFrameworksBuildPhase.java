@@ -27,6 +27,11 @@ public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 	//   We can use utility methods to extract the "optional" (Weak) vs "required" (<nothing>) status.
 
 	@Override
+	default void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
 	Builder toBuilder();
 
 	static Builder builder() {

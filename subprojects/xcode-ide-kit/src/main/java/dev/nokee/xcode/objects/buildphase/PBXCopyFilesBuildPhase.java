@@ -105,6 +105,11 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 	SubFolder getDstSubfolderSpec();
 
 	@Override
+	default void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
 	Builder toBuilder();
 
 	static Builder builder() {

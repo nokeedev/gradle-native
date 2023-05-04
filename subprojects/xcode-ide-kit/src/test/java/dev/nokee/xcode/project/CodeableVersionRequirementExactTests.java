@@ -16,6 +16,7 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
+import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
-class CodeableVersionRequirementExactTests extends CodeableAdapterTester<CodeableVersionRequirementExact> {
+class CodeableVersionRequirementExactTests extends CodeableAdapterTester<CodeableVersionRequirementExact> implements VisitableTester<XCRemoteSwiftPackageReference.VersionRequirement.Visitor> {
 	@ParameterizedTest
 	@NullSource
 	@EnumSource(value = Kind.class, names = "EXACT")
