@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,6 @@ class CodeablePBXBuildFileFactoryTests {
 
 	@Test
 	void canCreateBuildFileFromFileReference() {
-		assertThat(ofFile(reference), equalTo(new CodeablePBXBuildFile(new DefaultKeyedObject(of(ISA, "PBXBuildFile", fileRef, reference)))));
+		assertThat(ofFile(reference), equalTo(new CodeablePBXBuildFile(new DefaultKeyedObject(of(ISA, "PBXBuildFile", fileRef, reference), ImmutableSet.<CodingKey>builder().add(CodeablePBXBuildFile.CodingKeys.values()).add(ISA).build()))));
 	}
 }

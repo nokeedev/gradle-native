@@ -46,6 +46,10 @@ public final class DefaultKeyedObject implements KeyedObject {
 		this(null, values, values.keySet());
 	}
 
+	public DefaultKeyedObject(ImmutableMap<CodingKey, Object> values, Set<CodingKey> knownKeys) {
+		this(null, values, knownKeys);
+	}
+
 	public DefaultKeyedObject(KeyedObject parent, ImmutableMap<CodingKey, Object> values, Set<CodingKey> knownKeys) {
 		this.parent = parent;
 		this.values = values;
