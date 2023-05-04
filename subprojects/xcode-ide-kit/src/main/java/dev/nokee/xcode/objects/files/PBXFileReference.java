@@ -54,6 +54,11 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 		visitor.visit(this);
 	}
 
+	@Override
+	default <R> R accept(PBXContainerItemProxy.ContainerPortal.Visitor<R> visitor) {
+		return visitor.visit(this);
+	}
+
 	static PBXFileReference ofAbsolutePath(File path) {
 		return PBXFileReference.builder().name(path.getName()).path(path.getAbsolutePath()).sourceTree(PBXSourceTree.ABSOLUTE).build();
 	}

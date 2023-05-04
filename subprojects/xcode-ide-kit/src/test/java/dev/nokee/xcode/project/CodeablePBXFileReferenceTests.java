@@ -16,6 +16,7 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.internal.testing.testdoubles.MockitoBuilder;
+import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXReference;
@@ -111,6 +112,14 @@ class CodeablePBXFileReferenceTests extends CodeableAdapterTester<CodeablePBXFil
 
 	@Nested
 	class ChildGroupVisitorTests implements VisitableTester<GroupChild.Visitor> {
+		@Override
+		public Object newSubject() {
+			return CodeablePBXFileReferenceTests.this.newSubject();
+		}
+	}
+
+	@Nested
+	class ContainerPortalVisitorTests implements VisitableTester<PBXContainerItemProxy.ContainerPortal.Visitor<?>> {
 		@Override
 		public Object newSubject() {
 			return CodeablePBXFileReferenceTests.this.newSubject();

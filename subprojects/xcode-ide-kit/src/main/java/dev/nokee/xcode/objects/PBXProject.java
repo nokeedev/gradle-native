@@ -52,6 +52,11 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 
 	List<XCRemoteSwiftPackageReference> getPackageReferences();
 
+	@Override
+	default <R> R accept(PBXContainerItemProxy.ContainerPortal.Visitor<R> visitor) {
+		return visitor.visit(this);
+	}
+
 	Builder toBuilder();
 
 	interface ProjectReference {
