@@ -18,7 +18,6 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.ConfigurableSetContainer;
 import dev.nokee.xcode.XCLoaders;
-import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.TargetDependenciesAwareBuilder;
@@ -32,7 +31,6 @@ import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.workers.WorkAction;
@@ -59,8 +57,8 @@ public abstract class XCTargetIsolationTask extends ParameterizedTask<XCTargetIs
 		@Nested
 		ConfigurableIsolations getIsolations();
 
-		@InputDirectory
-		DirectoryProperty getOriginalProjectLocation();
+		@Nested
+		ConfigurableXCProjectLocation getOriginalProject();
 
 		@OutputDirectory
 		DirectoryProperty getIsolatedProjectLocation();
@@ -68,10 +66,15 @@ public abstract class XCTargetIsolationTask extends ParameterizedTask<XCTargetIs
 		@Override
 		default CopyTo<Parameters> copyTo(Parameters other) {
 			other.getIsolatedProjectLocation().set(getIsolatedProjectLocation());
-			other.getOriginalProjectLocation().set(getOriginalProjectLocation());
+			other.getOriginalProject().getLocation().set(getOriginalProject().getLocation());
 			other.getIsolations().addAll(getIsolations());
 			return this;
 		}
+	}
+
+	@Nested
+	protected Object getOriginalProjectInputFiles() {
+		return getParameters().getOriginalProject().asInput();
 	}
 
 	public static abstract class ConfigurableIsolations extends ConfigurableSetContainer<IsolationSpec> {}
@@ -158,16 +161,16 @@ public abstract class XCTargetIsolationTask extends ParameterizedTask<XCTargetIs
 
 		@Override
 		public void execute() {
-			val originalProjectLocation = getParameters().getOriginalProjectLocation().get().getAsFile().toPath();
+			val originalProjectReference = getParameters().getOriginalProject().getAsReference().get();
 			val isolatedProjectLocation = getParameters().getIsolatedProjectLocation().get().getAsFile().toPath();
 			fileOperations.sync(spec -> {
-				spec.from(originalProjectLocation);
+				spec.from(originalProjectReference.getLocation());
 				spec.into(isolatedProjectLocation);
 			});
 
-			PBXProject project = XCLoaders.pbxprojectLoader().load(XCProjectReference.of(originalProjectLocation));
+			PBXProject project = XCLoaders.pbxprojectLoader().load(originalProjectReference);
 
-			project = project.toBuilder().projectDirPath(originalProjectLocation.getParent().toString()).build();
+			project = project.toBuilder().projectDirPath(originalProjectReference.getLocation().getParent().toString()).build();
 
 			for (IsolationSpec spec : getParameters().getIsolations().getElements().get()) {
 				project = spec.apply(project);

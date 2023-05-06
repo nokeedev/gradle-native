@@ -294,7 +294,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.as(XCTargetIsolationTask.class)
 					.configure(task -> {
 						task.parameters(parameters -> {
-							parameters.getOriginalProjectLocation().set(reference.getLocation().toFile());
+							parameters.getOriginalProject().from(reference);
 							parameters.getIsolatedProjectLocation().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/" + reference.getLocation().getFileName().toString()));
 							parameters.getIsolations().create(XCTargetIsolationTask.IsolateTargetSpec.class, it -> {
 								it.getTargetNameToIsolate().set(target.getName());
@@ -391,7 +391,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.as(GenerateSwiftPackageManifestTask.class)
 					.configure(task -> {
 						task.parameters(parameters -> {
-							parameters.getProjectLocation().set(reference.getLocation().toFile());
+							parameters.getProject().from(reference);
 							parameters.getTargetName().set(target.getName());
 							parameters.getManifestFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/remote-swift-packages.manifest"));
 						});

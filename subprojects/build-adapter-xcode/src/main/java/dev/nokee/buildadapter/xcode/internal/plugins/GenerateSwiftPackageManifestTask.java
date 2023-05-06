@@ -21,12 +21,10 @@ import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.project.CodeableXCSwiftPackageProductDependency;
 import lombok.val;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.tools.ant.taskdefs.XSLTProcess;
-import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -44,8 +42,8 @@ public abstract class GenerateSwiftPackageManifestTask extends ParameterizedTask
 	}
 
 	public interface Parameters extends WorkParameters, CopyTo<Parameters> {
-		@InputDirectory
-		DirectoryProperty getProjectLocation();
+		@Nested
+		ConfigurableXCProjectLocation getProject();
 
 		@Input
 		Property<String> getTargetName();
@@ -57,15 +55,20 @@ public abstract class GenerateSwiftPackageManifestTask extends ParameterizedTask
 		default CopyTo<Parameters> copyTo(Parameters other) {
 			other.getManifestFile().set(getManifestFile());
 			other.getTargetName().set(getTargetName());
-			other.getProjectLocation().set(getProjectLocation());
+			other.getProject().getLocation().set(getProject().getLocation());
 			return this;
 		}
+	}
+
+	@Nested
+	protected Object getProjectInputFiles() {
+		return getParameters().getProject().asInput();
 	}
 
 	public static abstract class TaskAction implements WorkAction<Parameters> {
 		@Override
 		public void execute() {
-			val target = XCLoaders.pbxtargetLoader().load(XCProjectReference.of(getParameters().getProjectLocation().get().getAsFile().toPath()).ofTarget(getParameters().getTargetName().get()));
+			val target = XCLoaders.pbxtargetLoader().load(getParameters().getProject().getAsReference().get().ofTarget(getParameters().getTargetName().get()));
 			ArrayList<XCTargetIsolationTask.PackageRef> packagesGids = new ArrayList<>();
 			if (target instanceof PBXNativeTarget) {
 				((PBXNativeTarget) target).getPackageProductDependencies().stream().forEach(it -> packagesGids.add(new XCTargetIsolationTask.PackageRef(it.getProductName(), ((CodeableXCSwiftPackageProductDependency) it).globalId())));
