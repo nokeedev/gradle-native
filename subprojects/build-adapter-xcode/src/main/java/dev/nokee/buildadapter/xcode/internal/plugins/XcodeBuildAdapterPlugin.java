@@ -69,6 +69,7 @@ import dev.nokee.xcode.XCDependenciesLoader;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
+import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import lombok.val;
 import org.apache.commons.lang3.SerializationUtils;
 import org.gradle.api.Action;
@@ -304,8 +305,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 								it.getPackageProductDependencies().addAll(remoteSwiftPackages.flatMap(t -> t.getElements()).map(t -> {
 									return t.stream().map(FileSystemLocationUtils::asPath).flatMap(a -> {
 										try (val inStream = Files.newInputStream(a)) {
-											List<XCTargetIsolationTask.PackageRef> result = SerializationUtils.deserialize(inStream);
-											return result.stream();
+											return SerializationUtils.<List<XCSwiftPackageProductDependency>>deserialize(inStream).stream();
 										} catch (IOException e) {
 											throw new UncheckedIOException(e);
 										}

@@ -16,9 +16,8 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import dev.nokee.xcode.XCLoaders;
-import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
-import dev.nokee.xcode.project.CodeableXCSwiftPackageProductDependency;
 import lombok.val;
 import org.apache.commons.lang3.SerializationUtils;
 import org.gradle.api.file.RegularFileProperty;
@@ -69,13 +68,13 @@ public abstract class GenerateSwiftPackageManifestTask extends ParameterizedTask
 		@Override
 		public void execute() {
 			val target = XCLoaders.pbxtargetLoader().load(getParameters().getProject().getAsReference().get().ofTarget(getParameters().getTargetName().get()));
-			ArrayList<XCTargetIsolationTask.PackageRef> packagesGids = new ArrayList<>();
+			val productDependencies = new ArrayList<XCSwiftPackageProductDependency>();
 			if (target instanceof PBXNativeTarget) {
-				((PBXNativeTarget) target).getPackageProductDependencies().stream().forEach(it -> packagesGids.add(new XCTargetIsolationTask.PackageRef(it.getProductName(), ((CodeableXCSwiftPackageProductDependency) it).globalId())));
+				productDependencies.addAll(((PBXNativeTarget) target).getPackageProductDependencies());
 			}
 
 			try (val outStream = Files.newOutputStream(getParameters().getManifestFile().get().getAsFile().toPath())) {
-				SerializationUtils.serialize(packagesGids, outStream);
+				SerializationUtils.serialize(productDependencies, outStream);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}

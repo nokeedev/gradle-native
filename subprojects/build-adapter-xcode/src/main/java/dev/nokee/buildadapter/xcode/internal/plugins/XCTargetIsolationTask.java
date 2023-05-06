@@ -15,16 +15,14 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import com.google.common.collect.MoreCollectors;
 import dev.nokee.buildadapter.xcode.internal.plugins.vfsoverlay.ConfigurableSetContainer;
 import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.objects.PBXProject;
+import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.TargetDependenciesAwareBuilder;
-import dev.nokee.xcode.project.CodeableXCRemoteSwiftPackageReference;
 import dev.nokee.xcode.project.PBXObjectArchiver;
 import dev.nokee.xcode.project.PBXProjWriter;
-import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileSystemOperations;
@@ -39,7 +37,6 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.stream.Collectors;
@@ -101,53 +98,32 @@ public abstract class XCTargetIsolationTask extends ParameterizedTask<XCTargetIs
 		}
 	}
 
-	@EqualsAndHashCode
-	public static final class PackageRef implements Serializable {
-		private final String productName;
-		private final String globalId;
-
-		public PackageRef(String productName, String globalId) {
-			this.productName = productName;
-			this.globalId = globalId;
-		}
-
-		public String getProductName() {
-			return productName;
-		}
-
-		public String getGlobalId() {
-			return globalId;
-		}
-	}
-
 	public static abstract class AddPackageProductDependenciesSpec implements IsolationSpec {
 		@Input
-		public abstract SetProperty<PackageRef> getPackageProductDependencies();
+		public abstract SetProperty<XCSwiftPackageProductDependency> getPackageProductDependencies();
 
 		@Input
 		public abstract Property<String> getTargetNameToIsolate();
 
 		@Override
 		public PBXProject apply(PBXProject project) {
-			return project.toBuilder()
+			val projectBuilder = project.toBuilder()
 				.targets(project.getTargets().stream()
 					.map(target -> {
 						if (target.getName().equals(getTargetNameToIsolate().get()) && target instanceof PBXNativeTarget) {
-							val builder = target.toBuilder();
+							val targetBuilder = target.toBuilder();
 
-							for (val ref : getPackageProductDependencies().get()) {
-								val productName = ref.getProductName();
-								val gidPackageRef = ref.getGlobalId();
-								val packageRef = project.getPackageReferences().stream().map(CodeableXCRemoteSwiftPackageReference.class::cast).filter(it -> it.globalId().equals(gidPackageRef)).collect(MoreCollectors.onlyElement());
-								((PBXNativeTarget.Builder) builder).packageProductDependency(it -> it.productName(productName).packageReference(packageRef));
-							}
+							getPackageProductDependencies().get().forEach(((PBXNativeTarget.Builder) targetBuilder)::packageProductDependency);
 
-							return builder.build();
+							return targetBuilder.build();
 						} else {
 							return target;
 						}
-					}).collect(Collectors.toList()))
-				.build();
+					}).collect(Collectors.toList()));
+
+			getPackageProductDependencies().get().forEach(it -> projectBuilder.packageReference(it.getPackageReference()));
+
+			return projectBuilder.build();
 		}
 	}
 
