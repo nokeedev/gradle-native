@@ -17,6 +17,7 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.CodingKey;
 import dev.nokee.xcode.project.KeyedObject;
+import dev.nokee.xcode.project.SerializableCodingKey;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
@@ -45,7 +46,7 @@ public final class MapKeyedObject implements KeyedObject {
 
 	@Override
 	public Map<CodingKey, Object> getAsMap() {
-		return values.entrySet().stream().collect(Collectors.toMap(it -> (CodingKey) it::getKey, Map.Entry::getValue));
+		return values.entrySet().stream().collect(Collectors.toMap(it -> new SerializableCodingKey(it.getKey()), Map.Entry::getValue));
 	}
 
 	@Override

@@ -74,7 +74,7 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 
 					@Override
 					public Map<CodingKey, Object> getAsMap() {
-						return object.entrySet().stream().collect(Collectors.toMap(it -> (CodingKey) it::getKey, Map.Entry::getValue));
+						return object.entrySet().stream().collect(Collectors.toMap(it -> new SerializableCodingKey(it.getKey()), Map.Entry::getValue));
 					}
 
 					@Override
@@ -116,7 +116,7 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 
 	@Override
 	public Map<CodingKey, Object> getAsMap() {
-		return reference.getFields().entrySet().stream().collect(Collectors.toMap(it -> it::getKey, Map.Entry::getValue));
+		return reference.getFields().entrySet().stream().collect(Collectors.toMap(it -> new SerializableCodingKey(it.getKey()), Map.Entry::getValue));
 	}
 
 	@Override

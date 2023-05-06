@@ -92,17 +92,7 @@ public final class KeyedCoders {
 	private static final ValueCoder<XCConfigurationList> objectRefOfConfigurationList = uncheckedCast("only interested in main type", objectRef(new XCConfigurationListDecoder<>()));
 	private static final ValueCoder<PBXTarget> objectRefOfTarget = uncheckedCast("only interested in main type", objectRef(new TargetDecoder<>()));
 
-	public static final CodingKey ISA = new CodingKey() {
-		@Override
-		public String getName() {
-			return "isa";
-		}
-
-		@Override
-		public String toString() {
-			return getName();
-		}
-	};
+	public static final CodingKey ISA = new SerializableCodingKey("isa");
 	public static final CodingKey VERSION_REQUIREMENT_KIND = new CodingKey() {
 		@Override
 		public String getName() {
