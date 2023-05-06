@@ -139,6 +139,11 @@ public interface PBXNativeTarget extends PBXTarget {
 			return this;
 		}
 
+		public Builder packageProductDependency(XCSwiftPackageProductDependency packageProductDependency) {
+			this.builder.add(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, packageProductDependency);
+			return this;
+		}
+
 		@Override
 		public PBXNativeTarget build() {
 			return new CodeablePBXNativeTarget(builder.build());
