@@ -18,15 +18,20 @@ package dev.nokee.xcode.project;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @EqualsAndHashCode
-abstract class AbstractCodeable implements Codeable {
-	private final KeyedObject delegate;
+abstract class AbstractCodeable implements Codeable, Serializable {
+	private KeyedObject delegate;
 
 	protected AbstractCodeable(KeyedObject delegate) {
 		this.delegate = delegate;
@@ -101,5 +106,17 @@ abstract class AbstractCodeable implements Codeable {
 	@Override
 	public final void encode(EncodeContext context) {
 		delegate.encode(context);
+	}
+
+	private void writeObject(ObjectOutputStream outStream) throws IOException {
+		outStream.writeObject(getAsMap());
+	}
+
+	private void readObject(ObjectInputStream inStream) throws IOException, ClassNotFoundException {
+		val builder = DefaultKeyedObject.builder();
+		@SuppressWarnings("unchecked")
+		val codingKeyToValues = (Map<CodingKey, Object>) inStream.readObject();
+		codingKeyToValues.forEach(builder::put);
+		delegate = builder.build();
 	}
 }
