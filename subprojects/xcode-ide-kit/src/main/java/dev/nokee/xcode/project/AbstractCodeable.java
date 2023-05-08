@@ -109,7 +109,11 @@ abstract class AbstractCodeable implements Codeable, Serializable {
 	}
 
 	private void writeObject(ObjectOutputStream outStream) throws IOException {
-		outStream.writeObject(getAsMap());
+		val data = getAsMap().entrySet().stream()
+			// TODO: all coding key should be serializable and the filtering should be done during encoding
+			.filter(it -> it.getKey() instanceof Enum || it.getKey() instanceof SerializableCodingKey)
+			.collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+		outStream.writeObject(data);
 	}
 
 	private void readObject(ObjectInputStream inStream) throws IOException, ClassNotFoundException {

@@ -24,6 +24,7 @@ import lombok.val;
 import javax.annotation.Nullable;
 import java.util.AbstractMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -56,14 +57,24 @@ public final class RecodeableKeyedObject implements KeyedObject {
 
 	@Override
 	public Map<CodingKey, Object> getAsMap() {
-		return delegate.getAsMap().entrySet().stream().map(it -> {
+		val result = new LinkedHashMap<CodingKey, Object>();
+		result.putAll(delegate.getAsMap().entrySet().stream().map(it -> {
 			val knownKey = knownKeys.knows(it.getKey());
 			if (knownKey.isPresent()) {
 				return new AbstractMap.SimpleImmutableEntry<>(knownKey.get(), tryDecode(knownKey.get()));
 			} else {
 				return it;
 			}
-		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+		result.putAll(stream(knownKeys).flatMap(key -> {
+			final Object value = delegate.tryDecode(key);
+			if (value != null) {
+				return Stream.of(new AbstractMap.SimpleImmutableEntry<>(key, value));
+			} else {
+				return Stream.empty();
+			}
+		}).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
+		return result;
 	}
 
 	@Override

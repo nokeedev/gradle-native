@@ -15,11 +15,14 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 
+import java.util.Map;
 import java.util.Objects;
 
+import static dev.nokee.util.internal.NotPredicate.not;
 import static dev.nokee.xcode.project.RecodeableKeyedObject.ofIsaAnd;
 
 public final class CodeableXCSwiftPackageProductDependency extends AbstractCodeable implements XCSwiftPackageProductDependency {
@@ -57,6 +60,13 @@ public final class CodeableXCSwiftPackageProductDependency extends AbstractCodea
 	@Override
 	public int stableHash() {
 		return Objects.hash(getProductName(), getPackageReference().getRepositoryUrl());
+	}
+
+	@Override
+	public Map<CodingKey, Object> getAsMap() {
+		// TODO: This leaks the coding out into the object... we should fix that.
+		//   What we really want is a way to decode the known keys and return any left over (not decoded) as ad-hoc keys
+		return super.getAsMap().entrySet().stream().filter(not(it -> it.getKey() instanceof SerializableCodingKey && it.getKey().getName().equals("package"))).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
 	public static CodeableXCSwiftPackageProductDependency newInstance(KeyedObject delegate) {
