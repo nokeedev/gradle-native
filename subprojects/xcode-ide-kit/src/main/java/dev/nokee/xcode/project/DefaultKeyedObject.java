@@ -188,7 +188,7 @@ public final class DefaultKeyedObject implements KeyedObject {
 
 		public void add(CodingKey codingKey, Object element) {
 			Objects.requireNonNull(element, () -> String.format("'%s' must not be null", codingKey.getName()));
-			Object value = builder.get(codingKey);
+			Object value = builder.getOrDefault(codingKey, (parent != null) ? parent.tryDecode(codingKey) : null);
 			if (value == null) {
 				builder.put(codingKey, ImmutableList.of(element));
 			} else if (value instanceof List) {
