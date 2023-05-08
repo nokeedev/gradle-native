@@ -15,8 +15,11 @@
  */
 package dev.nokee.xcode.project;
 
+import lombok.EqualsAndHashCode;
+
 import java.io.Serializable;
 
+@EqualsAndHashCode
 public final class SerializableCodingKey implements CodingKey, Serializable {
 	private final String name;
 
