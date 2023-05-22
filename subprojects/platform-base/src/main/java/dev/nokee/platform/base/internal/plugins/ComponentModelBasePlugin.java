@@ -42,7 +42,7 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Binary;
@@ -192,13 +192,15 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.build());
 		})));
 
-		// ComponentFromEntity<ParentComponent> read-only self
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {
-			if (!entity.has(IdentifierComponent.class)) {
-				val parentIdentifier = entity.find(ParentComponent.class).map(parent -> parent.get().get(IdentifierComponent.class).get()).orElse(null);
-				entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction5<ModelComponentTag<IsTask>, ModelPathComponent, DisplayNameComponent, ElementNameComponent, ModelState.IsAtLeastCreated>() {
+			// ComponentFromEntity<ParentComponent> read-only self
+			protected void execute(ModelNode entity, ModelComponentTag<IsTask> ignored1, ModelPathComponent path, DisplayNameComponent displayName, ElementNameComponent elementName, ModelState.IsAtLeastCreated ignored2) {
+				if (!entity.has(IdentifierComponent.class)) {
+					val parentIdentifier = entity.find(ParentComponent.class).map(parent -> parent.get().get(IdentifierComponent.class).get()).orElse(null);
+					entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
+				}
 			}
-		}));
+		});
 
 		project.getPluginManager().apply(ComponentElementsCapabilityPlugin.class);
 
