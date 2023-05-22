@@ -19,7 +19,6 @@ import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -32,7 +31,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import lombok.val;
@@ -81,14 +79,16 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				entity.addComponent(new PrivateHeadersPropertyComponent(property));
 			}
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on HasConfigurableHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeHeaderSetTag.class), ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, headers, parent) -> {
-			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				ModelStates.finalize(parent.get());
-				return ParentUtils.stream(parent).flatMap(it -> stream(it.find(PrivateHeadersComponent.class))).findFirst()
-					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<NativeHeaderSetTag>, HasConfigurableHeadersPropertyComponent, ParentComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on HasConfigurableHeadersPropertyComponent
+			protected void execute(ModelNode entity, ModelComponentTag<NativeHeaderSetTag> ignored1, HasConfigurableHeadersPropertyComponent headers, ParentComponent parent) {
+				((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+					ModelStates.finalize(parent.get());
+					return ParentUtils.stream(parent).flatMap(it -> stream(it.find(PrivateHeadersComponent.class))).findFirst()
+						.map(it -> (Object) it.get()).orElse(Collections.emptyList());
+				});
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PrivateHeadersPropertyComponent, ModelState.IsAtLeastFinalized>() {
 			// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
 			protected void execute(ModelNode entity, PrivateHeadersPropertyComponent privateHeaders, ModelState.IsAtLeastFinalized ignored1) {
@@ -130,14 +130,16 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				entity.addComponent(new PublicHeadersPropertyComponent(property));
 			}
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on HasConfigurableHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeHeaderSetTag.class), ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, headers, parent) -> {
-			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				ModelStates.finalize(parent.get());
-				return ParentUtils.stream(parent).flatMap(it -> stream(it.find(PublicHeadersComponent.class))).findFirst()
-					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<NativeHeaderSetTag>, HasConfigurableHeadersPropertyComponent, ParentComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on HasConfigurableHeadersPropertyComponent
+			protected void execute(ModelNode entity, ModelComponentTag<NativeHeaderSetTag> ignored1, HasConfigurableHeadersPropertyComponent headers, ParentComponent parent) {
+				((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+					ModelStates.finalize(parent.get());
+					return ParentUtils.stream(parent).flatMap(it -> stream(it.find(PublicHeadersComponent.class))).findFirst()
+						.map(it -> (Object) it.get()).orElse(Collections.emptyList());
+				});
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PublicHeadersPropertyComponent, ModelState.IsAtLeastFinalized>() {
 			// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
 			protected void execute(ModelNode entity, PublicHeadersPropertyComponent publicHeaders, ModelState.IsAtLeastFinalized ignored1) {

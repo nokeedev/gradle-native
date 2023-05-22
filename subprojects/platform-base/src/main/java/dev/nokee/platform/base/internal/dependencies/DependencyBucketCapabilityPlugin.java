@@ -101,9 +101,11 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DisplayNameRule());
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, ignored1, configuration, ignored2) -> {
-			configuration.get().get().getExtendsFrom().forEach(it -> ((ConfigurationInternal) it).preventFromFurtherMutation());
-		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<IsDependencyBucket>, ConfigurationComponent, ModelState.IsAtLeastFinalized>() {
+			protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored1, ConfigurationComponent configuration, ModelState.IsAtLeastFinalized ignored2) {
+				configuration.get().get().getExtendsFrom().forEach(it -> ((ConfigurationInternal) it).preventFromFurtherMutation());
+			}
+		});
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new SyncBucketDependenciesToConfigurationProjectionRule());
 
