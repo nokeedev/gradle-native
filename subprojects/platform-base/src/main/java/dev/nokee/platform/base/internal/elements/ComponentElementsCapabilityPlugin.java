@@ -19,7 +19,6 @@ import dev.nokee.model.internal.ancestors.AncestorRef;
 import dev.nokee.model.internal.ancestors.AncestorsComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
@@ -30,7 +29,6 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
@@ -66,36 +64,38 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 				entity.addComponent(createdUsing(of(ViewAdapter.class), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(providers, () -> ModelStates.finalize(parent.get())))));
 			}
 		});
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(GradlePropertyComponent.class), (entity, tag, base, elementType, property) -> {
-			((MapProperty<String, Object>) property.get()).set(providers.provider(() -> {
-				@SuppressWarnings("unchecked")
-				val result = (MapProperty<String, Object>) objects.mapProperty(String.class, elementType.get().getConcreteType());
-				target.getExtensions().getByType(ModelLookup.class)
-					.query(it -> ModelNodeUtils.canBeViewedAs(it, elementType.get()) && it.find(AncestorsComponent.class).map(t -> t.get().contains(AncestorRef.of(base.get()))).orElse(false)).forEach(it -> {
-						val nameOptional = it.find(RelativeNamesComponent.class).map(t -> t.get().get(RelativeName.BaseRef.of(base.get())).toString());
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction4<ModelComponentTag<ComponentElementsTag>, ViewConfigurationBaseComponent, ComponentElementTypeComponent, GradlePropertyComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ComponentElementsTag> tag, ViewConfigurationBaseComponent base, ComponentElementTypeComponent elementType, GradlePropertyComponent property) {
+				((MapProperty<String, Object>) property.get()).set(providers.provider(() -> {
+					@SuppressWarnings("unchecked")
+					val result = (MapProperty<String, Object>) objects.mapProperty(String.class, elementType.get().getConcreteType());
+					target.getExtensions().getByType(ModelLookup.class)
+						.query(it -> ModelNodeUtils.canBeViewedAs(it, elementType.get()) && it.find(AncestorsComponent.class).map(t -> t.get().contains(AncestorRef.of(base.get()))).orElse(false)).forEach(it -> {
+							val nameOptional = it.find(RelativeNamesComponent.class).map(t -> t.get().get(RelativeName.BaseRef.of(base.get())).toString());
 
-						nameOptional.ifPresent(name -> {
-							if (ModelNodeUtils.canBeViewedAs(it, of(NamedDomainObjectProvider.class))) {
-								result.put(name, ModelNodeUtils.get(it, NamedDomainObjectProvider.class).map(t -> {
-									ModelStates.realize(it);
-									return ModelNodeUtils.get(it, elementType.get());
-								}));
-							} else if (it.has(ModelElementProviderSourceComponent.class)) {
-								result.put(name, it.get(ModelElementProviderSourceComponent.class).get().map(t -> {
-									ModelStates.realize(it);
-									return ModelNodeUtils.get(it, elementType.get());
-								}));
-							} else {
-								result.put(name, providers.provider(() -> {
-									ModelStates.realize(it);
-									return ModelNodeUtils.get(it, elementType.get());
-								}));
-							}
+							nameOptional.ifPresent(name -> {
+								if (ModelNodeUtils.canBeViewedAs(it, of(NamedDomainObjectProvider.class))) {
+									result.put(name, ModelNodeUtils.get(it, NamedDomainObjectProvider.class).map(t -> {
+										ModelStates.realize(it);
+										return ModelNodeUtils.get(it, elementType.get());
+									}));
+								} else if (it.has(ModelElementProviderSourceComponent.class)) {
+									result.put(name, it.get(ModelElementProviderSourceComponent.class).get().map(t -> {
+										ModelStates.realize(it);
+										return ModelNodeUtils.get(it, elementType.get());
+									}));
+								} else {
+									result.put(name, providers.provider(() -> {
+										ModelStates.realize(it);
+										return ModelNodeUtils.get(it, elementType.get());
+									}));
+								}
+							});
 						});
-					});
-				return result;
-			}).flatMap(it -> it));
-			entity.addComponent(new ComponentElementsFilterComponent(providers, objects, target.getExtensions().getByType(ModelLookup.class), base.get()));
-		}));
+					return result;
+				}).flatMap(it -> it));
+				entity.addComponent(new ComponentElementsFilterComponent(providers, objects, target.getExtensions().getByType(ModelLookup.class), base.get()));
+			}
+		});
 	}
 }

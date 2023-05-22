@@ -253,82 +253,84 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, buildVariantComponent, identifier, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val buildVariant = (BuildVariantInternal) buildVariantComponent.get();
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction4<ModelComponentTag<NativeVariantTag>, BuildVariantComponent, IdentifierComponent, ParentComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeVariantTag> ignored1, BuildVariantComponent buildVariantComponent, IdentifierComponent identifier, ParentComponent parent) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val buildVariant = (BuildVariantInternal) buildVariantComponent.get();
 
-			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-				registry.instantiate(configureEach(descendantOf(entity.getId()), CSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
-				}));
-				registry.instantiate(configureEach(descendantOf(entity.getId()), CppSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
-				}));
-				registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
-				}));
-				registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCppSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
-				}));
-				registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					sourceSet.getCompileTask().configure(task -> task.getModuleName().set(project.getProviders().provider(() -> TextCaseUtils.toCamelCase(ModelStates.finalize(ModelNodes.of(sourceSet).get(ParentComponent.class).get()).get(BaseNameComponent.class).get()))));
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
-				}));
+				if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+					registry.instantiate(configureEach(descendantOf(entity.getId()), CSourceSetSpec.class, sourceSet -> {
+						sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+						ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+					}));
+					registry.instantiate(configureEach(descendantOf(entity.getId()), CppSourceSetSpec.class, sourceSet -> {
+						sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+						ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+					}));
+					registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCSourceSetSpec.class, sourceSet -> {
+						sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+						ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+					}));
+					registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCppSourceSetSpec.class, sourceSet -> {
+						sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+						ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+					}));
+					registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftSourceSetSpec.class, sourceSet -> {
+						sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+						sourceSet.getCompileTask().configure(task -> task.getModuleName().set(project.getProviders().provider(() -> TextCaseUtils.toCamelCase(ModelStates.finalize(ModelNodes.of(sourceSet).get(ParentComponent.class).get()).get(BaseNameComponent.class).get()))));
+						ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+					}));
 
-				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-				if (linkage.isExecutable()) {
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("executable", "executable binary"));
+					val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+					if (linkage.isExecutable()) {
+						val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("executable", "executable binary"));
 
-					val executableBinary = registry.register(newEntity("executable", ExecutableBinaryInternal.class, it -> it.ownedBy(entity)
-						.displayName("executable binary")
-						.withComponent(new IdentifierComponent(binaryIdentifier))
-						.withComponent(new BuildVariantComponent(buildVariant))
-						.withTag(ExcludeFromQualifyingNameTag.class)
-					));
-					entity.addComponent(new NativeExecutableBinaryComponent(ModelNodes.of(executableBinary)));
-				} else if (linkage.isShared()) {
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("sharedLibrary", "shared library binary"));
+						val executableBinary = registry.register(newEntity("executable", ExecutableBinaryInternal.class, it -> it.ownedBy(entity)
+							.displayName("executable binary")
+							.withComponent(new IdentifierComponent(binaryIdentifier))
+							.withComponent(new BuildVariantComponent(buildVariant))
+							.withTag(ExcludeFromQualifyingNameTag.class)
+						));
+						entity.addComponent(new NativeExecutableBinaryComponent(ModelNodes.of(executableBinary)));
+					} else if (linkage.isShared()) {
+						val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("sharedLibrary", "shared library binary"));
 
-					val sharedLibraryBinary = registry.register(newEntity("sharedLibrary", SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
-						.displayName("shared library binary")
-						.withComponent(new IdentifierComponent(binaryIdentifier))
-						.withComponent(new BuildVariantComponent(buildVariant))
-						.withTag(ExcludeFromQualifyingNameTag.class)
-					));
-					entity.addComponent(new NativeSharedLibraryBinaryComponent(ModelNodes.of(sharedLibraryBinary)));
-				} else if (linkage.isBundle()) {
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("bundle", "bundle binary"));
+						val sharedLibraryBinary = registry.register(newEntity("sharedLibrary", SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
+							.displayName("shared library binary")
+							.withComponent(new IdentifierComponent(binaryIdentifier))
+							.withComponent(new BuildVariantComponent(buildVariant))
+							.withTag(ExcludeFromQualifyingNameTag.class)
+						));
+						entity.addComponent(new NativeSharedLibraryBinaryComponent(ModelNodes.of(sharedLibraryBinary)));
+					} else if (linkage.isBundle()) {
+						val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("bundle", "bundle binary"));
 
-					registry.register(newEntity("bundle", BundleBinaryInternal.class, it -> it.ownedBy(entity)
-						.displayName("bundle binary")
-						.withComponent(new IdentifierComponent(binaryIdentifier))
-						.withComponent(new BuildVariantComponent(buildVariant))
-						.withTag(ExcludeFromQualifyingNameTag.class)
-					));
-				} else if (linkage.isStatic()) {
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("staticLibrary", "static library binary"));
+						registry.register(newEntity("bundle", BundleBinaryInternal.class, it -> it.ownedBy(entity)
+							.displayName("bundle binary")
+							.withComponent(new IdentifierComponent(binaryIdentifier))
+							.withComponent(new BuildVariantComponent(buildVariant))
+							.withTag(ExcludeFromQualifyingNameTag.class)
+						));
+					} else if (linkage.isStatic()) {
+						val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("staticLibrary", "static library binary"));
 
-					val staticLibraryBinary = registry.register(newEntity("staticLibrary", StaticLibraryBinaryInternal.class, it -> it.ownedBy(entity)
+						val staticLibraryBinary = registry.register(newEntity("staticLibrary", StaticLibraryBinaryInternal.class, it -> it.ownedBy(entity)
 							.displayName("static library binary")
 							.withComponent(new IdentifierComponent(binaryIdentifier))
 							.withComponent(new BuildVariantComponent(buildVariant))
 							.withTag(ExcludeFromQualifyingNameTag.class)
 						));
-					entity.addComponent(new NativeStaticLibraryBinaryComponent(ModelNodes.of(staticLibraryBinary)));
-				}
+						entity.addComponent(new NativeStaticLibraryBinaryComponent(ModelNodes.of(staticLibraryBinary)));
+					}
 
-				if (linkage.isShared() || linkage.isStatic()) {
-					registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftCompileTask.class, task -> {
-						task.getCompilerArgs().add("-parse-as-library");
-					}));
+					if (linkage.isShared() || linkage.isStatic()) {
+						registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftCompileTask.class, task -> {
+							task.getCompilerArgs().add("-parse-as-library");
+						}));
+					}
 				}
 			}
-		})));
+		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachAttributesToConfigurationRule<>(RuntimeLibrariesConfiguration.class, project.getExtensions().getByType(ModelRegistry.class), project.getObjects()));
@@ -506,33 +508,39 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		});
 
 		// TODO: Should be part of native-application-base plugin
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeExecutableBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
-			if (parent.get().hasComponent(ModelTags.typeOf(NativeApplicationTag.class))) {
-				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("executable", Task.class, it -> it.ownedBy(entity)));
-				lifecycleTask.configure(Task.class, configureBuildGroup());
-				lifecycleTask.configure(Task.class, configureDescription("Assembles a executable binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
-				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), ExecutableBinary.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction4<ModelComponentTag<NativeVariantTag>, BuildVariantComponent, ParentComponent, NativeExecutableBinaryComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeVariantTag> ignored1, BuildVariantComponent buildVariant, ParentComponent parent, NativeExecutableBinaryComponent binary) {
+				if (parent.get().hasComponent(ModelTags.typeOf(NativeApplicationTag.class))) {
+					val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("executable", Task.class, it -> it.ownedBy(entity)));
+					lifecycleTask.configure(Task.class, configureBuildGroup());
+					lifecycleTask.configure(Task.class, configureDescription("Assembles a executable binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
+					lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), ExecutableBinary.class)));
+				}
 			}
-		}));
+		});
 
 		// TODO: Should be part of native-library-base plugin
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeSharedLibraryBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
-			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
-				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("sharedLibrary", Task.class, it -> it.ownedBy(entity)));
-				lifecycleTask.configure(Task.class, configureBuildGroup());
-				lifecycleTask.configure(Task.class, configureDescription("Assembles a shared library binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
-				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), SharedLibraryBinary.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction4<ModelComponentTag<NativeVariantTag>, BuildVariantComponent, ParentComponent, NativeSharedLibraryBinaryComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeVariantTag> ignored1, BuildVariantComponent buildVariant, ParentComponent parent, NativeSharedLibraryBinaryComponent binary) {
+				if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
+					val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("sharedLibrary", Task.class, it -> it.ownedBy(entity)));
+					lifecycleTask.configure(Task.class, configureBuildGroup());
+					lifecycleTask.configure(Task.class, configureDescription("Assembles a shared library binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
+					lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), SharedLibraryBinary.class)));
+				}
 			}
-		}));
+		});
 		// TODO: Should be part of native-library-base plugin
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeStaticLibraryBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
-			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
-				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("staticLibrary", Task.class, it -> it.ownedBy(entity)));
-				lifecycleTask.configure(Task.class, configureBuildGroup());
-				lifecycleTask.configure(Task.class, configureDescription("Assembles a static library binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
-				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), StaticLibraryBinary.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction4<ModelComponentTag<NativeVariantTag>, BuildVariantComponent, ParentComponent, NativeStaticLibraryBinaryComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeVariantTag> ignored1, BuildVariantComponent buildVariant, ParentComponent parent, NativeStaticLibraryBinaryComponent binary) {
+				if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
+					val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("staticLibrary", Task.class, it -> it.ownedBy(entity)));
+					lifecycleTask.configure(Task.class, configureBuildGroup());
+					lifecycleTask.configure(Task.class, configureDescription("Assembles a static library binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
+					lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), StaticLibraryBinary.class)));
+				}
 			}
-		}));
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<DevelopmentVariantPropertyComponent, ModelComponentTag<NativeApplicationTag>>() {
 			// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent

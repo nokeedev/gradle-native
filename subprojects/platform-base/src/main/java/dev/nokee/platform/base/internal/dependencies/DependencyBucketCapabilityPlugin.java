@@ -23,7 +23,6 @@ import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -109,11 +108,13 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new SyncBucketDependenciesToConfigurationProjectionRule());
 
-		// ComponentFromEntity<ParentComponent> read-only self
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, ignored1, path, displayName, elementName) -> {
-			val parentIdentifier = entity.find(ParentComponent.class).flatMap(parent -> parent.get().find(IdentifierComponent.class)).map(IdentifierComponent::get).orElse(null);
-			entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
-		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction4<ModelComponentTag<IsDependencyBucket>, ModelPathComponent, DisplayNameComponent, ElementNameComponent>() {
+			// ComponentFromEntity<ParentComponent> read-only self
+			protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored1, ModelPathComponent path, DisplayNameComponent displayName, ElementNameComponent elementName) {
+				val parentIdentifier = entity.find(ParentComponent.class).flatMap(parent -> parent.get().find(IdentifierComponent.class)).map(IdentifierComponent::get).orElse(null);
+				entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
+			}
+		});
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DescriptionRule());
 
