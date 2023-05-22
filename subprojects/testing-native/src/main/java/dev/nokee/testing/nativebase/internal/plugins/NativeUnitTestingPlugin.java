@@ -150,79 +150,86 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				entity.addComponent(new TestedComponentPropertyComponent(ModelNodes.of(testedComponentProperty)));
 			}
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			if (!parent.get().hasComponent(typeOf(NativeTestSuiteComponentTag.class))) {
-				return;
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction3<IdentifierComponent, ModelComponentTag<NativeVariantTag>, ParentComponent>() {
+			protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<NativeVariantTag> tag, ParentComponent parent) {
+				if (!parent.get().hasComponent(typeOf(NativeTestSuiteComponentTag.class))) {
+					return;
+				}
+
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+
+				val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+
+				entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+				entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+				entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
+
+				val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
+				runtimeElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
+					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
+					.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects())));
+				val outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new NativeApplicationOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(runtimeElements), Configuration.class), project.getObjects())));
+				entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(ModelProperties.getProperty(entity, "dependencies").as(NativeComponentDependencies.class)::get, outgoing.get()));
+
+				registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 			}
-
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
-			val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			runtimeElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
-				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
-				.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects())));
-			val outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new NativeApplicationOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(runtimeElements), Configuration.class), project.getObjects())));
-			entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(ModelProperties.getProperty(entity, "dependencies").as(NativeComponentDependencies.class)::get, outgoing.get()));
-
-			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
-		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelTags.referenceOf(NativeTestSuiteComponentTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, path, tag, variants) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
-
-			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
-				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-
-				nativeTestSuiteVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
-				variant.addComponent(new BuildVariantComponent(buildVariant));
-				ModelStates.register(variant);
-
-				onEachVariantDependencies(variant, variant.getComponent(componentOf(VariantComponentDependencies.class)), project.getProviders());
-				return null;
-			}).forEach(it -> {});
-
-			component.finalizeExtension(project);
-			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelPathComponent, ModelComponentTag<NativeTestSuiteComponentTag>, LinkedVariantsComponent>() {
+			protected void execute(ModelNode entity, ModelPathComponent path, ModelComponentTag<NativeTestSuiteComponentTag> tag, LinkedVariantsComponent variants) {
+				val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
+
+				Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
+
+					nativeTestSuiteVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
+					variant.addComponent(new BuildVariantComponent(buildVariant));
+					ModelStates.register(variant);
+
+					onEachVariantDependencies(variant, variant.getComponent(componentOf(VariantComponentDependencies.class)), project.getProviders());
+					return null;
+				}).forEach(it -> {});
+
+				component.finalizeExtension(project);
+				component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeTestSuiteComponentTag>, TargetLinkagesPropertyComponent>() {
 			protected void execute(ModelNode entity, ModelComponentTag<NativeTestSuiteComponentTag> tag, TargetLinkagesPropertyComponent targetLinkages) {
 				((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
 			}
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), ModelComponentReference.of(TargetBuildTypesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetBuildTypes, testedComponent) -> {
-			((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get())
-				.convention(((Property<Component>) testedComponent.get().get(GradlePropertyComponent.class).get())
-					.flatMap(component -> {
-						val property = ModelProperties.findProperty(component, "targetBuildTypes");
-						if (property.isPresent()) {
-							return ((ModelProperty<Set<TargetBuildType>>) property.get()).asProvider();
-						} else {
-							return ProviderUtils.notDefined();
-						}
-					}).orElse(ImmutableSet.of(TargetBuildTypes.DEFAULT)));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), ModelComponentReference.of(TargetMachinesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetMachines, testedComponent) -> {
-			((SetProperty<TargetMachine>) targetMachines.get().get(GradlePropertyComponent.class).get())
-				.convention(((Property<Component>) testedComponent.get().get(GradlePropertyComponent.class).get())
-					.flatMap(component -> {
-						val property = ModelProperties.findProperty(component, "targetMachines");
-						if (property.isPresent()) {
-							return ((ModelProperty<Set<TargetMachine>>) property.get()).asProvider();
-						} else {
-							return ProviderUtils.notDefined();
-						}
-					}).orElse(ImmutableSet.of(TargetMachines.host())));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<NativeTestSuiteComponentTag>, TargetBuildTypesPropertyComponent, TestedComponentPropertyComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeTestSuiteComponentTag> tag, TargetBuildTypesPropertyComponent targetBuildTypes, TestedComponentPropertyComponent testedComponent) {
+				((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get())
+					.convention(((Property<Component>) testedComponent.get().get(GradlePropertyComponent.class).get())
+						.flatMap(component -> {
+							val property = ModelProperties.findProperty(component, "targetBuildTypes");
+							if (property.isPresent()) {
+								return ((ModelProperty<Set<TargetBuildType>>) property.get()).asProvider();
+							} else {
+								return ProviderUtils.notDefined();
+							}
+						}).orElse(ImmutableSet.of(TargetBuildTypes.DEFAULT)));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<NativeTestSuiteComponentTag>, TargetMachinesPropertyComponent, TestedComponentPropertyComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeTestSuiteComponentTag> tag, TargetMachinesPropertyComponent targetMachines, TestedComponentPropertyComponent testedComponent) {
+				((SetProperty<TargetMachine>) targetMachines.get().get(GradlePropertyComponent.class).get())
+					.convention(((Property<Component>) testedComponent.get().get(GradlePropertyComponent.class).get())
+						.flatMap(component -> {
+							val property = ModelProperties.findProperty(component, "targetMachines");
+							if (property.isPresent()) {
+								return ((ModelProperty<Set<TargetMachine>>) property.get()).asProvider();
+							} else {
+								return ProviderUtils.notDefined();
+							}
+						}).orElse(ImmutableSet.of(TargetMachines.host())));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction1<ModelComponentTag<NativeTestSuiteComponentTag>>() {
 			protected void execute(ModelNode entity, ModelComponentTag<NativeTestSuiteComponentTag> ignored1) {
 				if (project.getPlugins().hasPlugin(CLanguageBasePlugin.class)) {

@@ -286,11 +286,13 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					.convention((Provider<? extends JniLibrary>) project.provider(new BuildableDevelopmentVariantConvention(() -> ModelElements.of(entity).property("variants").as(of(VariantView.class)).as(VariantView.class).flatMap(VariantView::getElements).get())));
 			}
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(JvmSourceSetTag.class), ModelComponentReference.of(SourceSetComponent.class), ModelComponentReference.of(CompileTaskComponent.class), (entity, ignored1, sourceSet, compileTask) -> {
-			sourceSet.get().configure(it -> {
-				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(compileTask.get().getId(), Task.class, configureDependsOn((Callable<?>) () -> DependencyBuckets.finalize(project.getConfigurations().getByName(it.getCompileClasspathConfigurationName())))));
-			});
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<JvmSourceSetTag>, SourceSetComponent, CompileTaskComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<JvmSourceSetTag> ignored, SourceSetComponent sourceSet, CompileTaskComponent compileTask) {
+				sourceSet.get().configure(it -> {
+					project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(compileTask.get().getId(), Task.class, configureDependsOn((Callable<?>) () -> DependencyBuckets.finalize(project.getConfigurations().getByName(it.getCompileClasspathConfigurationName())))));
+				});
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<JvmJarArtifactComponent, ApiElementsConfiguration>() {
 			protected void execute(ModelNode entity, JvmJarArtifactComponent jvmJar, ApiElementsConfiguration apiElements) {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -460,16 +462,21 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of( ModelComponentReference.of(JniJarArtifactComponent.class), ModelComponentReference.of(AssembleTaskComponent.class), ModelTags.referenceOf(MultiVariantTag.class), (entity, jniJar, assembleTask, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(jniJar.get(), JniJarBinary.class))));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<JniJarArtifactComponent, AssembleTaskComponent, ModelComponentTag<MultiVariantTag>>() {
+			@Override
+			protected void execute(ModelNode entity, JniJarArtifactComponent jniJar, AssembleTaskComponent assembleTask, ModelComponentTag<MultiVariantTag> tag) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(jniJar.get(), JniJarBinary.class))));
+			}
+		});
 
 		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), ignored -> {
-			// ComponentFromEntity<JvmJarArtifactComponent.class> read-only from ParentComponent
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(JniJarArtifactComponent.class), ModelComponentReference.of(AssembleTaskComponent.class), (entity, parent, jniJar, assembleTask) -> {
-				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(parent.get().get(JvmJarArtifactComponent.class).get(), JvmJarBinary.class))));
-			}));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ParentComponent, JniJarArtifactComponent, AssembleTaskComponent>() {
+				// ComponentFromEntity<JvmJarArtifactComponent.class> read-only from ParentComponent
+				protected void execute(ModelNode entity, ParentComponent parent, JniJarArtifactComponent jniJar, AssembleTaskComponent assembleTask) {
+					project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(parent.get().get(JvmJarArtifactComponent.class).get(), JvmJarBinary.class))));
+				}
+			});
 		}).execute(project);
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
@@ -525,10 +532,12 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 			}
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentBinaryPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentBinaryPropertyComponent.class), ModelComponentReference.of(JniJarArtifactComponent.class), ModelTags.referenceOf(JniLibraryVariantTag.class), (entity, developmentBinary, jniJarArtifact , ignored1) -> {
-			((Property<Binary>) developmentBinary.get().get(GradlePropertyComponent.class).get()).convention(project.provider(() -> ModelNodeUtils.get(realize(jniJarArtifact.get()), JniJarBinary.class)));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<DevelopmentBinaryPropertyComponent, JniJarArtifactComponent, ModelComponentTag<JniLibraryVariantTag>>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentBinaryPropertyComponent
+			protected void execute(ModelNode entity, DevelopmentBinaryPropertyComponent developmentBinary, JniJarArtifactComponent jniJarArtifact, ModelComponentTag<JniLibraryVariantTag> ignored1) {
+				((Property<Binary>) developmentBinary.get().get(GradlePropertyComponent.class).get()).convention(project.provider(() -> ModelNodeUtils.get(realize(jniJarArtifact.get()), JniJarBinary.class)));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, projection, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
@@ -551,16 +560,18 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		val unbuildableWarningService = (Provider<UnbuildableWarningService>) project.getGradle().getSharedServices().getRegistrations().getByName(UnbuildableWarningService.class.getSimpleName()).getService();
 
-		// ComponentFromEntity<IdentifierComponent> read-only
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JarTaskComponent.class), ModelTags.referenceOf(JniJarArtifactTag.class), ModelComponentReference.of(ParentComponent.class), (entity, jarTask, tag, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<JarTaskComponent, ModelComponentTag<JniJarArtifactTag>, ParentComponent>() {
+			// ComponentFromEntity<IdentifierComponent> read-only
+			protected void execute(ModelNode entity, JarTaskComponent jarTask, ModelComponentTag<JniJarArtifactTag> tag, ParentComponent parent) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val identifier = (VariantIdentifier) parent.get().get(IdentifierComponent.class).get();
-			registry.instantiate(configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableWarningService.map(it -> {
-				it.warn(identifier.getComponentIdentifier());
-				return null;
-			}))));
-		}));
+				val identifier = (VariantIdentifier) parent.get().get(IdentifierComponent.class).get();
+				registry.instantiate(configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableWarningService.map(it -> {
+					it.warn(identifier.getComponentIdentifier());
+					return null;
+				}))));
+			}
+		});
 
 		project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(ignored -> {
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {

@@ -17,14 +17,13 @@ package dev.nokee.platform.base.internal.tasks;
 
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.IsTask;
 import lombok.val;
@@ -38,12 +37,8 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-import java.util.Objects;
-
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
-import static dev.nokee.model.internal.tags.ModelTags.typeOf;
-import static dev.nokee.utils.TaskUtils.configureDescription;
 import static dev.nokee.utils.TaskUtils.configureGroup;
 
 public class TaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
@@ -65,16 +60,18 @@ public class TaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implem
 			target.getExtensions().getByType(ModelLookup.class).query(entity -> entity.find(TaskProjectionComponent.class).map(it -> it.get().getName()).map(task.getName()::equals).orElse(false)).forEach(ModelStates::realize);
 		});
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(TaskTypeComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, ignored1, implementationType, fullyQualifiedName) -> {
-			val taskRegistry = PolymorphicDomainObjectRegistry.of(tasks);
-			MutationGuards.of(tasks).withMutationEnabled(__ -> {
-				val taskProvider = (TaskProvider<Task>) taskRegistry.registerIfAbsent(fullyQualifiedName.get().toString(), implementationType.get());
-				entity.addComponent(new ModelElementProviderSourceComponent(taskProvider));
-				entity.addComponent(createdUsingNoInject(ModelType.of(implementationType.get()), taskProvider::get));
-				entity.addComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider));
-				entity.addComponent(new TaskProjectionComponent(taskProvider));
-			}).execute(null);
-		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<IsTask>, TaskTypeComponent, FullyQualifiedNameComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<IsTask> ignored1, TaskTypeComponent implementationType, FullyQualifiedNameComponent fullyQualifiedName) {
+				val taskRegistry = PolymorphicDomainObjectRegistry.of(tasks);
+				MutationGuards.of(tasks).withMutationEnabled(__ -> {
+					val taskProvider = (TaskProvider<Task>) taskRegistry.registerIfAbsent(fullyQualifiedName.get().toString(), implementationType.get());
+					entity.addComponent(new ModelElementProviderSourceComponent(taskProvider));
+					entity.addComponent(createdUsingNoInject(ModelType.of(implementationType.get()), taskProvider::get));
+					entity.addComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider));
+					entity.addComponent(new TaskProjectionComponent(taskProvider));
+				}).execute(null);
+			}
+		});
 	}
 
 	private static final class SyncDescriptionToTaskProjectionRule extends ModelActionWithInputs.ModelAction2<TaskDescriptionComponent, TaskProjectionComponent> {

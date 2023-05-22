@@ -17,7 +17,6 @@ package dev.nokee.model.internal.names;
 
 import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
@@ -33,22 +32,22 @@ import static dev.nokee.model.internal.names.RelativeNames.toRelativeNames;
 public abstract class NamesCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
 	public void apply(T target) {
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), NamesCapabilityPlugin::computeRelativelyQualifiedName));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), NamesCapabilityPlugin::computeFullyQualifiedName));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(/*computeRelativelyQualifiedName*/new ModelActionWithInputs.ModelAction3<ParentComponent, ElementNameComponent, ModelState.IsAtLeastCreated>() {
+			// ComponentFromEntity<MainComponentTag> read-only ancestors
+			// ComponentFromEntity<ElementNameComponent> read-only ancestors
+			protected void execute(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, ModelState.IsAtLeastCreated ignored1) {
+				entity.addComponent(new RelativeNamesComponent(ParentUtils.stream(parent).collect(toRelativeNames(elementName.get()))));
+			}
+		});
+		target.getExtensions().getByType(ModelConfigurer.class).configure(/*computeFullyQualifiedName*/new ModelActionWithInputs.ModelAction3<ParentComponent, ElementNameComponent, ModelState.IsAtLeastCreated>() {
+			// ComponentFromEntity<MainComponentTag> read-only ancestors
+			// ComponentFromEntity<ElementNameComponent> read-only ancestors
+			protected void execute(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, ModelState.IsAtLeastCreated ignored1) {
+				entity.addComponent(new FullyQualifiedNameComponent(ParentUtils.stream(parent).collect(toFullyQualifiedName(elementName.get()))));
+			}
+		});
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(RelativeNamesComponent.class));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(FullyQualifiedNameComponent.class));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(ElementNameComponent.class));
-	}
-
-	// ComponentFromEntity<MainComponentTag> read-only ancestors
-	// ComponentFromEntity<ElementNameComponent> read-only ancestors
-	private static void computeRelativelyQualifiedName(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, ModelState.IsAtLeastCreated ignored1) {
-		entity.addComponent(new RelativeNamesComponent(ParentUtils.stream(parent).collect(toRelativeNames(elementName.get()))));
-	}
-
-	// ComponentFromEntity<MainComponentTag> read-only ancestors
-	// ComponentFromEntity<ElementNameComponent> read-only ancestors
-	private static void computeFullyQualifiedName(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, ModelState.IsAtLeastCreated ignored1) {
-		entity.addComponent(new FullyQualifiedNameComponent(ParentUtils.stream(parent).collect(toFullyQualifiedName(elementName.get()))));
 	}
 }

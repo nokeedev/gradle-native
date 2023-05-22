@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.RelativeName;
@@ -28,6 +29,7 @@ import dev.nokee.model.internal.names.RelativeNamesComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
@@ -59,9 +61,11 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 	@Override
 	@SuppressWarnings("unchecked")
 	public void apply(T target) {
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, tag, elementType, parent) -> {
-			entity.addComponent(createdUsing(of(ViewAdapter.class), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(providers, () -> ModelStates.finalize(parent.get())))));
-		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<ComponentElementsTag>, ComponentElementTypeComponent, ParentComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ComponentElementsTag> tag, ComponentElementTypeComponent elementType, ParentComponent parent) {
+				entity.addComponent(createdUsing(of(ViewAdapter.class), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(providers, () -> ModelStates.finalize(parent.get())))));
+			}
+		});
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(GradlePropertyComponent.class), (entity, tag, base, elementType, property) -> {
 			((MapProperty<String, Object>) property.get()).set(providers.provider(() -> {
 				@SuppressWarnings("unchecked")
