@@ -83,13 +83,15 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 					entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
 				}
 			}));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourceSetComponent.class), (entity, projection, identifier, parent, sourceSet) -> {
-				val sourceSetProvider = sourceSet.get();
-				@SuppressWarnings("unchecked")
-				val KotlinCompile  = (Class<Task>) ModelTypeUtils.toUndecoratedType(sourceSetProvider.flatMap(it -> project.getTasks().named(it.getCompileTaskName("kotlin"))).get().getClass());
-				val compileTask = registry.register(newEntity("compile", KotlinCompile, it -> it.ownedBy(entity)));
-				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
-			})));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction4<ModelComponentTag<KotlinSourceSetSpec.Tag>, IdentifierComponent, ParentComponent, SourceSetComponent>() {
+				protected void execute(ModelNode entity, ModelComponentTag<KotlinSourceSetSpec.Tag> projection, IdentifierComponent identifier, ParentComponent parent, SourceSetComponent sourceSet) {
+					val sourceSetProvider = sourceSet.get();
+					@SuppressWarnings("unchecked")
+					val KotlinCompile  = (Class<Task>) ModelTypeUtils.toUndecoratedType(sourceSetProvider.flatMap(it -> project.getTasks().named(it.getCompileTaskName("kotlin"))).get().getClass());
+					val compileTask = registry.register(newEntity("compile", KotlinCompile, it -> it.ownedBy(entity)));
+					entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
+				}
+			}));
 
 			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachGroovySourcesToGroovySourceSet());
