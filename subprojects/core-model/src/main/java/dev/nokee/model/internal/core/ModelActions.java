@@ -28,24 +28,6 @@ import static java.util.Objects.requireNonNull;
 public final class ModelActions {
 	private ModelActions() {}
 
-	public static ModelAction doNothing() {
-		return ModelNodeAction.DO_NOTHING;
-	}
-
-	private enum ModelNodeAction implements ModelAction {
-		DO_NOTHING {
-			@Override
-			public void execute(ModelNode node) {
-				// do nothing.
-			}
-
-			@Override
-			public String toString() {
-				return "ModelActions.doNothing()";
-			}
-		}
-	}
-
 	/**
 	 * Returns an action that will only be executed once regardless of the node.
 	 *

@@ -18,12 +18,10 @@ package dev.nokee.model.internal.core;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +35,6 @@ public final class ModelTestActions {
 	/**
 	 * Returns an action that do something meaningless.
 	 * All instance created are equal to each other.
-	 * <p>
-	 * Why not use {@link ModelActions#doNothing()}?
-	 * Because the implementation here should not be considered a no-op but rather some work that we don't really care for the purpose of the test.
 	 *
 	 * @return a model action that does something meaningless, never null.
 	 */
@@ -64,9 +59,6 @@ public final class ModelTestActions {
 	 * Returns an action that do something meaningless different than {@link #doSomething()} and {@link #doSomethingElse(Object)}.
 	 * All instance created are equal to each other.
 	 * <p>
-	 * Why not use {@link ModelActions#doNothing()}?
-	 * Because the implementation here should not be considered a no-op but rather some work that we don't really care for the purpose of the test.
-	 * <p>
 	 * Why not use {@link #doSomething()}?
 	 * Because the implementation here convey that it's some work that is different than its counterpart.
 	 * <p>
@@ -82,9 +74,6 @@ public final class ModelTestActions {
 	/**
 	 * Returns an action that do something meaningless distinguisable from {@link #doSomething()} and {@link #doSomethingElse()}.
 	 * All instance created with the same {@literal what} are equal to each other.
-	 * <p>
-	 * Why not use {@link ModelActions#doNothing()}?
-	 * Because the implementation here should not be considered a no-op but rather some work that we don't really care for the purpose of the test.
 	 * <p>
 	 * Why not use {@link #doSomething()} or {@link #doSomethingElse()}?
 	 * Because this implementation here convey "what" is different than its counterpart.
