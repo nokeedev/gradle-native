@@ -16,8 +16,6 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -26,8 +24,6 @@ import org.gradle.api.plugins.ExtensionAware;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static dev.nokee.model.internal.state.ModelState.Realized;
-import static dev.nokee.model.internal.state.ModelState.Registered;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -184,86 +180,6 @@ public final class ModelNodes {
 	}
 
 	/**
-	 * Returns a predicate filtering model nodes by the specified state.
-	 *
-	 * @param state  the state to filter model node
-	 * @return a predicate matching model node by state, never null.
-	 */
-	public static Predicate<ModelNode> stateAtLeast(ModelState state) {
-		return new StateAtLeastPredicate(state);
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class StateAtLeastPredicate extends AbstractModelNodePredicate implements HasInputs {
-		private final ModelState state;
-		private final List<ModelComponentReference<?>> inputs;
-		private final Bits inputBits;
-
-		private StateAtLeastPredicate(ModelState state) {
-			this.state = requireNonNull(state);
-			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelState.class));
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public boolean test(ModelNode node) {
-			return ModelStates.isAtLeast(node, state);
-		}
-
-		@Override
-		public String toString() {
-			return "ModelNodes.stateAtLeast(" + state + ")";
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-	}
-
-	public static Predicate<ModelNode> stateOf(ModelState state) {
-		return new StateOfPredicate(state);
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class StateOfPredicate extends AbstractModelNodePredicate implements HasInputs {
-		private final ModelState state;
-		private final List<ModelComponentReference<?>> inputs;
-		private final Bits inputBits;
-
-		private StateOfPredicate(ModelState state) {
-			this.state = requireNonNull(state);
-			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelState.class));
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public boolean test(ModelNode node) {
-			return ModelStates.getState(node).equals(state);
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-
-		@Override
-		public String toString() {
-			return "ModelNodes.stateOf(" + state + ")";
-		}
-	}
-
-	/**
 	 * Returns a predicate filtering model nodes by the specified parent path.
 	 *
 	 * @param parentPath  the parent path to match model nodes
@@ -349,18 +265,6 @@ public final class ModelNodes {
 		public String toString() {
 			return "ModelNodes.descendantOf(" + ancestorPath + ")";
 		}
-	}
-
-	public static Predicate<ModelNode> discover() {
-		return stateOf(Registered);
-	}
-
-	public static Predicate<ModelNode> discover(ModelType<?> type) {
-		return stateOf(Registered).and(withType(type));
-	}
-
-	public static Predicate<ModelNode> mutate(ModelType<?> type) {
-		return stateOf(Realized).and(withType(type));
 	}
 
 	private static IllegalArgumentException objectNotDecoratedWithModelNode(Object target) {
