@@ -22,7 +22,6 @@ import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.specs.Spec;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -261,57 +260,6 @@ public final class ModelNodes {
 		@Override
 		public String toString() {
 			return "ModelNodes.stateOf(" + state + ")";
-		}
-	}
-
-	/**
-	 * Returns a predicate filtering model nodes that satisfy the specified spec for the projection type specified.
-	 *
-	 * @param type  the projection type to match using the spec
-	 * @param spec  the spec to satisfy using a projection of the model node
-	 * @param <T> the projection type
-	 * @return a predicate matching model nodes by spec of a projection, never null.
-	 */
-	public static <T> Predicate<ModelNode> isSatisfiedByProjection(ModelType<T> type, Spec<? super T> spec) {
-		return new SatisfiedByProjectionSpecAdapter<>(type, spec);
-	}
-
-	private static final class SatisfiedByProjectionSpecAdapter<T> extends AbstractModelNodePredicate implements HasInputs {
-		private final ModelType<T> type;
-		private final Spec<? super T> spec;
-		private final List<ModelComponentReference<?>> inputs;
-		private final Bits inputBits;
-
-		private SatisfiedByProjectionSpecAdapter(ModelType<T> type, Spec<? super T> spec) {
-			this.type = requireNonNull(type);
-			this.spec = requireNonNull(spec);
-			val builder = ImmutableList.<ModelComponentReference<?>>builder();
-			builder.add(ModelComponentReference.ofProjection(type.getConcreteType()));
-			if (spec instanceof HasInputs) {
-				builder.addAll(((HasInputs) spec).getInputs());
-			}
-			this.inputs = builder.build();
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public boolean test(ModelNode node) {
-			return ModelNodeUtils.canBeViewedAs(node, type) && spec.isSatisfiedBy(ModelNodeUtils.get(node, type));
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-
-		@Override
-		public String toString() {
-			return "ModelNodes.isSatisfiedByProjection(" + type + ", " + spec + ")";
 		}
 	}
 
