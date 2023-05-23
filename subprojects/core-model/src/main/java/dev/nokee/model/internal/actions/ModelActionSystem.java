@@ -59,25 +59,88 @@ public final class ModelActionSystem<T extends ExtensionAware & PluginAware> imp
 		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
 
 		// Rules to execute actions
-		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelActionTag.class), this::trackActions));
-		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), this::trackConfigurableEntities));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ActionSelectorComponent.class), this::onIdentityChanged));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelSpecComponent.class), ModelComponentReference.of(ModelActionComponent.class), this::onActionAdded));
+		configurer.configure(/*trackActions*/new ModelActionWithInputs.ModelAction1<ModelComponentTag<ModelActionTag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ModelActionTag> tag) {
+				allActionEntities.add(entity);
+			}
+		});
+		configurer.configure(/*trackConfigurableEntities*/new ModelActionWithInputs.ModelAction1<ModelComponentTag<ConfigurableTag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ConfigurableTag> tag) {
+				allConfigurableEntities.add(entity);
+			}
+		});
+		configurer.configure(/*onIdentityChanged*/new ModelActionWithInputs.ModelAction1<ActionSelectorComponent>() {
+			// ComponentFromEntity<MatchingSpecificationComponent> (readonly) all
+			// ComponentFromEntity<ActionComponent> (readonly) all
+			// ComponentFromEntity<ExecutedActionComponent> (read-write) self
+			protected void execute(ModelNode entity, ActionSelectorComponent component) {
+				allActions(reentrant.andDeferredActions(entity, filter(actionMatching(component),
+					whileIgnoringExecuted(entity, executeAction(entity)))));
+			}
+		});
+		configurer.configure(/*onActionAdded*/new ModelActionWithInputs.ModelAction2<ModelSpecComponent, ModelActionComponent>() {
+			// ComponentFromEntity<ActionSelectorComponent> (readonly) all
+			// ComponentFromEntity<ExecutedActionComponent> (read-write) all
+			protected void execute(ModelNode entity, ModelSpecComponent identity, ModelActionComponent component) {
+				allEntities(filter(onlyMatching(identity),
+					it -> it.forEach(reentrant.ifPossible(entity, updateExecutedAfter(entity, executeAction(component))))));
+			}
+		});
 
 		// Rules to keep identity up-to-date
-		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(ModelProjection.class), this::updateSelectorForProjection));
-		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForParent));
-		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(ModelState.class), this::updateSelectorForState));
-		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForAncestors));
-		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), this::updateSelectorForSelf));
-	}
+		configurer.configure(/*updateSelectorForProjection*/new ModelActionWithInputs.ModelAction2<ModelComponentTag<ConfigurableTag>, ModelProjection>() {
+			// ComponentFromEntity<ActionSelectorComponent> read-write self
+			protected void execute(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ModelProjection projection) {
+				entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
+					.map(ActionSelectorComponent::get)
+					.map(it -> it.plus(projection.getType()))
+					.orElseGet(() -> DomainObjectIdentity.of(ImmutableSet.of(projection.getType())))));
+			}
+		});
+		configurer.configure(/*updateSelectorForParent*/new ModelActionWithInputs.ModelAction2<ModelComponentTag<ConfigurableTag>, ParentComponent>() {
+			// ComponentFromEntity<ActionSelectorComponent> read-write self
+			protected void execute(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ParentComponent parent) {
+				entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
+					.map(ActionSelectorComponent::get)
+					.map(it -> it.with(new ParentRef(parent.get().getId())))
+					.orElseGet(() -> DomainObjectIdentity.of(new ParentRef(parent.get().getId())))));
+			}
+		});
+		configurer.configure(/*updateSelectorForState*/new ModelActionWithInputs.ModelAction2<ModelComponentTag<ConfigurableTag>, ModelState>() {
+			// ComponentFromEntity<ActionSelectorComponent> read-write self
+			protected void execute(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ModelState state) {
+				entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
+					.map(ActionSelectorComponent::get)
+					.map(it -> it.with(state))
+					.orElseGet(() -> DomainObjectIdentity.of(state))));
+			}
+		});
+		configurer.configure(/*updateSelectorForAncestors*/new ModelActionWithInputs.ModelAction2<ModelComponentTag<ConfigurableTag>, ParentComponent>() {
+			// ComponentFromEntity<ParentComponent> read-only all
+			// ComponentFromEntity<ActionSelectorComponent> read-write self
+			protected void execute(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ParentComponent parent) {
+				val ancestors = ImmutableSet.<AncestorRef>builder();
+				Optional<ParentComponent> parentComponent = Optional.of(parent);
+				while(parentComponent.isPresent()) {
+					ancestors.add(new AncestorRef(parentComponent.get().get().getId()));
+					parentComponent = parentComponent.flatMap(it -> it.get().findComponent(componentOf(ParentComponent.class)));
+				}
 
-	// ComponentFromEntity<MatchingSpecificationComponent> (readonly) all
-	// ComponentFromEntity<ActionComponent> (readonly) all
-	// ComponentFromEntity<ExecutedActionComponent> (read-write) self
-	private void onIdentityChanged(ModelNode entity, ActionSelectorComponent component) {
-		allActions(reentrant.andDeferredActions(entity, filter(actionMatching(component),
-			whileIgnoringExecuted(entity, executeAction(entity)))));
+				entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
+					.map(ActionSelectorComponent::get)
+					.map(it -> it.with(ancestors.build()))
+					.orElseGet(() -> DomainObjectIdentity.of(ancestors.build()))));
+			}
+		});
+		configurer.configure(/*updateSelectorForSelf*/new ModelActionWithInputs.ModelAction1<ModelComponentTag<ConfigurableTag>>() {
+			// ComponentFromEntity<ActionSelectorComponent> read-write self
+			protected void execute(ModelNode entity, ModelComponentTag<ConfigurableTag> tag) {
+				entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
+					.map(ActionSelectorComponent::get)
+					.map(it -> it.with(new SelfRef(entity.getId())))
+					.orElseGet(() -> DomainObjectIdentity.of(new SelfRef(entity.getId())))));
+			}
+		});
 	}
 
 	private static Consumer<ModelNode> executeAction(ModelNode entity) {
@@ -136,69 +199,6 @@ public final class ModelActionSystem<T extends ExtensionAware & PluginAware> imp
 		};
 	}
 
-	private void trackActions(ModelNode entity, ModelComponentTag<ModelActionTag> tag) {
-		allActionEntities.add(entity);
-	}
-
-	private void trackConfigurableEntities(ModelNode entity, ModelComponentTag<ConfigurableTag> tag) {
-		allConfigurableEntities.add(entity);
-	}
-
-	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForState(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ModelState state) {
-		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
-			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(state))
-			.orElseGet(() -> DomainObjectIdentity.of(state))));
-	}
-
-	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForParent(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ParentComponent parent) {
-		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
-			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(new ParentRef(parent.get().getId())))
-			.orElseGet(() -> DomainObjectIdentity.of(new ParentRef(parent.get().getId())))));
-	}
-
-	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForProjection(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ModelProjection projection) {
-		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
-			.map(ActionSelectorComponent::get)
-			.map(it -> it.plus(projection.getType()))
-			.orElseGet(() -> DomainObjectIdentity.of(ImmutableSet.of(projection.getType())))));
-	}
-
-	// ComponentFromEntity<ParentComponent> read-only all
-	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForAncestors(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ParentComponent parent) {
-		val ancestors = ImmutableSet.<AncestorRef>builder();
-		Optional<ParentComponent> parentComponent = Optional.of(parent);
-		while(parentComponent.isPresent()) {
-			ancestors.add(new AncestorRef(parentComponent.get().get().getId()));
-			parentComponent = parentComponent.flatMap(it -> it.get().findComponent(componentOf(ParentComponent.class)));
-		}
-
-		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
-			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(ancestors.build()))
-			.orElseGet(() -> DomainObjectIdentity.of(ancestors.build()))));
-	}
-
-	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForSelf(ModelNode entity, ModelComponentTag<ConfigurableTag> tag) {
-		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
-			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(new SelfRef(entity.getId())))
-			.orElseGet(() -> DomainObjectIdentity.of(new SelfRef(entity.getId())))));
-	}
-
-	// ComponentFromEntity<ActionSelectorComponent> (readonly) all
-	// ComponentFromEntity<ExecutedActionComponent> (read-write) all
-	private void onActionAdded(ModelNode entity, ModelSpecComponent identity, ModelActionComponent component) {
-		allEntities(filter(onlyMatching(identity),
-			it -> it.forEach(reentrant.ifPossible(entity, updateExecutedAfter(entity, executeAction(component))))));
-	}
-
 	private static Consumer<ModelNode> executeAction(ModelActionComponent component) {
 		return it -> component.get().execute(it);
 	}
@@ -220,9 +220,8 @@ public final class ModelActionSystem<T extends ExtensionAware & PluginAware> imp
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
 	public static <T extends ModelComponent> ModelAction updateSelectorForTag(Class<T> componentType) {
-		return ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(componentType), new ModelActionWithInputs.A2<ModelComponentTag<ConfigurableTag>, T>() {
-			@Override
-			public void execute(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, T component) {
+		return new ModelActionWithInputs.ModelAction2<ModelComponentTag<ConfigurableTag>, T>(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(componentType)) {
+			protected void execute(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, T component) {
 				entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 					.map(ActionSelectorComponent::get)
 					.map(it -> it.with(valueOf(component)))
@@ -237,6 +236,6 @@ public final class ModelActionSystem<T extends ExtensionAware & PluginAware> imp
 					return unpacked;
 				}
 			}
-		});
+		};
 	}
 }
