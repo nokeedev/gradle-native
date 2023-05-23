@@ -17,17 +17,17 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelTestActions;
-import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
@@ -37,7 +37,6 @@ import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransiti
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.initialized;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.realized;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.registered;
-import static dev.nokee.model.internal.state.ModelState.Realized;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -167,7 +166,12 @@ public class DefaultModelRegistryIntegrationTest {
 		val action = new ModelTestActions.CaptureNodeTransitionAction();
 
 		modelRegistry.register(ModelRegistration.of("i", MyType.class));
-		modelRegistry.configure(matching(node -> ModelStates.isAtLeast(node, Realized), action));
+		modelRegistry.configure(new ModelActionWithInputs.ModelAction1<ModelState.IsAtLeastRealized>() {
+			@Override
+			protected void execute(ModelNode entity, ModelState.IsAtLeastRealized ignored) {
+				action.execute(entity);
+			}
+		});
 		modelRegistry.register(ModelRegistration.of("j", MyType.class)).as(MyType.class).get();
 
 		assertThat(action.getAllTransitions(), contains(realized(root()), realized("j")));
