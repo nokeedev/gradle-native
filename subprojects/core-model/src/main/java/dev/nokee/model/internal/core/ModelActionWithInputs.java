@@ -361,6 +361,10 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 			@SuppressWarnings("unchecked")
 			val result = (ModelComponentReference<T>) ModelBuffers.referenceOf((Class<? extends ModelBufferElement>) ((ParameterizedType) type.getType()).getActualTypeArguments()[0]);
 			return result;
+		} else if (type.isSubtypeOf(TypeCompatibilityModelProjectionSupport.class)) {
+			@SuppressWarnings("unchecked")
+			val result = (ModelComponentReference<T>) ModelProjections.referenceOf((Class<?>) ((ParameterizedType) type.getType()).getActualTypeArguments()[0]);
+			return result;
 		} else {
 			@SuppressWarnings("unchecked")
 			val componentType = (Class<T>) type.getRawType();

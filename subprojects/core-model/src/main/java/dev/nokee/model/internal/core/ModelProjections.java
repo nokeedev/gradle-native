@@ -22,11 +22,17 @@ import dev.nokee.model.internal.type.ModelType;
 
 import java.util.function.Function;
 
-import static dev.nokee.internal.Factories.*;
+import static dev.nokee.internal.Factories.asSupplier;
+import static dev.nokee.internal.Factories.compose;
+import static dev.nokee.internal.Factories.memoize;
 import static dev.nokee.model.internal.type.ModelType.typeOf;
 
 public final class ModelProjections {
 	private ModelProjections() {}
+
+	public static <T> ModelComponentReference<ModelProjection> referenceOf(Class<T> projectionType) {
+		return ModelComponentReference.ofProjection(projectionType);
+	}
 
 	/**
 	 * Creates model projection of specified instance.

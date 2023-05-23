@@ -19,11 +19,10 @@ import dev.nokee.language.nativebase.internal.DependentFrameworkSearchPaths;
 import dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
@@ -46,18 +45,17 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, ModelState.IsAtLeastRegistered> {
+final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<TypeCompatibilityModelProjectionSupport<SwiftSourceSetSpec>, IdentifierComponent, ModelState.IsAtLeastRegistered> {
 	private final ModelRegistry registry;
 	private final ObjectFactory objects;
 
 	ImportModulesConfigurationRegistrationAction(ModelRegistry registry, ObjectFactory objects) {
-		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
 		this.registry = registry;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+	protected void execute(ModelNode entity, TypeCompatibilityModelProjectionSupport<SwiftSourceSetSpec> knownSourceSet, IdentifierComponent identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
 		val importModules = registry.register(newEntity("importModules", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 		importModules.configure(Configuration.class, forSwiftApiUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(importModules));

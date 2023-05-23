@@ -25,9 +25,8 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
@@ -52,16 +51,15 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction4<ModelProjection, IdentifierComponent, NativeCompileTask, SourceFiles> {
+final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction4<TypeCompatibilityModelProjectionSupport<SwiftSourceSetSpec>, IdentifierComponent, NativeCompileTask, SourceFiles> {
 	private final ModelRegistry registry;
 
 	public SwiftCompileTaskDefaultConfigurationRule(ModelRegistry registry) {
-		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeCompileTask.class), ModelComponentReference.of(SourceFiles.class));
 		this.registry = registry;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
+	protected void execute(ModelNode entity, TypeCompatibilityModelProjectionSupport<SwiftSourceSetSpec> knownSourceSet, IdentifierComponent identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier.get(), asModuleFileOfModuleName())))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureModuleName(convention(toModuleName((ElementName) ((HasName) identifier.get()).getName())))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5))));

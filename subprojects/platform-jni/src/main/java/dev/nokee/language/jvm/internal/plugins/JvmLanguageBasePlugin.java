@@ -93,10 +93,6 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 	}
 
 	private static final class AttachGroovySourcesToGroovySourceSet extends ModelActionWithInputs.ModelAction4<ModelComponentTag<GroovySourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent, SourceSetComponent> {
-		private AttachGroovySourcesToGroovySourceSet() {
-			super(ModelTags.referenceOf(GroovySourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(SourceSetComponent.class));
-		}
-
 		@Override
 		protected void execute(ModelNode entity, ModelComponentTag<GroovySourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty, SourceSetComponent sourceSet) {
 			val sourceSetProvider = sourceSet.get();
@@ -110,10 +106,6 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 	}
 
 	private static final class AttachJavaSourcesToJavaSourceSet extends ModelActionWithInputs.ModelAction4<ModelComponentTag<JavaSourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent, SourceSetComponent> {
-		private AttachJavaSourcesToJavaSourceSet() {
-			super(ModelTags.referenceOf(JavaSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(SourceSetComponent.class));
-		}
-
 		@Override
 		protected void execute(ModelNode entity, ModelComponentTag<JavaSourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty, SourceSetComponent sourceSet) {
 			val sourceSetProvider = sourceSet.get();
@@ -126,10 +118,6 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 	}
 
 	private static final class AttachKotlinSourcesToKotlinSourceSet extends ModelActionWithInputs.ModelAction4<ModelComponentTag<KotlinSourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent, SourceSetComponent> {
-		private AttachKotlinSourcesToKotlinSourceSet() {
-			super(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(SourceSetComponent.class));
-		}
-
 		@Override
 		protected void execute(ModelNode entity, ModelComponentTag<KotlinSourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty, SourceSetComponent sourceSet) {
 			val sourceSetProvider = sourceSet.get();

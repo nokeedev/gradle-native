@@ -18,14 +18,12 @@ package dev.nokee.language.nativebase.internal;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import lombok.val;
@@ -46,18 +44,17 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, ModelComponentTag<IsLanguageSourceSet>> {
+public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<TypeCompatibilityModelProjectionSupport<HasConfigurableHeadersMixIn>, IdentifierComponent, ModelComponentTag<IsLanguageSourceSet>> {
 	private final ModelRegistry registry;
 	private final ObjectFactory objects;
 
 	HeaderSearchPathsConfigurationRegistrationAction(ModelRegistry registry, ObjectFactory objects) {
-		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, ModelComponentTag<IsLanguageSourceSet> ignored) {
+	protected void execute(ModelNode entity, TypeCompatibilityModelProjectionSupport<HasConfigurableHeadersMixIn> knownObject, IdentifierComponent identifier, ModelComponentTag<IsLanguageSourceSet> ignored) {
 		val headerSearchPaths = registry.register(newEntity("headerSearchPaths", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(HeaderSearchPathsDependencyBucketTag.class)));
 		headerSearchPaths.configure(Configuration.class, forCPlusPlusApiUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));

@@ -23,10 +23,9 @@ import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
@@ -61,18 +60,17 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
+final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.ModelAction1<TypeCompatibilityModelProjectionSupport<HasCreateTaskMixIn>> {
 	private final ModelRegistry registry;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public NativeArchiveTaskRegistrationRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.ofProjection(HasCreateTaskMixIn.class));
 		this.registry = registry;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection projection) {
+	protected void execute(ModelNode entity, TypeCompatibilityModelProjectionSupport<HasCreateTaskMixIn> projection) {
 		val implementationType = CreateStaticLibraryTask.class;
 
 		val createTask = registry.register(newEntity("create", CreateStaticLibraryTask.class, it -> it.ownedBy(entity)));

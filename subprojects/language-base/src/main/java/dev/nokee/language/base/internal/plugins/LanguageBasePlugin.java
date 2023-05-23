@@ -25,11 +25,13 @@ import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -46,6 +48,7 @@ import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
+import dev.nokee.utils.Cast;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -59,7 +62,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 
 public class LanguageBasePlugin implements Plugin<Project> {
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 
@@ -82,31 +85,33 @@ public class LanguageBasePlugin implements Plugin<Project> {
 			val parentIdentifier = entity.find(ParentComponent.class).map(parent -> parent.get().get(IdentifierComponent.class).get()).orElse(null);
 			entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedSourceAwareComponentMixIn<? extends ComponentSources, ? extends ComponentSources>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			Class<ComponentSources> type = (Class<ComponentSources>) sourcesType((ModelType<SourceAwareComponent<? extends ComponentSources>>)projection.getType());
-			registry.register(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("sources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(LanguageSourceSet.class)).build())
-				.withComponent(createdUsing(of(type), () -> {
-					try {
-						for (Constructor<?> constructor : type.getConstructors()) {
-							if (constructor.getParameterTypes().length == 1) {
-								if (constructor.getParameterTypes()[0].equals(View.class)) {
-									return ((Constructor<ComponentSources>) constructor).newInstance(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends LanguageSourceSet>>() {})));
-								} else if (constructor.getParameterTypes()[0].equals(ViewAdapter.class)) {
-									return ((Constructor<ComponentSources>) constructor).newInstance(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends LanguageSourceSet>>() {})));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction2<TypeCompatibilityModelProjectionSupport<ModelBackedSourceAwareComponentMixIn>, IdentifierComponent>() {
+			protected void execute(ModelNode entity, TypeCompatibilityModelProjectionSupport<ModelBackedSourceAwareComponentMixIn> projection, IdentifierComponent identifier) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				Class<ComponentSources> type = (Class<ComponentSources>) sourcesType(Cast.uncheckedCastBecauseOfTypeErasure(projection.getType()));
+				registry.register(ModelRegistration.builder()
+					.withComponent(new ElementNameComponent("sources"))
+					.withComponent(new ParentComponent(entity))
+					.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(LanguageSourceSet.class)).build())
+					.withComponent(createdUsing(of(type), () -> {
+						try {
+							for (Constructor<?> constructor : type.getConstructors()) {
+								if (constructor.getParameterTypes().length == 1) {
+									if (constructor.getParameterTypes()[0].equals(View.class)) {
+										return ((Constructor<ComponentSources>) constructor).newInstance(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends LanguageSourceSet>>() {})));
+									} else if (constructor.getParameterTypes()[0].equals(ViewAdapter.class)) {
+										return ((Constructor<ComponentSources>) constructor).newInstance(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends LanguageSourceSet>>() {})));
+									}
 								}
 							}
+							throw new UnsupportedOperationException();
+						} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+							throw new RuntimeException(e);
 						}
-						throw new UnsupportedOperationException();
-					} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-						throw new RuntimeException(e);
-					}
-				}))
-				.build());
-		})));
+					}))
+					.build());
+			}
+		}));
 	}
 
 	@SuppressWarnings("unchecked")

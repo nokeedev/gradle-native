@@ -17,14 +17,12 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.Streams;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
@@ -38,20 +36,19 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 
-public final class TargetMachinesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
+public final class TargetMachinesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction1<TypeCompatibilityModelProjectionSupport<ModelBackedTargetMachineAwareComponentMixIn>> {
 	private final DimensionPropertyRegistrationFactory dimensions;
 	private final ModelRegistry registry;
 	private final ToolChainSelectorInternal toolChainSelector;
 
 	public TargetMachinesPropertyRegistrationRule(DimensionPropertyRegistrationFactory dimensions, ModelRegistry registry, ToolChainSelectorInternal toolChainSelector) {
-		super(ModelComponentReference.ofProjection(ModelBackedTargetMachineAwareComponentMixIn.class));
 		this.dimensions = dimensions;
 		this.registry = registry;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection tag) {
+	protected void execute(ModelNode entity, TypeCompatibilityModelProjectionSupport<ModelBackedTargetMachineAwareComponentMixIn> tag) {
 		val targetMachines = registry.register(ModelRegistration.builder().withComponent(new ElementNameComponent("targetMachines")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.newAxisProperty()
 			.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
 			.defaultValue(TargetMachines.host())

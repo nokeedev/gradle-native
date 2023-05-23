@@ -25,11 +25,10 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
@@ -75,18 +74,18 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelProjection> {
+@SuppressWarnings("rawtypes")
+final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, TypeCompatibilityModelProjectionSupport<HasLinkTaskMixIn>> {
 	private final ModelRegistry registry;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public NativeLinkTaskRegistrationRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasLinkTaskMixIn.class));
 		this.registry = registry;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelProjection projection) {
+	protected void execute(ModelNode entity, IdentifierComponent identifier, TypeCompatibilityModelProjectionSupport<HasLinkTaskMixIn> projection) {
 		@SuppressWarnings("unchecked")
 		val implementationType = implementationType(taskType((ModelType<? extends HasLinkTaskMixIn<? extends ObjectLink>>) projection.getType()));
 

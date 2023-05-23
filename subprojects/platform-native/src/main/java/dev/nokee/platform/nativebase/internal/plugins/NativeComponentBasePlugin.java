@@ -49,6 +49,7 @@ import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -450,21 +451,23 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 
 		val unbuildableWarningService = forUseAtConfigurationTime(registerBuildServiceIfAbsent(project, UnbuildableWarningService.class));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(AssembleTaskComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasDevelopmentVariant.class), (entity, assembleTask, identifier, tag) -> {
-			// The "component" assemble task was most likely added by the 'lifecycle-base' plugin
-			//   then we configure the dependency.
-			//   Note that the dependency may already exists for single variant component but it's not a big deal.
-			@SuppressWarnings("unchecked")
-			final Provider<HasDevelopmentVariant<?>> component = project.getProviders().provider(() -> ModelNodeUtils.get(entity, HasDevelopmentVariant.class));
-			Provider<? extends Variant> developmentVariant = component.flatMap(HasDevelopmentVariant::getDevelopmentVariant);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<AssembleTaskComponent, IdentifierComponent, TypeCompatibilityModelProjectionSupport<HasDevelopmentVariant>>() {
+			protected void execute(ModelNode entity, AssembleTaskComponent assembleTask, IdentifierComponent identifier, TypeCompatibilityModelProjectionSupport<HasDevelopmentVariant> tag) {
+				// The "component" assemble task was most likely added by the 'lifecycle-base' plugin
+				//   then we configure the dependency.
+				//   Note that the dependency may already exists for single variant component but it's not a big deal.
+				@SuppressWarnings("unchecked")
+				final Provider<HasDevelopmentVariant<?>> component = project.getProviders().provider(() -> ModelNodeUtils.get(entity, HasDevelopmentVariant.class));
+				Provider<? extends Variant> developmentVariant = component.flatMap(HasDevelopmentVariant::getDevelopmentVariant);
 
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn(developmentVariant.flatMap(ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY).map(Arrays::asList)
-				.orElse(unbuildableWarningService.map(it -> {
-					it.warn((ComponentIdentifier) identifier.get());
-					return Collections.emptyList();
-				})))));
-		}));
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn(developmentVariant.flatMap(ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY).map(Arrays::asList)
+					.orElse(unbuildableWarningService.map(it -> {
+						it.warn((ComponentIdentifier) identifier.get());
+						return Collections.emptyList();
+					})))));
+			}
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeApplicationTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, tag, variants) -> {
 			new CalculateNativeApplicationVariantAction(project).execute(entity);

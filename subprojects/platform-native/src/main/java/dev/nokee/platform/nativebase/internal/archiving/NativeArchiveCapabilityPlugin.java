@@ -16,11 +16,10 @@
 package dev.nokee.platform.nativebase.internal.archiving;
 
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -56,9 +55,11 @@ public class NativeArchiveCapabilityPlugin<T extends ExtensionAware & PluginAwar
 		configurer.configure(new ConfigureCreateTaskTargetPlatformFromBuildVariantRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new AttachObjectFilesToCreateTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new ConfigureCreateTaskDescriptionRule());
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasCreateTaskMixIn.class), ModelComponentReference.of(NativeArchiveTask.class), (entity, identifier, ignored1, createTask) -> {
-			target.getExtensions().getByType(ModelRegistry.class).instantiate(configure(createTask.get().getId(), CreateStaticLibrary.class, configureDestinationDirectory(convention(forLibrary(identifier.get())))));
-		}));
+		configurer.configure(new ModelActionWithInputs.ModelAction3<IdentifierComponent, TypeCompatibilityModelProjectionSupport<HasCreateTaskMixIn>, NativeArchiveTask>() {
+			protected void execute(ModelNode entity, IdentifierComponent identifier, TypeCompatibilityModelProjectionSupport<HasCreateTaskMixIn> ignored1, NativeArchiveTask createTask) {
+				target.getExtensions().getByType(ModelRegistry.class).instantiate(configure(createTask.get().getId(), CreateStaticLibrary.class, configureDestinationDirectory(convention(forLibrary(identifier.get())))));
+			}
+		});
 	}
 
 	private static final class ConfigureCreateTaskDescriptionRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, NativeArchiveTask> {

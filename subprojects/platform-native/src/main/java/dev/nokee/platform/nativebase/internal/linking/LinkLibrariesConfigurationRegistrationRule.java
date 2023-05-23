@@ -18,13 +18,11 @@ package dev.nokee.platform.nativebase.internal.linking;
 import dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.TypeCompatibilityModelProjectionSupport;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
@@ -40,18 +38,17 @@ import static dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtif
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 
-final class LinkLibrariesConfigurationRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, ModelComponentTag<IsBinary>, ModelProjection> {
+final class LinkLibrariesConfigurationRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, ModelComponentTag<IsBinary>, TypeCompatibilityModelProjectionSupport<HasLinkLibrariesDependencyBucket>> {
 	private final ModelRegistry registry;
 	private final ObjectFactory objects;
 
 	public LinkLibrariesConfigurationRegistrationRule(ModelRegistry registry, ObjectFactory objects) {
-		super(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.ofProjection(HasLinkLibrariesDependencyBucket.class));
 		this.registry = registry;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> ignored, ModelProjection projection) {
+	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> ignored, TypeCompatibilityModelProjectionSupport<HasLinkLibrariesDependencyBucket> projection) {
 		val linkLibraries = registry.register(newEntity("linkLibraries", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(LinkLibrariesDependencyBucketTag.class)));
 		linkLibraries.configure(Configuration.class, forNativeLinkUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(linkLibraries));
