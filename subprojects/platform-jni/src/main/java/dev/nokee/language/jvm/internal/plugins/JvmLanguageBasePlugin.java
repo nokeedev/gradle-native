@@ -62,21 +62,27 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 
 		project.getPlugins().withType(JavaBasePlugin.class, ignored -> {
 			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(JvmSourceSetTag.class), ModelComponentReference.of(ParentComponent.class), (entity, projection, parent) -> {
-				val sourceSetRegistry = NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class));
-				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
-				entity.addComponent(new SourceSetComponent(sourceSetProvider));
-			})));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction2<ModelComponentTag<JvmSourceSetTag>, ParentComponent>() {
+				protected void execute(ModelNode entity, ModelComponentTag<JvmSourceSetTag> projection, ParentComponent parent) {
+					val sourceSetRegistry = NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class));
+					val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+					entity.addComponent(new SourceSetComponent(sourceSetProvider));
+				}
+			}));
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(JavaSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
-				val compileTask = registry.register(newEntity("compile", JavaCompile.class, it -> it.ownedBy(entity)));
-				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
-			})));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(GroovySourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-				val compileTask = registry.register(newEntity("compile", GroovyCompile.class, it -> it.ownedBy(entity)));
-				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
-			})));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction2<ModelComponentTag<JavaSourceSetSpec.Tag>, IdentifierComponent>() {
+				protected void execute(ModelNode entity, ModelComponentTag<JavaSourceSetSpec.Tag> tag, IdentifierComponent identifier) {
+					val compileTask = registry.register(newEntity("compile", JavaCompile.class, it -> it.ownedBy(entity)));
+					entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
+				}
+			}));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction2<ModelComponentTag<GroovySourceSetSpec.Tag>, IdentifierComponent>() {
+				protected void execute(ModelNode entity, ModelComponentTag<GroovySourceSetSpec.Tag> projection, IdentifierComponent identifier) {
+					val compileTask = registry.register(newEntity("compile", GroovyCompile.class, it -> it.ownedBy(entity)));
+					entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
+				}
+			}));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourceSetComponent.class), (entity, projection, identifier, parent, sourceSet) -> {
 				val sourceSetProvider = sourceSet.get();
 				@SuppressWarnings("unchecked")

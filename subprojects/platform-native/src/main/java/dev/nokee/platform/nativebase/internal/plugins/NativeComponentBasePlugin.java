@@ -54,6 +54,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BuildVariant;
@@ -188,9 +189,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DarwinRuntimePlugin.class); // for now, later we will be more smart
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(FrameworkAwareDependencyBucketTag.class), (entity, ignored) -> {
-			entity.addComponent(new DependencyDefaultActionComponent(new RequestFrameworkAction(project.getObjects())));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction1<ModelComponentTag<FrameworkAwareDependencyBucketTag>>() {
+			@Override
+			protected void execute(ModelNode entity, ModelComponentTag<FrameworkAwareDependencyBucketTag> ignored) {
+				entity.addComponent(new DependencyDefaultActionComponent(new RequestFrameworkAction(project.getObjects())));
+			}
+		});
 
 		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory(
 			project.getObjects()
@@ -205,41 +209,49 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			project.getObjects()
 		));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HeaderSearchPathsConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headerSearchPaths, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, configureExtendsFrom((Callable<?>) () -> {
-				val result = ImmutableList.builder();
-				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(ImplementationConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
-				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(CompileOnlyConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
-				return result.build();
-			})));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<HeaderSearchPathsConfigurationComponent, ParentComponent>() {
+			protected void execute(ModelNode entity, HeaderSearchPathsConfigurationComponent headerSearchPaths, ParentComponent parent) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, configureExtendsFrom((Callable<?>) () -> {
+					val result = ImmutableList.builder();
+					ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(ImplementationConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
+					ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(CompileOnlyConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
+					return result.build();
+				})));
+			}
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HeaderSearchPathsConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headerSearchPaths, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(BuildVariantComponent.class))).findFirst().ifPresent(it -> {
-				registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) it.get(), project.getObjects())));
-			});
-			registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<HeaderSearchPathsConfigurationComponent, ParentComponent>() {
+			protected void execute(ModelNode entity, HeaderSearchPathsConfigurationComponent headerSearchPaths, ParentComponent parent) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(BuildVariantComponent.class))).findFirst().ifPresent(it -> {
+					registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) it.get(), project.getObjects())));
+				});
+				registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
+			}
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ImportModulesConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, importModules, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(configure(importModules.get().getId(), Configuration.class, configureExtendsFrom((Callable<?>) () -> {
-				val result = ImmutableList.builder();
-				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(ImplementationConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
-				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(CompileOnlyConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
-				return result.build();
-			})));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ImportModulesConfigurationComponent, ParentComponent>() {
+			protected void execute(ModelNode entity, ImportModulesConfigurationComponent importModules, ParentComponent parent) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				registry.instantiate(configure(importModules.get().getId(), Configuration.class, configureExtendsFrom((Callable<?>) () -> {
+					val result = ImmutableList.builder();
+					ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(ImplementationConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
+					ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(CompileOnlyConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
+					return result.build();
+				})));
+			}
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ImportModulesConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, importModules, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(BuildVariantComponent.class))).findFirst().ifPresent(it -> {
-				registry.instantiate(configure(importModules.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) it.get(), project.getObjects())));
-			});
-			registry.instantiate(configure(importModules.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ImportModulesConfigurationComponent, ParentComponent>() {
+			protected void execute(ModelNode entity, ImportModulesConfigurationComponent importModules, ParentComponent parent) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(BuildVariantComponent.class))).findFirst().ifPresent(it -> {
+					registry.instantiate(configure(importModules.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) it.get(), project.getObjects())));
+				});
+				registry.instantiate(configure(importModules.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
+			}
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, buildVariantComponent, identifier, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -321,19 +333,21 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachAttributesToConfigurationRule<>(RuntimeLibrariesConfiguration.class, project.getExtensions().getByType(ModelRegistry.class), project.getObjects()));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, identifier, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelComponentTag<NativeApplicationTag>>() {
+			protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<NativeApplicationTag> tag) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-		})));
+				entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+				entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+				entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
+			}
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			if (!parent.get().hasComponent(typeOf(NativeApplicationTag.class))) {
 				return;
@@ -359,21 +373,23 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, identifier, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelComponentTag<NativeLibraryTag>>() {
+			protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<NativeLibraryTag> tag) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val api = registry.register(newEntity("api", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val api = registry.register(newEntity("api", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 
-			entity.addComponent(new ApiConfigurationComponent(ModelNodes.of(api)));
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-		})));
+				entity.addComponent(new ApiConfigurationComponent(ModelNodes.of(api)));
+				entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+				entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+				entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
+			}
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			if (!parent.get().hasComponent(typeOf(NativeLibraryTag.class))) {
 				return;
@@ -435,19 +451,27 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new TargetMachinesPropertyRegistrationRule(project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class), project.getObjects().newInstance(ToolChainSelectorInternal.class))));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new TargetBuildTypesPropertyRegistrationRule(project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new TargetLinkagesPropertyRegistrationRule(project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeApplicationTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeLibraryTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.SHARED));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeApplicationTag>, TargetLinkagesPropertyComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeApplicationTag> tag, TargetLinkagesPropertyComponent targetLinkages) {
+				((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeLibraryTag>, TargetLinkagesPropertyComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeLibraryTag> tag, TargetLinkagesPropertyComponent targetLinkages) {
+				((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.SHARED));
+			}
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(LinkLibrariesConfiguration.class), ModelComponentReference.of(ParentComponent.class), (e, linkLibraries, parent) -> {
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(linkLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, LinkOnlyConfigurationComponent.class))));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(RuntimeLibrariesConfiguration.class), ModelComponentReference.of(ParentComponent.class), (e, runtimeLibraries, parent) -> {
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(runtimeLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, RuntimeOnlyConfigurationComponent.class))));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<LinkLibrariesConfiguration, ParentComponent>() {
+			protected void execute(ModelNode entity, LinkLibrariesConfiguration linkLibraries, ParentComponent parent) {
+				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(linkLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, LinkOnlyConfigurationComponent.class))));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<RuntimeLibrariesConfiguration, ParentComponent>() {
+			protected void execute(ModelNode entity, RuntimeLibrariesConfiguration runtimeLibraries, ParentComponent parent) {
+				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(runtimeLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, RuntimeOnlyConfigurationComponent.class))));
+			}
+		});
 
 		val unbuildableWarningService = forUseAtConfigurationTime(registerBuildServiceIfAbsent(project, UnbuildableWarningService.class));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(AssembleTaskComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasDevelopmentVariant.class), (entity, assembleTask, identifier, tag) -> {
@@ -466,12 +490,16 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				})))));
 		}));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeApplicationTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, tag, variants) -> {
-			new CalculateNativeApplicationVariantAction(project).execute(entity);
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeLibraryTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, tag, variants) -> {
-			new CalculateNativeLibraryVariantAction(project).execute(entity);
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeApplicationTag>, LinkedVariantsComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeApplicationTag> tag, LinkedVariantsComponent variants) {
+				new CalculateNativeApplicationVariantAction(project).execute(entity);
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeLibraryTag>, LinkedVariantsComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeLibraryTag> tag, LinkedVariantsComponent variants) {
+				new CalculateNativeLibraryVariantAction(project).execute(entity);
+			}
+		});
 
 		// TODO: Should be part of native-application-base plugin
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeExecutableBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
@@ -502,16 +530,20 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		}));
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, developmentVariant, ignored1) -> {
-			((Property<NativeApplication>) developmentVariant.get().get(GradlePropertyComponent.class).get())
-				.convention((Provider<? extends DefaultNativeApplicationVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, developmentVariant, ignored1) -> {
-			((Property<NativeLibrary>) developmentVariant.get().get(GradlePropertyComponent.class).get())
-				.convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(DefaultNativeLibraryComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<DevelopmentVariantPropertyComponent, ModelComponentTag<NativeApplicationTag>>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
+			protected void execute(ModelNode entity, DevelopmentVariantPropertyComponent developmentVariant, ModelComponentTag<NativeApplicationTag> ignored1) {
+				((Property<NativeApplication>) developmentVariant.get().get(GradlePropertyComponent.class).get())
+					.convention((Provider<? extends DefaultNativeApplicationVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<DevelopmentVariantPropertyComponent, ModelComponentTag<NativeLibraryTag>>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
+			protected void execute(ModelNode entity, DevelopmentVariantPropertyComponent developmentVariant, ModelComponentTag<NativeLibraryTag> ignored1) {
+				((Property<NativeLibrary>) developmentVariant.get().get(GradlePropertyComponent.class).get())
+					.convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(DefaultNativeLibraryComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
+			}
+		});
 	}
 
 	private static <T extends ModelComponent & LinkedConfiguration> Callable<Iterable<Configuration>> firstParentConfigurationOf(ParentComponent parent, Class<T> type) {

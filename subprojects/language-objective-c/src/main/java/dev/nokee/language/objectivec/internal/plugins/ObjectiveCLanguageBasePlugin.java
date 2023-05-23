@@ -46,6 +46,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
@@ -79,9 +80,11 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 
 		val registrationFactory = new DefaultObjectiveCSourceSetRegistrationFactory();
 		project.getExtensions().add("__nokee_defaultObjectiveCFactory", registrationFactory);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ObjectiveCSourceSetSpec.Tag.class), (entity, ignored) -> {
-			entity.addComponent(new NativeCompileTypeComponent(ObjectiveCCompileTask.class));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction1<ModelComponentTag<ObjectiveCSourceSetSpec.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ObjectiveCSourceSetSpec.Tag> ignored) {
+				entity.addComponent(new NativeCompileTypeComponent(ObjectiveCCompileTask.class));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportObjectiveCSourceSetTag.class))).findFirst().ifPresent(ignored -> {
 				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(entity));
@@ -89,25 +92,31 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 			});
 		})));
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, objcSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/objectiveC", "src/" + fullyQualifiedName.get() + "/objc");
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ObjectiveCSourcesPropertyComponent, FullyQualifiedNameComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
+			protected void execute(ModelNode entity, ObjectiveCSourcesPropertyComponent objcSources, FullyQualifiedNameComponent fullyQualifiedName) {
+				((ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/objectiveC", "src/" + fullyQualifiedName.get() + "/objc");
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ObjectiveCSourcesPropertyComponent, ParentComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
+			protected void execute(ModelNode entity, ObjectiveCSourcesPropertyComponent objcSources, ParentComponent parent) {
+				((ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+					return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(ObjectiveCSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction1<ModelComponentTag<HasObjectiveCSourcesMixIn.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<HasObjectiveCSourcesMixIn.Tag> ignored) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
+					.withComponent(new ElementNameComponent("objectiveCSources"))
+					.withComponent(new ParentComponent(entity))
+					.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
+					.build()));
+				entity.addComponent(new ObjectiveCSourcesPropertyComponent(property));
+			}
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, objcSources, parent) -> {
-			((ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(ObjectiveCSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasObjectiveCSourcesMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("objectiveCSources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new ObjectiveCSourcesPropertyComponent(property));
-		})));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ObjectiveCSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
 			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
@@ -116,27 +125,35 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
 			});
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
-			ModelStates.finalize(swiftSources.get());
-			val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new ObjectiveCSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, objcSources, extensions) -> {
-			extensions.get().add(ConfigurableFileCollection.class, "objectiveCSources", (ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get());
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ObjectiveCSourcesPropertyComponent, ModelState.IsAtLeastFinalized>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
+			protected void execute(ModelNode entity, ObjectiveCSourcesPropertyComponent objcSources, ModelState.IsAtLeastFinalized ignored1) {
+				ModelStates.finalize(objcSources.get());
+				val sources = (ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get();
+				// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+				entity.addComponent(new ObjectiveCSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ObjectiveCSourcesPropertyComponent, ExtensionAwareComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
+			protected void execute(ModelNode entity, ObjectiveCSourcesPropertyComponent objcSources, ExtensionAwareComponent extensions) {
+				extensions.get().add(ConfigurableFileCollection.class, "objectiveCSources", (ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get());
+			}
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
-			ParentUtils.stream(parent).filter(has(SupportObjectiveCSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponentTag(SupportObjectiveCSourceSetTag.class);
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportObjectiveCSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponentTag(HasObjectiveCSourcesMixIn.Tag.class);
-			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeSourcesAwareTag>, ParentComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeSourcesAwareTag> ignored, ParentComponent parent) {
+				ParentUtils.stream(parent).filter(has(SupportObjectiveCSourceSetTag.class)).findFirst().ifPresent(__ -> {
+					entity.addComponentTag(SupportObjectiveCSourceSetTag.class);
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeSourcesAwareTag>, ModelComponentTag<SupportObjectiveCSourceSetTag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeSourcesAwareTag> ignored1, ModelComponentTag<SupportObjectiveCSourceSetTag> ignore2) {
+				entity.addComponentTag(HasObjectiveCSourcesMixIn.Tag.class);
+				entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
+			}
+		});
 	}
 
 	static final class DefaultObjectiveCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {

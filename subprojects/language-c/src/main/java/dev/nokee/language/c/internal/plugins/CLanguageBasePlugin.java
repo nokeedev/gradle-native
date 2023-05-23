@@ -33,7 +33,6 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
@@ -46,7 +45,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -79,64 +78,83 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 
 		val registrationFactory = new DefaultCSourceSetRegistrationFactory();
 		project.getExtensions().add("__nokee_defaultCSourceSetFactory", registrationFactory);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(CSourceSetSpec.Tag.class), (entity, ignored) -> {
-			entity.addComponent(new NativeCompileTypeComponent(CCompileTask.class));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportCSourceSetTag.class))).findFirst().ifPresent(ignored -> {
-				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(entity));
-				entity.addComponent(new CSourceSetComponent(ModelNodes.of(sourceSet)));
-			});
-		})));
-
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, cSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/c");
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, cSources, parent) -> {
-			((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(CSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasCSourcesMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("cSources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new CSourcesPropertyComponent(property));
-		})));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(CSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
-			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				ModelStates.finalize(parent.get());
-				return ParentUtils.stream(parent).flatMap(it -> stream(it.find(CSourcesComponent.class))).findFirst()
-					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, cSources, ignored1) -> {
-			ModelStates.finalize(cSources.get());
-			val sources = (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new CSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, cSources, extensions) -> {
-			extensions.get().add(ConfigurableFileCollection.class, "cSources", (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction1<ModelComponentTag<CSourceSetSpec.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<CSourceSetSpec.Tag> ignored) {
+				entity.addComponent(new NativeCompileTypeComponent(CCompileTask.class));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction3<IdentifierComponent, ModelComponentTag<NativeLanguageSourceSetAwareTag>, ParentComponent>() {
+			protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<NativeLanguageSourceSetAwareTag> tag, ParentComponent parent) {
+				ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportCSourceSetTag.class))).findFirst().ifPresent(ignored -> {
+					val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(entity));
+					entity.addComponent(new CSourceSetComponent(ModelNodes.of(sourceSet)));
+				});
+			}
 		}));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
-			ParentUtils.stream(parent).filter(has(SupportCSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponentTag(SupportCSourceSetTag.class);
-			});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<CSourcesPropertyComponent, FullyQualifiedNameComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
+			protected void execute(ModelNode entity, CSourcesPropertyComponent cSources, FullyQualifiedNameComponent fullyQualifiedName) {
+				((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/c");
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<CSourcesPropertyComponent, ParentComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
+			protected void execute(ModelNode entity, CSourcesPropertyComponent cSources, ParentComponent parent) {
+				((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+					return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(CSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction1<ModelComponentTag<HasCSourcesMixIn.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<HasCSourcesMixIn.Tag> ignored) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
+					.withComponent(new ElementNameComponent("cSources"))
+					.withComponent(new ParentComponent(entity))
+					.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
+					.build()));
+				entity.addComponent(new CSourcesPropertyComponent(property));
+			}
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportCSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponentTag(HasCSourcesMixIn.Tag.class);
-			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<CSourceSetTag>, SourcePropertyComponent, ParentComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
+			protected void execute(ModelNode entity, ModelComponentTag<CSourceSetTag> ignored1, SourcePropertyComponent source, ParentComponent parent) {
+				((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+					ModelStates.finalize(parent.get());
+					return ParentUtils.stream(parent).flatMap(it -> stream(it.find(CSourcesComponent.class))).findFirst()
+						.map(it -> (Object) it.get()).orElse(Collections.emptyList());
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<CSourcesPropertyComponent, ModelState.IsAtLeastFinalized>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
+			protected void execute(ModelNode entity, CSourcesPropertyComponent cSources, ModelState.IsAtLeastFinalized ignored1) {
+				ModelStates.finalize(cSources.get());
+				val sources = (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get();
+				// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+				entity.addComponent(new CSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<CSourcesPropertyComponent, ExtensionAwareComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
+			protected void execute(ModelNode entity, CSourcesPropertyComponent cSources, ExtensionAwareComponent extensions) {
+				extensions.get().add(ConfigurableFileCollection.class, "cSources", (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get());
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeSourcesAwareTag>, ParentComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeSourcesAwareTag> ignored, ParentComponent parent) {
+				ParentUtils.stream(parent).filter(has(SupportCSourceSetTag.class)).findFirst().ifPresent(__ -> {
+					entity.addComponentTag(SupportCSourceSetTag.class);
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeSourcesAwareTag>, ModelComponentTag<SupportCSourceSetTag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeSourcesAwareTag> ignored1, ModelComponentTag<SupportCSourceSetTag> ignored2) {
+				entity.addComponentTag(HasCSourcesMixIn.Tag.class);
+				entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
+			}
+		});
 	}
 
 	static final class DefaultCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {

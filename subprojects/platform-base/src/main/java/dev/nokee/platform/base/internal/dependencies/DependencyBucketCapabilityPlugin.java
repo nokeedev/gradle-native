@@ -89,7 +89,15 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 	@Override
 	public void apply(T target) {
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), this::createConfiguration));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(/*createConfiguration*/new ModelActionWithInputs.ModelAction2<ModelComponentTag<IsDependencyBucket>, FullyQualifiedNameComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored, FullyQualifiedNameComponent fullyQualifiedName) {
+				val configurationProvider = registry.registerIfAbsent(fullyQualifiedName.get().toString());
+				entity.addComponent(new ConfigurationComponent(configurationProvider));
+				entity.addComponent(new ModelElementProviderSourceComponent(configurationProvider));
+				entity.addComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider));
+				entity.addComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get));
+			}
+		});
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DisplayNameRule());
 
@@ -107,38 +115,51 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DescriptionRule());
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
-			configuration.configure(configureAsConsumable());
-		}));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ResolvableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
-			configuration.configure(configureAsResolvable());
-		}));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(DeclarableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
-			configuration.configure(configureAsDeclarable());
-		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<ConsumableDependencyBucketTag>, ConfigurationComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ConsumableDependencyBucketTag> ignored1, ConfigurationComponent configuration) {
+				configuration.configure(configureAsConsumable());
+			}
+		});
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<ResolvableDependencyBucketTag>, ConfigurationComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ResolvableDependencyBucketTag> ignored1, ConfigurationComponent configuration) {
+				configuration.configure(configureAsResolvable());
+			}
+		});
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<DeclarableDependencyBucketTag>, ConfigurationComponent>() {
+			@Override
+			protected void execute(ModelNode entity, ModelComponentTag<DeclarableDependencyBucketTag> ignored1, ConfigurationComponent configuration) {
+				configuration.configure(configureAsDeclarable());
+			}
+		});
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ResolvableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored, configuration) -> {
-			val incoming = new IncomingArtifacts(configuration.configuration);
-			entity.addComponent(ofInstance(incoming));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<ResolvableDependencyBucketTag>, ConfigurationComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ResolvableDependencyBucketTag> ignored, ConfigurationComponent configuration) {
+				val incoming = new IncomingArtifacts(configuration.configuration);
+				entity.addComponent(ofInstance(incoming));
+			}
+		});
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction1<ModelComponentTag<IsDependencyBucket>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored1) {
+				val propertyEntity = target.getExtensions().getByType(ModelRegistry.class).register(builder()
+					.withComponent(new ElementNameComponent("dependencies"))
+					.withComponent(new ParentComponent(entity))
+					.mergeFrom(setProperty(DependencyElement.class))
+					.build());
+				entity.addComponent(new BucketDependenciesProperty(ModelNodes.of(propertyEntity)));
+			}
 		}));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), (entity, ignored1) -> {
-			val propertyEntity = target.getExtensions().getByType(ModelRegistry.class).register(builder()
-				.withComponent(new ElementNameComponent("dependencies"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(setProperty(DependencyElement.class))
-				.build());
-			entity.addComponent(new BucketDependenciesProperty(ModelNodes.of(propertyEntity)));
-		})));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new ComputeBucketDependenciesRule(factory));
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), (entity, ignored1) -> {
-			val propertyEntity = target.getExtensions().getByType(ModelRegistry.class).register(builder()
-				.withComponent(new ElementNameComponent("artifacts"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(setProperty(PublishedArtifactElement.class))
-				.build());
-			entity.addComponent(new BucketArtifactsProperty(ModelNodes.of(propertyEntity)));
-		})));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction1<ModelComponentTag<ConsumableDependencyBucketTag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ConsumableDependencyBucketTag> ignored1) {
+				val propertyEntity = target.getExtensions().getByType(ModelRegistry.class).register(builder()
+					.withComponent(new ElementNameComponent("artifacts"))
+					.withComponent(new ParentComponent(entity))
+					.mergeFrom(setProperty(PublishedArtifactElement.class))
+					.build());
+				entity.addComponent(new BucketArtifactsProperty(ModelNodes.of(propertyEntity)));
+			}
+		}));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new ComputeBucketArtifactsRule());
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new SyncBucketArtifactsToConfigurationProjectionRule());
 

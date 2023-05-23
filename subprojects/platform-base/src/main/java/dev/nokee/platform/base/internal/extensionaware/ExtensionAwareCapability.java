@@ -16,8 +16,9 @@
 package dev.nokee.platform.base.internal.extensionaware;
 
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import org.gradle.api.Plugin;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -35,9 +36,11 @@ public class ExtensionAwareCapability<T extends ExtensionAware & PluginAware> im
 
 	@Override
 	public void apply(T target) {
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ExtensionAwareMixIn.Tag.class), (entity, ignored1) -> {
-			entity.addComponent(new ExtensionAwareComponent(objects.newInstance(ExtensionContainerProvider.class).getExtensions()));
-		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction1<ModelComponentTag<ExtensionAwareMixIn.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ExtensionAwareMixIn.Tag> ignored1) {
+				entity.addComponent(new ExtensionAwareComponent(objects.newInstance(ExtensionContainerProvider.class).getExtensions()));
+			}
+		});
 	}
 
 	public interface ExtensionContainerProvider extends ExtensionAware {}

@@ -27,6 +27,7 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -148,15 +149,17 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.build());
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new CreateVariantsRule(project.getExtensions().getByType(ModelRegistry.class)));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(BuildVariantsPropertyComponent.class), (entity, ignored, buildVariants) -> {
-			// TODO: Each plugins should just map the build variants into the variants.
-			//   Sort-of, each plugins should complete the configuration but not create the variant themselves
-			final ImmutableSet.Builder<KnownVariantInformationElement> builder = ImmutableSet.builder();
-			((Provider<Set<BuildVariant>>) buildVariants.get().get(GradlePropertyComponent.class).get()).get().forEach(it -> {
-				builder.add(new KnownVariantInformationElement(it.toString()));
-			});
-			entity.addComponent(ModelBuffers.of(KnownVariantInformationElement.class, builder.build()));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelState.IsAtLeastFinalized, BuildVariantsPropertyComponent>() {
+			protected void execute(ModelNode entity, ModelState.IsAtLeastFinalized ignored, BuildVariantsPropertyComponent buildVariants) {
+				// TODO: Each plugins should just map the build variants into the variants.
+				//   Sort-of, each plugins should complete the configuration but not create the variant themselves
+				final ImmutableSet.Builder<KnownVariantInformationElement> builder = ImmutableSet.builder();
+				((Provider<Set<BuildVariant>>) buildVariants.get().get(GradlePropertyComponent.class).get()).get().forEach(it -> {
+					builder.add(new KnownVariantInformationElement(it.toString()));
+				});
+				entity.addComponent(ModelBuffers.of(KnownVariantInformationElement.class, builder.build()));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedTaskAwareComponentMixIn.class)), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 			modeRegistry.register(builder()
 				.withComponent(new ElementNameComponent("tasks"))
@@ -233,20 +236,24 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			entity.addComponent(new BaseNamePropertyComponent(baseNameProperty));
 		})));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), (entity, property) -> {
-			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(project.getProviders().provider(() -> {
-				return entity.find(ParentComponent.class)
-					.flatMap(parent -> ParentUtils.stream(parent).map(ModelStates::finalize).filter(it -> it.has(BaseNameComponent.class)).findFirst())
-					.map(parent -> (Supplier<String>) parent.get(BaseNameComponent.class)::get)
-					.orElseGet(() -> entity.find(ElementNameComponent.class).map(it -> (Supplier<String>) it.get()::toString).orElse(ofInstance(null)))
-					.get();
-			}));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction1<BaseNamePropertyComponent>() {
+			protected void execute(ModelNode entity, BaseNamePropertyComponent property) {
+				((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(project.getProviders().provider(() -> {
+					return entity.find(ParentComponent.class)
+						.flatMap(parent -> ParentUtils.stream(parent).map(ModelStates::finalize).filter(it -> it.has(BaseNameComponent.class)).findFirst())
+						.map(parent -> (Supplier<String>) parent.get(BaseNameComponent.class)::get)
+						.orElseGet(() -> entity.find(ElementNameComponent.class).map(it -> (Supplier<String>) it.get()::toString).orElse(ofInstance(null)))
+						.get();
+				}));
+			}
+		});
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on BaseNamePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), ModelComponentReference.of(ModelStates.Finalizing.class), (entity, property, ignored1) -> {
-			entity.addComponent(new BaseNameComponent(((Property<String>) property.get().get(GradlePropertyComponent.class).get()).get()));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<BaseNamePropertyComponent, ModelStates.Finalizing>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on BaseNamePropertyComponent
+			protected void execute(ModelNode entity, BaseNamePropertyComponent property, ModelStates.Finalizing ignored1) {
+				entity.addComponent(new BaseNameComponent(((Property<String>) property.get().get(GradlePropertyComponent.class).get()).get()));
+			}
+		});
 	}
 
 	@SuppressWarnings("unchecked")

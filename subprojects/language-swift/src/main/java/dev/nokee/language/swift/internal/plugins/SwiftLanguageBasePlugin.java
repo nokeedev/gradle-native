@@ -40,6 +40,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
@@ -76,9 +77,11 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 
 		val registrationFactory = new DefaultSwiftSourceSetRegistrationFactory();
 		project.getExtensions().add("__nokee_defaultSwiftFactory", registrationFactory);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(SwiftSourceSetSpec.Tag.class), (entity, ignored) -> {
-			entity.addComponent(new NativeCompileTypeComponent(SwiftCompileTask.class));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction1<ModelComponentTag<SwiftSourceSetSpec.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<SwiftSourceSetSpec.Tag> ignored) {
+				entity.addComponent(new NativeCompileTypeComponent(SwiftCompileTask.class));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportSwiftSourceSetTag.class))).findFirst().ifPresent(ignored -> {
 				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(DefaultSwiftSourceSetRegistrationFactory.class).create(entity));
@@ -86,25 +89,31 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 			});
 		})));
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, swiftSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/swift");
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<SwiftSourcesPropertyComponent, FullyQualifiedNameComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
+			protected void execute(ModelNode entity, SwiftSourcesPropertyComponent swiftSources, FullyQualifiedNameComponent fullyQualifiedName) {
+				((ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/swift");
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<SwiftSourcesPropertyComponent, ParentComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
+			protected void execute(ModelNode entity, SwiftSourcesPropertyComponent swiftSources, ParentComponent parent) {
+				((ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+					return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(SwiftSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction1<ModelComponentTag<HasSwiftSourcesMixIn.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<HasSwiftSourcesMixIn.Tag> ignored) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
+					.withComponent(new ElementNameComponent("swiftSources"))
+					.withComponent(new ParentComponent(entity))
+					.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
+					.build()));
+				entity.addComponent(new SwiftSourcesPropertyComponent(property));
+			}
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, swiftSources, parent) -> {
-			((ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(SwiftSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasSwiftSourcesMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("swiftSources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new SwiftSourcesPropertyComponent(property));
-		})));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(SwiftSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
 			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
@@ -113,27 +122,35 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
 			});
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
-			ModelStates.finalize(swiftSources.get());
-			val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new SwiftSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, swiftSources, extensions) -> {
-			extensions.get().add(ConfigurableFileCollection.class, "swiftSources", (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get());
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<SwiftSourcesPropertyComponent, ModelState.IsAtLeastFinalized>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
+			protected void execute(ModelNode entity, SwiftSourcesPropertyComponent swiftSources, ModelState.IsAtLeastFinalized ignored1) {
+				ModelStates.finalize(swiftSources.get());
+				val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
+				// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+				entity.addComponent(new SwiftSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<SwiftSourcesPropertyComponent, ExtensionAwareComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
+			protected void execute(ModelNode entity, SwiftSourcesPropertyComponent swiftSources, ExtensionAwareComponent extensions) {
+				extensions.get().add(ConfigurableFileCollection.class, "swiftSources", (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get());
+			}
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
-			ParentUtils.stream(parent).filter(has(SupportSwiftSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponentTag(SupportSwiftSourceSetTag.class);
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportSwiftSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponentTag(HasSwiftSourcesMixIn.Tag.class);
-			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeSourcesAwareTag>, ParentComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeSourcesAwareTag> ignored, ParentComponent parent) {
+				ParentUtils.stream(parent).filter(has(SupportSwiftSourceSetTag.class)).findFirst().ifPresent(__ -> {
+					entity.addComponentTag(SupportSwiftSourceSetTag.class);
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeSourcesAwareTag>, ModelComponentTag<SupportSwiftSourceSetTag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeSourcesAwareTag> ignored1, ModelComponentTag<SupportSwiftSourceSetTag> ignored2) {
+				entity.addComponentTag(HasSwiftSourcesMixIn.Tag.class);
+				entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
+			}
+		});
 	}
 
 	static final class DefaultSwiftSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {

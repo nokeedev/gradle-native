@@ -46,6 +46,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
@@ -79,9 +80,11 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 
 		val registrationFactory = new DefaultObjectiveCppSourceSetRegistrationFactory();
 		project.getExtensions().add("__nokee_defaultObjectiveCppFactory", registrationFactory);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ObjectiveCppSourceSetSpec.Tag.class), (entity, ignored) -> {
-			entity.addComponent(new NativeCompileTypeComponent(ObjectiveCppCompileTask.class));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction1<ModelComponentTag<ObjectiveCppSourceSetSpec.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ObjectiveCppSourceSetSpec.Tag> ignored) {
+				entity.addComponent(new NativeCompileTypeComponent(ObjectiveCppCompileTask.class));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportObjectiveCppSourceSetTag.class))).findFirst().ifPresent(ignored -> {
 				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(entity));
@@ -89,25 +92,31 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 			});
 		})));
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCppSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, objcppSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) objcppSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/objectiveCpp", "src/" + fullyQualifiedName.get() + "/objcpp");
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ObjectiveCppSourcesPropertyComponent, FullyQualifiedNameComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
+			protected void execute(ModelNode entity, ObjectiveCppSourcesPropertyComponent objcppSources, FullyQualifiedNameComponent fullyQualifiedName) {
+				((ConfigurableFileCollection) objcppSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/objectiveCpp", "src/" + fullyQualifiedName.get() + "/objcpp");
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ObjectiveCppSourcesPropertyComponent, ParentComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
+			protected void execute(ModelNode entity, ObjectiveCppSourcesPropertyComponent objcppSources, ParentComponent parent) {
+				((ConfigurableFileCollection) objcppSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+					return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(ObjectiveCppSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction1<ModelComponentTag<HasObjectiveCppSourcesMixIn.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<HasObjectiveCppSourcesMixIn.Tag> ignored) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
+					.withComponent(new ElementNameComponent("objectiveCppSources"))
+					.withComponent(new ParentComponent(entity))
+					.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
+					.build()));
+				entity.addComponent(new ObjectiveCppSourcesPropertyComponent(property));
+			}
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCppSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, objcppSources, parent) -> {
-			((ConfigurableFileCollection) objcppSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(ObjectiveCppSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasObjectiveCppSourcesMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("objectiveCppSources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new ObjectiveCppSourcesPropertyComponent(property));
-		})));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ObjectiveCppSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
 			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
@@ -116,27 +125,35 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
 			});
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCppSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
-			ModelStates.finalize(swiftSources.get());
-			val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new ObjectiveCppSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCppSourcesPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, objcppSources, extensions) -> {
-			extensions.get().add(ConfigurableFileCollection.class, "objectiveCppSources", (ConfigurableFileCollection) objcppSources.get().get(GradlePropertyComponent.class).get());
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ObjectiveCppSourcesPropertyComponent, ModelState.IsAtLeastFinalized>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
+			protected void execute(ModelNode entity, ObjectiveCppSourcesPropertyComponent objcppSources, ModelState.IsAtLeastFinalized ignored) {
+				ModelStates.finalize(objcppSources.get());
+				val sources = (ConfigurableFileCollection) objcppSources.get().get(GradlePropertyComponent.class).get();
+				// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+				entity.addComponent(new ObjectiveCppSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ObjectiveCppSourcesPropertyComponent, ExtensionAwareComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
+			protected void execute(ModelNode entity, ObjectiveCppSourcesPropertyComponent objcppSources, ExtensionAwareComponent extensions) {
+				extensions.get().add(ConfigurableFileCollection.class, "objectiveCppSources", (ConfigurableFileCollection) objcppSources.get().get(GradlePropertyComponent.class).get());
+			}
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
-			ParentUtils.stream(parent).filter(has(SupportObjectiveCppSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponentTag(SupportObjectiveCppSourceSetTag.class);
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportObjectiveCppSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponentTag(HasObjectiveCppSourcesMixIn.Tag.class);
-			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeSourcesAwareTag>, ParentComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeSourcesAwareTag> ignored, ParentComponent parent) {
+				ParentUtils.stream(parent).filter(has(SupportObjectiveCppSourceSetTag.class)).findFirst().ifPresent(__ -> {
+					entity.addComponentTag(SupportObjectiveCppSourceSetTag.class);
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<NativeSourcesAwareTag>, ModelComponentTag<SupportObjectiveCppSourceSetTag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<NativeSourcesAwareTag> ignored1, ModelComponentTag<SupportObjectiveCppSourceSetTag> ignored2) {
+				entity.addComponentTag(HasObjectiveCppSourcesMixIn.Tag.class);
+				entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
+			}
+		});
 	}
 
 	static final class DefaultObjectiveCppSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {

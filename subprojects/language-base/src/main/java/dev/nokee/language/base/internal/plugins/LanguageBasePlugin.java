@@ -25,6 +25,7 @@ import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPathComponent;
@@ -35,6 +36,7 @@ import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
@@ -70,12 +72,14 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 
-		// ComponentFromEntity<DisplayNameComponent> read-only self
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsLanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, ignored2) -> {
-			if (!entity.has(DisplayNameComponent.class)) {
-				entity.addComponent(new DisplayNameComponent("sources"));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<IsLanguageSourceSet>, ModelState.IsAtLeastCreated>() {
+			// ComponentFromEntity<DisplayNameComponent> read-only self
+			protected void execute(ModelNode entity, ModelComponentTag<IsLanguageSourceSet> ignored1, ModelState.IsAtLeastCreated ignored2) {
+				if (!entity.has(DisplayNameComponent.class)) {
+					entity.addComponent(new DisplayNameComponent("sources"));
+				}
 			}
-		}));
+		});
 
 		// ComponentFromEntity<ParentComponent> read-only self
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsLanguageSourceSet.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {

@@ -23,10 +23,10 @@ import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -121,9 +121,11 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project), project.getExtensions().getByType(ModelLookup.class));
-				modelConfigurer.configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(ModelElementFactory.class), (entity, tag, factory) -> {
-					action.execute(factory.createElement(entity));
-				})));
+				modelConfigurer.configure(new OnDiscover(new ModelActionWithInputs.ModelAction2<ModelComponentTag<IsComponent>, ModelElementFactory>() {
+					protected void execute(ModelNode entity, ModelComponentTag<IsComponent> tag, ModelElementFactory factory) {
+						action.execute(factory.createElement(entity));
+					}
+				}));
 			}
 		};
 	}

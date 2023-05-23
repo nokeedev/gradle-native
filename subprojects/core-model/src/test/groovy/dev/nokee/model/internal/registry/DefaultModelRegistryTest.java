@@ -20,7 +20,6 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.DescendantNodes;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
@@ -118,11 +117,13 @@ public class DefaultModelRegistryTest {
 				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.class), (node, state) -> {
-				if (state.equals(ModelState.Initialized)) {
-					action.execute(node);
+			subject.configure(new ModelActionWithInputs.ModelAction1<ModelState>() {
+				protected void execute(ModelNode node, ModelState state) {
+					if (state.equals(ModelState.Initialized)) {
+						action.execute(node);
+					}
 				}
-			}));
+			});
 			register("foo");
 			verify(action, times(1)).execute(any());
 		}
@@ -135,11 +136,13 @@ public class DefaultModelRegistryTest {
 				assertDoesNotThrow(() -> modelLookup.get(path("bar")));
 				return null;
 			}).when(action).execute(any());
-			subject.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
-				if (state.equals(ModelState.Registered) && path.get().equals(path("bar"))) {
-					action.execute(node);
+			subject.configure(new ModelActionWithInputs.ModelAction2<ModelPathComponent, ModelState>() {
+				protected void execute(ModelNode node, ModelPathComponent path, ModelState state) {
+					if (state.equals(ModelState.Registered) && path.get().equals(path("bar"))) {
+						action.execute(node);
+					}
 				}
-			}));
+			});
 			register("bar");
 			verify(action, times(1)).execute(any());
 		}

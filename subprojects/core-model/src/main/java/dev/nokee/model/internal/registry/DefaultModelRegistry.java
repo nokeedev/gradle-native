@@ -33,7 +33,6 @@ import dev.nokee.model.internal.core.HasInputs;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelEntityId;
@@ -79,11 +78,10 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		this.instantiator = instantiator;
 		this.elementFactory = new ModelElementFactory(instantiator);
 		this.bindingService = new BindManagedProjectionService(instantiator);
-		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
+		configure(new ModelActionWithInputs.ModelAction2<ModelPathComponent, ModelState>() {
 			private final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
 
-			@Override
-			public void execute(ModelNode node, ModelPathComponent path, ModelState state) {
+			protected void execute(ModelNode node, ModelPathComponent path, ModelState state) {
 				if (state.isAtLeast(ModelState.Created) && alreadyExecuted.add(node.getId())) {
 					if (!path.get().equals(ModelPath.root()) && (!path.get().getParent().isPresent() || !nodes.containsKey(path.get().getParent().get()))) {
 						throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path.get()));
@@ -102,18 +100,17 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					});
 				}
 			}
-		}));
-		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
-			public final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
+		});
+		configure(new ModelActionWithInputs.ModelAction2<ModelPathComponent, ModelState>() {
+			private final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
 
-			@Override
-			public void execute(ModelNode node, ModelPathComponent path, ModelState state) {
+			protected void execute(ModelNode node, ModelPathComponent path, ModelState state) {
 				if (state.isAtLeast(ModelState.Registered) && alreadyExecuted.add(node.getId())) {
 					assert !nodes.values().contains(node) : "duplicated registered notification";
 					nodes.put(path.get(), node);
 				}
 			}
-		}));
+		});
 		rootNode = ModelStates.register(createRootNode());
 	}
 

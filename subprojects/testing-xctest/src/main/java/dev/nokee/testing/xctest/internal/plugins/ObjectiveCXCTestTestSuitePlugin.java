@@ -39,6 +39,7 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
@@ -124,19 +125,21 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), (entity, identifier, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelComponentTag<XCTestTestSuiteComponentTag>>() {
+			protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<XCTestTestSuiteComponentTag> tag) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+				val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-		})));
+				entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+				entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+				entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
+			}
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			if (!parent.get().hasComponent(typeOf(XCTestTestSuiteComponentTag.class))) {
 				return;
@@ -182,9 +185,11 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 			component.getVariants().get(); // Force realization, for now
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.BUNDLE));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<XCTestTestSuiteComponentTag>, TargetLinkagesPropertyComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<XCTestTestSuiteComponentTag> tag, TargetLinkagesPropertyComponent targetLinkages) {
+				((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.BUNDLE));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetBuildTypesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetBuildTypes, testedComponent) -> {
 			((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get())
 				.convention(ImmutableSet.of(TargetBuildTypes.DEFAULT));

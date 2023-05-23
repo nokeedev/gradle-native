@@ -33,6 +33,7 @@ import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
@@ -138,32 +139,40 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, tag, variants) -> {
-			val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<IosApplicationComponentTag>, LinkedVariantsComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<IosApplicationComponentTag> tag, LinkedVariantsComponent variants) {
+				val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
 
-			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
-				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
+				Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 
-				iosApplicationVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
-				variant.addComponent(new BuildVariantComponent(buildVariant));
-				ModelStates.register(variant);
+					iosApplicationVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
+					variant.addComponent(new BuildVariantComponent(buildVariant));
+					ModelStates.register(variant);
 
-				onEachVariantDependencies(variant, variant.getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)), project.getProviders());
-				return null;
-			}).forEach(it -> {});
+					onEachVariantDependencies(variant, variant.getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)), project.getProviders());
+					return null;
+				}).forEach(it -> {});
 
-			component.finalizeValue();
-		}));
+				component.finalizeValue();
+			}
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(TargetMachinesPropertyComponent.class), (entity, tag, targetMachines) -> {
-			((SetProperty<TargetMachine>) targetMachines.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(TargetBuildTypesPropertyComponent.class), (entity, tag, targetBuildTypes) -> {
-			((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetBuildTypes.named("Default")));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<IosApplicationComponentTag>, TargetMachinesPropertyComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<IosApplicationComponentTag> tag, TargetMachinesPropertyComponent targetMachines) {
+				((SetProperty<TargetMachine>) targetMachines.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<IosApplicationComponentTag>, TargetLinkagesPropertyComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<IosApplicationComponentTag> tag, TargetLinkagesPropertyComponent targetLinkages) {
+				((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<IosApplicationComponentTag>, TargetBuildTypesPropertyComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<IosApplicationComponentTag> tag, TargetBuildTypesPropertyComponent targetBuildTypes) {
+				((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetBuildTypes.named("Default")));
+			}
+		});
 	}
 
 	@SuppressWarnings("unchecked")

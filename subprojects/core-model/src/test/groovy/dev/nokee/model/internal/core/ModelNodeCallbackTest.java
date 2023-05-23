@@ -16,12 +16,13 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.util.function.BiConsumer;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,11 +31,15 @@ import static org.mockito.Mockito.never;
 class ModelNodeCallbackTest {
 	private final DefaultModelRegistry registry = new DefaultModelRegistry(objectFactory()::newInstance);
 	private final ModelNode subject = ModelNodes.of(registry.register(ModelRegistration.of("foo", MyProjection.class)));
-	private final ModelActionWithInputs.A1<MyComponent> action = Mockito.mock(ModelActionWithInputs.A1.class);
+	private final BiConsumer<ModelNode, MyComponent> action = Mockito.mock(BiConsumer.class);
 
 	@BeforeEach
 	void registerListener() {
-		registry.configure(ModelActionWithInputs.of(ModelComponentReference.of(MyComponent.class), action));
+		registry.configure(new ModelActionWithInputs.ModelAction1<MyComponent>() {
+			protected void execute(ModelNode entity, MyComponent myComponent) {
+				action.accept(entity, myComponent);
+			}
+		});
 	}
 
 	@Nested
@@ -48,7 +53,7 @@ class ModelNodeCallbackTest {
 
 		@Test
 		void callsBackWhenInputMatches() {
-			Mockito.verify(action).execute(subject, component);
+			Mockito.verify(action).accept(subject, component);
 		}
 
 		@Test
@@ -56,7 +61,7 @@ class ModelNodeCallbackTest {
 			val newComponent = new MyComponent();
 			Mockito.reset(action);
 			subject.setComponent(MyComponent.class, newComponent);
-			Mockito.verify(action).execute(subject, newComponent);
+			Mockito.verify(action).accept(subject, newComponent);
 		}
 
 		@Nested
@@ -71,14 +76,14 @@ class ModelNodeCallbackTest {
 
 			@Test
 			void doesNotCallbackOnNewEntity() {
-				Mockito.verify(action, never()).execute(any(), any());
+				Mockito.verify(action, never()).accept(any(), any());
 			}
 
 			@Test
 			void callsBackOnNewEntityWhenInputMatches() {
 				val component = new MyComponent();
 				newEntity.addComponent(component);
-				Mockito.verify(action).execute(newEntity, component);
+				Mockito.verify(action).accept(newEntity, component);
 			}
 		}
 	}

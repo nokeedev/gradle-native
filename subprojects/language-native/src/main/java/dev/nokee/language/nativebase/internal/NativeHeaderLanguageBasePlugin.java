@@ -20,6 +20,7 @@ import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -30,6 +31,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -54,25 +56,31 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachHeaderSearchPathsToCompileTaskRule(project.getExtensions().getByType(ModelRegistry.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NativeCompileTaskDefaultConfigurationRule(project.getExtensions().getByType(ModelRegistry.class)));
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, privateHeaders, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/headers");
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PrivateHeadersPropertyComponent, FullyQualifiedNameComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
+			protected void execute(ModelNode entity, PrivateHeadersPropertyComponent privateHeaders, FullyQualifiedNameComponent fullyQualifiedName) {
+				((ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/headers");
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PrivateHeadersPropertyComponent, ParentComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
+			protected void execute(ModelNode entity, PrivateHeadersPropertyComponent privateHeaders, ParentComponent parent) {
+				((ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+					return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(PrivateHeadersComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction1<ModelComponentTag<HasPrivateHeadersMixIn.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<HasPrivateHeadersMixIn.Tag> ignored) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
+					.withComponent(new ElementNameComponent("privateHeaders"))
+					.withComponent(new ParentComponent(entity))
+					.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
+					.build()));
+				entity.addComponent(new PrivateHeadersPropertyComponent(property));
+			}
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, privateHeaders, parent) -> {
-			((ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(PrivateHeadersComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasPrivateHeadersMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("privateHeaders"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new PrivateHeadersPropertyComponent(property));
-		})));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on HasConfigurableHeadersPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeHeaderSetTag.class), ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, headers, parent) -> {
 			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
@@ -81,37 +89,47 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
 			});
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, privateHeaders, ignored1) -> {
-			ModelStates.finalize(privateHeaders.get());
-			val sources = (ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new PrivateHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, publicHeaders, extensions) -> {
-			extensions.get().add(ConfigurableFileCollection.class, "privateHeaders", (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get());
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PrivateHeadersPropertyComponent, ModelState.IsAtLeastFinalized>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
+			protected void execute(ModelNode entity, PrivateHeadersPropertyComponent privateHeaders, ModelState.IsAtLeastFinalized ignored1) {
+				ModelStates.finalize(privateHeaders.get());
+				val sources = (ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get();
+				// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+				entity.addComponent(new PrivateHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PrivateHeadersPropertyComponent, ExtensionAwareComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
+			protected void execute(ModelNode entity, PrivateHeadersPropertyComponent privateHeaders, ExtensionAwareComponent extensions) {
+				extensions.get().add(ConfigurableFileCollection.class, "privateHeaders", (ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get());
+			}
+		});
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, publicHeaders, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/public");
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PublicHeadersPropertyComponent, FullyQualifiedNameComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
+			protected void execute(ModelNode entity, PublicHeadersPropertyComponent publicHeaders, FullyQualifiedNameComponent fullyQualifiedName) {
+				((ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/public");
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PublicHeadersPropertyComponent, ParentComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
+			protected void execute(ModelNode entity, PublicHeadersPropertyComponent publicHeaders, ParentComponent parent) {
+				((ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+					return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(PublicHeadersComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+				});
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new ModelActionWithInputs.ModelAction1<ModelComponentTag<HasPublicHeadersMixIn.Tag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<HasPublicHeadersMixIn.Tag> ignored) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
+					.withComponent(new ElementNameComponent("publicHeaders"))
+					.withComponent(new ParentComponent(entity))
+					.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
+					.build()));
+				entity.addComponent(new PublicHeadersPropertyComponent(property));
+			}
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, publicHeaders, parent) -> {
-			((ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(PublicHeadersComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasPublicHeadersMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("publicHeaders"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new PublicHeadersPropertyComponent(property));
-		})));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on HasConfigurableHeadersPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeHeaderSetTag.class), ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, headers, parent) -> {
 			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
@@ -120,16 +138,20 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
 			});
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, publicHeaders, ignored1) -> {
-			ModelStates.finalize(publicHeaders.get());
-			val sources = (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new PublicHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, publicHeaders, extensions) -> {
-			extensions.get().add(ConfigurableFileCollection.class, "publicHeaders", (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get());
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PublicHeadersPropertyComponent, ModelState.IsAtLeastFinalized>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
+			protected void execute(ModelNode entity, PublicHeadersPropertyComponent publicHeaders, ModelState.IsAtLeastFinalized ignored1) {
+				ModelStates.finalize(publicHeaders.get());
+				val sources = (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get();
+				// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+				entity.addComponent(new PublicHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+			}
+		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ModelActionWithInputs.ModelAction2<PublicHeadersPropertyComponent, ExtensionAwareComponent>() {
+			// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
+			protected void execute(ModelNode entity, PublicHeadersPropertyComponent publicHeaders, ExtensionAwareComponent extensions) {
+				extensions.get().add(ConfigurableFileCollection.class, "publicHeaders", (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get());
+			}
+		});
 	}
 }
