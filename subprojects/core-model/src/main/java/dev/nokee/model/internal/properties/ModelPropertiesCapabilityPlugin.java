@@ -19,7 +19,6 @@ import dev.nokee.model.internal.core.DisplayName;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPathComponent;
@@ -30,7 +29,6 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.model.ObjectFactory;
@@ -59,31 +57,55 @@ public abstract class ModelPropertiesCapabilityPlugin<T extends ExtensionAware &
 	@Override
 	public void apply(T target) {
 		val model = target.getExtensions().getByType(ModelConfigurer.class);
-		model.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelPropertyTag.class), this::execute));
-		model.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelPropertyTag.class), ModelComponentReference.of(ElementNameComponent.class), this::execute));
-		model.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelPropertyTag.class), ModelComponentReference.of(ParentComponent.class), this::execute));
-		model.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelPropertyTag.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ParentComponent.class),this::execute));
-		model.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelPropertyTag.class), ModelComponentReference.of(ModelPropertyTypeComponent.class), this::execute));
-	}
-
-	// ComponentFromEntity<ModelPathComponent> read-only (from ParentComponent)
-	// ComponentFromEntity<DisplayNameComponent> read-only (from ParentComponent)
-	private void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag, ElementNameComponent elementName, ParentComponent parent) {
-		entity.addComponent(new DisplayNameComponent(propertyDisplayName(parent.get().find(DisplayNameComponent.class).map(it -> it.get()).orElse(defaultParentDisplayName(parent.get())), elementName.get())));
-	}
-
-	private void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag, ElementNameComponent elementName) {
-		entity.addComponent(new DisplayNameComponent(propertyDisplayName(null, elementName.get())));
-	}
-
-	// ComponentFromEntity<ModelPathComponent> read-only (from ParentComponent)
-	// ComponentFromEntity<DisplayNameComponent> read-only (from ParentComponent)
-	private void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag, ParentComponent parent) {
-		entity.addComponent(new DisplayNameComponent(propertyDisplayName(parent.get().find(DisplayNameComponent.class).map(it -> it.get()).orElse(defaultParentDisplayName(parent.get())), null)));
-	}
-
-	private void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag) {
-		entity.addComponent(new DisplayNameComponent(propertyDefaultDisplayName()));
+		model.configure(new ModelActionWithInputs.ModelAction1<ModelComponentTag<ModelPropertyTag>>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag) {
+				entity.addComponent(new DisplayNameComponent(propertyDefaultDisplayName()));
+			}
+		});
+		model.configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<ModelPropertyTag>, ElementNameComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag, ElementNameComponent elementName) {
+				entity.addComponent(new DisplayNameComponent(propertyDisplayName(null, elementName.get())));
+			}
+		});
+		model.configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<ModelPropertyTag>, ParentComponent>() {
+			// ComponentFromEntity<ModelPathComponent> read-only (from ParentComponent)
+			// ComponentFromEntity<DisplayNameComponent> read-only (from ParentComponent)
+			protected void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag, ParentComponent parent) {
+				entity.addComponent(new DisplayNameComponent(propertyDisplayName(parent.get().find(DisplayNameComponent.class).map(it -> it.get()).orElse(defaultParentDisplayName(parent.get())), null)));
+			}
+		});
+		model.configure(new ModelActionWithInputs.ModelAction3<ModelComponentTag<ModelPropertyTag>, ElementNameComponent, ParentComponent>() {
+			// ComponentFromEntity<ModelPathComponent> read-only (from ParentComponent)
+			// ComponentFromEntity<DisplayNameComponent> read-only (from ParentComponent)
+			protected void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag, ElementNameComponent elementName, ParentComponent parent) {
+				entity.addComponent(new DisplayNameComponent(propertyDisplayName(parent.get().find(DisplayNameComponent.class).map(it -> it.get()).orElse(defaultParentDisplayName(parent.get())), elementName.get())));
+			}
+		});
+		model.configure(new ModelActionWithInputs.ModelAction2<ModelComponentTag<ModelPropertyTag>, ModelPropertyTypeComponent>() {
+			protected void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag, ModelPropertyTypeComponent propertyType) {
+				if (propertyType.get().equals(set(of(File.class)))) {
+					val property = objects.fileCollection();
+					entity.addComponent(new GradlePropertyComponent(property));
+					entity.addComponent(new ModelElementProviderSourceComponent(property.getElements()));
+				} else if (propertyType.get().isSubtypeOf(Map.class)) {
+					val property = objects.mapProperty(propertyType.get().getTypeVariables().get(0).getConcreteType(), propertyType.get().getTypeVariables().get(1).getConcreteType());
+					entity.addComponent(new GradlePropertyComponent(property));
+					entity.addComponent(new ModelElementProviderSourceComponent(property));
+				} else if (propertyType.get().isSubtypeOf(List.class)) {
+					val property = objects.listProperty(propertyType.get().getTypeVariables().get(0).getConcreteType());
+					entity.addComponent(new GradlePropertyComponent(property));
+					entity.addComponent(new ModelElementProviderSourceComponent(property));
+				} else if (propertyType.get().isSubtypeOf(Set.class)) {
+					val property = objects.setProperty(propertyType.get().getTypeVariables().get(0).getConcreteType());
+					entity.addComponent(new GradlePropertyComponent(property));
+					entity.addComponent(new ModelElementProviderSourceComponent(property));
+				} else {
+					val property = objects.property(propertyType.get().getConcreteType());
+					entity.addComponent(new GradlePropertyComponent(property));
+					entity.addComponent(new ModelElementProviderSourceComponent(property));
+				}
+			}
+		});
 	}
 
 	private static DisplayName defaultParentDisplayName(ModelNode parent) {
@@ -100,29 +122,5 @@ public abstract class ModelPropertiesCapabilityPlugin<T extends ExtensionAware &
 
 	private static String quote(String s) {
 		return "'" + s + "'";
-	}
-
-	private void execute(ModelNode entity, ModelComponentTag<ModelPropertyTag> tag, ModelPropertyTypeComponent propertyType) {
-		if (propertyType.get().equals(set(of(File.class)))) {
-			val property = objects.fileCollection();
-			entity.addComponent(new GradlePropertyComponent(property));
-			entity.addComponent(new ModelElementProviderSourceComponent(property.getElements()));
-		} else if (propertyType.get().isSubtypeOf(Map.class)) {
-			val property = objects.mapProperty(propertyType.get().getTypeVariables().get(0).getConcreteType(), propertyType.get().getTypeVariables().get(1).getConcreteType());
-			entity.addComponent(new GradlePropertyComponent(property));
-			entity.addComponent(new ModelElementProviderSourceComponent(property));
-		} else if (propertyType.get().isSubtypeOf(List.class)) {
-			val property = objects.listProperty(propertyType.get().getTypeVariables().get(0).getConcreteType());
-			entity.addComponent(new GradlePropertyComponent(property));
-			entity.addComponent(new ModelElementProviderSourceComponent(property));
-		} else if (propertyType.get().isSubtypeOf(Set.class)) {
-			val property = objects.setProperty(propertyType.get().getTypeVariables().get(0).getConcreteType());
-			entity.addComponent(new GradlePropertyComponent(property));
-			entity.addComponent(new ModelElementProviderSourceComponent(property));
-		} else {
-			val property = objects.property(propertyType.get().getConcreteType());
-			entity.addComponent(new GradlePropertyComponent(property));
-			entity.addComponent(new ModelElementProviderSourceComponent(property));
-		}
 	}
 }
