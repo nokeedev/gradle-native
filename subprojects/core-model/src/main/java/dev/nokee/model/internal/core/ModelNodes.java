@@ -363,50 +363,6 @@ public final class ModelNodes {
 		return stateOf(Realized).and(withType(type));
 	}
 
-	/**
-	 * Returns a predicate that select the specified path in the model.
-	 *
-	 * @param path  the path to match a model node
-	 * @return a predicate matching a single model node of the specified path, never null.
-	 */
-	// TODO: Maybe rename to pathOf(
-	public static Predicate<ModelNode> withPath(ModelPath path) {
-		return new WithPathPredicate(path);
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class WithPathPredicate extends AbstractModelNodePredicate implements HasInputs {
-		private final ModelPath path;
-		private final List<ModelComponentReference<?>> inputs;
-		private final Bits inputBits;
-
-		public WithPathPredicate(ModelPath path) {
-			this.path = requireNonNull(path);
-			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPathComponent.class));
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public boolean test(ModelNode node) {
-			return node.find(ModelPathComponent.class).map(ModelPathComponent::get).map(path::equals).orElse(false);
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-
-		@Override
-		public String toString() {
-			return "ModelNodes.withPath(" + path + ")";
-		}
-	}
-
 	private static IllegalArgumentException objectNotDecoratedWithModelNode(Object target) {
 		return new IllegalArgumentException(String.format("Object '%s' is not decorated with ModelNode.", target));
 	}

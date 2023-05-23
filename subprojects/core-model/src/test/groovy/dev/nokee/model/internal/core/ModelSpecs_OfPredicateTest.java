@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
-import static dev.nokee.model.internal.core.ModelNodes.withPath;
+import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelSpecs.of;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ModelSpecs_OfPredicateTest {
-	private final ModelSpec subject = of(withPath(path("po.ta.to")));
+	private final ModelSpec subject = of(descendantOf(path("po.ta")));
 
 	@Test
 	void noOpinionOnPath() {
@@ -51,12 +51,12 @@ class ModelSpecs_OfPredicateTest {
 	void checkIsSatisfiedBy() {
 		assertTrue(subject.isSatisfiedBy(node("po.ta.to")));
 		assertFalse(subject.isSatisfiedBy(node("po.ta")));
-		assertFalse(subject.isSatisfiedBy(node("po.ta.to.yeah")));
+		assertTrue(subject.isSatisfiedBy(node("po.ta.to.yeah")));
 	}
 
 	@Test
 	void checkToString() {
-		assertThat(subject, hasToString("ModelSpecs.of(ModelNodes.withPath(po.ta.to))"));
+		assertThat(subject, hasToString("ModelSpecs.of(ModelNodes.descendantOf(po.ta))"));
 	}
 
 	@Test
@@ -64,7 +64,7 @@ class ModelSpecs_OfPredicateTest {
 	void checkEquals() {
 		new EqualsTester()
 			.addEqualityGroup(of(alwaysTrue()), of(alwaysTrue()))
-			.addEqualityGroup(of(withPath(path("po.ta.to"))))
+			.addEqualityGroup(of(descendantOf(path("po.ta.to"))))
 			.testEquals();
 	}
 }
