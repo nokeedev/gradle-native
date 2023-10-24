@@ -1,9 +1,0 @@
-rootProject.name = 'gradle-build-script'
-
-gradle.allprojects {
-	group = 'dev.gradleplugins'
-
-	repositories {
-		mavenCentral()
-	}
-}

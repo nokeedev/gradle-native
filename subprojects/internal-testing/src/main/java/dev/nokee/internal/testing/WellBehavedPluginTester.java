@@ -16,11 +16,14 @@
 package dev.nokee.internal.testing;
 
 import dev.gradleplugins.buildscript.blocks.ApplyStatement;
-import dev.gradleplugins.buildscript.blocks.GradleBlock;
+import dev.gradleplugins.buildscript.blocks.GradleBuildScriptBlocks;
+import dev.gradleplugins.buildscript.io.GradleBuildFile;
+import dev.gradleplugins.buildscript.io.GradleBuildScriptFile;
+import dev.gradleplugins.buildscript.io.GradleInitFile;
+import dev.gradleplugins.buildscript.io.GradleSettingsFile;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
-import dev.nokee.internal.testing.runnerkit.BuildScriptFile;
 import lombok.SneakyThrows;
 import lombok.val;
 import net.nokeedev.testing.file.TestNameTestDirectoryProvider;
@@ -38,13 +41,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression.call;
 import static dev.gradleplugins.buildscript.blocks.ApplyStatement.Notation.plugin;
 import static dev.gradleplugins.buildscript.blocks.ApplyStatement.apply;
-import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.buildscript;
-import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.classpath;
-import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.initscript;
+import static dev.gradleplugins.buildscript.blocks.BuildscriptBlock.classpath;
 import static dev.gradleplugins.buildscript.blocks.DependencyNotation.files;
-import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
+import static dev.gradleplugins.buildscript.blocks.GradleBuildScriptBlocks.buildscript;
+import static dev.gradleplugins.buildscript.blocks.GradleBuildScriptBlocks.plugins;
+import static dev.gradleplugins.buildscript.syntax.Syntax.groovyDsl;
+import static dev.gradleplugins.buildscript.syntax.Syntax.string;
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureCause;
 import static java.lang.String.join;
 import static java.util.stream.Collectors.toList;
@@ -230,7 +235,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 	private abstract class AbstractWellBehavedIntegrationTest extends FileTesterTestCase {
 		@SneakyThrows
 		protected GradleRunner newRunner() {
-			GradleRunner runner = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(getWorkingDirectory().toFile()).configure(this::configureRunnerPluginDslClasspath).configure(this::configureRunnerBuildscriptClasspath).usingInitScript(getInitFile().toFile());
+			GradleRunner runner = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(getWorkingDirectory().toFile()).configure(this::configureRunnerPluginDslClasspath).configure(this::configureRunnerBuildscriptClasspath).usingInitScript(getInitFile().getLocation().toFile());
 
 			val distributionUnderTest = System.getProperty("dev.gradleplugins.defaultGradleVersion", null);
 			if (distributionUnderTest != null) {
@@ -245,7 +250,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		public void setUp() throws Throwable {
 			super.setUp();
 			runner = newRunner();
-			getInitFile().append(initscript(it -> it.dependencies(classpath(files(runner.getPluginClasspath())))));
+			getInitFile().initscript(it -> it.dependencies(classpath(files(runner.getPluginClasspath()))));
 		}
 
 		protected final BuildResult succeeds(String... tasks) {
@@ -256,20 +261,20 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			return runner.withTasks(tasks).buildAndFail();
 		}
 
-		protected final BuildScriptFile getBuildFile() {
-			return new BuildScriptFile(getWorkingDirectory().resolve("build.gradle"));
+		protected final GradleBuildFile getBuildFile() {
+			return GradleBuildFile.inDirectory(getWorkingDirectory());
 		}
 
-		protected final BuildScriptFile getSettingsFile() {
-			return new BuildScriptFile(getWorkingDirectory().resolve("settings.gradle"));
+		protected final GradleSettingsFile getSettingsFile() {
+			return GradleSettingsFile.inDirectory(getWorkingDirectory());
 		}
 
-		protected final BuildScriptFile getInitFile() {
-			return new BuildScriptFile(getWorkingDirectory().resolve("init.gradle"));
+		protected final GradleInitFile getInitFile() {
+			return GradleInitFile.of(getWorkingDirectory().resolve("init.gradle"));
 		}
 
-		protected BuildScriptFile buildScript(String path) {
-			return new BuildScriptFile(getWorkingDirectory().resolve(path));
+		protected GradleBuildScriptFile buildScript(String path) {
+			return GradleBuildScriptFile.of(getWorkingDirectory().resolve(path));
 		}
 
 		private GradleRunner configureRunnerPluginDslClasspath(GradleRunner runner) {
@@ -282,18 +287,16 @@ public final class WellBehavedPluginTester extends AbstractTester {
 
 		@SneakyThrows // TODO: GradleRunner#configure should accept functional that throws exception
 		private GradleRunner configureRunnerBuildscriptClasspath(GradleRunner runner) {
-			val initScript = new BuildScriptFile(getWorkingDirectory().resolve("classpath.init.gradle"));
-			val gradle = GradleBlock.builder()
+			val initScript = GradleInitFile.of(getWorkingDirectory().resolve("classpath.init.gradle"));
+			initScript
 				.initscript(it -> it.dependencies(classpath(files(runner.getPluginClasspath()))))
-				.beforeSettings(it -> {
+				.append(GradleBuildScriptBlocks.beforeSettings(it -> {
 					it.add(buildscript(t -> t.dependencies(classpath(files(runner.getPluginClasspath())))).useGetter());
 
 					// Include sub-projects in-case the plugin misbehave on sub-projects
-					it.include("a", "b", "c");
-				})
-				.build();
-			initScript.append(gradle);
-			return runner.usingInitScript(initScript.toFile());
+					it.add(call("include", string("a"), string("b"), string("c")));
+				}));
+			return runner.usingInitScript(initScript.getLocation().toFile());
 		}
 	}
 
@@ -317,9 +320,11 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		@Override
 		public void doExecute() throws Throwable {
 			buildScript(target.getBuildScriptName())
-				.append("assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 0")
+				.append(groovyDsl(
+					"assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 0"))
 				.append(apply(plugin(getQualifiedPluginIdUnderTest())))
-				.append("assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 1");
+				.append(groovyDsl(
+					"assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 1"));
 
 			succeeds();
 		}
@@ -513,7 +518,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			// Applies the plugin however possible
 			buildScript(target.getBuildScriptName()).append(appliesPluginToTarget(target));
 
-			getBuildFile().append(String.join(System.lineSeparator(),
+			getBuildFile().append(groovyDsl(
 				"def configuredTasks = []",
 				"allprojects {",
 				"  tasks.configureEach {",
@@ -554,7 +559,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			// Applies the plugin however possible
 			buildScript(target.getBuildScriptName()).append(appliesPluginToTarget(target));
 
-			getBuildFile().append(String.join(System.lineSeparator(),
+			getBuildFile().append(groovyDsl(
 				"def resolvedDependenciesPaths = []",
 				"allprojects {",
 				"  configurations.all { configuration ->",
@@ -598,7 +603,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			// Applies the plugin however possible
 			buildScript(target.getBuildScriptName()).append(appliesPluginToTarget(target));
 
-			getBuildFile().append(String.join(System.lineSeparator(),
+			getBuildFile().append(groovyDsl(
 				"allprojects {",
 				"  tasks.all { /* TaskContainer#all force all object to realize */ }",
 				"  configurations.all { /* ConfigurationContainer#all force all object to realize */ }",

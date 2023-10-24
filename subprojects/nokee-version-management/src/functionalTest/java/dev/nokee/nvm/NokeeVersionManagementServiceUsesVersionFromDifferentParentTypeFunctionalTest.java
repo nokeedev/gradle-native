@@ -15,12 +15,12 @@
  */
 package dev.nokee.nvm;
 
-import dev.gradleplugins.buildscript.blocks.RepositoriesBlock;
+import dev.gradleplugins.buildscript.blocks.PluginsDslBlock;
 import dev.gradleplugins.runnerkit.GradleRunner;
-import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
-import dev.nokee.internal.testing.junit.jupiter.GradleAtLeast;
 import dev.gradleplugins.testscript.TestGradleBuild;
 import dev.gradleplugins.testscript.TestLayout;
+import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
+import dev.nokee.internal.testing.junit.jupiter.GradleAtLeast;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +32,8 @@ import javax.annotation.Nonnull;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import static dev.gradleplugins.buildscript.blocks.ArtifactRepositoryStatements.mavenCentral;
+import static dev.gradleplugins.buildscript.blocks.GradleBuildScriptBlocks.repositories;
 import static dev.nokee.nvm.ProjectFixtures.applyPluginUnderTest;
 import static dev.nokee.nvm.ProjectFixtures.expect;
 import static dev.nokee.nvm.ProjectFixtures.registerVerifyTask;
@@ -138,9 +140,8 @@ class NokeeVersionManagementServiceUsesVersionFromDifferentParentTypeFunctionalT
 		return build -> {
 			build.getBuildFile().useKotlinDsl();
 			build.configure(applyPluginUnderTest());
-			build.buildFile(t -> {
-				t.plugins(i -> i.id("kotlin-dsl", id -> id.useKotlinAccessor())).repositories(RepositoriesBlock.Builder::mavenCentral);
-			});
+			build.getBuildFile().plugins(i -> i.id("kotlin-dsl", PluginsDslBlock.IdStatement.Builder::useKotlinAccessor))
+				.append(repositories(it -> it.add(mavenCentral())));
 			build.file("src/main/kotlin/foobuild.compile.gradle.kts", "plugins {", "  java", "}");
 			build.configure(registerVerifyTask().andThen(expect("0.6.9")));
 		};
@@ -150,9 +151,7 @@ class NokeeVersionManagementServiceUsesVersionFromDifferentParentTypeFunctionalT
 	private static Consumer<TestGradleBuild> configureGroovyPrecompiledScriptPluginBuild() {
 		return it -> {
 			it.configure(applyPluginUnderTest());
-			it.buildFile(t -> {
-				t.plugins(i -> i.id("groovy-gradle-plugin"));
-			});
+			it.getBuildFile().plugins(i -> i.id("groovy-gradle-plugin"));
 			it.file("src/main/groovy/foobuild.compile.gradle", "plugins {", "  id('java')", "}");
 			it.configure(registerVerifyTask().andThen(expect("0.6.9")));
 		};
@@ -160,6 +159,6 @@ class NokeeVersionManagementServiceUsesVersionFromDifferentParentTypeFunctionalT
 
 	@Nonnull
 	private static Consumer<TestGradleBuild> applyPrecompiledScriptPlugin() {
-		return build -> build.buildFile(project -> project.plugins(it -> it.id("foobuild.compile")));
+		return build -> build.getBuildFile().plugins(it -> it.id("foobuild.compile"));
 	}
 }

@@ -15,8 +15,8 @@
  */
 package dev.nokee.nvm;
 
-import dev.gradleplugins.buildscript.blocks.RepositoriesBlock;
-import dev.gradleplugins.buildscript.blocks.SettingsBlock;
+import dev.gradleplugins.buildscript.io.GradleBuildFile;
+import dev.gradleplugins.buildscript.io.GradleSettingsFile;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
@@ -26,29 +26,31 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
-import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
+import static dev.gradleplugins.buildscript.blocks.ArtifactRepositoryStatements.mavenCentral;
+import static dev.gradleplugins.buildscript.syntax.Syntax.groovyDsl;
 import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class PluginManagementDefaultRepositoriesFunctionalTest {
 	@TestDirectory Path testDirectory;
 	GradleRunner executer;
+	GradleSettingsFile settingsFile;
+	GradleBuildFile buildFile;
 
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
 		executer = runner;
 		writeVersionFileTo(testDirectory, "0.5.21");
+		settingsFile = GradleSettingsFile.inDirectory(testDirectory);
+		buildFile = GradleBuildFile.inDirectory(testDirectory);
 	}
 
 	@Test
 	void usesGradlePluginPortalRepositoryAsFirstRepositoryWhenNoRepositoryPresent() throws IOException {
-		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
-
-		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
+		settingsFile.plugins(it -> it.id("dev.nokee.nokee-version-management"));
+		buildFile.append(groovyDsl(
 			"tasks.register('verify') {",
 			"  doLast {",
 			"    assert gradle.settings.pluginManagement.repositories.first().url.toString() == 'https://plugins.gradle.org/m2'",
@@ -60,11 +62,9 @@ class PluginManagementDefaultRepositoriesFunctionalTest {
 
 	@Test
 	void doesNotIncludeGradlePluginPortalRepositoryWhenRepositoriesArePresent() throws IOException {
-		SettingsBlock.builder().pluginManagement(it -> it.repositories(RepositoriesBlock.Builder::mavenCentral))
-			.plugins(it -> it.id("dev.nokee.nokee-version-management"))
-			.build().writeTo(testDirectory.resolve("settings.gradle"));
-
-		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
+		settingsFile.pluginManagement(it -> it.repositories(r -> r.add(mavenCentral())))
+			.plugins(it -> it.id("dev.nokee.nokee-version-management"));
+		buildFile.append(groovyDsl(
 			"tasks.register('verify') {",
 			"  doLast {",
 			"    assert !gradle.settings.pluginManagement.repositories.any { it.url.toString() == 'https://plugins.gradle.org/m2' }",

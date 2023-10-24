@@ -16,11 +16,12 @@
 package dev.gradleplugins.testscript;
 
 import dev.gradleplugins.buildscript.blocks.ProjectBlock;
+import dev.gradleplugins.buildscript.io.GradleBuildFile;
 
 import java.util.function.Consumer;
 
 public interface HasBuildFile {
-	void buildFile(Consumer<? super ProjectBlock.Builder> action);
+	void buildFile(Consumer<? super ProjectBlock> action);
 
-	BuildScriptFile getBuildFile();
+	GradleBuildFile getBuildFile();
 }

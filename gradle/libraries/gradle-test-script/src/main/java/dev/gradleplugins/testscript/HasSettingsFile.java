@@ -16,9 +16,12 @@
 package dev.gradleplugins.testscript;
 
 import dev.gradleplugins.buildscript.blocks.SettingsBlock;
+import dev.gradleplugins.buildscript.io.GradleSettingsFile;
 
 import java.util.function.Consumer;
 
 public interface HasSettingsFile {
-	void settingsFile(Consumer<? super SettingsBlock.Builder> action);
+	void settingsFile(Consumer<? super SettingsBlock> action);
+
+	GradleSettingsFile getSettingsFile();
 }

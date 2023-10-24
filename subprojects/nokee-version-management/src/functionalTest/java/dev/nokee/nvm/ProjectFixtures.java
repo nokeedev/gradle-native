@@ -15,9 +15,7 @@
  */
 package dev.nokee.nvm;
 
-import dev.gradleplugins.buildscript.blocks.TaskBlock;
-import dev.gradleplugins.buildscript.statements.Statement;
-import dev.gradleplugins.buildscript.syntax.Syntax;
+import dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement;
 import dev.gradleplugins.testscript.HasFileSystem;
 import dev.gradleplugins.testscript.TestBuildSrc;
 import dev.gradleplugins.testscript.TestGradleBuild;
@@ -25,10 +23,16 @@ import dev.gradleplugins.testscript.TestIncludedBuild;
 
 import java.util.function.Consumer;
 
+import static dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression.call;
+import static dev.gradleplugins.buildscript.ast.statements.GradleBlockStatement.block;
+import static dev.gradleplugins.buildscript.syntax.Syntax.groovyDsl;
+import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
+import static dev.gradleplugins.buildscript.syntax.Syntax.string;
+
 public final class ProjectFixtures {
 	public static <T extends TestGradleBuild> Consumer<T> applyPluginUnderTest() {
 		return build -> {
-			build.settingsFile(settings -> settings.plugins(it -> it.id("dev.nokee.nokee-version-management")));
+			build.getSettingsFile().plugins(it -> it.id("dev.nokee.nokee-version-management"));
 		};
 	}
 
@@ -36,30 +40,35 @@ public final class ProjectFixtures {
 		return registerVerifyTask(__ -> {});
 	}
 
-	public static <T extends TestGradleBuild> Consumer<T> registerVerifyTask(Consumer<? super TaskBlock.Builder> action) {
+	public static <T extends TestGradleBuild> Consumer<T> registerVerifyTask(Consumer<? super GradleBlockStatement.BlockBuilder<?>> action) {
 		return it -> {
 			if (it instanceof TestBuildSrc) {
 				it.buildFile(project -> project.tasks(tasks -> {
-					tasks.register("verify", action);
-					tasks.named("build", task -> task.finalizedBy("verify"));
+					tasks.add(block(tasks.delegate().call("register", string("verify")), action));
+					tasks.add(block(tasks.delegate().call("named", string("build")),
+						(GradleBlockStatement.BlockBuilder<?> task) -> task.add(task.delegate().call("finalizedBy", string("verify")))));
 				}));
 			} else if (it instanceof TestIncludedBuild) {
 				((TestIncludedBuild) it).parentBuild(parent -> {
-					parent.buildFile(project -> project.tasks(tasks -> tasks.named("verify", task -> {
-						task.dependsOn("gradle.includedBuild(\"" + ((TestIncludedBuild) it).buildPath() + "\").task(\":verify\")");
-					})));
+					parent.buildFile(project -> project.tasks(tasks -> {
+						tasks.add(block(tasks.delegate().call("named", string("verify")), task -> {
+							task.add(groovyDsl("dependsOn(gradle.includedBuild(\"" + ((TestIncludedBuild) it).buildPath() + "\").task(\":verify\"))"));
+						}));
+					}));
 				});
-				it.buildFile(project -> project.tasks(tasks -> tasks.register("verify", action)));
+				it.buildFile(project -> project.tasks(tasks ->
+					tasks.add(block(tasks.delegate().call("register", string("verify")), action))));
 			} else {
-				it.buildFile(project -> project.tasks(tasks -> tasks.register("verify", action)));
+				it.buildFile(project -> project.tasks(tasks ->
+					tasks.add(block(tasks.delegate().call("register", string("verify")), action))));
 			}
 		};
 	}
 
-	public static <T extends TestGradleBuild> Consumer<T> configureVerifyTask(Consumer<? super TaskBlock.Builder> action) {
+	public static <T extends TestGradleBuild> Consumer<T> configureVerifyTask(Consumer<? super GradleBlockStatement.BlockBuilder<?>> action) {
 		return it -> {
 			it.buildFile(project -> project.tasks(tasks -> {
-				tasks.named("verify", action);
+				tasks.add(block(tasks.delegate().call("named", string("verify")), action));
 			}));
 		};
 	}
@@ -83,7 +92,7 @@ public final class ProjectFixtures {
 
 	public static Consumer<TestGradleBuild> applyAnyNokeePlugin() {
 		return build -> {
-			build.buildFile(project -> project.plugins(it -> it.id("dev.nokee.jni-library")));
+			build.getBuildFile().plugins(it -> it.id("dev.nokee.jni-library"));
 		};
 	}
 
@@ -140,9 +149,9 @@ public final class ProjectFixtures {
 		return configureVerifyTask(usesServiceUnderTest().andThen(resolveNokeeVersion()));
 	}
 
-	private static Consumer<TaskBlock.Builder> resolveNokeeVersion() {
+	private static Consumer<GradleBlockStatement.BlockBuilder<?>> resolveNokeeVersion() {
 		return builder -> {
-			builder.doLast(task -> task.add(Statement.expressionOf(Syntax.groovy("dev.nokee.nvm.NokeeVersionManagementService.fromBuild(gradle).get().version.toString()"))));
+			builder.add(block("doLast", task -> task.add(groovyDsl("dev.nokee.nvm.NokeeVersionManagementService.fromBuild(gradle).get().version.toString()"))));
 		};
 	}
 
@@ -150,17 +159,16 @@ public final class ProjectFixtures {
 		return it -> it.file(".nokee-version", version);
 	}
 
-	public static Consumer<TaskBlock.Builder> usesServiceUnderTest() {
+	public static Consumer<GradleBlockStatement.BlockBuilder<?>> usesServiceUnderTest() {
 		return builder -> {
-			builder.usesService("nokeeVersionManagement");
+			builder.add(call("usesService", groovyDsl("gradle.sharedServices.registrations.getByName(\"nokeeVersionManagement\").service")));
 		};
 	}
 
-	public static Consumer<TaskBlock.Builder> assertNokeeVersion(String version) {
+	public static Consumer<GradleBlockStatement.BlockBuilder<?>> assertNokeeVersion(String version) {
 		return builder -> {
-			builder.doLast(task -> task.add(Statement.expressionOf(Syntax.gradle(
-				"assert dev.nokee.nvm.NokeeVersionManagementService.fromBuild(gradle).get().version.toString() == '" + version + "'",
-				"assert(dev.nokee.nvm.NokeeVersionManagementService.fromBuild(gradle).get().version.toString() == \"" + version + "\")"
+			builder.add(block("doLast", task -> task.add(groovyDsl(
+				"assert dev.nokee.nvm.NokeeVersionManagementService.fromBuild(gradle).get().version.toString() == '" + version + "'"
 				))));
 		};
 	}

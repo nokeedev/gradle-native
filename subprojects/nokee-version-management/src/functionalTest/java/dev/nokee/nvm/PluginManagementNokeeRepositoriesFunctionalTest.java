@@ -15,6 +15,8 @@
  */
 package dev.nokee.nvm;
 
+import dev.gradleplugins.buildscript.io.GradleBuildFile;
+import dev.gradleplugins.buildscript.io.GradleSettingsFile;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
@@ -24,28 +26,30 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
-import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
+import static dev.gradleplugins.buildscript.syntax.Syntax.groovyDsl;
 import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class PluginManagementNokeeRepositoriesFunctionalTest {
 	@TestDirectory Path testDirectory;
 	GradleRunner executer;
+	GradleSettingsFile settingsFile;
+	GradleBuildFile buildFile;
 
 	@BeforeEach
-	void setup(GradleRunner runner) throws IOException {
+	void setup(GradleRunner runner) {
 		executer = runner;
-		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
+		settingsFile = GradleSettingsFile.inDirectory(testDirectory);
+		buildFile = GradleBuildFile.inDirectory(testDirectory);
+		settingsFile.plugins(it -> it.id("dev.nokee.nokee-version-management"));
 	}
 
 	@Test
 	void usesReleaseRepositoriesOnReleaseVersion() throws IOException {
 		writeVersionFileTo(testDirectory, "0.4.0");
-		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
+		buildFile.append(groovyDsl(
 			"tasks.register('verify') {",
 			"  doLast {",
 			"    assert gradle.settings.pluginManagement.repositories.any { it.url.toString() == 'https://repo.nokee.dev/release' }",
@@ -59,7 +63,7 @@ class PluginManagementNokeeRepositoriesFunctionalTest {
 	@Test
 	void usesSnapshotRepositoriesOnIntegrationVersion() throws IOException {
 		writeVersionFileTo(testDirectory, "0.4.2190-202205201507.5d969a1e");
-		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
+		buildFile.append(groovyDsl(
 			"tasks.register('verify') {",
 			"  doLast {",
 			"    assert !gradle.settings.pluginManagement.repositories.any { it.url.toString() == 'https://repo.nokee.dev/release' }",
@@ -73,7 +77,7 @@ class PluginManagementNokeeRepositoriesFunctionalTest {
 	@Test
 	void usesSnapshotRepositoriesOnSnapshotVersion() throws IOException {
 		writeVersionFileTo(testDirectory, "0.5.0-SNAPSHOT");
-		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
+		buildFile.append(groovyDsl(
 			"tasks.register('verify') {",
 			"  doLast {",
 			"    assert !gradle.settings.pluginManagement.repositories.any { it.url.toString() == 'https://repo.nokee.dev/release' }",

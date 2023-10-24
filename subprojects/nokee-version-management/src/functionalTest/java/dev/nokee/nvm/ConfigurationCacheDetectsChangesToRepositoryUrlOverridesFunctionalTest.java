@@ -98,14 +98,14 @@ class ConfigurationCacheDetectsChangesToRepositoryUrlOverridesFunctionalTest {
 		}
 
 		@Test
-		void reusesConfigurationCacheWhenOnlyReleaseRepositoryUrlOverrideChange() throws IOException {
+		void reusesConfigurationCacheWhenOnlyReleaseRepositoryUrlOverrideChange() {
 			assertThat(executer.withArgument("-Ddev.nokee.repository.release.url.override=https://my-company.com/release").build(), configurationCache(reused()));
 		}
 
 		@Test
-		void doesNotReuseConfigurationCacheWhenRepositoryUrlOverrideChange() throws IOException {
+		void doesNotReuseConfigurationCacheWhenRepositoryUrlOverrideChange() {
 			// We fake a change to the repo by appending an additional slash. In theory, this should not be a meaningful change.
-			assertThat(executer.withArgument("-Ddev.nokee.repository.snapshot.url.override=https://repo-snapshot.nokeedev.net/").build(), configurationCache(recalculated()));
+			assertThat(executer.withoutDeprecationChecks().withArgument("-Ddev.nokee.repository.snapshot.url.override=https://repo-snapshot.nokeedev.net/").build(), configurationCache(recalculated()));
 		}
 	}
 }

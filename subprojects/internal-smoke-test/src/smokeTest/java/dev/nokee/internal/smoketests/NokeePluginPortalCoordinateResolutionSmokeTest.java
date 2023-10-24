@@ -16,7 +16,7 @@
 package dev.nokee.internal.smoketests;
 
 import dev.gradleplugins.buildscript.blocks.ProjectBlock;
-import dev.gradleplugins.buildscript.blocks.RepositoriesBlock;
+import dev.gradleplugins.buildscript.io.GradleBuildFile;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import lombok.val;
@@ -26,7 +26,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
+import static dev.gradleplugins.buildscript.blocks.ArtifactRepositoryStatements.gradlePluginPortal;
+import static dev.gradleplugins.buildscript.syntax.Syntax.groovyDsl;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
@@ -37,7 +40,7 @@ class NokeePluginPortalCoordinateResolutionSmokeTest {
 	@ParameterizedTest(name = "can use Gradle module metadata during resolution from plugin.gradle.org/m2 [{arguments}]")
 	@ValueSource(strings = {"0.3.0", "0.4.0"}) // only since 0.3.0
 	void canUseGradleModuleMetadataDuringResolution(String nokeeVersion) throws IOException {
-		createProject(nokeeVersion).writeTo(testDirectory.resolve("build.gradle"));
+		GradleBuildFile.inDirectory(testDirectory).configure(createProject(nokeeVersion));
 		val result = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(testDirectory)
 			.withArguments("dependencyInsight", "--configuration", "pluginClasspath", "--dependency",
 				"dev.nokee:platformJni:" + nokeeVersion, "--refresh-dependencies")
@@ -58,12 +61,14 @@ class NokeePluginPortalCoordinateResolutionSmokeTest {
 			)));
 	}
 
-	static ProjectBlock createProject(String version) {
-		return ProjectBlock.builder()
-			.repositories(RepositoriesBlock.Builder::gradlePluginPortal)
-			.configurations(it -> it.withConfiguration("pluginClasspath",
-				config -> config.canBeConsumed(false).canBeResolved(true)))
-			.dependencies(it -> it.add("pluginClasspath", "dev.nokee:platformJni:" + version))
-			.build();
+	static Consumer<ProjectBlock> createProject(String version) {
+		return project -> project
+			.repositories(it -> it.add(gradlePluginPortal()))
+			.configurations(it -> it.add(groovyDsl(
+				"pluginClasspath {",
+				"  canBeConsumed = false",
+				"  canBeResolved = true",
+				"}")))
+			.dependencies(it -> it.add("pluginClasspath", "dev.nokee:platformJni:" + version));
 	}
 }
