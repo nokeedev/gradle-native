@@ -15,10 +15,10 @@
  */
 package dev.nokee.nvm;
 
+import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
-import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.gradleplugins.testscript.TestLayout;
-import lombok.val;
+import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	@Test
 	void doesNotLoadVersionFromRemoteServiceWhenOffline(GradleRunner runner) throws IOException {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
-		val result = runner.withArgument(whereCurrentReleaseIs("0.0.0")).withArgument("--offline")
+		final BuildResult result = runner.withArgument(whereCurrentReleaseIs("0.0.0")).withArgument("--offline")
 			.withTasks("verify").buildAndFail();
 		assertThat(result.getOutput(), containsString("Please add the Nokee version to use in a .nokee-version file."));
 	}
@@ -61,21 +61,21 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	@Test
 	void doesNotLoadVersionFromRemoteServiceWhenMalformed(GradleRunner runner) throws IOException {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
-		val result = runner.withArgument(whereCurrentReleaseIsMalformed()).withTasks("verify").buildAndFail();
+		final BuildResult result = runner.withArgument(whereCurrentReleaseIsMalformed()).withTasks("verify").buildAndFail();
 		assertThat(result.getOutput(), containsString("Please add the Nokee version to use in a .nokee-version file."));
 	}
 
 	@Test
 	void doesNotLoadVersionFromRemoteServiceWhenUnavailable(GradleRunner runner) {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
-		val result = runner.withArgument(whereCurrentReleaseIsUnavailable()).withTasks("verify").buildAndFail();
+		final BuildResult result = runner.withArgument(whereCurrentReleaseIsUnavailable()).withTasks("verify").buildAndFail();
 		assertThat(result.getOutput(), containsString("Please add the Nokee version to use in a .nokee-version file."));
 	}
 
 	@Test
 	void doesNotLoadVersionFromRemoteServiceWhenNokeeBuildIsChildOfNonNokeeBuildRegardlessOfNetworkStatus(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNonNokeeBuild(TestLayout.newBuild(testDirectory)).childBuild(resolveVersion());
-		val executer = runner.withArgument(whereCurrentReleaseIs("0.6.9")).withTasks("verify");
+		final GradleRunner executer = runner.withArgument(whereCurrentReleaseIs("0.6.9")).withTasks("verify");
 		assertAll(
 			() -> assertThat(executer.buildAndFail().getOutput(),
 				containsString("Please add the Nokee version to use in a .nokee-version file.")),
@@ -104,7 +104,7 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	void doesNotLoadVersionFromRemoteServiceWhenOfflineByIgnoringMissingVersionFileInBothBuilds(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
 			.childBuild(resolveVersion());
-		val result = runner.withArgument(whereCurrentReleaseIs("0.0.0")).withArgument("--offline")
+		final BuildResult result = runner.withArgument(whereCurrentReleaseIs("0.0.0")).withArgument("--offline")
 			.withTasks("verify").buildAndFail();
 		assertThat(result.getOutput(), containsString("Please add the Nokee version to use in a .nokee-version file."));
 	}
@@ -113,7 +113,7 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	void doesNotLoadVersionFromRemoteServiceWhenOfflineByIgnoringCurrentBuildVersionFileAndMissingParentVersionFile(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
 			.childBuild(withVersion("2.1.1").andThen(resolveVersion()));
-		val result = runner.withArgument(whereCurrentReleaseIs("0.0.0")).withArgument("--offline")
+		final BuildResult result = runner.withArgument(whereCurrentReleaseIs("0.0.0")).withArgument("--offline")
 			.withTasks("verify").buildAndFail();
 		assertThat(result.getOutput(), containsString("Please add the Nokee version to use in a .nokee-version file."));
 	}
@@ -123,13 +123,13 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	}
 
 	private String whereCurrentReleaseIsMalformed() throws IOException {
-		val path = testDirectory.resolve("current-malformed.json");
+		final Path path = testDirectory.resolve("current-malformed.json");
 		Files.write(path, "malformed!!".getBytes(StandardCharsets.UTF_8));
 		return "-Ddev.nokee.internal.currentRelease.url=" + path.toFile().toURI();
 	}
 
 	private String whereCurrentReleaseIsUnavailable() {
-		val path = testDirectory.resolve("current-unavailable.json");
+		final Path path = testDirectory.resolve("current-unavailable.json");
 		return "-Ddev.nokee.internal.currentRelease.url=" + path.toFile().toURI();
 	}
 }

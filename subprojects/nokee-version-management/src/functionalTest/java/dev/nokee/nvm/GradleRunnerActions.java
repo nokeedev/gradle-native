@@ -17,14 +17,13 @@ package dev.nokee.nvm;
 
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
-import lombok.val;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 public final class GradleRunnerActions {
 	public static BuildResult warmConfigurationCache(GradleRunner runner) {
-		val result = runner.build();
+		final BuildResult result = runner.build();
 		assertThat("expecting the configuration cache to be stored", result.getOutput(), containsString("Configuration cache entry stored."));
 		return result;
 	}

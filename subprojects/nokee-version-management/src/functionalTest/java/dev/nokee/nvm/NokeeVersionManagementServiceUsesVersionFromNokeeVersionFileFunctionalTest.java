@@ -15,10 +15,10 @@
  */
 package dev.nokee.nvm;
 
+import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
-import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.gradleplugins.testscript.TestLayout;
-import lombok.val;
+import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.Disabled;
@@ -73,7 +73,7 @@ class NokeeVersionManagementServiceUsesVersionFromNokeeVersionFileFunctionalTest
 	@Disabled
 	void warnsWhenVersionIsInVersionFileInsideNonNokeeRootBuild(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNonNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(withVersion("4.5.6")).childBuild(resolveVersion());
-		val result = runner.withTasks("verify").buildAndFail();
+		final BuildResult result = runner.withTasks("verify").buildAndFail();
 		assertThat(result.getOutput(), containsString("It looks like Nokee version is declared in .nokee-version of a non-Nokee enabled build. Please apply 'dev.nokee.nokee-version-management' plugin to '/a/b/c/settings.gradle'."));
 	}
 }
