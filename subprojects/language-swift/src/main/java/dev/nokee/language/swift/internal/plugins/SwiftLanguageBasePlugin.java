@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
@@ -42,6 +43,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
@@ -54,6 +56,7 @@ import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
@@ -64,6 +67,13 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
+
+		sources(project).registerFactory(SwiftSourceSetSpec.class, new ModelObjectFactory<SwiftSourceSetSpec>(project, IsLanguageSourceSet.class) {
+			@Override
+			protected SwiftSourceSetSpec doCreate(String name) {
+				return project.getObjects().newInstance(SwiftSourceSetSpec.class);
+			}
+		});
 
 		DefaultImporter.forProject(project).defaultImport(SwiftSourceSet.class);
 

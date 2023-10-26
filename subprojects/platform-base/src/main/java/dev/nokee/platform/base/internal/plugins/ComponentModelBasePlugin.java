@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.capabilities.variants.CreateVariantsRule;
+import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
 import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
 import dev.nokee.model.internal.buffers.ModelBuffers;
@@ -35,6 +36,7 @@ import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -44,6 +46,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BinaryView;
@@ -67,18 +70,26 @@ import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentContainerAdapter;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.IsTask;
+import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskCapabilityPlugin;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryCapability;
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantCapability;
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
@@ -88,6 +99,7 @@ import dev.nokee.platform.base.internal.project.ProjectCapabilityPlugin;
 import dev.nokee.platform.base.internal.project.ProjectProjectionComponent;
 import dev.nokee.platform.base.internal.tasks.TaskCapabilityPlugin;
 import lombok.val;
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -102,10 +114,33 @@ import java.util.function.Supplier;
 import static com.google.common.base.Suppliers.ofInstance;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
+	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>> COMPONENT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>>() {};
+	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Variant>> VARIANT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Variant>>() {};
+	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<DependencyBucket>> DEPENDENCY_BUCKET_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<DependencyBucket>>() {};
+	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Artifact>> ARTIFACT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Artifact>>() {};
+
+	public static ExtensiblePolymorphicDomainObjectContainer<Component> components(Project project) {
+		return project.getExtensions().getByType(COMPONENT_CONTAINER_TYPE);
+	}
+
+	public static ExtensiblePolymorphicDomainObjectContainer<Variant> variants(Project project) {
+		return project.getExtensions().getByType(VARIANT_CONTAINER_TYPE);
+	}
+
+	public static ExtensiblePolymorphicDomainObjectContainer<DependencyBucket> dependencyBuckets(Project project) {
+		return project.getExtensions().getByType(DEPENDENCY_BUCKET_CONTAINER_TYPE);
+	}
+
+	public static ExtensiblePolymorphicDomainObjectContainer<Artifact> artifacts(Project project) {
+		return project.getExtensions().getByType(ARTIFACT_CONTAINER_TYPE);
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
@@ -118,6 +153,47 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelLookup.class).get(root()).addComponent(new ProjectProjectionComponent(project));
 
 		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory());
+
+		project.getExtensions().add(COMPONENT_CONTAINER_TYPE, "$components", project.getObjects().polymorphicDomainObjectContainer(Component.class));
+		project.getExtensions().add(VARIANT_CONTAINER_TYPE, "$variants", project.getObjects().polymorphicDomainObjectContainer(Variant.class));
+		project.getExtensions().add(DEPENDENCY_BUCKET_CONTAINER_TYPE, "$dependencyBuckets", project.getObjects().polymorphicDomainObjectContainer(DependencyBucket.class));
+		project.getExtensions().add(ARTIFACT_CONTAINER_TYPE, "$artifacts", project.getObjects().polymorphicDomainObjectContainer(Artifact.class));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, mainProjection, ignored, name) -> {
+			final Class<Component> componentType = (Class<Component>) mainProjection.getProjectionType();
+			entity.addComponent(createdUsingNoInject(ModelType.of(componentType), registerIfAbsent(components(project), name.get().toString(), componentType)::get));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, mainProjection, ignored, name) -> {
+			final Class<Binary> binaryType = (Class<Binary>) mainProjection.getProjectionType();
+			entity.addComponent(createdUsingNoInject(ModelType.of(binaryType), registerIfAbsent(artifacts(project), name.get().toString(), binaryType)::get));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf(IsVariant.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, mainProjection, ignored, name) -> {
+			final Class<Variant> variantType = (Class<Variant>) mainProjection.getProjectionType();
+			entity.addComponent(createdUsingNoInject(ModelType.of(variantType), registerIfAbsent(variants(project), name.get().toString(), variantType)::get));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, mainProjection, ignored, name) -> {
+			final Class<DependencyBucket> bucketType = (Class<DependencyBucket>) mainProjection.getProjectionType();
+			entity.addComponent(createdUsingNoInject(ModelType.of(bucketType), registerIfAbsent(dependencyBuckets(project), name.get().toString(), bucketType)::get));
+		}));
+
+		dependencyBuckets(project).registerFactory(ConsumableDependencyBucketSpec.class, new ModelObjectFactory<ConsumableDependencyBucketSpec>(project, IsDependencyBucket.class) {
+			@Override
+			protected ConsumableDependencyBucketSpec doCreate(String name) {
+				return project.getObjects().newInstance(ConsumableDependencyBucketSpec.class);
+			}
+		});
+		dependencyBuckets(project).registerFactory(ResolvableDependencyBucketSpec.class, new ModelObjectFactory<ResolvableDependencyBucketSpec>(project, IsDependencyBucket.class) {
+			@Override
+			protected ResolvableDependencyBucketSpec doCreate(String name) {
+				return project.getObjects().newInstance(ResolvableDependencyBucketSpec.class);
+			}
+		});
+		dependencyBuckets(project).registerFactory(DeclarableDependencyBucketSpec.class, new ModelObjectFactory<DeclarableDependencyBucketSpec>(project, IsDependencyBucket.class) {
+			@Override
+			protected DeclarableDependencyBucketSpec doCreate(String name) {
+				return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class);
+			}
+		});
 
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 		project.getPluginManager().apply(TaskCapabilityPlugin.class);

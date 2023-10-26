@@ -20,10 +20,9 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.MainProjectionComponent;
 import lombok.val;
 
-import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 
 public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
@@ -33,7 +32,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.withComponentTag(ConfigurableTag.class)
 			.withComponentTag(JniLibraryComponentTag.class)
 			.mergeFrom(tagsOf(JniLibraryComponentInternal.class))
-			.withComponent(managed(of(JniLibraryComponentInternal.class)))
+			.withComponent(new MainProjectionComponent(JniLibraryComponentInternal.class))
 			;
 
 		if (identifier.isMainComponent()) {

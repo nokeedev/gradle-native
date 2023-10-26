@@ -18,6 +18,7 @@ package dev.nokee.platform.jni.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
@@ -75,6 +76,7 @@ import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskComponent;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -158,6 +160,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
@@ -170,6 +173,8 @@ import static dev.nokee.model.internal.state.ModelStates.realize;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
@@ -195,10 +200,41 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
+		sources(project).registerFactory(GroovySourceSetSpec.class, new ModelObjectFactory<GroovySourceSetSpec>(project, IsLanguageSourceSet.class) {
+			@Override
+			protected GroovySourceSetSpec doCreate(String name) {
+				return project.getObjects().newInstance(GroovySourceSetSpec.class);
+			}
+		});
+		sources(project).registerFactory(JavaSourceSetSpec.class, new ModelObjectFactory<JavaSourceSetSpec>(project, IsLanguageSourceSet.class) {
+			@Override
+			protected JavaSourceSetSpec doCreate(String name) {
+				return project.getObjects().newInstance(JavaSourceSetSpec.class);
+			}
+		});
+		sources(project).registerFactory(KotlinSourceSetSpec.class, new ModelObjectFactory<KotlinSourceSetSpec>(project, IsLanguageSourceSet.class) {
+			@Override
+			protected KotlinSourceSetSpec doCreate(String name) {
+				return project.getObjects().newInstance(KotlinSourceSetSpec.class);
+			}
+		});
+		artifacts(project).registerFactory(ModelBackedJniJarBinary.class, new ModelObjectFactory<ModelBackedJniJarBinary>(project, IsBinary.class) {
+			@Override
+			protected ModelBackedJniJarBinary doCreate(String name) {
+				return new ModelBackedJniJarBinary();
+			}
+		});
+		artifacts(project).registerFactory(ModelBackedJvmJarBinary.class, new ModelObjectFactory<ModelBackedJvmJarBinary>(project, IsBinary.class) {
+			@Override
+			protected ModelBackedJvmJarBinary doCreate(String name) {
+				return new ModelBackedJvmJarBinary();
+			}
+		});
+
 		project.getExtensions().add("__nokee_jniJarBinaryFactory", new JniJarBinaryRegistrationFactory());
 		project.getExtensions().add("__nokee_jvmJarBinaryFactory", new JvmJarBinaryRegistrationFactory());
 		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory());
-		project.getExtensions().add("__nokee_jniLibraryVariantFactory", new JavaNativeInterfaceLibraryVariantRegistrationFactory(project.getObjects()));
+		project.getExtensions().add("__nokee_jniLibraryVariantFactory", new JavaNativeInterfaceLibraryVariantRegistrationFactory());
 
 		// Component rules
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, tag) -> {
@@ -333,7 +369,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			runtimeElements.addAll(values);
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, identifier, elementName, projection, variants) -> {
-			val variantFactory = new JavaNativeInterfaceLibraryVariantRegistrationFactory(project.getObjects());
+			val variantFactory = new JavaNativeInterfaceLibraryVariantRegistrationFactory();
 			val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
 
 			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {

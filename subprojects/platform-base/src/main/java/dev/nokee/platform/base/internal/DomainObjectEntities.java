@@ -19,13 +19,11 @@ import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
 import lombok.val;
@@ -106,7 +104,7 @@ public final class DomainObjectEntities {
 			//   The executor has some support specifically for ModelProjection.
 			//   However, it lacks support for executing a rule for multiple ModelProjection after the fact,
 			//   i.e. once the other inputs, say ConfigurableTag, matches.
-			builder.withComponent(ModelProjections.managed(ModelType.of(type)));
+			builder.withComponent(new MainProjectionComponent(type));
 		}
 		return builder.build();
 	}

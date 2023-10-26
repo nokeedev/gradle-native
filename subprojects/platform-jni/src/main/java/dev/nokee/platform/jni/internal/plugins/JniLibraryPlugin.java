@@ -23,6 +23,7 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
+import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -31,10 +32,14 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.IncompatiblePluginUsage;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
+import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import lombok.AccessLevel;
@@ -60,6 +65,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.CURRENT_MODEL_PLUGIN_IDS;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_APPLICATION_PLUGIN_ID;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_LIBRARY_PLUGIN_ID;
@@ -107,6 +114,19 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("dev.nokee.jni-library-base");
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
+
+		components(project).registerFactory(JniLibraryComponentInternal.class, new ModelObjectFactory<JniLibraryComponentInternal>(project, IsComponent.class) {
+			@Override
+			protected JniLibraryComponentInternal doCreate(String name) {
+				return project.getObjects().newInstance(JniLibraryComponentInternal.class);
+			}
+		});
+		variants(project).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
+			@Override
+			protected JniLibraryInternal doCreate(String name) {
+				return project.getObjects().newInstance(JniLibraryInternal.class);
+			}
+		});
 
 		val extension = registerExtension(project);
 

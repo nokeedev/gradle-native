@@ -37,6 +37,7 @@ import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
@@ -80,6 +81,7 @@ import org.gradle.api.provider.SetProperty;
 
 import java.util.Collections;
 
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
@@ -96,6 +98,13 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+
+		sources(project).registerFactory(IosResourceSetSpec.class, new ModelObjectFactory<IosResourceSetSpec>() {
+			@Override
+			protected IosResourceSetSpec doCreate(String name) {
+				return project.getObjects().newInstance(IosResourceSetSpec.class);
+			}
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, identifier, tag, fullyQualifiedName) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);

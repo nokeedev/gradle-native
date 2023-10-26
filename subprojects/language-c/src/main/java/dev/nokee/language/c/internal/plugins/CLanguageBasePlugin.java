@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.CSourceSetTag;
@@ -48,6 +49,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
@@ -59,6 +61,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
@@ -70,6 +73,13 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
+
+		sources(project).registerFactory(CSourceSetSpec.class, new ModelObjectFactory<CSourceSetSpec>(project, IsLanguageSourceSet.class) {
+			@Override
+			protected CSourceSetSpec doCreate(String name) {
+				return project.getObjects().newInstance(CSourceSetSpec.class);
+			}
+		});
 
 		DefaultImporter.forProject(project)
 			.defaultImport(CSourceSet.class);

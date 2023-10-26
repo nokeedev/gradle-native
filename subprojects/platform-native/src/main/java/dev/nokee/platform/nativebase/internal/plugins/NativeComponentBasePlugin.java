@@ -33,6 +33,7 @@ import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -67,6 +68,8 @@ import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskComponent;
@@ -128,6 +131,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDepen
 import dev.nokee.platform.nativebase.internal.linking.LinkLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
@@ -170,6 +174,8 @@ import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
@@ -192,18 +198,75 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			entity.addComponent(new DependencyDefaultActionComponent(new RequestFrameworkAction(project.getObjects())));
 		}));
 
-		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory(
-			project.getObjects()
-		));
-		project.getExtensions().add("__nokee_staticLibraryFactory", new StaticLibraryBinaryRegistrationFactory(
-			project.getObjects()
-		));
-		project.getExtensions().add("__nokee_executableFactory", new ExecutableBinaryRegistrationFactory(
-			project.getObjects()
-		));
-		project.getExtensions().add("__nokee_bundleFactory", new BundleBinaryRegistrationFactory(
-			project.getObjects()
-		));
+		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory());
+		project.getExtensions().add("__nokee_staticLibraryFactory", new StaticLibraryBinaryRegistrationFactory());
+		project.getExtensions().add("__nokee_executableFactory", new ExecutableBinaryRegistrationFactory());
+		project.getExtensions().add("__nokee_bundleFactory", new BundleBinaryRegistrationFactory());
+
+		artifacts(project).registerFactory(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class, new ModelObjectFactory<SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary>(project, IsBinary.class) {
+			@Override
+			protected SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary doCreate(String name) {
+				return new SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary(project.getObjects());
+			}
+		});
+		artifacts(project).registerFactory(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class, new ModelObjectFactory<StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary>(project, IsBinary.class) {
+			@Override
+			protected StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary doCreate(String name) {
+				return new StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary(project.getObjects());
+			}
+		});
+		artifacts(project).registerFactory(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class, new ModelObjectFactory<ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary>(project, IsBinary.class) {
+			@Override
+			protected ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary doCreate(String name) {
+				return new ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary(project.getObjects());
+			}
+		});
+		artifacts(project).registerFactory(BundleBinaryRegistrationFactory.ModelBackedBundleBinary.class, new ModelObjectFactory<BundleBinaryRegistrationFactory.ModelBackedBundleBinary>(project, IsBinary.class) {
+			@Override
+			protected BundleBinaryRegistrationFactory.ModelBackedBundleBinary doCreate(String name) {
+				return new BundleBinaryRegistrationFactory.ModelBackedBundleBinary(project.getObjects());
+			}
+		});
+		artifacts(project).registerFactory(SharedLibraryBinaryInternal.class, new ModelObjectFactory<SharedLibraryBinaryInternal>(project, IsBinary.class) {
+			@Override
+			protected SharedLibraryBinaryInternal doCreate(String name) {
+				return project.getObjects().newInstance(SharedLibraryBinaryInternal.class);
+			}
+		});
+		artifacts(project).registerFactory(BundleBinaryInternal.class, new ModelObjectFactory<BundleBinaryInternal>(project, IsBinary.class) {
+			@Override
+			protected BundleBinaryInternal doCreate(String name) {
+				return project.getObjects().newInstance(BundleBinaryInternal.class);
+			}
+		});
+		artifacts(project).registerFactory(ExecutableBinaryInternal.class, new ModelObjectFactory<ExecutableBinaryInternal>(project, IsBinary.class) {
+			@Override
+			protected ExecutableBinaryInternal doCreate(String name) {
+				return project.getObjects().newInstance(ExecutableBinaryInternal.class);
+			}
+		});
+		artifacts(project).registerFactory(StaticLibraryBinaryInternal.class, new ModelObjectFactory<StaticLibraryBinaryInternal>(project, IsBinary.class) {
+			@Override
+			protected StaticLibraryBinaryInternal doCreate(String name) {
+				return project.getObjects().newInstance(StaticLibraryBinaryInternal.class);
+			}
+		});
+		variants(project).registerFactory(DefaultNativeApplicationVariant.class, new ModelObjectFactory<DefaultNativeApplicationVariant>(project, IsVariant.class) {
+			@Override
+			protected DefaultNativeApplicationVariant doCreate(String name) {
+				val result = project.getObjects().newInstance(DefaultNativeApplicationVariant.class);
+				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+				return result;
+			}
+		});
+		variants(project).registerFactory(DefaultNativeLibraryVariant.class, new ModelObjectFactory<DefaultNativeLibraryVariant>(project, IsVariant.class) {
+			@Override
+			protected DefaultNativeLibraryVariant doCreate(String name) {
+				val result = project.getObjects().newInstance(DefaultNativeLibraryVariant.class);
+				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+				return result;
+			}
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HeaderSearchPathsConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headerSearchPaths, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);

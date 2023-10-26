@@ -68,6 +68,7 @@ import static dev.nokee.model.internal.core.ModelPropertyRegistrationFactory.set
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
 import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsDeclarable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsResolvable;

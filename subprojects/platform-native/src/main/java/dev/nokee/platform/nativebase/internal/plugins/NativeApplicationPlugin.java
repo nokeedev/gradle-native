@@ -33,12 +33,15 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
@@ -53,8 +56,6 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareCompo
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
-import dev.nokee.runtime.nativebase.BinaryLinkage;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -64,10 +65,9 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
@@ -87,6 +87,14 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
+
+		components(project).registerFactory(DefaultNativeApplicationExtension.class, new ModelObjectFactory<DefaultNativeApplicationExtension>(project, IsComponent.class) {
+			@Override
+			protected DefaultNativeApplicationExtension doCreate(String name) {
+				return project.getObjects().newInstance(DefaultNativeApplicationExtension.class);
+			}
+		});
+
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(nativeApplication("main", project)).as(NativeApplicationExtension.class);
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
@@ -109,11 +117,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponentTag(NativeVariantTag.class)
 			.mergeFrom(tagsOf(DefaultNativeApplicationVariant.class))
-			.withComponent(createdUsing(of(DefaultNativeApplicationVariant.class), () -> {
-				val result = project.getObjects().newInstance(DefaultNativeApplicationVariant.class);
-				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
-				return result;
-			}))
+			.withComponent(new MainProjectionComponent(DefaultNativeApplicationVariant.class))
 			.build()
 			;
 	}

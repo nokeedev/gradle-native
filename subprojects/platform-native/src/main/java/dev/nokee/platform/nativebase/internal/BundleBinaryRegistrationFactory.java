@@ -29,6 +29,7 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.BundleBinary;
@@ -49,24 +50,16 @@ import org.gradle.api.tasks.TaskProvider;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class BundleBinaryRegistrationFactory {
-	private final ObjectFactory objectFactory;
-
-	public BundleBinaryRegistrationFactory(ObjectFactory objectFactory) {
-		this.objectFactory = objectFactory;
-	}
-
 	public ModelRegistration create(BinaryIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponentTag(IsBinary.class)
 			.withComponentTag(ConfigurableTag.class)
 			.withComponentTag(NativeLanguageSourceSetAwareTag.class)
-			.withComponent(createdUsing(of(ModelBackedBundleBinary.class), () -> new ModelBackedBundleBinary(objectFactory)))
+			.withComponent(new MainProjectionComponent(ModelBackedBundleBinary.class))
 			.build();
 	}
 

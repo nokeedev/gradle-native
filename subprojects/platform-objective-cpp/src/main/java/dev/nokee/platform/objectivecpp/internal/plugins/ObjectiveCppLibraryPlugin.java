@@ -33,12 +33,14 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -61,6 +63,7 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
@@ -80,6 +83,14 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
+
+		components(project).registerFactory(DefaultObjectiveCppLibrary.class, new ModelObjectFactory<DefaultObjectiveCppLibrary>(project, IsComponent.class) {
+			@Override
+			protected DefaultObjectiveCppLibrary doCreate(String name) {
+				return project.getObjects().newInstance(DefaultObjectiveCppLibrary.class);
+			}
+		});
+
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCppLibrary("main", project)).as(ObjectiveCppLibrary.class);
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
