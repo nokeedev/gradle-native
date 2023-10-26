@@ -31,7 +31,6 @@ import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -40,14 +39,12 @@ import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
-import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.plugins.DomainObjectRegistration;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
 import lombok.val;
@@ -61,7 +58,6 @@ import java.lang.reflect.ParameterizedType;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 
 public class LanguageBasePlugin implements Plugin<Project> {
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>> LANGUAGE_SOURCE_SET_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>>() {};
@@ -76,10 +72,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 
 		project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "$sources", project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf(IsLanguageSourceSet.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, mainProjection, ignored, name) -> {
-			final Class<LanguageSourceSet> bucketType = (Class<LanguageSourceSet>) mainProjection.getProjectionType();
-			entity.addComponent(createdUsing(ModelType.of(bucketType), registerIfAbsent(sources(project), name.get().toString(), bucketType)::get));
-		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<LanguageSourceSet>(IsLanguageSourceSet.class, sources(project)));
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 

@@ -36,7 +36,6 @@ import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -114,10 +113,8 @@ import java.util.function.Supplier;
 import static com.google.common.base.Suppliers.ofInstance;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>> COMPONENT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>>() {};
@@ -159,22 +156,14 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(DEPENDENCY_BUCKET_CONTAINER_TYPE, "$dependencyBuckets", project.getObjects().polymorphicDomainObjectContainer(DependencyBucket.class));
 		project.getExtensions().add(ARTIFACT_CONTAINER_TYPE, "$artifacts", project.getObjects().polymorphicDomainObjectContainer(Artifact.class));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, mainProjection, ignored, name) -> {
-			final Class<Component> componentType = (Class<Component>) mainProjection.getProjectionType();
-			entity.addComponent(createdUsingNoInject(ModelType.of(componentType), registerIfAbsent(components(project), name.get().toString(), componentType)::get));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, mainProjection, ignored) -> {
+			ModelNodeUtils.get(entity, mainProjection.getProjectionType()); // realize provider
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, mainProjection, ignored, name) -> {
-			final Class<Binary> binaryType = (Class<Binary>) mainProjection.getProjectionType();
-			entity.addComponent(createdUsingNoInject(ModelType.of(binaryType), registerIfAbsent(artifacts(project), name.get().toString(), binaryType)::get));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf(IsVariant.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, mainProjection, ignored, name) -> {
-			final Class<Variant> variantType = (Class<Variant>) mainProjection.getProjectionType();
-			entity.addComponent(createdUsingNoInject(ModelType.of(variantType), registerIfAbsent(variants(project), name.get().toString(), variantType)::get));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, mainProjection, ignored, name) -> {
-			final Class<DependencyBucket> bucketType = (Class<DependencyBucket>) mainProjection.getProjectionType();
-			entity.addComponent(createdUsingNoInject(ModelType.of(bucketType), registerIfAbsent(dependencyBuckets(project), name.get().toString(), bucketType)::get));
-		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Component>(IsComponent.class, components(project)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Binary>(IsBinary.class, artifacts(project)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Variant>(IsVariant.class, variants(project)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<DependencyBucket>(IsDependencyBucket.class, dependencyBuckets(project)));
 
 		dependencyBuckets(project).registerFactory(ConsumableDependencyBucketSpec.class, new ModelObjectFactory<ConsumableDependencyBucketSpec>(project, IsDependencyBucket.class) {
 			@Override
