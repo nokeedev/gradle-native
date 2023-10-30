@@ -17,11 +17,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
-import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.artifacts.Configuration;
+import dev.nokee.platform.base.internal.dependencies.ConfigurationComponent;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.provider.Provider;
 
@@ -36,11 +32,11 @@ public final class RuntimeElementsConfiguration implements ModelComponent {
 	}
 
 	public void add(Object notation) {
-		ModelNodeUtils.get(entity, ModelType.of(new TypeOf<NamedDomainObjectProvider<Configuration>>() {})).configure(configuration -> configuration.getOutgoing().artifact(notation));
+		entity.get(ConfigurationComponent.class).configure(configuration -> configuration.getOutgoing().artifact(notation));
 	}
 
 	public void addAll(Provider<? extends Iterable<PublishArtifact>> values) {
-		ModelNodeUtils.get(entity, ModelType.of(new TypeOf<NamedDomainObjectProvider<Configuration>>() {})).configure(configuration -> configuration.getOutgoing().getArtifacts().addAllLater(values));
+		entity.get(ConfigurationComponent.class).configure(configuration -> configuration.getOutgoing().getArtifacts().addAllLater(values));
 	}
 
 	public ModelNode get() {

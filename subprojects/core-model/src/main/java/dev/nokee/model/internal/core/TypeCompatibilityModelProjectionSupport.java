@@ -35,7 +35,7 @@ public abstract class TypeCompatibilityModelProjectionSupport<M> implements Mode
 
 	@Override
 	public <T> boolean canBeViewedAs(ModelType<T> type) {
-		return type.isAssignableFrom(this.type);
+		return type.isSupertypeOf(this.type);
 	}
 
 	@Override

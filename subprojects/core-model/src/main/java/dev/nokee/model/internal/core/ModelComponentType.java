@@ -86,11 +86,15 @@ public abstract class ModelComponentType<T> implements Component.Id {
 		return (ModelComponentType<T>) knownComponentTypes.computeIfAbsent(type, COMPUTE_COMPONENT_TYPE);
 	}
 
-	private static final Function<Type, ModelComponentType<?>> COMPUTE_PROJECTION_TYPE = t -> new ProjectionType<>((Class<?>) t);
+	private static final Function<Type, ModelComponentType<?>> COMPUTE_PROJECTION_TYPE = t -> new ProjectionType<>(ModelType.of(t));
 
 	public static <T> ModelComponentType<ModelProjection> projectionOf(Class<T> type) {
+		return projectionOf(ModelType.of(type));
+	}
+
+	public static <T> ModelComponentType<ModelProjection> projectionOf(ModelType<T> type) {
 		Objects.requireNonNull(type);
-		return (ModelComponentType<ModelProjection>) knownComponentTypes.computeIfAbsent(type, COMPUTE_PROJECTION_TYPE);
+		return (ModelComponentType<ModelProjection>) knownComponentTypes.computeIfAbsent(type.getType(), COMPUTE_PROJECTION_TYPE);
 	}
 
 	private static int id = 0;
@@ -140,9 +144,9 @@ public abstract class ModelComponentType<T> implements Component.Id {
 	}
 
 	private static class ProjectionType<T> extends ModelComponentType<ModelProjection> {
-		private final Class<T> value;
+		private final ModelType<T> value;
 
-		private ProjectionType(Class<T> value) {
+		private ProjectionType(ModelType<T> value) {
 			this.value = value;
 		}
 
@@ -156,17 +160,17 @@ public abstract class ModelComponentType<T> implements Component.Id {
 
 		@Override
 		public Bits familyBits() {
-			return componentFamilyBits(value).or(componentBits(ModelProjection.class));
+			return componentFamilyBits(value.getType()).or(componentBits(ModelProjection.class));
 		}
 
 		@Override
 		public Bits bits() {
-			return componentBits(value).or(componentBits(ModelProjection.class));
+			return componentBits(value.getType()).or(componentBits(ModelProjection.class));
 		}
 
 		@Override
 		public String toString() {
-			return "projection of " + value.getSimpleName();
+			return "projection of " + value.getType().getTypeName();
 		}
 	}
 }

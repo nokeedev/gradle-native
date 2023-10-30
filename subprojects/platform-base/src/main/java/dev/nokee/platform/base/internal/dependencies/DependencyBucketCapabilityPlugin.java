@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
@@ -38,6 +39,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.util.internal.LazyPublishArtifact;
@@ -68,7 +70,6 @@ import static dev.nokee.model.internal.core.ModelPropertyRegistrationFactory.set
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
 import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsDeclarable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsResolvable;
@@ -274,11 +275,12 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void createConfiguration(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored, FullyQualifiedNameComponent fullyQualifiedName) {
 		val configurationProvider = registry.registerIfAbsent(fullyQualifiedName.get().toString());
 		entity.addComponent(new ConfigurationComponent(configurationProvider));
 		entity.addComponent(new ModelElementProviderSourceComponent(configurationProvider));
-		entity.addComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider));
+		entity.addComponent(createdUsing((ModelType<NamedDomainObjectProvider<Configuration>>) ModelType.of(new TypeToken<NamedDomainObjectProvider<Configuration>>() {}.getType()), () -> configurationProvider));
 		entity.addComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get));
 	}
 }

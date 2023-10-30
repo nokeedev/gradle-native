@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.base.internal.elements;
 
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.ancestors.AncestorRef;
 import dev.nokee.model.internal.ancestors.AncestorsComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -29,9 +31,11 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
+import dev.nokee.utils.Cast;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
@@ -56,11 +60,16 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 		this.objects = objects;
 	}
 
+	@SuppressWarnings("unchecked")
+	private static <S> ModelType<ViewAdapter<S>> viewFor(ModelType<S> elementType) {
+		return (ModelType<ViewAdapter<S>>) ModelType.of(new TypeToken<ViewAdapter<S>>() {}.where(new TypeParameter<S>() {}, elementType.getConcreteType()).getType());
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void apply(T target) {
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, tag, elementType, parent) -> {
-			entity.addComponent(createdUsing(of(ViewAdapter.class), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(providers, () -> ModelStates.finalize(parent.get())))));
+			entity.addComponent(createdUsing(Cast.uncheckedCastBecauseOfTypeErasure(viewFor(elementType.get())), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(providers, () -> ModelStates.finalize(parent.get())))));
 		}));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(GradlePropertyComponent.class), (entity, tag, base, elementType, property) -> {
 			((MapProperty<String, Object>) property.get()).set(providers.provider(() -> {
@@ -71,8 +80,8 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 						val nameOptional = it.find(RelativeNamesComponent.class).map(t -> t.get().get(RelativeName.BaseRef.of(base.get())).toString());
 
 						nameOptional.ifPresent(name -> {
-							if (ModelNodeUtils.canBeViewedAs(it, of(NamedDomainObjectProvider.class))) {
-								result.put(name, ModelNodeUtils.get(it, NamedDomainObjectProvider.class).map(t -> {
+							if (ModelNodeUtils.canBeViewedAs(it, objectProviderOf(elementType.get()))) {
+								result.put(name, ModelNodeUtils.get(it, objectProviderOf(elementType.get())).map(t -> {
 									ModelStates.realize(it);
 									return ModelNodeUtils.get(it, elementType.get());
 								}));
@@ -93,5 +102,10 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 			}).flatMap(it -> it));
 			entity.addComponent(new ComponentElementsFilterComponent(providers, objects, target.getExtensions().getByType(ModelLookup.class), base.get()));
 		}));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> ModelType<NamedDomainObjectProvider<T>> objectProviderOf(ModelType<T> elementType) {
+		return (ModelType<NamedDomainObjectProvider<T>>) ModelType.of(new TypeToken<NamedDomainObjectProvider<T>>() {}.where(new TypeParameter<T>() {}, elementType.getConcreteType()).getType());
 	}
 }

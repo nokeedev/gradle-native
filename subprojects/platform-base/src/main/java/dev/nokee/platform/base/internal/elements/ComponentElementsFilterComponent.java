@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.base.internal.elements;
 
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.ancestors.AncestorRef;
 import dev.nokee.model.internal.ancestors.AncestorsComponent;
 import dev.nokee.model.internal.core.ModelComponent;
@@ -25,6 +27,7 @@ import dev.nokee.model.internal.names.RelativeName;
 import dev.nokee.model.internal.names.RelativeNamesComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.model.ObjectFactory;
@@ -57,8 +60,8 @@ public final class ComponentElementsFilterComponent implements ModelComponent {
 				val nameOptional = it.find(RelativeNamesComponent.class).map(t -> t.get().get(RelativeName.BaseRef.of(baseRef)).toString());
 
 				nameOptional.ifPresent(name -> {
-					if (ModelNodeUtils.canBeViewedAs(it, of(NamedDomainObjectProvider.class))) {
-						result.add(ModelNodeUtils.get(it, NamedDomainObjectProvider.class).map(t -> {
+					if (ModelNodeUtils.canBeViewedAs(it, objectProviderOf(elementType))) {
+						result.add(ModelNodeUtils.get(it, objectProviderOf(elementType)).map(t -> {
 							ModelStates.realize(it);
 							return ModelNodeUtils.get(it, elementType);
 						}));
@@ -77,5 +80,10 @@ public final class ComponentElementsFilterComponent implements ModelComponent {
 			});
 			return result;
 		}).flatMap(it -> it);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> ModelType<NamedDomainObjectProvider<T>> objectProviderOf(Class<T> elementType) {
+		return (ModelType<NamedDomainObjectProvider<T>>) ModelType.of(new TypeToken<NamedDomainObjectProvider<T>>() {}.where(new TypeParameter<T>() {}, elementType).getType());
 	}
 }

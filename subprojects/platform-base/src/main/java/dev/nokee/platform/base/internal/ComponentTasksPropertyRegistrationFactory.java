@@ -38,7 +38,7 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(new ElementNameComponent(elementName))
 			.withComponent(new ParentComponent(owner))
 			.mergeFrom(factory.newProperty().baseRef(owner).elementType(of(elementType)).build())
-			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
+			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<? extends Task>>() {})))))
 			.build();
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,16 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.type.ModelType;
+import org.gradle.api.NamedDomainObjectProvider;
 
-public interface ModelProjection extends ModelComponent {
+public final class ModelElementConfigurableProviderSourceComponent implements ModelComponent {
+	private final NamedDomainObjectProvider<?> provider;
 
-	ModelType<?> getType();
+	public ModelElementConfigurableProviderSourceComponent(NamedDomainObjectProvider<?> provider) {
+		this.provider = provider;
+	}
 
-	// TODO: Not sure here
-	<T> boolean canBeViewedAs(ModelType<T> type);
-
-	<T> T get(ModelType<T> type);
-
-	// Use only for reporting
-	Iterable<String> getTypeDescriptions();
-
-	@Override
-	default ModelComponentType<?> getComponentType() {
-		return ModelComponentType.projectionOf(getType());
+	public NamedDomainObjectProvider<?> get() {
+		return provider;
 	}
 }

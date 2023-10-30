@@ -66,7 +66,7 @@ public final class ModelNodeUtils {
 	 * @return true if the node can be projected into the specified type, or false otherwise.
 	 */
 	public static boolean canBeViewedAs(ModelNode self, ModelType<?> type) {
-		return self.getComponentBits().containsAll(ModelComponentType.projectionOf(type.getConcreteType()).familyBits());
+		return getProjections(self).anyMatch(it -> it.canBeViewedAs(type));
 	}
 
 	public static Stream<ModelProjection> getProjections(ModelNode self) {

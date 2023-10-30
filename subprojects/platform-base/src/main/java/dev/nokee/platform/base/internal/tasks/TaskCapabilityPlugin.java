@@ -15,9 +15,12 @@
  */
 package dev.nokee.platform.base.internal.tasks;
 
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelElementConfigurableProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
@@ -71,10 +74,16 @@ public class TaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implem
 				val taskProvider = (TaskProvider<Task>) taskRegistry.registerIfAbsent(fullyQualifiedName.get().toString(), implementationType.get());
 				entity.addComponent(new ModelElementProviderSourceComponent(taskProvider));
 				entity.addComponent(createdUsingNoInject(ModelType.of(implementationType.get()), taskProvider::get));
-				entity.addComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider));
+				entity.addComponent(createdUsing(objectProviderOf(implementationType.get()), () -> taskProvider));
 				entity.addComponent(new TaskProjectionComponent(taskProvider));
+				entity.addComponent(new ModelElementConfigurableProviderSourceComponent(taskProvider));
 			}).execute(null);
 		}));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <S extends Task> ModelType<TaskProvider<S>> objectProviderOf(Class<S> type) {
+		return (ModelType<TaskProvider<S>>) ModelType.of(new TypeToken<TaskProvider<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
 	}
 
 	private static final class SyncDescriptionToTaskProjectionRule extends ModelActionWithInputs.ModelAction2<TaskDescriptionComponent, TaskProjectionComponent> {

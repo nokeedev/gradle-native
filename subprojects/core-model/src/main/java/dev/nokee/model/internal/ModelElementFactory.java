@@ -16,6 +16,8 @@
 package dev.nokee.model.internal;
 
 import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.gradle.TaskProviderFactory;
@@ -32,6 +34,7 @@ import dev.nokee.model.internal.core.ModelBackedModelElementLookupStrategy;
 import dev.nokee.model.internal.core.ModelBackedModelPropertyLookupStrategy;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.core.ModelElementConfigurableProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelMixInStrategy;
@@ -61,6 +64,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.core.ModelNodeUtils.getProjections;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 
@@ -163,7 +167,14 @@ public final class ModelElementFactory implements ModelComponent {
 					throw new RuntimeException("...");
 				}
 				assert fullType.equals(type);
-				ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
+				if (entity.has(ModelElementConfigurableProviderSourceComponent.class)) {
+					entity.get(ModelElementConfigurableProviderSourceComponent.class).get().configure(it -> {
+						action.execute(ModelNodeUtils.get(entity, type));
+					});
+				} else {
+					// Most likely not required anymore
+					ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
+				}
 			}
 		};
 		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
@@ -204,7 +215,15 @@ public final class ModelElementFactory implements ModelComponent {
 			@Override
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
 				assert fullType.equals(t);
-				return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+
+				@SuppressWarnings({"unchecked", "UnstableApiUsage"})
+				ModelType<NamedDomainObjectProvider<S>> providerType = (ModelType<NamedDomainObjectProvider<S>>) ModelType.of(new TypeToken<NamedDomainObjectProvider<S>>() {}.where(new TypeParameter<S>() {}, t.getConcreteType()).getType());
+				if (ModelNodeUtils.canBeViewedAs(entity, providerType)) {
+					return ModelNodeUtils.get(entity, providerType);
+				} else {
+					// Still required for `compileTasks` and similar
+					return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+				}
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, fullType);
@@ -296,7 +315,14 @@ public final class ModelElementFactory implements ModelComponent {
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
-				return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+				@SuppressWarnings({"unchecked", "UnstableApiUsage"})
+				ModelType<NamedDomainObjectProvider<S>> providerType = (ModelType<NamedDomainObjectProvider<S>>) ModelType.of(new TypeToken<NamedDomainObjectProvider<S>>() {}.where(new TypeParameter<S>() {}, t.getConcreteType()).getType());
+				if (ModelNodeUtils.canBeViewedAs(entity, providerType)) {
+					return ModelNodeUtils.get(entity, providerType);
+				} else {
+					// Still required for `compileTasks` and similar
+					return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+				}
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, type);
@@ -341,6 +367,6 @@ public final class ModelElementFactory implements ModelComponent {
 	}
 
 	private static Stream<ModelType<?>> castableTypes(ModelNode entity) {
-		return ModelNodeUtils.getProjections(entity).map(ModelProjection::getType);
+		return getProjections(entity).map(ModelProjection::getType);
 	}
 }
