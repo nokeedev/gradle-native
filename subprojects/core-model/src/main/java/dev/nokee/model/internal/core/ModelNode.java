@@ -16,16 +16,15 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.reflect.Instantiator;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ComponentTagAwareFactory;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.model.internal.tags.ComponentTagAwareFactory;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -246,11 +245,6 @@ public final class ModelNode implements Entity, ComponentTagAwareFactory {
 
 		private static ModelRegistry failingRegistry() {
 			return new ModelRegistry() {
-				@Override
-				public <T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier) {
-					throw new UnsupportedOperationException("This instance always fails.");
-				}
-
 				@Override
 				public ModelNode instantiate(ModelRegistration registration) {
 					throw new UnsupportedOperationException("This instance always fails.");

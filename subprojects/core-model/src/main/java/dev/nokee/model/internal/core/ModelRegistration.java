@@ -16,8 +16,8 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.internal.Factory;
-import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
@@ -41,35 +41,9 @@ public final class ModelRegistration {
 	public static ModelRegistration of(String path, Class<?> type) {
 		return builder()
 			.withComponent(new ModelPathComponent(ModelPath.path(path)))
+			.withComponent(new IdentifierComponent(new DefaultModelObjectIdentifier(ElementName.of(path))))
 			.withComponent(ModelProjections.managed(ModelType.of(type)))
 			.build();
-	}
-
-	public static Builder managedBuilder(DomainObjectIdentifier identifier, Class<?> type) {
-		Objects.requireNonNull(identifier);
-		return builder()
-			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(ModelProjections.managed(ModelType.of(type)));
-	}
-
-	public static <T> ModelRegistration bridgedInstance(ModelIdentifier<T> identifier, T instance) {
-		return builder()
-			.withComponent(new ModelPathComponent(identifier.getPath()))
-			.withComponent(ModelProjections.ofInstance(instance))
-			.build();
-	}
-
-	public static <T> ModelRegistration unmanagedInstance(ModelIdentifier<T> identifier, Factory<T> factory) {
-		return builder()
-			.withComponent(new ModelPathComponent(identifier.getPath()))
-			.withComponent(ModelProjections.createdUsing(identifier.getType(), factory))
-			.build();
-	}
-
-	public static <T> Builder unmanagedInstanceBuilder(ModelIdentifier<T> identifier, Factory<T> factory) {
-		return builder()
-			.withComponent(new ModelPathComponent(identifier.getPath()))
-			.withComponent(ModelProjections.createdUsing(identifier.getType(), factory));
 	}
 
 	public static Builder builder() {

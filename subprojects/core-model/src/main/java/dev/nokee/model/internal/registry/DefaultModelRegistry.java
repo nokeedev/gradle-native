@@ -20,7 +20,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import dev.nokee.internal.reflect.Instantiator;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.BindManagedProjectionService;
 import dev.nokee.model.internal.core.Bits;
@@ -37,7 +36,6 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelEntityId;
-import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
 import dev.nokee.model.internal.core.ModelPath;
@@ -124,15 +122,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		entities.add(entity);
 		entity.addComponent(new ModelPathComponent(path));
 		return entity;
-	}
-
-	@Override
-	public <T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier) {
-		if (!nodes.containsKey(identifier.getPath())) {
-			throw new IllegalStateException(String.format("Expected model node at '%s' but none was found", identifier.getPath()));
-		}
-
-		return elementFactory.createObject(get(identifier.getPath()), identifier.getType());
 	}
 
 	@Override

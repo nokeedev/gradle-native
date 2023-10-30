@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -194,11 +193,6 @@ public final class ModelTestUtils {
 			}
 		});
 		builder.withRegistry(new ModelRegistry() {
-			@Override
-			public <T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier) {
-				throw new UnsupportedOperationException();
-			}
-
 			@Override
 			public ModelNode instantiate(ModelRegistration registration) {
 				val path = registration.getComponents().stream().flatMap(this::findModelPath).findFirst().get();

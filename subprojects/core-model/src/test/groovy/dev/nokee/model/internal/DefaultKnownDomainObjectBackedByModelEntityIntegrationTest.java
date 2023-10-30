@@ -15,13 +15,12 @@
  */
 package dev.nokee.model.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.KnownDomainObjectTester;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -39,7 +38,9 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -51,7 +52,7 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 
 	private static ModelNode newEntity(ModelRegistry modelRegistry) {
 		val entity = node("laqu", ModelProjections.ofInstance(myTypeInstance), builder -> builder.withRegistry(modelRegistry));
-		entity.addComponent(new IdentifierComponent(ModelIdentifier.of("laqu", Object.class)));
+		entity.addComponent(new IdentifierComponent(new DefaultModelObjectIdentifier(ElementName.of("laqu"))));
 		entity.addComponent(new FullyQualifiedNameComponent("testLaqu"));
 		return entity;
 	}

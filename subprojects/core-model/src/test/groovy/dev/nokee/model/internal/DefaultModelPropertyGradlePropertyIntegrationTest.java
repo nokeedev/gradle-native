@@ -17,11 +17,11 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
@@ -63,7 +63,7 @@ class DefaultModelPropertyGradlePropertyIntegrationTest {
 		entity.addComponentTag(ModelPropertyTag.class);
 		entity.addComponent(new GradlePropertyComponent(property));
 		entity.addComponent(new ModelPropertyTypeComponent(of(MyType.class)));
-		entity.addComponent(new IdentifierComponent(ModelIdentifier.of("beho", Object.class)));
+		entity.addComponent(new IdentifierComponent(new DefaultModelObjectIdentifier(ElementName.of("beho"))));
 		return entity;
 	}
 

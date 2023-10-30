@@ -17,22 +17,26 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
+import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelTestActions;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.core.ModelActions.matching;
-import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
-import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
-import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.created;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.initialized;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.realized;
@@ -55,7 +59,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void modelNodeRegistrationGivesAccessToProviderThatResolvesToTheNodeValue() {
 		val provider = modelRegistry.register(ModelRegistration.of("myType", MyType.class)).as(MyType.class);
 		assertAll(() -> {
-			assertThat(provider.getIdentifier(), equalTo(of("myType", MyType.class)));
+			assertThat(provider.getIdentifier(), equalTo(new DefaultModelObjectIdentifier(ElementName.of("myType"))));
 			assertThat(provider.get(), isA(MyType.class));
 		});
 	}
@@ -68,27 +72,20 @@ public class DefaultModelRegistryIntegrationTest {
 	}
 
 	@Test
-	void canRegisterBridgedInstanceModel() {
-		val instance = new UnmanagedType();
-		val provider = modelRegistry.register(bridgedInstance(of("bar", UnmanagedType.class), instance)).as(UnmanagedType.class);
-		assertEquals(instance, provider.get());
-	}
-
-	@Test
 	void canRegisterManagedInstanceModel() {
-		val provider = modelRegistry.register(unmanagedInstance(of("bar", ManagedType.class), () -> ProjectTestUtils.objectFactory().newInstance(ManagedType.class))).as(ManagedType.class);
+		val provider = modelRegistry.register(ModelRegistration.builder().withComponent(createdUsing(ModelType.of(ManagedType.class), () -> ProjectTestUtils.objectFactory().newInstance(ManagedType.class))).build()).as(ManagedType.class);
 		assertThat(provider.get(), isA(ManagedType.class));
 	}
 
 	@Test
 	void canRegisterUnmanagedInstanceModel() {
-		val provider = modelRegistry.register(unmanagedInstance(of("bar", UnmanagedType.class), UnmanagedType::new)).as(UnmanagedType.class);
+		val provider = modelRegistry.register(ModelRegistration.builder().withComponent(createdUsing(ModelType.of(UnmanagedType.class), UnmanagedType::new)).build()).as(ManagedType.class);
 		assertThat(provider.get(), isA(UnmanagedType.class));
 	}
 
 	@Test
 	void canAccessModelNodeOnManagedType() {
-		val provider = modelRegistry.register(unmanagedInstance(of("a", ModelNodeAccessingType.class), () -> ProjectTestUtils.objectFactory().newInstance(ModelNodeAccessingType.class))).as(ModelNodeAccessingType.class);
+		val provider = modelRegistry.register(ModelRegistration.builder().withComponent(new ModelPathComponent(ModelPath.path("a"))).withComponent(createdUsing(ModelType.of(ModelNodeAccessingType.class), () -> ProjectTestUtils.objectFactory().newInstance(ModelNodeAccessingType.class))).build()).as(ModelNodeAccessingType.class);
 		assertEquals("a", provider.get().getModelPathAsString());
 	}
 	interface ModelNodeAccessingType {
@@ -111,7 +108,7 @@ public class DefaultModelRegistryIntegrationTest {
 
 	@Test
 	void valuesArePersistedOnNodeForUnmanagedType() {
-		val provider = modelRegistry.register(ModelRegistration.bridgedInstance(of("a", UnmanagedValueType.class), new UnmanagedValueType())).as(UnmanagedValueType.class);
+		val provider = modelRegistry.register(ModelRegistration.builder().withComponent(ModelProjections.ofInstance(new UnmanagedValueType())).build()).as(UnmanagedValueType.class);
 		provider.get().setValue("foo-value");
 		assertEquals("foo-value", provider.get().getValue());
 	}

@@ -15,12 +15,11 @@
  */
 package dev.nokee.model.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -60,7 +59,7 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 
 	private static ModelNode newEntity(ModelRegistry modelRegistry) {
 		val entity = node("qibe", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withRegistry(modelRegistry));
-		entity.addComponent(new IdentifierComponent(ModelIdentifier.of("qibe", Object.class)));
+		entity.addComponent(new IdentifierComponent(new DefaultModelObjectIdentifier(ElementName.of("qibe"))));
 		entity.addComponent(new FullyQualifiedNameComponent("testQibe"));
 		return entity;
 	}

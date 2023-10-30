@@ -15,20 +15,11 @@
  */
 package dev.nokee.model.internal.registry;
 
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.type.ModelType;
 
 public interface ModelRegistry {
-	default <T> DomainObjectProvider<T> get(String path, Class<T> type) {
-		return get(ModelIdentifier.of(ModelPath.path(path), ModelType.of(type)));
-	}
-	<T> DomainObjectProvider<T> get(ModelIdentifier<T> identifier);
-
 	ModelNode instantiate(ModelRegistration registration);
 	ModelElement register(ModelRegistration registration);
 }
