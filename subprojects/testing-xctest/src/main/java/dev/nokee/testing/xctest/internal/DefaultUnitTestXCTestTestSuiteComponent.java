@@ -28,7 +28,6 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BaseNameUtils;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -132,7 +131,7 @@ public /*final*/ class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTes
 			task.getCodeSignatureTool().disallowChanges();
 		}).asProvider();
 
-		val binaryIdentifierXCTestBundle = BinaryIdentifier.of(variantIdentifier, "unitTestXCTestBundle");
+		val binaryIdentifierXCTestBundle = variantIdentifier.child("unitTestXCTestBundle");
 		val xcTestBundle = new IosXCTestBundle((TaskProvider<CreateIosXCTestBundleTask>) createUnitTestXCTestBundle);
 		registry.register(ModelRegistration.builder()
 			.withComponentTag(IsBinary.class)
@@ -159,7 +158,7 @@ public /*final*/ class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTes
 			task.getCodeSignatureTool().disallowChanges();
 		}).asProvider();
 
-		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(variantIdentifier, "signedApplicationBundle");
+		val binaryIdentifierApplicationBundle = variantIdentifier.child("signedApplicationBundle");
 		registry.register(ModelRegistration.builder()
 			.withComponentTag(IsBinary.class)
 			.withComponentTag(ConfigurableTag.class)

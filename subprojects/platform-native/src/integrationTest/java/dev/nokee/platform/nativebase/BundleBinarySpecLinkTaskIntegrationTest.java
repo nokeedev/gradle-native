@@ -23,7 +23,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
@@ -74,7 +73,7 @@ class BundleBinarySpecLinkTaskIntegrationTest {
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
 		val variantIdentifier = VariantIdentifier.of("foto", componentIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(variantIdentifier)).build());
-		binary = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, "vupi"))).as(BundleBinary.class).get();
+		binary = registry.register(factory.create(variantIdentifier.child("vupi"))).as(BundleBinary.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkBundleTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkBundleTask) binary.getLinkTask().get();

@@ -75,7 +75,6 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -459,7 +458,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			public void execute(AppliedPlugin ignored) {
 				project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), ElementName.ofMain("jvmJar"));
+					val binaryIdentifier = ((ModelObjectIdentifier) identifier.get()).child(ElementName.ofMain("jvmJar"));
 					val jvmJar = registry.instantiate(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 						.withComponent(new ParentComponent(entity))
 						.withComponentTag(ExcludeFromQualifyingNameTag.class)
@@ -521,7 +520,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 			val sharedLibrary = registry.register(newEntity("sharedLibrary", SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
 				.displayName("shared library binary")
-				.withComponent(new IdentifierComponent(BinaryIdentifier.of(identifier, ElementName.ofMain("sharedLibrary"))))
+				.withComponent(new IdentifierComponent(identifier.child(ElementName.ofMain("sharedLibrary"))))
 				.withComponent(new BuildVariantComponent(identifier.getBuildVariant()))
 				.withTag(ExcludeFromQualifyingNameTag.class)
 			));
@@ -551,7 +550,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, projection, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), ElementName.ofMain("jniJar"));
+			val binaryIdentifier = ((ModelObjectIdentifier) identifier.get()).child(ElementName.ofMain("jniJar"));
 			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 				.withComponent(new ParentComponent(entity))
 				.withComponentTag(JniJarArtifactTag.class)

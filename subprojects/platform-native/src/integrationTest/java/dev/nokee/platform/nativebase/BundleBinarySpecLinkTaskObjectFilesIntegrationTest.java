@@ -25,7 +25,6 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
@@ -63,7 +62,7 @@ class BundleBinarySpecLinkTaskObjectFilesIntegrationTest {
 		val factory = project.getExtensions().getByType(BundleBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		binary = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "dije"))).as(BundleBinary.class).get();
+		binary = registry.register(factory.create(projectIdentifier.child( "dije"))).as(BundleBinary.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkBundleTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkBundleTask) binary.getLinkTask().get();

@@ -21,15 +21,11 @@ import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
-import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.val;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +48,7 @@ class ExecutableBinarySpecBaseNameIntegrationTest implements HasBaseNameTester {
 		val factory = project.getExtensions().getByType(ExecutableBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "wepo"))).as(ExecutableBinary.class).get();
+		subject = registry.register(factory.create(projectIdentifier.child("wepo"))).as(ExecutableBinary.class).get();
 		subject.getLinkTask().configure(task -> ((LinkExecutableTask) task).getTargetPlatform().set(macosPlatform()));
 	}
 

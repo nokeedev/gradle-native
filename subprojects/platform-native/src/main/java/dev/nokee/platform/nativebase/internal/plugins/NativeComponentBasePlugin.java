@@ -65,7 +65,6 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseNameComponent;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
@@ -333,7 +332,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 				if (linkage.isExecutable()) {
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), ElementName.ofMain("executable"));
+					val binaryIdentifier = ((ModelObjectIdentifier) identifier.get()).child(ElementName.ofMain("executable"));
 
 					val executableBinary = registry.register(newEntity("executable", ExecutableBinaryInternal.class, it -> it.ownedBy(entity)
 						.displayName("executable binary")
@@ -343,7 +342,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					));
 					entity.addComponent(new NativeExecutableBinaryComponent(ModelNodes.of(executableBinary)));
 				} else if (linkage.isShared()) {
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), ElementName.ofMain("sharedLibrary"));
+					val binaryIdentifier = ((ModelObjectIdentifier) identifier.get()).child(ElementName.ofMain("sharedLibrary"));
 
 					val sharedLibraryBinary = registry.register(newEntity("sharedLibrary", SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
 						.displayName("shared library binary")
@@ -353,7 +352,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					));
 					entity.addComponent(new NativeSharedLibraryBinaryComponent(ModelNodes.of(sharedLibraryBinary)));
 				} else if (linkage.isBundle()) {
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), ElementName.ofMain("bundle"));
+					val binaryIdentifier = ((ModelObjectIdentifier) identifier.get()).child(ElementName.ofMain("bundle"));
 
 					registry.register(newEntity("bundle", BundleBinaryInternal.class, it -> it.ownedBy(entity)
 						.displayName("bundle binary")
@@ -362,7 +361,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withTag(ExcludeFromQualifyingNameTag.class)
 					));
 				} else if (linkage.isStatic()) {
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), ElementName.ofMain("staticLibrary"));
+					val binaryIdentifier = ((ModelObjectIdentifier) identifier.get()).child(ElementName.ofMain("staticLibrary"));
 
 					val staticLibraryBinary = registry.register(newEntity("staticLibrary", StaticLibraryBinaryInternal.class, it -> it.ownedBy(entity)
 							.displayName("static library binary")

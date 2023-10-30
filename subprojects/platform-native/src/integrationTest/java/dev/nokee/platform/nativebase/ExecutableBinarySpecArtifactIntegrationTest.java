@@ -20,7 +20,6 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.testers.ArtifactTester;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -42,7 +41,7 @@ class ExecutableBinarySpecArtifactIntegrationTest implements ArtifactTester<Exec
 		val factory = project.getExtensions().getByType(ExecutableBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "naqo"))).as(ExecutableBinary.class).get();
+		subject = registry.register(factory.create(projectIdentifier.child("naqo"))).as(ExecutableBinary.class).get();
 		subject.getLinkTask().configure(task -> ((LinkSharedLibraryTask) task).getTargetPlatform().set(macosPlatform()));
 	}
 

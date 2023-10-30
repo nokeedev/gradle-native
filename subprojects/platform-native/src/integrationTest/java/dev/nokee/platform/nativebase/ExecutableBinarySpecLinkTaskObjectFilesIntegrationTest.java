@@ -25,7 +25,6 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -63,7 +62,7 @@ class ExecutableBinarySpecLinkTaskObjectFilesIntegrationTest {
 		val factory = project.getExtensions().getByType(ExecutableBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		binary = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "liku"))).as(ExecutableBinary.class).get();
+		binary = registry.register(factory.create(projectIdentifier.child("liku"))).as(ExecutableBinary.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkExecutableTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkExecutableTask) binary.getLinkTask().get();

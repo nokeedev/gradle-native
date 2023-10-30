@@ -25,9 +25,7 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
-import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.val;
@@ -64,7 +62,7 @@ class SharedLibraryBinarySpecLinkTaskObjectFilesIntegrationTest {
 		val factory = project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		binary = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "liku"))).as(SharedLibraryBinary.class).get();
+		binary = registry.register(factory.create(projectIdentifier.child("liku"))).as(SharedLibraryBinary.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkSharedLibraryTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkSharedLibraryTask) binary.getLinkTask().get();

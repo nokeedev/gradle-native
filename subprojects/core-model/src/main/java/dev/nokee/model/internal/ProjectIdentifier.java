@@ -37,6 +37,11 @@ public final class ProjectIdentifier implements ModelObjectIdentifier {
 		return ElementName.of(projectName);
 	}
 
+	@Override
+	public ModelObjectIdentifier child(ElementName name) {
+		return new DefaultModelObjectIdentifier(name, this);
+	}
+
 	public Path getPath() {
 		return projectPath;
 	}

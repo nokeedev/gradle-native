@@ -51,6 +51,11 @@ public final class DefaultModelObjectIdentifier implements ModelObjectIdentifier
 	}
 
 	@Override
+	public ModelObjectIdentifier child(ElementName name) {
+		return new DefaultModelObjectIdentifier(name, this);
+	}
+
+	@Override
 	public Iterator<Object> iterator() {
 		final List<Object> result = new ArrayList<>();
 		if (parentIdentifier != null) {

@@ -29,4 +29,8 @@ public interface ModelObjectIdentifier extends DomainObjectIdentifier {
 	@Nullable
 	ModelObjectIdentifier getParent();
 	ElementName getName();
+	default ModelObjectIdentifier child(String name) {
+		return child(ElementName.of(name));
+	}
+	ModelObjectIdentifier child(ElementName name);
 }

@@ -26,7 +26,6 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.utils.Cast;
 import lombok.val;

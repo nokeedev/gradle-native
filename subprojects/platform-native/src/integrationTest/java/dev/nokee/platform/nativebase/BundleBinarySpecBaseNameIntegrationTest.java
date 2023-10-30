@@ -21,7 +21,6 @@ import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -49,7 +48,7 @@ class BundleBinarySpecBaseNameIntegrationTest implements HasBaseNameTester {
 		val factory = project.getExtensions().getByType(BundleBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "nopa"))).as(BundleBinary.class).get();
+		subject = registry.register(factory.create(projectIdentifier.child("nopa"))).as(BundleBinary.class).get();
 		subject.getLinkTask().configure(task -> ((LinkBundleTask) task).getTargetPlatform().set(macosPlatform()));
 	}
 

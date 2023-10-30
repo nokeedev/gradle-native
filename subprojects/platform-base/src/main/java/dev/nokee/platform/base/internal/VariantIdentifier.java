@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.BuildVariant;
@@ -79,6 +80,11 @@ public final class VariantIdentifier implements ModelObjectIdentifier, HasName {
 
 	public ElementName getName() {
 		return ElementName.of(unambiguousName);
+	}
+
+	@Override
+	public ModelObjectIdentifier child(ElementName name) {
+		return new DefaultModelObjectIdentifier(name, this);
 	}
 
 	public String getFullName() {

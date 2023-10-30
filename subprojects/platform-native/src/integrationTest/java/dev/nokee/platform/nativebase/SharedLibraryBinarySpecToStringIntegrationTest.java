@@ -20,12 +20,10 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
 import org.gradle.api.Project;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +41,7 @@ class SharedLibraryBinarySpecToStringIntegrationTest {
 		val factory = project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "jiqo"))).as(SharedLibraryBinary.class).get();
+		subject = registry.register(factory.create(projectIdentifier.child("jiqo"))).as(SharedLibraryBinary.class).get();
 	}
 
 	@Test

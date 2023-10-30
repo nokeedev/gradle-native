@@ -20,20 +20,15 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.val;
 import org.gradle.api.Project;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.platform.nativebase.NativePlatformTestUtils.macosPlatform;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
-import static org.hamcrest.Matchers.startsWith;
 
 @IntegrationTest
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
@@ -46,7 +41,7 @@ class ExecutableBinarySpecToStringIntegrationTest {
 		val factory = project.getExtensions().getByType(ExecutableBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "robe"))).as(ExecutableBinary.class).get();
+		subject = registry.register(factory.create(projectIdentifier.child("robe"))).as(ExecutableBinary.class).get();
 	}
 
 	@Test
