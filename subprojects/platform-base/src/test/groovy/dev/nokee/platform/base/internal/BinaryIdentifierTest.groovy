@@ -30,7 +30,7 @@ class BinaryIdentifierTest extends Specification {
 		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
 
 		when:
-		def result = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
+		def result = BinaryIdentifier.of('foo', variantIdentifier)
 
 		then:
 		result.name.get() == 'foo'
@@ -43,7 +43,7 @@ class BinaryIdentifierTest extends Specification {
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 
 		when:
-		def result = BinaryIdentifier.of(BinaryName.of('foo'), componentIdentifier)
+		def result = BinaryIdentifier.of('foo', componentIdentifier)
 
 		then:
 		result.name.get() == 'foo'
@@ -65,7 +65,7 @@ class BinaryIdentifierTest extends Specification {
 
 	def "throws exception if owner is null"() {
 		when:
-		BinaryIdentifier.of(BinaryName.of('foo'), null)
+		BinaryIdentifier.of('foo', null)
 
 		then:
 		def ex = thrown(IllegalArgumentException)
@@ -83,8 +83,8 @@ class BinaryIdentifierTest extends Specification {
 		def ownerVariant = VariantIdentifier.of('macosRelease', ownerComponent)
 
 		expect:
-		BinaryIdentifier.of(BinaryName.of('bar'), ownerComponent).toString() == "binary ':main:bar'"
-		BinaryIdentifier.of(BinaryName.of('jar'), ownerVariant).toString() == "binary ':main:macosRelease:jar'"
+		BinaryIdentifier.of('bar', ownerComponent).toString() == "binary ':main:bar'"
+		BinaryIdentifier.of('jar', ownerVariant).toString() == "binary ':main:macosRelease:jar'"
 	}
 
 	interface TestableBinary extends Binary {}

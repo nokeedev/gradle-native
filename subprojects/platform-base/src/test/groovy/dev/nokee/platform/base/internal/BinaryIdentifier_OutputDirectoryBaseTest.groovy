@@ -25,7 +25,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), componentIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of('foo', componentIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/main'
@@ -37,7 +37,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.of('test', projectIdentifier)
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), componentIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of('foo', componentIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/test'
@@ -50,7 +50,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withComponentIdentifier(componentIdentifier).build()
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of('foo', variantIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/main'
@@ -63,7 +63,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.of('test', projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withComponentIdentifier(componentIdentifier).build()
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of('foo', variantIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/test'
@@ -77,7 +77,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withComponentIdentifier(componentIdentifier).build()
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of('foo', variantIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/main/debug/macos'
@@ -90,7 +90,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.of('test', projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withComponentIdentifier(componentIdentifier).build()
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of('foo', variantIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/test/debug/macos'

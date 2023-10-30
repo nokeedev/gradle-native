@@ -18,8 +18,8 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.MainName;
-import dev.nokee.platform.base.Binary;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
@@ -44,7 +44,7 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
-	public BinaryName getName() {
+	public ElementName getName() {
 		return identity.getName();
 	}
 
@@ -56,8 +56,8 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 		return ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier || ownerIdentifier instanceof ProjectIdentifier;
 	}
 
-	public static BinaryIdentifier of(BinaryName name, DomainObjectIdentifier ownerIdentifier) {
-		return new BinaryIdentifier(BinaryIdentity.of(name.toString(), "binary"), ownerIdentifier);
+	public static BinaryIdentifier of(String name, DomainObjectIdentifier ownerIdentifier) {
+		return new BinaryIdentifier(BinaryIdentity.of(name, "binary"), ownerIdentifier);
 	}
 
 	public static BinaryIdentifier of(DomainObjectIdentifier ownerIdentifier, String name) {

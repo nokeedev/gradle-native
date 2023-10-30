@@ -35,4 +35,8 @@ public interface ElementName {
 	static ElementName ofMain() {
 		return new MainName(new DefaultElementName("main"));
 	}
+
+	static ElementName ofMain(String name) {
+		return new MainName(new DefaultElementName(name));
+	}
 }

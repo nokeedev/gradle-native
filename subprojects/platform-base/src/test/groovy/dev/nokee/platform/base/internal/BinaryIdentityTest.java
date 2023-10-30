@@ -15,12 +15,15 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.names.ElementName;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BinaryIdentityTest {
 	@Nested
@@ -29,7 +32,7 @@ class BinaryIdentityTest {
 
 		@Test
 		void hasName() {
-			assertEquals(BinaryName.of("kapi"), subject.getName());
+			assertEquals(ElementName.of("kapi"), subject.getName());
 		}
 
 		@Test
@@ -54,7 +57,7 @@ class BinaryIdentityTest {
 
 		@Test
 		void hasName() {
-			assertEquals(BinaryName.of("leve"), subject.getName());
+			assertEquals(ElementName.ofMain("leve"), subject.getName());
 		}
 
 		@Test

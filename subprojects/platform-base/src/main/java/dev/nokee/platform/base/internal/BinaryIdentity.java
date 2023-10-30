@@ -16,24 +16,25 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.HasName;
+import dev.nokee.model.internal.names.ElementName;
 import lombok.EqualsAndHashCode;
 
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
 public final class BinaryIdentity implements HasName {
-	private final BinaryName name;
+	private final ElementName name;
 	private final String displayName;
 	private final boolean isMain;
 
-	private BinaryIdentity(BinaryName name, String displayName, boolean isMain) {
+	private BinaryIdentity(ElementName name, String displayName, boolean isMain) {
 		this.name = requireNonNull(name);
 		this.displayName = requireNonNull(displayName);
 		this.isMain = isMain;
 	}
 
 	@Override
-	public BinaryName getName() {
+	public ElementName getName() {
 		return name;
 	}
 
@@ -46,11 +47,11 @@ public final class BinaryIdentity implements HasName {
 	}
 
 	public static BinaryIdentity of(String name, String displayName) {
-		return new BinaryIdentity(BinaryName.of(name), displayName, false);
+		return new BinaryIdentity(ElementName.of(name), displayName, false);
 	}
 
 	public static BinaryIdentity ofMain(String name, String displayName) {
-		return new BinaryIdentity(BinaryName.of(name), displayName, true);
+		return new BinaryIdentity(ElementName.ofMain(name), displayName, true);
 	}
 
 	@Override
