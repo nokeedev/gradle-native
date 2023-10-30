@@ -27,7 +27,7 @@ public final class JvmJarBinaryRegistrationFactory {
 	public ModelRegistration.Builder create(BinaryIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(new ElementNameComponent(identifier.getName().get()))
+			.withComponent(new ElementNameComponent(identifier.getName()))
 			.withComponentTag(IsBinary.class)
 			.withComponentTag(ConfigurableTag.class)
 			.withComponent(new MainProjectionComponent(ModelBackedJvmJarBinary.class));

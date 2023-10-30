@@ -38,7 +38,7 @@ public final class OutputDirectoryPath {
 				if (it instanceof ProjectIdentifier) {
 					return Stream.empty();
 				} else if (it instanceof BinaryIdentity) {
-					return Stream.of((BinaryIdentity) it).filter(t -> !t.isMain()).map(t -> t.getName().get());
+					return Stream.of((BinaryIdentity) it).filter(t -> !t.isMain()).map(t -> t.getName().toString());
 				} else if (it instanceof HasName) {
 					return Stream.of(((HasName) it).getName()).map(Object::toString).filter(s -> !s.isEmpty());
 				} else {
