@@ -15,56 +15,19 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
-import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
-import java.util.Iterator;
+public final class BinaryIdentifier {
+	private BinaryIdentifier() {}
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
-
-@EqualsAndHashCode
-public final class BinaryIdentifier implements ModelObjectIdentifier, HasName {
-	private final ElementName name;
-	private final DomainObjectIdentifier ownerIdentifier;
-
-	public BinaryIdentifier(ElementName name, DomainObjectIdentifier ownerIdentifier) {
-		requireNonNull(name);
-		checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
-		this.name = name;
-		this.ownerIdentifier = ownerIdentifier;
+	public static ModelObjectIdentifier of(DomainObjectIdentifier ownerIdentifier, String name) {
+		return new DefaultModelObjectIdentifier(ElementName.of(name), (ModelObjectIdentifier) ownerIdentifier);
 	}
 
-	@Nullable
-	@Override
-	public ModelObjectIdentifier getParent() {
-		return (ModelObjectIdentifier) ownerIdentifier;
-	}
-
-	public ElementName getName() {
-		return name;
-	}
-
-	public DomainObjectIdentifier getOwnerIdentifier() {
-		return ownerIdentifier;
-	}
-
-
-	public static BinaryIdentifier of(DomainObjectIdentifier ownerIdentifier, String name) {
-		return new BinaryIdentifier(ElementName.of(name), ownerIdentifier);
-	}
-
-	public static BinaryIdentifier of(DomainObjectIdentifier ownerIdentifier, ElementName name) {
-		return new BinaryIdentifier(name, ownerIdentifier);
-	}
-
-	@Override
-	public Iterator<Object> iterator() {
-		return ImmutableList.builder().addAll(ownerIdentifier).add(this).build().iterator();
+	public static ModelObjectIdentifier of(DomainObjectIdentifier ownerIdentifier, ElementName name) {
+		return new DefaultModelObjectIdentifier(name, (ModelObjectIdentifier) ownerIdentifier);
 	}
 }
