@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
 public final class MainName implements ElementName {
 	private final ElementName delegate;
 
-	public MainName(ElementName delegate) {
+	MainName(ElementName delegate) {
 		this.delegate = delegate;
 	}
 
