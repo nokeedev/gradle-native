@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.core.Coordinate;
@@ -56,11 +57,11 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 		this.fullName = fullName;
 	}
 
-	public static VariantIdentifier of(String unambiguousName, ComponentIdentifier identifier) {
+	public static VariantIdentifier of(String unambiguousName, DomainObjectIdentifier identifier) {
 		return new VariantIdentifier(unambiguousName, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
 	}
 
-	public static <T extends Variant> VariantIdentifier of(BuildVariant buildVariant, ComponentIdentifier identifier) {
+	public static <T extends Variant> VariantIdentifier of(BuildVariant buildVariant, DomainObjectIdentifier identifier) {
 		String unambiguousName = createUnambiguousName(buildVariant);
 		Dimensions ambiguousDimensions = Dimensions.of(createAmbiguousDimensionNames(buildVariant));
 		return new VariantIdentifier(unambiguousName, identifier, ambiguousDimensions, Dimensions.empty(), buildVariant, unambiguousName);
@@ -89,8 +90,7 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 	@Override
 	public String toString() {
 		if (unambiguousName.isEmpty()) {
-			// TODO: Fix displayName
-			return ((ComponentIdentifier) ownerIdentifier).getDisplayName() + " '" + toGradlePath(this) + "'";
+			return ((ModelObjectIdentifier) ownerIdentifier).getDisplayName() + " '" + toGradlePath(this) + "'";
 		}
 		return "variant '" + toGradlePath(this) + "'";
 	}
@@ -132,7 +132,7 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 			return this;
 		}
 
-		public Builder<T> withComponentIdentifier(ComponentIdentifier componentIdentifier) {
+		public Builder<T> withComponentIdentifier(ModelObjectIdentifier componentIdentifier) {
 			this.ownerIdentifier = componentIdentifier;
 			return this;
 		}

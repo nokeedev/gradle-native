@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantAwareComponent;
+package dev.nokee.model.internal;
 
-public interface VariantAwareComponentInternal<T extends Variant> extends VariantAwareComponent<T>, HasDevelopmentVariant<T> {
-	ModelObjectIdentifier getIdentifier();
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
+
+import javax.annotation.Nullable;
+
+public interface ModelObjectIdentifier extends DomainObjectIdentifier {
+	static ModelObjectIdentifierBuilder builder() {
+		return new ModelObjectIdentifierBuilder();
+	}
+
+	@Nullable
+	ModelObjectIdentifier getParent();
+	ElementName getName();
+	String getDisplayName();
 }

@@ -15,19 +15,20 @@
  */
 package dev.nokee.platform.nativebase.internal.rules;
 
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
 public class WarnUnbuildableLogger {
 	private static final Logger LOGGER = Logging.getLogger(WarnUnbuildableLogger.class);
-	private final ComponentIdentifier identifier;
+	private final ModelObjectIdentifier identifier;
 
-	public WarnUnbuildableLogger(ComponentIdentifier identifier) {
+	public WarnUnbuildableLogger(ModelObjectIdentifier identifier) {
 		this.identifier = identifier;
 	}
 
 	public void warn() {
-		LOGGER.warn(String.format("'%s' component in %s cannot build on this machine.", identifier.getName(), identifier.getProjectIdentifier()));
+		LOGGER.warn(String.format("'%s' component in %s cannot build on this machine.", identifier.getName(), identifier.getParent()));
 	}
 }

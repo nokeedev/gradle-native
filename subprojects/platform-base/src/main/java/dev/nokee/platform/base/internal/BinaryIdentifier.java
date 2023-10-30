@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.MainName;
 import lombok.EqualsAndHashCode;
@@ -67,7 +68,7 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 
 		segments.add(outputType);
 		getComponentOwnerIdentifier()
-			.map(ComponentIdentifier::getName)
+			.map(ModelObjectIdentifier::getName)
 			.filter(it -> !(it instanceof MainName))
 			.map(Object::toString)
 			.ifPresent(segments::add);
@@ -80,12 +81,12 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 		return String.join("/", segments);
 	}
 
-	private Optional<ComponentIdentifier> getComponentOwnerIdentifier() {
+	private Optional<ModelObjectIdentifier> getComponentOwnerIdentifier() {
 		if (ownerIdentifier instanceof VariantIdentifier) {
 			// TODO: Remove assumption that owner is ComponentIdentifier
-			return Optional.of((ComponentIdentifier) ((VariantIdentifier) ownerIdentifier).getOwnerIdentifier());
-		} else if (ownerIdentifier instanceof ComponentIdentifier) {
-			return Optional.of((ComponentIdentifier) ownerIdentifier);
+			return Optional.of((ModelObjectIdentifier) ((VariantIdentifier) ownerIdentifier).getOwnerIdentifier());
+		} else if (ownerIdentifier instanceof ModelObjectIdentifier) {
+			return Optional.of((ModelObjectIdentifier) ownerIdentifier);
 		}
 		return Optional.empty();
 	}

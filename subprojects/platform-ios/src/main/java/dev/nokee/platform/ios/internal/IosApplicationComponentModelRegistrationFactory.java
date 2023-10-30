@@ -19,6 +19,7 @@ import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
+import dev.nokee.model.internal.names.MainName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -52,7 +53,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(project)))
 			;
 
-		if (identifier.isMainComponent()) {
+		if (identifier.getName() instanceof MainName) {
 			builder.withComponentTag(ExcludeFromQualifyingNameTag.class);
 		}
 

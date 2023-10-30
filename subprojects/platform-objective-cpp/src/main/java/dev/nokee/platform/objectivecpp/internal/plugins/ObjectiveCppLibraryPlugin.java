@@ -24,6 +24,7 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivecpp.internal.HasObjectiveCppSourcesMixIn;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -31,7 +32,6 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -102,7 +102,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration objectiveCppLibrary(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ElementName.of(name)).displayName("Objective-C++ library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("Objective-C++ library").withParent(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultObjectiveCppLibrary.class, project).create(identifier).withComponentTag(SupportObjectiveCppSourceSetTag.class).build();
 	}
 

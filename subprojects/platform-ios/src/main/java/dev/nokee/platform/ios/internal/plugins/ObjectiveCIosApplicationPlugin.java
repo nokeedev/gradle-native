@@ -23,6 +23,7 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivec.internal.HasObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -30,7 +31,6 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -113,7 +113,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration objectiveCIosApplication(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ElementName.of(name)).displayName("Objective-C iOS application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("Objective-C iOS application").withParent(ProjectIdentifier.of(project)).build();
 		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).withComponentTag(SupportObjectiveCSourceSetTag.class).build();
 	}
 

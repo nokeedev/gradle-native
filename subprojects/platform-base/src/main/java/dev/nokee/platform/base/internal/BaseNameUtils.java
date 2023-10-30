@@ -15,21 +15,23 @@
  */
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.names.MainName;
+
+import java.util.Objects;
 
 public final class BaseNameUtils {
 	private BaseNameUtils() {}
 
-	public static BaseName from(ComponentIdentifier identifier) {
-		// TODO: Remove assumption taht owner is ProjectIdentifier
-		if (identifier.isMainComponent()) {
-			return BaseName.of(((ProjectIdentifier) identifier.getProjectIdentifier()).getName());
+	public static BaseName from(ModelObjectIdentifier identifier) {
+		if (identifier.getName() instanceof MainName) {
+			return BaseName.of(Objects.requireNonNull(identifier.getParent()).getName().toString());
 		}
-		return BaseName.of(((ProjectIdentifier) identifier.getProjectIdentifier()).getName() + "-" + identifier.getName());
+		return BaseName.of(Objects.requireNonNull(identifier.getParent()).getName() + "-" + identifier.getName());
 	}
 
 	public static BaseName from(VariantIdentifier identifier) {
 		// TODO: Remove assumption that owner is ComponentIdentifier
-		return from((ComponentIdentifier) identifier.getOwnerIdentifier());
+		return from((ModelObjectIdentifier) identifier.getOwnerIdentifier());
 	}
 }

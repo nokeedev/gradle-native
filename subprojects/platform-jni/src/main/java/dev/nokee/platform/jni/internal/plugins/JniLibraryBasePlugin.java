@@ -48,6 +48,7 @@ import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ModelElementFactory;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.buffers.ModelBuffers;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -75,7 +76,6 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -175,7 +175,6 @@ import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
@@ -574,7 +573,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 			val identifier = (VariantIdentifier) parent.get().get(IdentifierComponent.class).get();
 			registry.instantiate(configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableWarningService.map(it -> {
-				it.warn((ComponentIdentifier) identifier.getOwnerIdentifier()); // TODO: Remove assumption
+				it.warn((ModelObjectIdentifier) identifier.getOwnerIdentifier()); // TODO: Remove assumption
 				return null;
 			}))));
 		}));

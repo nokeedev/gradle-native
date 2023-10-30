@@ -36,6 +36,7 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ModelElementFactory;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -66,7 +67,6 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
@@ -524,7 +524,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn(developmentVariant.flatMap(ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY).map(Arrays::asList)
 				.orElse(unbuildableWarningService.map(it -> {
-					it.warn((ComponentIdentifier) identifier.get());
+					it.warn((ModelObjectIdentifier) identifier.get());
 					return Collections.emptyList();
 				})))));
 		}));

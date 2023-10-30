@@ -20,6 +20,7 @@ import com.google.common.collect.Streams;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -44,7 +45,6 @@ import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -224,7 +224,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration unitTestXCTestTestSuite(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ElementName.of(name)).displayName("XCTest test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("XCTest test suite").withParent(ProjectIdentifier.of(project)).build();
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(of(DefaultUnitTestXCTestTestSuiteComponent.class), () -> {
@@ -246,7 +246,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration uiTestXCTestTestSuite(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ElementName.of(name)).displayName("XCTest test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("XCTest test suite").withParent(ProjectIdentifier.of(project)).build();
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponentTag(ConfigurableTag.class)

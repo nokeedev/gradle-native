@@ -15,12 +15,13 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
+import dev.nokee.model.internal.names.MainName;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import lombok.val;
 import org.gradle.api.Project;
@@ -40,7 +41,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 		this.project = project;
 	}
 
-	public ModelRegistration.Builder create(ComponentIdentifier identifier) {
+	public ModelRegistration.Builder create(ModelObjectIdentifier identifier) {
 		val builder = ModelRegistration.builder()
 			.withComponent(new MainProjectionComponent(implementationComponentType))
 			.withComponent(new IdentifierComponent(identifier))
@@ -50,7 +51,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(project)))
 			;
 
-		if (identifier.isMainComponent()) {
+		if (identifier.getName() instanceof MainName) {
 			builder.withComponentTag(ExcludeFromQualifyingNameTag.class);
 		}
 

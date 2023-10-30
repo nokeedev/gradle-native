@@ -21,6 +21,7 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.swift.internal.plugins.HasSwiftSourcesMixIn;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -28,7 +29,6 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -101,7 +101,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration swiftLibrary(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ElementName.of(name)).displayName("Swift library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("Swift library").withParent(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultSwiftLibrary.class, project).create(identifier).withComponentTag(SupportSwiftSourceSetTag.class).build();
 	}
 

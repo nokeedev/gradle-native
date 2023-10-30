@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -41,8 +42,8 @@ public abstract class BaseComponent<T extends Variant> implements Component, Mod
 		return ModelProperties.getProperty(this, "baseName").asProperty(property(of(String.class)));
 	}
 
-	public ComponentIdentifier getIdentifier() {
-		return (ComponentIdentifier) node.get(IdentifierComponent.class).get();
+	public ModelObjectIdentifier getIdentifier() {
+		return (ModelObjectIdentifier) node.get(IdentifierComponent.class).get();
 	}
 
 	public abstract Provider<T> getDevelopmentVariant();

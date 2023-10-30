@@ -28,6 +28,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourc
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -56,7 +57,6 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -241,7 +241,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration nativeTestSuite(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ElementName.of(name)).displayName("native test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("native test suite").withParent(ProjectIdentifier.of(project)).build();
 		val entityPath = ModelPath.path(identifier.getName().toString());
 		return builder()
 			.withComponent(new ModelPathComponent(entityPath))
