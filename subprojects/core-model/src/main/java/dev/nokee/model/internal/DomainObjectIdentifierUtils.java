@@ -20,6 +20,7 @@ import com.google.common.collect.Streams;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.names.MainName;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.util.Path;
@@ -85,7 +86,7 @@ public final class DomainObjectIdentifierUtils {
 			if (it instanceof ProjectIdentifier) {
 				return Stream.empty();
 			} else if (it instanceof HasName) {
-				return Stream.of(((HasName) it).getName().toString()).filter(s -> !s.isEmpty());
+				return Stream.of(((HasName) it).getName()).filter(s -> !(s instanceof MainName)).map(Object::toString).filter(s -> !s.isEmpty());
 			} else {
 				throw new UnsupportedOperationException();
 			}

@@ -22,7 +22,7 @@ public final class BaseNameUtils {
 		if (identifier.isMainComponent()) {
 			return BaseName.of(identifier.getProjectIdentifier().getName());
 		}
-		return BaseName.of(identifier.getProjectIdentifier().getName() + "-" + identifier.getName().get());
+		return BaseName.of(identifier.getProjectIdentifier().getName() + "-" + identifier.getName());
 	}
 
 	public static BaseName from(VariantIdentifier identifier) {

@@ -19,6 +19,7 @@ import com.google.common.collect.Streams;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.names.MainName;
 import lombok.val;
 
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public final class OutputDirectoryPath {
 				} else if (it instanceof BinaryIdentity) {
 					return Stream.of((BinaryIdentity) it).filter(t -> !t.isMain()).map(t -> t.getName().get());
 				} else if (it instanceof HasName) {
-					return Stream.of(((HasName) it).getName().toString()).filter(s -> !s.isEmpty());
+					return Stream.of(((HasName) it).getName()).map(Object::toString).filter(s -> !s.isEmpty());
 				} else {
 					throw new UnsupportedOperationException();
 				}

@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.names.MainName;
 import dev.nokee.platform.base.Binary;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -72,8 +73,8 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 
 		segments.add(outputType);
 		getComponentOwnerIdentifier()
-			.filter(it -> !it.isMainComponent())
 			.map(ComponentIdentifier::getName)
+			.filter(it -> !(it instanceof MainName))
 			.map(Object::toString)
 			.ifPresent(segments::add);
 		getVariantOwnerIdentifier()

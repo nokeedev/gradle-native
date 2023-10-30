@@ -259,7 +259,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 						.put("FRAMEWORK_SEARCH_PATHS", binaries.getElements().flatMap(toFrameworkSearchPaths()))
 						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
 						.put("USE_HEADERMAP", "NO")
-						.put("GRADLE_IDE_PROJECT_NAME", component.getIdentifier().getName().get());
+						.put("GRADLE_IDE_PROJECT_NAME", component.getIdentifier().getName());
 
 					if (variantInternal instanceof DefaultIosApplicationVariant) {
 						xcodeConfiguration.getBuildSettings()

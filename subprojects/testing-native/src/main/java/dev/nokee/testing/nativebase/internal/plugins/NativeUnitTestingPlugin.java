@@ -242,7 +242,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 	public static ModelRegistration nativeTestSuite(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ElementName.of(name)).displayName("native test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		val entityPath = ModelPath.path(identifier.getName().get());
+		val entityPath = ModelPath.path(identifier.getName().toString());
 		return builder()
 			.withComponent(new ModelPathComponent(entityPath))
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteComponent.class), () -> project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class))))

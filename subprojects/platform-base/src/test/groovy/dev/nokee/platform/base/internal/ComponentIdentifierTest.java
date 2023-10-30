@@ -45,7 +45,7 @@ class ComponentIdentifierTest {
 
 		@Test
 		void hasMainName() {
-			assertEquals(ComponentName.ofMain(), subject.getName());
+			assertEquals(ElementName.ofMain(), subject.getName());
 		}
 
 		@Test
@@ -65,7 +65,7 @@ class ComponentIdentifierTest {
 
 		@Test
 		void hasName() {
-			assertEquals(ComponentName.of("roba"), subject.getName());
+			assertEquals(ElementName.of("roba"), subject.getName());
 		}
 
 		@Test
@@ -85,7 +85,7 @@ class ComponentIdentifierTest {
 
 		@Test
 		void hasName() {
-			assertEquals(ComponentName.of("nafa"), subject.getName());
+			assertEquals(ElementName.of("nafa"), subject.getName());
 		}
 
 		@Test
@@ -112,7 +112,7 @@ class ComponentIdentifierTest {
 	void checkNulls() {
 		new NullPointerTester()
 			.setDefault(ProjectIdentifier.class, ProjectIdentifier.ofRootProject())
-			.setDefault(ComponentName.class, ComponentName.ofMain())
+			.setDefault(ElementName.class, ElementName.ofMain())
 			.setDefault(String.class, "sled")
 			.testAllPublicStaticMethods(ComponentIdentifier.class);
 		new NullPointerTester().testAllPublicInstanceMethods(builder());

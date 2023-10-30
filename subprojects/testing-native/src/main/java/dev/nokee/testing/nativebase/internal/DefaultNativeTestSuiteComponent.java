@@ -238,9 +238,9 @@ public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeCompone
 			getBaseName().convention(component.getBaseName().map(it -> {
 				// if the tested component has a SwiftSourceSet
 				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(component.getNode())).and(withType(of(SwiftSourceSet.class)))))) {
-					return it + "-" + getIdentifier().getName().get();
+					return it + "-" + getIdentifier().getName();
 				}
-				return it + StringUtils.capitalize(getIdentifier().getName().get());
+				return it + StringUtils.capitalize(getIdentifier().getName().toString());
 			}));
 
 			// TODO: We won't need this once testSuites container will be maintained on component themselves

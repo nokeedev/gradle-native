@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
+import dev.nokee.model.internal.names.ElementName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,9 @@ import static dev.nokee.platform.base.internal.ComponentIdentity.of;
 import static dev.nokee.platform.base.internal.ComponentIdentity.ofMain;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ComponentIdentityTest {
 	@Nested
@@ -33,7 +36,7 @@ class ComponentIdentityTest {
 
 		@Test
 		void hasName() {
-			assertEquals(ComponentName.of("main"), subject.getName());
+			assertEquals(ElementName.of("main"), subject.getName());
 		}
 
 		@Test
@@ -53,7 +56,7 @@ class ComponentIdentityTest {
 
 		@Test
 		void hasName() {
-			assertEquals(ComponentName.of("sopa"), subject.getName());
+			assertEquals(ElementName.of("sopa"), subject.getName());
 		}
 
 		@Test
@@ -69,11 +72,11 @@ class ComponentIdentityTest {
 
 	@Nested
 	class OfNameTest {
-		private final ComponentIdentity subject = of(ComponentName.of("pema"));
+		private final ComponentIdentity subject = of(ElementName.of("pema"));
 
 		@Test
 		void hasName() {
-			assertEquals(ComponentName.of("pema"), subject.getName());
+			assertEquals(ElementName.of("pema"), subject.getName());
 		}
 
 		@Test
@@ -94,7 +97,7 @@ class ComponentIdentityTest {
 
 	@Test
 	void canCreateMainIdentityFromComponentName() {
-		assertTrue(of(ComponentName.of("main")).isMainComponent());
+		assertTrue(of(ElementName.ofMain()).isMainComponent());
 	}
 
 	@Test
@@ -107,8 +110,8 @@ class ComponentIdentityTest {
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(ofMain(), of("main"), of(ComponentName.of("main")))
-			.addEqualityGroup(of("pumi"), of(ComponentName.of("pumi")))
+			.addEqualityGroup(ofMain(), of("main"), of(ElementName.ofMain()))
+			.addEqualityGroup(of("pumi"), of(ElementName.of("pumi")))
 			.testEquals();
 	}
 }

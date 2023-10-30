@@ -204,9 +204,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val unitTestComponentProvider = testSuites.register("unitTest", DefaultUnitTestXCTestTestSuiteComponent.class, component -> {
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
-				component.getBaseName().set(TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
-				component.getModuleName().set(TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
-				component.getProductBundleIdentifier().set(project.getGroup().toString() + "." + TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
+				component.getBaseName().set(TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().toString()));
+				component.getModuleName().set(TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().toString()));
+				component.getProductBundleIdentifier().set(project.getGroup().toString() + "." + TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().toString()));
 			});
 			val unitTestComponent = unitTestComponentProvider.get();
 			project.afterEvaluate(finalizeModelNodeOf(unitTestComponent));
@@ -214,9 +214,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val uiTestComponentProvider = testSuites.register("uiTest", DefaultUiTestXCTestTestSuiteComponent.class, component -> {
 				component.getTestedComponent().value(application).disallowChanges();
 				component.getGroupId().set(GroupId.of(project::getGroup));
-				component.getBaseName().set(TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
-				component.getModuleName().set(TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
-				component.getProductBundleIdentifier().set(project.getGroup().toString() + "." + TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
+				component.getBaseName().set(TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().toString()));
+				component.getModuleName().set(TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().toString()));
+				component.getProductBundleIdentifier().set(project.getGroup().toString() + "." + TextCaseUtils.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().toString()));
 			});
 			val uiTestComponent = uiTestComponentProvider.get();
 			project.afterEvaluate(finalizeModelNodeOf(uiTestComponent));

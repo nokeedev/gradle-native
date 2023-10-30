@@ -20,7 +20,6 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.MainName;
 import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
@@ -51,13 +50,8 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 	}
 
 	@Override
-	public ComponentName getName() {
-		if (identity.getName() instanceof MainName) {
-			assert identity.getName().toString().equals("main");
-			return ComponentName.ofMain();
-		} else {
-			return ComponentName.of(identity.getName().toString());
-		}
+	public ElementName getName() {
+		return identity.getName();
 	}
 
 	// FIXME: Remove this API
