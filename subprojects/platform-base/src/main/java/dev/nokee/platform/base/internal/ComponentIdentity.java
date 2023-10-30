@@ -16,34 +16,35 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.HasName;
+import dev.nokee.model.internal.names.ElementName;
 import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 
 @EqualsAndHashCode
 public final class ComponentIdentity implements HasName {
-	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
+	private static final ElementName MAIN_COMPONENT_NAME = ElementName.ofMain();
 
 	public static ComponentIdentity ofMain() {
 		return new ComponentIdentity(MAIN_COMPONENT_NAME);
 	}
 
 	public static ComponentIdentity of(String name) {
-		return new ComponentIdentity(ComponentName.of(name));
+		return new ComponentIdentity(ElementName.of(name));
 	}
 
-	public static ComponentIdentity of(ComponentName name) {
+	public static ComponentIdentity of(ElementName name) {
 		return new ComponentIdentity(name);
 	}
 
-	private final ComponentName name;
+	private final ElementName name;
 
-	private ComponentIdentity(ComponentName name) {
+	private ComponentIdentity(ElementName name) {
 		this.name = Objects.requireNonNull(name);
 	}
 
 	@Override
-	public ComponentName getName() {
+	public ElementName getName() {
 		return name;
 	}
 
@@ -56,7 +57,7 @@ public final class ComponentIdentity implements HasName {
 		if (isMainComponent()) {
 			return "";
 		} else {
-			return name.get();
+			return name.toString();
 		}
 	}
 }

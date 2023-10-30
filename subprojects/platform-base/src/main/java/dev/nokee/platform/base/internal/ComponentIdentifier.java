@@ -52,7 +52,12 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 
 	@Override
 	public ComponentName getName() {
-		return identity.getName();
+		if (identity.getName() instanceof MainName) {
+			assert identity.getName().toString().equals("main");
+			return ComponentName.ofMain();
+		} else {
+			return ComponentName.of(identity.getName().toString());
+		}
 	}
 
 	// FIXME: Remove this API
@@ -84,18 +89,12 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 	}
 
     public static final class Builder {
-		private ComponentName name;
+		private ElementName name;
 		private String displayName = DEFAULT_DISPLAY_NAME;
 		private ProjectIdentifier projectIdentifier;
 
 		public Builder name(ElementName name) {
-			Objects.requireNonNull(name);
-			if (name instanceof MainName) {
-				assert name.toString().equals("main");
-				this.name = ComponentName.ofMain();
-			} else {
-				this.name = ComponentName.of(name.toString());
-			}
+			this.name = Objects.requireNonNull(name);
 			return this;
 		}
 
