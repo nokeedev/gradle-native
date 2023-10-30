@@ -16,8 +16,6 @@
 package dev.nokee.platform.base.internal
 
 import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.platform.base.Binary
-import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -30,7 +28,7 @@ class BinaryIdentifierTest extends Specification {
 		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
 
 		when:
-		def result = BinaryIdentifier.of('foo', variantIdentifier)
+		def result = BinaryIdentifier.of(variantIdentifier, 'foo')
 
 		then:
 		result.name.get() == 'foo'
@@ -43,7 +41,7 @@ class BinaryIdentifierTest extends Specification {
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 
 		when:
-		def result = BinaryIdentifier.of('foo', componentIdentifier)
+		def result = BinaryIdentifier.of(componentIdentifier, 'foo')
 
 		then:
 		result.name.get() == 'foo'
@@ -57,7 +55,7 @@ class BinaryIdentifierTest extends Specification {
 		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
 
 		when:
-		BinaryIdentifier.of(null, variantIdentifier)
+		BinaryIdentifier.of(variantIdentifier, null)
 
 		then:
 		thrown(NullPointerException)

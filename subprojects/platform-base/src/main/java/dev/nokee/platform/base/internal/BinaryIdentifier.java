@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.MainName;
 import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
@@ -29,38 +28,31 @@ import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
 public final class BinaryIdentifier implements DomainObjectIdentifier, HasName {
-	private final BinaryIdentity identity;
+	private final ElementName name;
 	private final DomainObjectIdentifier ownerIdentifier;
 
-	public BinaryIdentifier(BinaryIdentity identity, DomainObjectIdentifier ownerIdentifier) {
-		requireNonNull(identity);
+	public BinaryIdentifier(ElementName name, DomainObjectIdentifier ownerIdentifier) {
+		requireNonNull(name);
 		checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
-		this.identity = identity;
+		this.name = name;
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
 	public ElementName getName() {
-		return identity.getName();
+		return name;
 	}
 
 	public DomainObjectIdentifier getOwnerIdentifier() {
 		return ownerIdentifier;
 	}
 
-	public static BinaryIdentifier of(String name, DomainObjectIdentifier ownerIdentifier) {
-		return new BinaryIdentifier(BinaryIdentity.of(name, "binary"), ownerIdentifier);
-	}
 
 	public static BinaryIdentifier of(DomainObjectIdentifier ownerIdentifier, String name) {
-		return new BinaryIdentifier(BinaryIdentity.of(name, "binary"), ownerIdentifier);
+		return new BinaryIdentifier(ElementName.of(name), ownerIdentifier);
 	}
 
 	public static BinaryIdentifier of(DomainObjectIdentifier ownerIdentifier, ElementName name) {
-		if (name instanceof MainName) {
-			return new BinaryIdentifier(BinaryIdentity.ofMain(name.toString(), "binary"), ownerIdentifier);
-		} else {
-			return new BinaryIdentifier(BinaryIdentity.of(name.toString(), "binary"), ownerIdentifier);
-		}
+		return new BinaryIdentifier(name, ownerIdentifier);
 	}
 
 	@Override
