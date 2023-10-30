@@ -15,18 +15,15 @@
  */
 package dev.nokee.model.fixtures;
 
-import com.google.common.collect.Streams;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
-import lombok.EqualsAndHashCode;
 import org.gradle.api.model.ObjectFactory;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Iterator;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 
@@ -42,36 +39,13 @@ public class ModelRegistryTestUtils {
 		return new DefaultModelRegistry(objectFactory::newInstance);
 	}
 
-	public static DomainObjectIdentifier identifier(String path) {
-		return new Identifier(Streams.stream(ModelPath.path(path)).map(Identity::new).toArray(Object[]::new));
-	}
-
-	@EqualsAndHashCode
-	private static final class Identifier implements DomainObjectIdentifier {
-		@EqualsAndHashCode.Include private final Iterable<Object> identities;
-
-		public Identifier(Object... identities) {
-			this.identities = Arrays.asList(identities);
+	public static ModelObjectIdentifier identifier(String path) {
+		ModelObjectIdentifier result = null;
+		for (String name : ModelPath.path(path)) {
+			result = new DefaultModelObjectIdentifier(ElementName.of(name), result);
 		}
 
-		@Override
-		public Iterator<Object> iterator() {
-			return identities.iterator();
-		}
-	}
-
-	@EqualsAndHashCode
-	private static final class Identity implements HasName {
-		@EqualsAndHashCode.Include private final String name;
-
-		public Identity(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public Object getName() {
-			return name;
-		}
+		return result;
 	}
 
 	interface TestHolder {}

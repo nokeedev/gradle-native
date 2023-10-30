@@ -17,7 +17,6 @@ package dev.nokee.model.internal;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -38,9 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @PluginRequirement.Require(id = "dev.nokee.model-base")
 class DefaultModelObjectElementQueryIntegrationTest extends AbstractPluginTest {
-	private final DomainObjectIdentifier i0 = identifier("a.b");
-	private final DomainObjectIdentifier i1 = identifier("a.b");
-	private final DomainObjectIdentifier i2 = identifier("a.c");
+	private final ModelObjectIdentifier i0 = identifier("a.b");
+	private final ModelObjectIdentifier i1 = identifier("a.b");
+	private final ModelObjectIdentifier i2 = identifier("a.c");
 	private DomainObjectProvider<Object> object;
 
 	@BeforeEach
