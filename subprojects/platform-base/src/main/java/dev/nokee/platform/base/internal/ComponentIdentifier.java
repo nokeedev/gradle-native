@@ -50,10 +50,6 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 		return new ComponentIdentifier(ComponentIdentity.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
-	public static ComponentIdentifier of(ComponentName name, ProjectIdentifier projectIdentifier) {
-		return new ComponentIdentifier(ComponentIdentity.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
-	}
-
 	@Override
 	public ComponentName getName() {
 		return identity.getName();
