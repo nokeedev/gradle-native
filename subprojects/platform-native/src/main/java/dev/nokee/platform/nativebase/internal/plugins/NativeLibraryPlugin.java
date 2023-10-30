@@ -21,6 +21,7 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -50,7 +51,6 @@ import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
@@ -114,7 +114,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	}
 
 	@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension, ModelNodeAware
+	public static abstract class DefaultNativeLibraryExtension extends ModelElementSupport implements NativeLibraryExtension, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
@@ -142,7 +142,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		}
 	}
 
-	public static ModelRegistration nativeLibraryVariant(VariantIdentifier identifier, DefaultNativeLibraryComponent component, Project project) {
+	public static ModelRegistration nativeLibraryVariant(VariantIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponentTag(ConfigurableTag.class)
 			.withComponent(new IdentifierComponent(identifier))

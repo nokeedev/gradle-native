@@ -18,7 +18,6 @@ package dev.nokee.platform.nativebase.internal.plugins;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
-import dev.nokee.internal.Factory;
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationComponent;
@@ -33,10 +32,12 @@ import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.ModelElementFactory;
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -64,12 +65,15 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.BaseNameComponent;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
+import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskComponent;
@@ -96,9 +100,7 @@ import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
@@ -131,6 +133,9 @@ import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDepen
 import dev.nokee.platform.nativebase.internal.linking.LinkLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
@@ -170,6 +175,7 @@ import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -573,12 +579,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, developmentVariant, ignored1) -> {
 			((Property<NativeApplication>) developmentVariant.get().get(GradlePropertyComponent.class).get())
-				.convention((Provider<? extends DefaultNativeApplicationVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
+				.convention((Provider<? extends DefaultNativeApplicationVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(VariantAwareComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
 		}));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, developmentVariant, ignored1) -> {
 			((Property<NativeLibrary>) developmentVariant.get().get(GradlePropertyComponent.class).get())
-				.convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(DefaultNativeLibraryComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
+				.convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(VariantAwareComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
 		}));
 	}
 
@@ -601,14 +607,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		};
 	}
 
-	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(Project project) {
-		return () -> project.getObjects().newInstance(DefaultNativeApplicationComponent.class, project.getExtensions().getByType(ModelRegistry.class));
-	}
-
-	public static Factory<DefaultNativeLibraryComponent> nativeLibraryProjection(Project project) {
-		return () -> project.getObjects().newInstance(DefaultNativeLibraryComponent.class, project.getExtensions().getByType(ModelRegistry.class));
-	}
-
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {
 		return t -> action.accept(t, ModelNodeUtils.get(ModelNodes.of(t), type));
 	}
@@ -629,13 +627,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 		public void execute(ModelNode entity) {
 			val variants = entity.get(LinkedVariantsComponent.class);
-			val component = ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class));
+			VariantAwareComponent<?> component = ModelNodeUtils.get(entity, of(ModelBackedVariantAwareComponentMixIn.class));
 
 			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), new BiFunction<BuildVariant, ModelNode, Void>() {
 				@Override
 				public Void apply(BuildVariant buildVariant, ModelNode variant) {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-					nativeApplicationVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(((dev.nokee.model.internal.ModelElement) component).getIdentifier()).build();
+					nativeApplicationVariant(variantIdentifier).getComponents().forEach(variant::addComponent);
 					variant.addComponent(new BuildVariantComponent(buildVariant));
 					ModelStates.register(variant);
 
@@ -648,7 +646,14 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				}
 			}).forEach(it -> {});
 
-			component.finalizeExtension(null);
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			whenElementKnown(component, new CreateVariantObjectsLifecycleTaskRule(registry));
+			new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute((VariantAwareComponentInternal<?>) component);
+			whenElementKnown(component, new CreateVariantAssembleLifecycleTaskRule(registry));
+		}
+
+		private static void whenElementKnown(Object target, Action<? super KnownDomainObject<NativeApplication>> action) {
+			instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), NativeApplication.class, action));
 		}
 	}
 
@@ -661,15 +666,15 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 		public void execute(ModelNode entity) {
 			val variants = entity.get(LinkedVariantsComponent.class);
-			val component = ModelNodeUtils.get(entity, of(DefaultNativeLibraryComponent.class));
+			VariantAwareComponent<?> component = ModelNodeUtils.get(entity, of(ModelBackedVariantAwareComponentMixIn.class));
 
 			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), new BiFunction<BuildVariant, ModelNode, Void>() {
 				private final ModelLookup modelLookup = project.getExtensions().getByType(ModelLookup.class);
 
 				@Override
 				public Void apply(BuildVariant buildVariant, ModelNode variant) {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-					nativeLibraryVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(((dev.nokee.model.internal.ModelElement) component).getIdentifier()).build();
+					nativeLibraryVariant(variantIdentifier).getComponents().forEach(variant::addComponent);
 					variant.addComponent(new BuildVariantComponent(buildVariant));
 					ModelStates.register(variant);
 
@@ -707,7 +712,14 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				}
 			}).forEach(it -> {});
 
-			component.finalizeExtension(null);
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			whenElementKnown(component, new CreateVariantObjectsLifecycleTaskRule(registry));
+			new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute((VariantAwareComponentInternal<?>) component);
+			whenElementKnown(component, new CreateVariantAssembleLifecycleTaskRule(registry));
+		}
+
+		private static void whenElementKnown(Object target, Action<? super KnownDomainObject<NativeLibrary>> action) {
+			instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), NativeLibrary.class, action));
 		}
 	}
 }

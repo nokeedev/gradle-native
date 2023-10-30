@@ -28,7 +28,6 @@ import org.gradle.api.Project;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.nativeApplicationProjection;
 
 public final class NativeApplicationComponentModelRegistrationFactory {
 	private final Class<Component> implementationComponentType;
@@ -47,7 +46,6 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 			.withComponentTag(ConfigurableTag.class)
 			.withComponentTag(NativeApplicationTag.class)
 			.mergeFrom(tagsOf(implementationComponentType))
-			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(project)))
 			;
 
 		if (identifier.getName() instanceof MainName) {

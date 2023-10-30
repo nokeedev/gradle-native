@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package dev.nokee.model.internal;
+package dev.nokee.platform.nativebase.internal;
 
-import org.gradle.api.Named;
-
-public interface ModelElement extends Named {
-	ModelObjectIdentifier getIdentifier();
+public interface NativeApplicationComponent {
 }

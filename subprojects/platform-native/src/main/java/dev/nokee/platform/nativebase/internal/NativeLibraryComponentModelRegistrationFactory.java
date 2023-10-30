@@ -26,10 +26,7 @@ import dev.nokee.platform.base.internal.MainProjectionComponent;
 import lombok.val;
 import org.gradle.api.Project;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.nativeLibraryProjection;
 
 public final class NativeLibraryComponentModelRegistrationFactory {
 	private final Class<Component> implementationComponentType;
@@ -48,7 +45,6 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.withComponentTag(ConfigurableTag.class)
 			.withComponentTag(NativeLibraryTag.class)
 			.mergeFrom(tagsOf(implementationComponentType))
-			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(project)))
 			;
 
 		if (identifier.getName() instanceof MainName) {

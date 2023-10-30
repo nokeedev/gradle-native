@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
@@ -35,7 +36,7 @@ import java.util.Set;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 
-public abstract class BaseComponent<T extends Variant> implements Component, ModelNodeAware {
+public abstract class BaseComponent<T extends Variant> extends ModelElementSupport implements Component, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	public Property<String> getBaseName() {

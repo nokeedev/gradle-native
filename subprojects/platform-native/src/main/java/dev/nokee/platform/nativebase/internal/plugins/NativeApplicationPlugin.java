@@ -21,6 +21,7 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -50,10 +51,10 @@ import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
@@ -113,7 +114,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 	}
 
 
-	public static ModelRegistration nativeApplicationVariant(VariantIdentifier identifier, DefaultNativeApplicationComponent component, Project project) {
+	public static ModelRegistration nativeApplicationVariant(VariantIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponentTag(ConfigurableTag.class)
 			.withComponent(new IdentifierComponent(identifier))
@@ -125,7 +126,8 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 	}
 
 	@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension, ModelNodeAware
+	public static abstract class DefaultNativeApplicationExtension extends ModelElementSupport implements NativeApplicationExtension, ModelNodeAware
+		, NativeApplicationComponent
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>

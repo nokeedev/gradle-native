@@ -36,6 +36,11 @@ public abstract class ModelElementSupport implements ModelElement {
 		return delegate.getName();
 	}
 
+	@Override
+	public ModelObjectIdentifier getIdentifier() {
+		return delegate.getIdentifier();
+	}
+
 	// TODO: Get identifier should mark the element as single identifier else there is no way of knowing which overlapping you want
 
 	// Passing a ModelElement because the instance can reference multiple element (overlapping)

@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
@@ -51,7 +52,7 @@ import java.util.function.Supplier;
 
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeaderSearchPaths, ModelNodeAware {
+public abstract class BaseNativeBinary extends ModelElementSupport implements Binary, NativeBinary, HasHeaderSearchPaths, ModelNodeAware {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;

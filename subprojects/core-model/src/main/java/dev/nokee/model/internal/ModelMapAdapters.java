@@ -54,6 +54,12 @@ public final class ModelMapAdapters {
 		public String getName() {
 			return name;
 		}
+
+		@Override
+		public ModelObjectIdentifier getIdentifier() {
+			assert identifiers.size() == 1;
+			return identifiers.iterator().next().identifier;
+		}
 	}
 
 	private static final class KnownElements {

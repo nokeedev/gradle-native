@@ -28,7 +28,7 @@ import java.util.Set;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
-public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T> {
+public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T>, VariantAwareComponentInternal<T> {
 	@Override
 	@SuppressWarnings("unchecked")
 	default VariantView<T> getVariants() {

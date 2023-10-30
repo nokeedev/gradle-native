@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelNode;
@@ -23,7 +24,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, DeclarableDependencyBucketTag.class, ConfigurableTag.class})
-public class DeclarableDependencyBucketSpec implements DeclarableDependencyBucket, ModelNodeAware
+public class DeclarableDependencyBucketSpec extends ModelElementSupport implements DeclarableDependencyBucket, ModelNodeAware
 	, DependencyBucketMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();

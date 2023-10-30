@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelNode;
@@ -27,7 +28,7 @@ import org.gradle.api.file.FileCollection;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, ResolvableDependencyBucketTag.class, ConfigurableTag.class})
-public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucket, ModelNodeAware
+public class ResolvableDependencyBucketSpec extends ModelElementSupport implements ResolvableDependencyBucket, ModelNodeAware
 	, DependencyBucketMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
