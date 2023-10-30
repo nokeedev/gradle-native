@@ -18,15 +18,11 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.MainName;
 import lombok.EqualsAndHashCode;
-import lombok.val;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
@@ -66,41 +62,6 @@ public final class BinaryIdentifier implements DomainObjectIdentifier, HasName {
 		} else {
 			return new BinaryIdentifier(BinaryIdentity.of(name.toString(), "binary"), ownerIdentifier);
 		}
-	}
-
-	public String getOutputDirectoryBase(String outputType) {
-		val segments = new ArrayList<String>();
-
-		segments.add(outputType);
-		getComponentOwnerIdentifier()
-			.map(ModelObjectIdentifier::getName)
-			.filter(it -> !(it instanceof MainName))
-			.map(Object::toString)
-			.ifPresent(segments::add);
-		getVariantOwnerIdentifier()
-			.map(VariantIdentifier::getAmbiguousDimensions)
-			.map(Dimensions::get)
-			.filter(it -> !it.isEmpty())
-			.ifPresent(segments::addAll);
-
-		return String.join("/", segments);
-	}
-
-	private Optional<ModelObjectIdentifier> getComponentOwnerIdentifier() {
-		if (ownerIdentifier instanceof VariantIdentifier) {
-			// TODO: Remove assumption that owner is ComponentIdentifier
-			return Optional.of((ModelObjectIdentifier) ((VariantIdentifier) ownerIdentifier).getOwnerIdentifier());
-		} else if (ownerIdentifier instanceof ModelObjectIdentifier) {
-			return Optional.of((ModelObjectIdentifier) ownerIdentifier);
-		}
-		return Optional.empty();
-	}
-
-	private Optional<VariantIdentifier> getVariantOwnerIdentifier() {
-		if (ownerIdentifier instanceof VariantIdentifier) {
-			return Optional.of((VariantIdentifier) ownerIdentifier);
-		}
-		return Optional.empty();
 	}
 
 	@Override
