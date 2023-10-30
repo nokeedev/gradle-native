@@ -28,6 +28,7 @@ import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -36,7 +37,6 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
@@ -118,7 +118,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	@BeforeEach
 	void createSubject() {
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val identifier = ComponentIdentifier.builder().name(ComponentName.of("quzu")).withProjectIdentifier(ProjectIdentifier.of(project)).displayName("JNI library component").build();
+		val identifier = ComponentIdentifier.builder().name(ElementName.of("quzu")).withProjectIdentifier(ProjectIdentifier.of(project)).displayName("JNI library component").build();
 		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(host()));
 	}

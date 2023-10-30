@@ -29,10 +29,10 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentMixIn;
-import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
@@ -102,7 +102,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration cLibrary(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
+		val identifier = ComponentIdentifier.builder().name(ElementName.of(name)).displayName("C library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultCLibrary.class, project).create(identifier).withComponentTag(SupportCSourceSetTag.class).build();
 	}
 

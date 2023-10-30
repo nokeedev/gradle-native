@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -74,28 +75,8 @@ class ComponentIdentifierTest {
 	}
 
 	@Nested
-	class OfComponentNameIdentifierTest {
-		private final ComponentIdentifier subject = of(ComponentName.of("nuwe"), ownerIdentifier);
-
-		@Test
-		void isNotMainComponent() {
-			assertFalse(subject.isMainComponent());
-		}
-
-		@Test
-		void hasName() {
-			assertEquals(ComponentName.of("nuwe"), subject.getName());
-		}
-
-		@Test
-		void useDefaultDisplayName() {
-			assertThat(subject, hasToString("component ':nuwe'"));
-		}
-	}
-
-	@Nested
 	class BuilderIdentifierTest {
-		private final ComponentIdentifier subject = builder().name(ComponentName.of("nafa")).displayName("FOO application").withProjectIdentifier(ownerIdentifier).build();
+		private final ComponentIdentifier subject = builder().name(ElementName.of("nafa")).displayName("FOO application").withProjectIdentifier(ownerIdentifier).build();
 
 		@Test
 		void isNotMainComponent() {
@@ -117,12 +98,12 @@ class ComponentIdentifierTest {
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(ofMain(ownerIdentifier), of("main", ownerIdentifier), of(ComponentName.ofMain(), ownerIdentifier),
-				builder().name(ComponentName.ofMain()).withProjectIdentifier(ownerIdentifier).build())
-			.addEqualityGroup(of("bino", ownerIdentifier), of(ComponentName.of("bino"), ownerIdentifier),
-				builder().name(ComponentName.of("bino")).withProjectIdentifier(ownerIdentifier).build())
+			.addEqualityGroup(ofMain(ownerIdentifier), of("main", ownerIdentifier),
+				builder().name(ElementName.ofMain()).withProjectIdentifier(ownerIdentifier).build())
+			.addEqualityGroup(of("bino", ownerIdentifier),
+				builder().name(ElementName.of("bino")).withProjectIdentifier(ownerIdentifier).build())
 			.addEqualityGroup(of("bino", ProjectIdentifier.of("webo")))
-			.addEqualityGroup(builder().name(ComponentName.of("bino")).displayName("BAR library").withProjectIdentifier(ownerIdentifier).build())
+			.addEqualityGroup(builder().name(ElementName.of("bino")).displayName("BAR library").withProjectIdentifier(ownerIdentifier).build())
 			.testEquals();
 	}
 

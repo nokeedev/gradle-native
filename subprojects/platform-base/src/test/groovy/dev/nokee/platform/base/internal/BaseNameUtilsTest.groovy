@@ -32,7 +32,7 @@ class BaseNameUtilsTest extends Specification {
 	}
 
 	private static ComponentIdentifier componentId(String name, ProjectIdentifier owner) {
-		return ComponentIdentifier.of(ComponentName.of(name), owner)
+		return ComponentIdentifier.of(name, owner)
 	}
 
 	private static VariantIdentifier variantId(String name, ComponentIdentifier owner) {

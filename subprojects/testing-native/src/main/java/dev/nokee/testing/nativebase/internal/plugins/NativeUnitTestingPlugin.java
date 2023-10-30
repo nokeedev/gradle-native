@@ -45,6 +45,7 @@ import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
 import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -56,7 +57,6 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -241,7 +241,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration nativeTestSuite(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("native test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
+		val identifier = ComponentIdentifier.builder().name(ElementName.of(name)).displayName("native test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		val entityPath = ModelPath.path(identifier.getName().get());
 		return builder()
 			.withComponent(new ModelPathComponent(entityPath))

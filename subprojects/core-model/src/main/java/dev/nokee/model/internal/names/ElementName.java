@@ -31,4 +31,8 @@ public interface ElementName {
 	static ElementName of(String name) {
 		return new DefaultElementName(Objects.requireNonNull(name));
 	}
+
+	static ElementName ofMain() {
+		return new MainName(new DefaultElementName("main"));
+	}
 }

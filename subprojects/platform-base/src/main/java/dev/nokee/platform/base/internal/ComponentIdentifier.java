@@ -19,9 +19,12 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.MainName;
 import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
@@ -89,8 +92,14 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 		private String displayName = DEFAULT_DISPLAY_NAME;
 		private ProjectIdentifier projectIdentifier;
 
-		public Builder name(ComponentName name) {
-			this.name = requireNonNull(name);
+		public Builder name(ElementName name) {
+			Objects.requireNonNull(name);
+			if (name instanceof MainName) {
+				assert name.toString().equals("main");
+				this.name = ComponentName.ofMain();
+			} else {
+				this.name = ComponentName.of(name.toString());
+			}
 			return this;
 		}
 

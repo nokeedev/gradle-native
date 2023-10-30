@@ -73,7 +73,7 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 		segments.add(outputType);
 		getComponentOwnerIdentifier()
 			.map(ComponentIdentifier::getName)
-			.map(ComponentName::get)
+			.map(Object::toString)
 			.ifPresent(segments::add);
 		getVariantOwnerIdentifier()
 			.map(VariantIdentifier::getAmbiguousDimensions)

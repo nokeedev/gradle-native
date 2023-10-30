@@ -36,7 +36,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 	def "can generate output directory base for artifact owned by non-main component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of('test', projectIdentifier)
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), componentIdentifier)
 
 		expect:
@@ -61,7 +61,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 	def "can generate output directory base for artifact owned by variant of single-variant non-main component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of('test', projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
 
@@ -88,7 +88,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 	def "can generate output directory base for artifact owned by variant of multi-variant non-main component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of('test', projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
 

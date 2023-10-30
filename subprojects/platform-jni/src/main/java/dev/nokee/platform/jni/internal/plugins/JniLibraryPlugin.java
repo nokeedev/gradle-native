@@ -27,11 +27,11 @@ import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
@@ -177,7 +177,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	private JavaNativeInterfaceLibrary registerExtension(Project project) {
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val identifier = ComponentIdentifier.builder().name(ComponentName.ofMain()).displayName("JNI library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
+		val identifier = ComponentIdentifier.builder().name(ElementName.ofMain()).displayName("JNI library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 
 		val component = registry.register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class);
 		component.configure(it -> it.getBaseName().convention(project.getName()));
