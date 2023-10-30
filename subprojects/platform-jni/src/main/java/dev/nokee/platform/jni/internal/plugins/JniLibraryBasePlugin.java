@@ -426,7 +426,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			entity.addComponent(new JarTaskComponent(jarTask));
 		})));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJvmJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(ElementNameComponent.class), (entity, projection, identifier, tag, elementName) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJvmJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(IdentifierDisplayNameComponent.class), (entity, projection, identifier, tag, elementName, displayName) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val jarTask = registry.instantiate(newEntity("jar", Jar.class, it -> it.ownedBy(entity)));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, configureBuildGroup()));
@@ -436,7 +436,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> task.getArchiveBaseName().convention(elementName.get().toString())));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
 				if (task.getDescription() == null) {
-					task.setDescription(String.format("Assembles a JAR archive containing the classes for %s.", identifier.get()));
+					task.setDescription(String.format("Assembles a JAR archive containing the classes for %s.", displayName.get()));
 				}
 			}));
 			ModelStates.register(jarTask);

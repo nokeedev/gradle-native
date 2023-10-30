@@ -35,6 +35,7 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
+import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -184,7 +185,6 @@ import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
-import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
 	@Override
@@ -541,7 +541,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			if (parent.get().hasComponent(ModelTags.typeOf(NativeApplicationTag.class))) {
 				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("executable", Task.class, it -> it.ownedBy(entity)));
 				lifecycleTask.configure(Task.class, configureBuildGroup());
-				lifecycleTask.configure(Task.class, configureDescription("Assembles a executable binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
+				lifecycleTask.configure(Task.class, task -> {
+					task.setDescription(String.format("Assembles a executable binary containing the objects files of %s.", binary.get().get(IdentifierDisplayNameComponent.class).get()));
+				});
 				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), ExecutableBinary.class)));
 			}
 		}));
@@ -551,7 +553,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
 				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("sharedLibrary", Task.class, it -> it.ownedBy(entity)));
 				lifecycleTask.configure(Task.class, configureBuildGroup());
-				lifecycleTask.configure(Task.class, configureDescription("Assembles a shared library binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
+				lifecycleTask.configure(Task.class, task -> {
+					task.setDescription(String.format("Assembles a shared library binary containing the objects files of %s.", binary.get().get(IdentifierDisplayNameComponent.class).get()));
+				});
 				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), SharedLibraryBinary.class)));
 			}
 		}));
@@ -560,7 +564,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
 				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("staticLibrary", Task.class, it -> it.ownedBy(entity)));
 				lifecycleTask.configure(Task.class, configureBuildGroup());
-				lifecycleTask.configure(Task.class, configureDescription("Assembles a static library binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
+				lifecycleTask.configure(Task.class, task -> {
+					task.setDescription(String.format("Assembles a static library binary containing the objects files of %s.", binary.get().get(IdentifierDisplayNameComponent.class).get()));
+				});
 				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), StaticLibraryBinary.class)));
 			}
 		}));

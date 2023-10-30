@@ -19,6 +19,7 @@ import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
@@ -51,7 +52,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<NativeCompileTypeComponent, IdentifierComponent, ModelComponentTag<HasNativeCompileTaskMixIn.Tag>> {
+public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction4<NativeCompileTypeComponent, IdentifierComponent, ModelComponentTag<HasNativeCompileTaskMixIn.Tag>, IdentifierDisplayNameComponent> {
 	private final ModelRegistry registry;
 	private final NativeToolChainSelector toolChainSelector;
 
@@ -61,11 +62,13 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 	}
 
 	@Override
-	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, ModelComponentTag<HasNativeCompileTaskMixIn.Tag> ignored) {
+	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, ModelComponentTag<HasNativeCompileTaskMixIn.Tag> ignored, IdentifierDisplayNameComponent displayName) {
 		val implementationType = knownObject.getNativeCompileTaskType();
 
 		val compileTask = ModelNodes.of(registry.register(newEntity("compile", implementationType, it -> it.ownedBy(entity))));
-		registry.instantiate(configure(compileTask.getId(), implementationType, configureDescription("Compiles the %s.", identifier.get())));
+		registry.instantiate(configure(compileTask.getId(), implementationType, task -> {
+			task.setDescription(String.format("Compiles the %s.", displayName.get()));
+		}));
 		registry.instantiate(configure(compileTask.getId(), implementationType, configureDestinationDirectory(convention(forObjects(identifier.get())))));
 		registry.instantiate(configure(compileTask.getId(), implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty()))));
 		registry.instantiate(configure(compileTask.getId(), implementationType, configureObjectFiles(from(objectFilesInDestinationDirectory()))));
