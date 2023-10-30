@@ -15,16 +15,16 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 
 public final class JniJarBinaryRegistrationFactory {
-	public ModelRegistration.Builder create(BinaryIdentifier identifier) {
+	public ModelRegistration.Builder create(ModelObjectIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(new ElementNameComponent(identifier.getName()))

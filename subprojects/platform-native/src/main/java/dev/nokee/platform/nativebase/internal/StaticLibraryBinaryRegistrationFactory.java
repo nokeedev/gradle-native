@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelElements;
@@ -27,7 +28,6 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -52,7 +52,7 @@ import java.util.concurrent.Callable;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class StaticLibraryBinaryRegistrationFactory {
-	public ModelRegistration create(BinaryIdentifier identifier) {
+	public ModelRegistration create(ModelObjectIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponentTag(IsBinary.class)
