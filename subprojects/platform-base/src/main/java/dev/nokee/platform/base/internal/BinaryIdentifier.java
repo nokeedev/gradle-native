@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.MainName;
@@ -32,7 +33,7 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class BinaryIdentifier implements DomainObjectIdentifier {
+public final class BinaryIdentifier implements DomainObjectIdentifier, HasName {
 	private final BinaryIdentity identity;
 	private final DomainObjectIdentifier ownerIdentifier;
 
@@ -109,6 +110,6 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 
 	@Override
 	public Iterator<Object> iterator() {
-		return ImmutableList.builder().addAll(ownerIdentifier).add(identity).build().iterator();
+		return ImmutableList.builder().addAll(ownerIdentifier).add(this).build().iterator();
 	}
 }
