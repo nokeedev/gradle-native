@@ -18,16 +18,18 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import lombok.EqualsAndHashCode;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class BinaryIdentifier implements DomainObjectIdentifier, HasName {
+public final class BinaryIdentifier implements ModelObjectIdentifier, HasName {
 	private final ElementName name;
 	private final DomainObjectIdentifier ownerIdentifier;
 
@@ -36,6 +38,12 @@ public final class BinaryIdentifier implements DomainObjectIdentifier, HasName {
 		checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
 		this.name = name;
 		this.ownerIdentifier = ownerIdentifier;
+	}
+
+	@Nullable
+	@Override
+	public ModelObjectIdentifier getParent() {
+		return (ModelObjectIdentifier) ownerIdentifier;
 	}
 
 	public ElementName getName() {

@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.core.Coordinate;
@@ -27,6 +28,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -36,7 +38,7 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class VariantIdentifier implements DomainObjectIdentifier, HasName {
+public final class VariantIdentifier implements ModelObjectIdentifier, HasName {
 	@Getter private final String unambiguousName;
 	@Getter private final DomainObjectIdentifier ownerIdentifier;
 	@Getter @EqualsAndHashCode.Exclude private final Dimensions ambiguousDimensions;
@@ -75,8 +77,8 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 		return ((BuildVariantInternal)buildVariant).getDimensions().stream().map(Coordinate::getValue).map(Named.class::cast).map(Named::getName).collect(Collectors.toList());
 	}
 
-	public String getName() {
-		return unambiguousName;
+	public ElementName getName() {
+		return ElementName.of(unambiguousName);
 	}
 
 	public String getFullName() {
@@ -97,6 +99,12 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 
 	public static Builder<Variant> builder() {
 		return new Builder<>();
+	}
+
+	@Nullable
+	@Override
+	public ModelObjectIdentifier getParent() {
+		return (ModelObjectIdentifier) ownerIdentifier;
 	}
 
 	@Override
