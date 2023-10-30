@@ -101,7 +101,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration swiftLibrary(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("Swift library").withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultSwiftLibrary.class, project).create(identifier).withComponentTag(SupportSwiftSourceSetTag.class).build();
 	}
 

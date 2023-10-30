@@ -37,11 +37,6 @@ public final class ProjectIdentifier implements ModelObjectIdentifier {
 		return ElementName.of(projectName);
 	}
 
-	@Override
-	public String getDisplayName() {
-		return null;
-	}
-
 	public Path getPath() {
 		return projectPath;
 	}

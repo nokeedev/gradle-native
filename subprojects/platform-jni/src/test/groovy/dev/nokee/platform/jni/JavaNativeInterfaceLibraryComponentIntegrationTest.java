@@ -118,7 +118,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	@BeforeEach
 	void createSubject() {
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of("quzu")).withParent(ProjectIdentifier.of(project)).displayName("JNI library component").build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of("quzu")).withParent(ProjectIdentifier.of(project)).build();
 		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(host()));
 	}
@@ -305,7 +305,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	}
 
 	public String displayName() {
-		return "JNI library component ':quzu'";
+		return "JNI library 'quzu'";
 	}
 
 	@Nested

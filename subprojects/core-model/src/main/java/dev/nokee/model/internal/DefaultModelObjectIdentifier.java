@@ -25,21 +25,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
-
 @EqualsAndHashCode
 public final class DefaultModelObjectIdentifier implements ModelObjectIdentifier, HasName {
 	@Nullable private final ModelObjectIdentifier parentIdentifier;
 	private final ElementName name;
-	private final String displayName;
 
 	public DefaultModelObjectIdentifier(ElementName name) {
-		this(name, null, null);
+		this(name, null);
 	}
 
-	public DefaultModelObjectIdentifier(ElementName name, @Nullable String displayName, @Nullable ModelObjectIdentifier parentIdentifier) {
+	public DefaultModelObjectIdentifier(ElementName name, @Nullable ModelObjectIdentifier parentIdentifier) {
 		this.name = name;
-		this.displayName = displayName;
 		this.parentIdentifier = parentIdentifier;
 	}
 
@@ -55,11 +51,6 @@ public final class DefaultModelObjectIdentifier implements ModelObjectIdentifier
 	}
 
 	@Override
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	@Override
 	public Iterator<Object> iterator() {
 		final List<Object> result = new ArrayList<>();
 		if (parentIdentifier != null) {
@@ -71,6 +62,6 @@ public final class DefaultModelObjectIdentifier implements ModelObjectIdentifier
 
 	@Override
 	public String toString() {
-		return displayName + " '" + toGradlePath(this) + "'";
+		throw new UnsupportedOperationException();
 	}
 }

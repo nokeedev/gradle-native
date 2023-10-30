@@ -206,4 +206,9 @@ public /*final*/ class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTes
 	public Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
 		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
+
+	@Override
+	public String toString() {
+		return "XCTest test suite '" + getName() + "'";
+	}
 }

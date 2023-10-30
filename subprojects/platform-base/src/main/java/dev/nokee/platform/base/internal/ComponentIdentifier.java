@@ -20,15 +20,13 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 
 public final class ComponentIdentifier {
-	private static final String DEFAULT_DISPLAY_NAME = "component";
-
 	private ComponentIdentifier() {}
 
 	public static ModelObjectIdentifier ofMain(ModelObjectIdentifier projectIdentifier) {
-		return new DefaultModelObjectIdentifier(ElementName.ofMain(), DEFAULT_DISPLAY_NAME, projectIdentifier);
+		return new DefaultModelObjectIdentifier(ElementName.ofMain(), projectIdentifier);
 	}
 
 	public static ModelObjectIdentifier of(String name, ModelObjectIdentifier projectIdentifier) {
-		return new DefaultModelObjectIdentifier(ElementName.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
+		return new DefaultModelObjectIdentifier(ElementName.of(name), projectIdentifier);
 	}
 }

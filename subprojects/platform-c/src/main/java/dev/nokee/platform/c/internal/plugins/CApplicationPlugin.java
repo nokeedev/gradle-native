@@ -101,7 +101,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration cApplication(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("C application").withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new NativeApplicationComponentModelRegistrationFactory(DefaultCApplication.class, project).create(identifier).withComponentTag(SupportCSourceSetTag.class).build();
 	}
 

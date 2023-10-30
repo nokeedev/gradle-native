@@ -91,7 +91,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration swiftIosApplication(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("Swift iOS application").withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new IosApplicationComponentModelRegistrationFactory(DefaultSwiftIosApplication.class, project).create(identifier).withComponentTag(SupportSwiftSourceSetTag.class).build();
 	}
 

@@ -107,7 +107,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration nativeLibrary(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("native library").withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultNativeLibraryExtension.class, project).create(identifier).build();
 	}
 

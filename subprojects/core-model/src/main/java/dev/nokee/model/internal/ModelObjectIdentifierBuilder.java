@@ -24,16 +24,10 @@ import static java.util.Objects.requireNonNull;
 
 public final class ModelObjectIdentifierBuilder {
 	private ElementName name;
-	private String displayName;
 	private ModelObjectIdentifier ownerIdentifier;
 
 	public ModelObjectIdentifierBuilder name(ElementName name) {
 		this.name = Objects.requireNonNull(name);
-		return this;
-	}
-
-	public ModelObjectIdentifierBuilder displayName(String displayName) {
-		this.displayName = requireNonNull(displayName);
 		return this;
 	}
 
@@ -43,6 +37,6 @@ public final class ModelObjectIdentifierBuilder {
 	}
 
 	public ModelObjectIdentifier build() {
-		return new DefaultModelObjectIdentifier(name, displayName, ownerIdentifier);
+		return new DefaultModelObjectIdentifier(name, ownerIdentifier);
 	}
 }

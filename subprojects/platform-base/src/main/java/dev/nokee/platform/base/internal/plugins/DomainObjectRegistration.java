@@ -18,12 +18,14 @@ package dev.nokee.platform.base.internal.plugins;
 
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementConfigurableProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
@@ -53,6 +55,10 @@ public final class DomainObjectRegistration<T> extends ModelActionWithInputs.Mod
 		entity.addComponent(createdUsingNoInject(ModelType.of(elementType), elementProvider::get));
 		entity.addComponent(createdUsing((ModelType<NamedDomainObjectProvider<T>>) ModelType.of(objectProviderFor(elementType).getType()), () -> elementProvider));
 		entity.addComponent(new ModelElementConfigurableProviderSourceComponent(elementProvider));
+		entity.addComponent(new IdentifierDisplayNameComponent(() -> {
+			ModelStates.realize(entity);
+			return elementProvider.get().toString();
+		}));
 	}
 
 	private static <T> TypeToken<NamedDomainObjectProvider<T>> objectProviderFor(Class<T> type) {

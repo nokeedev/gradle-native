@@ -113,7 +113,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration objectiveCIosApplication(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("Objective-C iOS application").withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).withComponentTag(SupportObjectiveCSourceSetTag.class).build();
 	}
 

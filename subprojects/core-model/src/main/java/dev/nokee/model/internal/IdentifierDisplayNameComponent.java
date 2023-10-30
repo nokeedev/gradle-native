@@ -16,17 +16,18 @@
 
 package dev.nokee.model.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.core.ModelComponent;
 
-import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
-public interface ModelObjectIdentifier extends DomainObjectIdentifier {
-	static ModelObjectIdentifierBuilder builder() {
-		return new ModelObjectIdentifierBuilder();
+public final class IdentifierDisplayNameComponent implements ModelComponent {
+	private final Supplier<String> displayName;
+
+	public IdentifierDisplayNameComponent(Supplier<String> displayName) {
+		this.displayName = displayName;
 	}
 
-	@Nullable
-	ModelObjectIdentifier getParent();
-	ElementName getName();
+	public String get() {
+		return displayName.get();
+	}
 }

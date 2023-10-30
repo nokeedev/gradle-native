@@ -334,4 +334,9 @@ public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeCompone
 	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<NativeTestSuiteVariant>> action) {
 		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), NativeTestSuiteVariant.class, action));
 	}
+
+	@Override
+	public String toString() {
+		return "native test suite '" + getName() + "'";
+	}
 }

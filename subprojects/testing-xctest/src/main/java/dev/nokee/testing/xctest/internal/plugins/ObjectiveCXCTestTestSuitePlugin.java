@@ -224,7 +224,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration unitTestXCTestTestSuite(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("XCTest test suite").withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(of(DefaultUnitTestXCTestTestSuiteComponent.class), () -> {
@@ -246,7 +246,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration uiTestXCTestTestSuite(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("XCTest test suite").withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponentTag(ConfigurableTag.class)

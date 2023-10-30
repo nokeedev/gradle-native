@@ -15,16 +15,23 @@
  */
 package dev.nokee.platform.base.internal.tasks;
 
+import com.google.common.base.Suppliers;
 import dev.nokee.model.internal.core.ModelComponent;
 
+import java.util.function.Supplier;
+
 public final class TaskDescriptionComponent implements ModelComponent {
-	private final String value;
+	private final Supplier<String> value;
 
 	public TaskDescriptionComponent(String value) {
+		this.value = Suppliers.ofInstance(value);
+	}
+
+	public TaskDescriptionComponent(Supplier<String> value) {
 		this.value = value;
 	}
 
 	public String get() {
-		return value;
+		return value.get();
 	}
 }

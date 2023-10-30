@@ -102,7 +102,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration objectiveCLibrary(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("Objective-C library").withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultObjectiveCLibrary.class, project).create(identifier).withComponentTag(SupportObjectiveCSourceSetTag.class).build();
 	}
 

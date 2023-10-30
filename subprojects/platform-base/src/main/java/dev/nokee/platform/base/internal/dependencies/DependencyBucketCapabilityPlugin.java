@@ -20,6 +20,7 @@ import com.google.common.reflect.TypeToken;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
+import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -266,10 +267,10 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 	}
 
 	// ComponentFromEntity<IdentifierComponent> read-only parent
-	private static final class DescriptionRule extends ModelActionWithInputs.ModelAction4<ModelComponentTag<IsDependencyBucket>, ConfigurationComponent, ParentComponent, DisplayNameComponent> {
+	private static final class DescriptionRule extends ModelActionWithInputs.ModelAction5<ModelComponentTag<IsDependencyBucket>, ConfigurationComponent, ParentComponent, DisplayNameComponent, ModelState.IsAtLeastRealized> {
 		@Override
-		protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored, ConfigurationComponent configuration, ParentComponent parent, DisplayNameComponent displayName) {
-			ifPresentOrElse(parent.get().find(IdentifierComponent.class).map(IdentifierComponent::get),
+		protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored, ConfigurationComponent configuration, ParentComponent parent, DisplayNameComponent displayName, ModelState.IsAtLeastRealized ignored2) {
+			ifPresentOrElse(parent.get().find(IdentifierDisplayNameComponent.class).map(IdentifierDisplayNameComponent::get),
 				it -> configuration.configure(configureDescription(DependencyBucketDescription.of(displayName.get()).forOwner(it)::toString)),
 				() -> configuration.configure(configureDescription(DependencyBucketDescription.of(displayName.get())::toString)));
 		}

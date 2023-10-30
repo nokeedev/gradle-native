@@ -102,7 +102,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration objectiveCppLibrary(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).displayName("Objective-C++ library").withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultObjectiveCppLibrary.class, project).create(identifier).withComponentTag(SupportObjectiveCppSourceSetTag.class).build();
 	}
 

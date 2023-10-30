@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.ios.internal;
 
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -43,7 +44,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		this.project = project;
 	}
 
-	public ModelRegistration.Builder create(ComponentIdentifier identifier) {
+	public ModelRegistration.Builder create(ModelObjectIdentifier identifier) {
 		val builder = ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))

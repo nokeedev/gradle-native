@@ -90,7 +90,7 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 	@Override
 	public String toString() {
 		if (unambiguousName.isEmpty()) {
-			return ((ModelObjectIdentifier) ownerIdentifier).getDisplayName() + " '" + toGradlePath(this) + "'";
+			return "default variant '" + toGradlePath(this) + "'";
 		}
 		return "variant '" + toGradlePath(this) + "'";
 	}

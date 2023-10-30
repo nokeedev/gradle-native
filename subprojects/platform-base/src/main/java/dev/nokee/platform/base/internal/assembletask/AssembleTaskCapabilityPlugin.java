@@ -15,11 +15,13 @@
  */
 package dev.nokee.platform.base.internal.assembletask;
 
+import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -46,10 +48,10 @@ public class AssembleTaskCapabilityPlugin<T extends ExtensionAware & PluginAware
 			.configure(new ConfigureAssembleTaskGroupRule());
 	}
 
-	private static final class ConfigureAssembleTaskDescriptionRule extends ModelActionWithInputs.ModelAction2<AssembleTaskComponent, IdentifierComponent> {
+	private static final class ConfigureAssembleTaskDescriptionRule extends ModelActionWithInputs.ModelAction3<AssembleTaskComponent, IdentifierDisplayNameComponent, ModelState.IsAtLeastRealized> {
 		@Override
-		protected void execute(ModelNode entity, AssembleTaskComponent assembleTask, IdentifierComponent identifier) {
-			assembleTask.get().addComponent(new TaskDescriptionComponent(format("Assembles the outputs of the %s.", identifier.get())));
+		protected void execute(ModelNode entity, AssembleTaskComponent assembleTask, IdentifierDisplayNameComponent displayName, ModelState.IsAtLeastRealized ignored) {
+			assembleTask.get().addComponent(new TaskDescriptionComponent(() -> format("Assembles the outputs of the %s.", displayName.get())));
 		}
 	}
 
