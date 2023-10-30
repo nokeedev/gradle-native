@@ -19,6 +19,8 @@ package dev.nokee.platform.base.internal.plugins;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.IdentifierDisplayNameComponent;
+import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementConfigurableProviderSourceComponent;
@@ -32,25 +34,23 @@ import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.PolymorphicDomainObjectContainer;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
-import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 
 @SuppressWarnings("unchecked")
-public final class DomainObjectRegistration<T> extends ModelActionWithInputs.ModelAction3<MainProjectionComponent, ModelComponentTag<ModelTag>, FullyQualifiedNameComponent> {
-	private final PolymorphicDomainObjectContainer<? super T> container;
+public final class DomainObjectRegistration<T> extends ModelActionWithInputs.ModelAction4<MainProjectionComponent, ModelComponentTag<ModelTag>, FullyQualifiedNameComponent, IdentifierComponent> {
+	private final ModelObjectRegistry<? super T> container;
 
-	public DomainObjectRegistration(Class<? extends ModelTag> tag, PolymorphicDomainObjectContainer<? super T> container) {
-		super(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf((Class<ModelTag>) tag), ModelComponentReference.of(FullyQualifiedNameComponent.class));
+	public DomainObjectRegistration(Class<? extends ModelTag> tag, ModelObjectRegistry<? super T> container) {
+		super(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf((Class<ModelTag>) tag), ModelComponentReference.of(FullyQualifiedNameComponent.class), ModelComponentReference.of(IdentifierComponent.class));
 		this.container = container;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, MainProjectionComponent mainProjection, ModelComponentTag<ModelTag> ignored, FullyQualifiedNameComponent name) {
+	protected void execute(ModelNode entity, MainProjectionComponent mainProjection, ModelComponentTag<ModelTag> ignored, FullyQualifiedNameComponent name, IdentifierComponent identifier) {
 		final Class<T> elementType = (Class<T>) mainProjection.getProjectionType();
-		final NamedDomainObjectProvider<T> elementProvider = registerIfAbsent(container, name.get().toString(), elementType);
+		final NamedDomainObjectProvider<T> elementProvider = container.register(identifier.get(), elementType).asProvider();
 		entity.addComponent(new ModelElementProviderSourceComponent(elementProvider));
 		entity.addComponent(createdUsingNoInject(ModelType.of(elementType), elementProvider::get));
 		entity.addComponent(createdUsing((ModelType<NamedDomainObjectProvider<T>>) ModelType.of(objectProviderFor(elementType).getType()), () -> elementProvider));

@@ -30,6 +30,8 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.IsComponent;
@@ -65,8 +67,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.CURRENT_MODEL_PLUGIN_IDS;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_APPLICATION_PLUGIN_ID;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_LIBRARY_PLUGIN_ID;
@@ -115,13 +117,13 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 
-		components(project).registerFactory(JniLibraryComponentInternal.class, new ModelObjectFactory<JniLibraryComponentInternal>(project, IsComponent.class) {
+		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, new ModelObjectFactory<JniLibraryComponentInternal>(project, IsComponent.class) {
 			@Override
 			protected JniLibraryComponentInternal doCreate(String name) {
 				return project.getObjects().newInstance(JniLibraryComponentInternal.class);
 			}
 		});
-		variants(project).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
 			@Override
 			protected JniLibraryInternal doCreate(String name) {
 				return project.getObjects().newInstance(JniLibraryInternal.class);

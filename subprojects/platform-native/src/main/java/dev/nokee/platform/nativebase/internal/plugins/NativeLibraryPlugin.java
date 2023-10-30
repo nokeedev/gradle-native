@@ -31,6 +31,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
@@ -66,9 +67,10 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
@@ -89,7 +91,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
-		components(project).registerFactory(DefaultNativeLibraryExtension.class, new ModelObjectFactory<DefaultNativeLibraryExtension>(project, IsComponent.class) {
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeLibraryExtension.class, new ModelObjectFactory<DefaultNativeLibraryExtension>(project, IsComponent.class) {
 			@Override
 			protected DefaultNativeLibraryExtension doCreate(String name) {
 				return project.getObjects().newInstance(DefaultNativeLibraryExtension.class);

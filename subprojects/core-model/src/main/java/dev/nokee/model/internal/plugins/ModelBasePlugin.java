@@ -15,6 +15,12 @@
  */
 package dev.nokee.model.internal.plugins;
 
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.ModelExtension;
+import dev.nokee.model.internal.ModelMapAdapters;
+import dev.nokee.model.internal.ModelObjectFactoryRegistry;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.ancestors.AncestryCapabilityPlugin;
@@ -34,10 +40,12 @@ import dev.nokee.utils.TaskUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
+import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
 
@@ -76,6 +84,8 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		target.getPluginManager().apply(NamesCapabilityPlugin.class);
 
 		modelRegistry.get(ModelPath.root()).addComponent(new DisplayNameComponent(target.toString()));
+
+		target.getExtensions().create("model", ModelExtension.class);
 	}
 
 	private void applyToSettings(Settings settings) {
@@ -90,5 +100,24 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		project.getTasks().register("nokeeModel", ModelReportTask.class, TaskUtils.configureDescription("Displays the configuration model of %s.", project));
 
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new IdentifierComponent(ProjectIdentifier.of(project)));
+
+		project.getExtensions().getByType(ModelExtension.class).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations());
+		project.getExtensions().getByType(ModelExtension.class).getExtensions().create("$tasks", ModelMapAdapters.ForPolymorphicDomainObjectContainer.class, Task.class, project.getTasks());
+	}
+
+	public static ModelExtension model(ExtensionAware target) {
+		return target.getExtensions().getByType(ModelExtension.class);
+	}
+
+	public static <S> S model(ExtensionAware target, TypeOf<S> type) {
+		return model(target).getExtensions().getByType(type);
+	}
+
+	public static final <S> TypeOf<ModelObjectRegistry<S>> registryOf(Class<S> type) {
+		return TypeOf.typeOf(new TypeToken<ModelObjectRegistry<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
+	}
+
+	public static final <S> TypeOf<ModelObjectFactoryRegistry<S>> factoryRegistryOf(Class<S> type) {
+		return TypeOf.typeOf(new TypeToken<ModelObjectFactoryRegistry<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
 	}
 }

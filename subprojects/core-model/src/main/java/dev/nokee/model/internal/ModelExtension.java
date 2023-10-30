@@ -14,26 +14,9 @@
  * limitations under the License.
  */
 
-package dev.nokee.model.internal.names;
+package dev.nokee.model.internal;
 
-import lombok.EqualsAndHashCode;
+import org.gradle.api.plugins.ExtensionAware;
 
-@EqualsAndHashCode
-public final class MainName implements ElementName {
-	private final ElementName delegate;
-
-	MainName(ElementName delegate) {
-		this.delegate = delegate;
-	}
-
-	@Override
-	public String toQualifiedName(QualifyingName qualifyingName) {
-		// TODO: If has qualifying name, it should return the qualifying name only
-		return delegate.toQualifiedName(qualifyingName);
-	}
-
-	@Override
-	public String toString() {
-		return delegate.toString();
-	}
+public interface ModelExtension extends ExtensionAware {
 }

@@ -31,6 +31,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -61,8 +62,9 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
@@ -83,7 +85,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
 
-		components(project).registerFactory(DefaultCppApplication.class, new ModelObjectFactory<DefaultCppApplication>(project, IsComponent.class) {
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultCppApplication.class, new ModelObjectFactory<DefaultCppApplication>(project, IsComponent.class) {
 			@Override
 			protected DefaultCppApplication doCreate(String name) {
 				return project.getObjects().newInstance(DefaultCppApplication.class);

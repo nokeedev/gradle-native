@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.objectivecpp.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
@@ -61,8 +62,9 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
@@ -74,7 +76,7 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		sources(project).registerFactory(ObjectiveCppSourceSetSpec.class, new ModelObjectFactory<ObjectiveCppSourceSetSpec>(project, IsLanguageSourceSet.class) {
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(ObjectiveCppSourceSetSpec.class, new ModelObjectFactory<ObjectiveCppSourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected ObjectiveCppSourceSetSpec doCreate(String name) {
 				return project.getObjects().newInstance(ObjectiveCppSourceSetSpec.class);

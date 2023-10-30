@@ -18,6 +18,7 @@ package dev.nokee.platform.jni.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
@@ -71,6 +72,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
@@ -162,7 +164,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
@@ -171,11 +172,12 @@ import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.state.ModelStates.realize;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
@@ -201,31 +203,31 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		sources(project).registerFactory(GroovySourceSetSpec.class, new ModelObjectFactory<GroovySourceSetSpec>(project, IsLanguageSourceSet.class) {
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(GroovySourceSetSpec.class, new ModelObjectFactory<GroovySourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected GroovySourceSetSpec doCreate(String name) {
 				return project.getObjects().newInstance(GroovySourceSetSpec.class);
 			}
 		});
-		sources(project).registerFactory(JavaSourceSetSpec.class, new ModelObjectFactory<JavaSourceSetSpec>(project, IsLanguageSourceSet.class) {
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(JavaSourceSetSpec.class, new ModelObjectFactory<JavaSourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected JavaSourceSetSpec doCreate(String name) {
 				return project.getObjects().newInstance(JavaSourceSetSpec.class);
 			}
 		});
-		sources(project).registerFactory(KotlinSourceSetSpec.class, new ModelObjectFactory<KotlinSourceSetSpec>(project, IsLanguageSourceSet.class) {
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(KotlinSourceSetSpec.class, new ModelObjectFactory<KotlinSourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected KotlinSourceSetSpec doCreate(String name) {
 				return project.getObjects().newInstance(KotlinSourceSetSpec.class);
 			}
 		});
-		artifacts(project).registerFactory(ModelBackedJniJarBinary.class, new ModelObjectFactory<ModelBackedJniJarBinary>(project, IsBinary.class) {
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, new ModelObjectFactory<ModelBackedJniJarBinary>(project, IsBinary.class) {
 			@Override
 			protected ModelBackedJniJarBinary doCreate(String name) {
 				return new ModelBackedJniJarBinary();
 			}
 		});
-		artifacts(project).registerFactory(ModelBackedJvmJarBinary.class, new ModelObjectFactory<ModelBackedJvmJarBinary>(project, IsBinary.class) {
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJvmJarBinary.class, new ModelObjectFactory<ModelBackedJvmJarBinary>(project, IsBinary.class) {
 			@Override
 			protected ModelBackedJvmJarBinary doCreate(String name) {
 				return new ModelBackedJvmJarBinary();

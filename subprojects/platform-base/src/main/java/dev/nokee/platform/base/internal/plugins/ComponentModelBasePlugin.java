@@ -22,7 +22,7 @@ import dev.nokee.model.capabilities.variants.CreateVariantsRule;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
 import dev.nokee.model.internal.DefaultModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.buffers.ModelBuffers;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -115,6 +115,9 @@ import static com.google.common.base.Suppliers.ofInstance;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
@@ -157,28 +160,33 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(DEPENDENCY_BUCKET_CONTAINER_TYPE, "$dependencyBuckets", project.getObjects().polymorphicDomainObjectContainer(DependencyBucket.class));
 		project.getExtensions().add(ARTIFACT_CONTAINER_TYPE, "$artifacts", project.getObjects().polymorphicDomainObjectContainer(Artifact.class));
 
+		model(project).getExtensions().create("components", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Component.class, components(project));
+		model(project).getExtensions().create("variants", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Variant.class, variants(project));
+		model(project).getExtensions().create("dependencyBuckets", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, DependencyBucket.class, dependencyBuckets(project));
+		model(project).getExtensions().create("artifacts", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Artifact.class, artifacts(project));
+
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, mainProjection, ignored) -> {
 			ModelNodeUtils.get(entity, mainProjection.getProjectionType()); // realize provider
 		}));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Component>(IsComponent.class, components(project)));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Binary>(IsBinary.class, artifacts(project)));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Variant>(IsVariant.class, variants(project)));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<DependencyBucket>(IsDependencyBucket.class, dependencyBuckets(project)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Component>(IsComponent.class, model(project, registryOf(Component.class))));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Binary>(IsBinary.class, model(project, registryOf(Artifact.class))));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Variant>(IsVariant.class, model(project, registryOf(Variant.class))));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<DependencyBucket>(IsDependencyBucket.class, model(project, registryOf(DependencyBucket.class))));
 
-		dependencyBuckets(project).registerFactory(ConsumableDependencyBucketSpec.class, new ModelObjectFactory<ConsumableDependencyBucketSpec>(project, IsDependencyBucket.class) {
+		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class, new ModelObjectFactory<ConsumableDependencyBucketSpec>(project, IsDependencyBucket.class) {
 			@Override
 			protected ConsumableDependencyBucketSpec doCreate(String name) {
 				return project.getObjects().newInstance(ConsumableDependencyBucketSpec.class);
 			}
 		});
-		dependencyBuckets(project).registerFactory(ResolvableDependencyBucketSpec.class, new ModelObjectFactory<ResolvableDependencyBucketSpec>(project, IsDependencyBucket.class) {
+		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class, new ModelObjectFactory<ResolvableDependencyBucketSpec>(project, IsDependencyBucket.class) {
 			@Override
 			protected ResolvableDependencyBucketSpec doCreate(String name) {
 				return project.getObjects().newInstance(ResolvableDependencyBucketSpec.class);
 			}
 		});
-		dependencyBuckets(project).registerFactory(DeclarableDependencyBucketSpec.class, new ModelObjectFactory<DeclarableDependencyBucketSpec>(project, IsDependencyBucket.class) {
+		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class, new ModelObjectFactory<DeclarableDependencyBucketSpec>(project, IsDependencyBucket.class) {
 			@Override
 			protected DeclarableDependencyBucketSpec doCreate(String name) {
 				return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class);

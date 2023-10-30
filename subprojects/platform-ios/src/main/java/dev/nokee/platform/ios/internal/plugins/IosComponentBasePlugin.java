@@ -16,6 +16,8 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import com.google.common.collect.Streams;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -81,11 +83,12 @@ import org.gradle.api.provider.SetProperty;
 
 import java.util.Collections;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
@@ -99,7 +102,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 
-		sources(project).registerFactory(IosResourceSetSpec.class, new ModelObjectFactory<IosResourceSetSpec>() {
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(IosResourceSetSpec.class, new ModelObjectFactory<IosResourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected IosResourceSetSpec doCreate(String name) {
 				return project.getObjects().newInstance(IosResourceSetSpec.class);
