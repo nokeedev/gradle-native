@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -62,8 +63,8 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	// Still required for output path generation
-	public BinaryIdentifier getIdentifier() {
-		return (BinaryIdentifier) entity.get(IdentifierComponent.class).get();
+	public ModelObjectIdentifier getIdentifier() {
+		return (ModelObjectIdentifier) entity.get(IdentifierComponent.class).get();
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
