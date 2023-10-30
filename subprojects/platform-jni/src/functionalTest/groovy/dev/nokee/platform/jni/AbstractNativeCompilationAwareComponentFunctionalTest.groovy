@@ -60,9 +60,9 @@ abstract class AbstractNativeCompilationAwareComponentFunctionalTest extends Abs
 		then:
 		result.assertTasksExecuted(additionalCompileTasks, taskNames.tasks.withOperatingSystemFamily(currentOsFamilyName).allToObjects)
 		and:
-		objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/sharedLibrary/${currentOsFamilyName}/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertExists()
+		objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/${currentOsFamilyName}/sharedLibrary/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertExists()
 		(['windows', 'macos', 'linux'] - [currentOsFamilyName]).each {
-			objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/sharedLibrary/${it}/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertDoesNotExist()
+			objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/${it}/sharedLibrary/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertDoesNotExist()
 		}
 	}
 
