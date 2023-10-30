@@ -16,6 +16,9 @@
 
 package dev.nokee.model.internal.names;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public final class MainName implements ElementName {
 	private final ElementName delegate;
 
