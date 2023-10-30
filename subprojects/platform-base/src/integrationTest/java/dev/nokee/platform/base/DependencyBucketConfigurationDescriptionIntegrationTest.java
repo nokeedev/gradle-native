@@ -15,16 +15,15 @@
  */
 package dev.nokee.platform.base;
 
-import com.google.common.collect.Iterators;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationComponent;
@@ -35,9 +34,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import javax.annotation.Nonnull;
-import java.util.Iterator;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -61,18 +57,7 @@ class DependencyBucketConfigurationDescriptionIntegrationTest {
 
 	@Test
 	void configuresConfigurationProjectionDescriptionWithOwnerIdentifier() {
-		owner.addComponent(new IdentifierComponent(new DomainObjectIdentifier() {
-			@Nonnull
-			@Override
-			public Iterator<Object> iterator() {
-				return Iterators.forArray((HasName) () -> "zimo");
-			}
-
-			@Override
-			public String toString() {
-				return "artifact ':zimo'";
-			}
-		}));
+		owner.addComponent(new IdentifierComponent(new DefaultModelObjectIdentifier(ElementName.of("zimo"))));
 		subject.addComponent(new ParentComponent(owner));
 		assertThat(configuration.get(), ConfigurationMatchers.description("Xune dependencies for artifact ':zimo'."));
 	}

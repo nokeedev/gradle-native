@@ -15,13 +15,12 @@
  */
 package dev.nokee.platform.nativebase;
 
-import com.google.common.collect.Iterators;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
@@ -31,9 +30,6 @@ import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import javax.annotation.Nonnull;
-import java.util.Iterator;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -52,18 +48,7 @@ class LinkTaskDescriptionIntegrationTest {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
 			.withComponentTag(IsDependencyBucket.class)
 			.withComponent(new NativeLinkTask(taskEntity))
-			.withComponent(new IdentifierComponent(new DomainObjectIdentifier() {
-				@Nonnull
-				@Override
-				public Iterator<Object> iterator() {
-					return Iterators.forArray((HasName) () -> "pelw");
-				}
-
-				@Override
-				public String toString() {
-					return "artifact ':pelw'";
-				}
-			}))
+			.withComponent(new IdentifierComponent(new DefaultModelObjectIdentifier(ElementName.of("pelw"))))
 			.build());
 	}
 
