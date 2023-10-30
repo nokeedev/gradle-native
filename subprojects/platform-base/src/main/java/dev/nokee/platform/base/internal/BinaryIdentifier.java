@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.MainName;
 import lombok.EqualsAndHashCode;
@@ -39,7 +38,6 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 	public BinaryIdentifier(BinaryIdentity identity, DomainObjectIdentifier ownerIdentifier) {
 		requireNonNull(identity);
 		checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
-		checkArgument(isValidOwner(ownerIdentifier), "Cannot construct a task identifier because the owner identifier is invalid, only ComponentIdentifier and VariantIdentifier are accepted.");
 		this.identity = identity;
 		this.ownerIdentifier = ownerIdentifier;
 	}
@@ -50,10 +48,6 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 
 	public DomainObjectIdentifier getOwnerIdentifier() {
 		return ownerIdentifier;
-	}
-
-	private static boolean isValidOwner(DomainObjectIdentifier ownerIdentifier) {
-		return ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier || ownerIdentifier instanceof ProjectIdentifier;
 	}
 
 	public static BinaryIdentifier of(String name, DomainObjectIdentifier ownerIdentifier) {
@@ -88,7 +82,8 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 
 	private Optional<ComponentIdentifier> getComponentOwnerIdentifier() {
 		if (ownerIdentifier instanceof VariantIdentifier) {
-			return Optional.of(((VariantIdentifier) ownerIdentifier).getComponentIdentifier());
+			// TODO: Remove assumption that owner is ComponentIdentifier
+			return Optional.of((ComponentIdentifier) ((VariantIdentifier) ownerIdentifier).getOwnerIdentifier());
 		} else if (ownerIdentifier instanceof ComponentIdentifier) {
 			return Optional.of((ComponentIdentifier) ownerIdentifier);
 		}

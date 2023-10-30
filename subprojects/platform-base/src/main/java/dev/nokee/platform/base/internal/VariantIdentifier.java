@@ -37,19 +37,19 @@ import static java.util.Objects.requireNonNull;
 @EqualsAndHashCode
 public final class VariantIdentifier implements DomainObjectIdentifier, HasName {
 	@Getter private final String unambiguousName;
-	@Getter private final ComponentIdentifier componentIdentifier;
+	@Getter private final DomainObjectIdentifier ownerIdentifier;
 	@Getter @EqualsAndHashCode.Exclude private final Dimensions ambiguousDimensions;
 	private final Dimensions dimensions;
 	@EqualsAndHashCode.Exclude private final BuildVariant buildVariant;
 	@EqualsAndHashCode.Exclude private final String fullName;
 
-	public VariantIdentifier(ComponentIdentifier componentIdentifier, DefaultBuildVariant buildVariant) {
-		this(buildVariant.getName(), componentIdentifier, buildVariant.getAmbiguousDimensions(), buildVariant.getAllDimensions(), buildVariant, buildVariant.getAllDimensions().getAsLowerCamelCase().get());
+	public VariantIdentifier(DomainObjectIdentifier ownerIdentifier, DefaultBuildVariant buildVariant) {
+		this(buildVariant.getName(), ownerIdentifier, buildVariant.getAmbiguousDimensions(), buildVariant.getAllDimensions(), buildVariant, buildVariant.getAllDimensions().getAsLowerCamelCase().get());
 	}
 
-	public VariantIdentifier(String unambiguousName, ComponentIdentifier componentIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
+	public VariantIdentifier(String unambiguousName, DomainObjectIdentifier ownerIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
 		this.unambiguousName = requireNonNull(unambiguousName);
-		this.componentIdentifier = requireNonNull(componentIdentifier);
+		this.ownerIdentifier = requireNonNull(ownerIdentifier);
 		this.ambiguousDimensions = ambiguousDimensions;
 		this.dimensions = requireNonNull(dimensions);
 		this.buildVariant = buildVariant;
@@ -89,7 +89,8 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 	@Override
 	public String toString() {
 		if (unambiguousName.isEmpty()) {
-			return componentIdentifier.getDisplayName() + " '" + toGradlePath(this) + "'";
+			// TODO: Fix displayName
+			return ((ComponentIdentifier) ownerIdentifier).getDisplayName() + " '" + toGradlePath(this) + "'";
 		}
 		return "variant '" + toGradlePath(this) + "'";
 	}
@@ -101,13 +102,13 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 	@Override
 	public Iterator<Object> iterator() {
 		// TODO: Use identity instead of this
-		return ImmutableList.builder().addAll(componentIdentifier).add(this).build().iterator();
+		return ImmutableList.builder().addAll(ownerIdentifier).add(this).build().iterator();
 	}
 
 	public static class Builder<T extends Variant> {
 		private Dimensions allDimensions = Dimensions.empty();
 		private Dimensions dimensions = Dimensions.empty();
-		private ComponentIdentifier componentIdentifier = null;
+		private DomainObjectIdentifier ownerIdentifier = null;
 		private BuildVariantInternal buildVariant = null;
 
 		@Deprecated // used in tests
@@ -132,19 +133,19 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 		}
 
 		public Builder<T> withComponentIdentifier(ComponentIdentifier componentIdentifier) {
-			this.componentIdentifier = componentIdentifier;
+			this.ownerIdentifier = componentIdentifier;
 			return this;
 		}
 
 		public VariantIdentifier build() {
 			if (buildVariant instanceof DefaultBuildVariant) {
-				return new VariantIdentifier(componentIdentifier, (DefaultBuildVariant) buildVariant);
+				return new VariantIdentifier(ownerIdentifier, (DefaultBuildVariant) buildVariant);
 			}
 			Dimensions allDimensions = this.allDimensions;
 			if (allDimensions.size() == dimensions.size()) {
 				allDimensions = Dimensions.empty();
 			}
-			return new VariantIdentifier(dimensions.getAsLowerCamelCase().orElse(""), componentIdentifier, dimensions, allDimensions, buildVariant, this.allDimensions.getAsLowerCamelCase().orElse(""));
+			return new VariantIdentifier(dimensions.getAsLowerCamelCase().orElse(""), ownerIdentifier, dimensions, allDimensions, buildVariant, this.allDimensions.getAsLowerCamelCase().orElse(""));
 		}
 	}
 }

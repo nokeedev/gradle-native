@@ -75,6 +75,7 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -573,7 +574,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 			val identifier = (VariantIdentifier) parent.get().get(IdentifierComponent.class).get();
 			registry.instantiate(configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableWarningService.map(it -> {
-				it.warn(identifier.getComponentIdentifier());
+				it.warn((ComponentIdentifier) identifier.getOwnerIdentifier()); // TODO: Remove assumption
 				return null;
 			}))));
 		}));

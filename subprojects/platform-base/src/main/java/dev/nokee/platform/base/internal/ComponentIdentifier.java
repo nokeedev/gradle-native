@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.MainName;
 import lombok.EqualsAndHashCode;
@@ -34,19 +33,19 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 	private static final String DEFAULT_DISPLAY_NAME = "component";
 	private final ElementName name;
 	private final String displayName;
-	private final ProjectIdentifier projectIdentifier;
+	private final DomainObjectIdentifier projectIdentifier;
 
-	private ComponentIdentifier(ElementName name, String displayName, ProjectIdentifier projectIdentifier) {
+	private ComponentIdentifier(ElementName name, String displayName, DomainObjectIdentifier projectIdentifier) {
 		this.name = requireNonNull(name);
 		this.displayName = requireNonNull(displayName);
 		this.projectIdentifier = requireNonNull(projectIdentifier);
 	}
 
-	public static ComponentIdentifier ofMain(ProjectIdentifier projectIdentifier) {
+	public static ComponentIdentifier ofMain(DomainObjectIdentifier projectIdentifier) {
 		return new ComponentIdentifier(ElementName.ofMain(), DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
-	public static ComponentIdentifier of(String name, ProjectIdentifier projectIdentifier) {
+	public static ComponentIdentifier of(String name, DomainObjectIdentifier projectIdentifier) {
 		return new ComponentIdentifier(ElementName.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
@@ -56,7 +55,7 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 	}
 
 	// FIXME: Remove this API
-	public ProjectIdentifier getProjectIdentifier() {
+	public DomainObjectIdentifier getProjectIdentifier() {
 		return projectIdentifier;
 	}
 
@@ -86,7 +85,7 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
     public static final class Builder {
 		private ElementName name;
 		private String displayName = DEFAULT_DISPLAY_NAME;
-		private ProjectIdentifier projectIdentifier;
+		private DomainObjectIdentifier ownerIdentifier;
 
 		public Builder name(ElementName name) {
 			this.name = Objects.requireNonNull(name);
@@ -98,13 +97,13 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 			return this;
 		}
 
-		public Builder withProjectIdentifier(ProjectIdentifier projectIdentifier) {
-			this.projectIdentifier = requireNonNull(projectIdentifier);
+		public Builder withProjectIdentifier(DomainObjectIdentifier ownerIdentifier) {
+			this.ownerIdentifier = requireNonNull(ownerIdentifier);
 			return this;
 		}
 
 		public ComponentIdentifier build() {
-			return new ComponentIdentifier(name, displayName, projectIdentifier);
+			return new ComponentIdentifier(name, displayName, ownerIdentifier);
 		}
 	}
 }
