@@ -25,7 +25,6 @@ import lombok.EqualsAndHashCode;
 import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
@@ -62,11 +61,6 @@ public final class BinaryIdentifier implements DomainObjectIdentifier, HasName {
 		} else {
 			return new BinaryIdentifier(BinaryIdentity.of(name.toString(), "binary"), ownerIdentifier);
 		}
-	}
-
-	@Override
-	public String toString() {
-		return identity.getDisplayName() + " '" + toGradlePath(this) + "'";
 	}
 
 	@Override

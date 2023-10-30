@@ -47,6 +47,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourc
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
+import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.buffers.ModelBuffers;
@@ -67,6 +68,7 @@ import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
@@ -405,7 +407,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			}));
 		}));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJniJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(ElementNameComponent.class), (entity, projection, identifier, tag, elementName) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJniJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(IdentifierDisplayNameComponent.class), (entity, projection, identifier, tag, elementName, displayName) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val jarTask = registry.instantiate(newEntity("jar", Jar.class, it -> it.ownedBy(entity)));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, configureBuildGroup()));
@@ -417,7 +419,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			}));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
 				if (task.getDescription() == null) {
-					task.setDescription(String.format("Assembles a JAR archive containing the shared library for %s.", identifier.get()));
+					task.setDescription(String.format("Assembles a JAR archive containing the shared library for %s.", displayName.get()));
 				}
 			}));
 			ModelStates.register(jarTask);
@@ -442,10 +444,12 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		})));
 
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelBuffers.referenceOf(KnownVariantInformationElement.class), ModelComponentReference.of(JvmJarArtifactComponent.class), (entity, variants, jvmJar) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelBuffers.referenceOf(KnownVariantInformationElement.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(IdentifierDisplayNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, variants, jvmJar, displayName, ignored) -> {
 			if (Iterables.size(variants) == 1) {
 				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
-					binary.getJarTask().configure(configureDescription("Assembles a JAR archive containing the classes and shared library for %s.", ModelNodes.of(binary).get(IdentifierComponent.class).get()));
+					binary.getJarTask().configure(task -> {
+						task.setDescription(String.format("Assembles a JAR archive containing the classes and shared library for %s.", displayName.get()));
+					});
 				}));
 			}
 		}));

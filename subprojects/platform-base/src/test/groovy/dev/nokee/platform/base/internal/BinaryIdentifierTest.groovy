@@ -65,27 +65,10 @@ class BinaryIdentifierTest extends Specification {
 
 	def "throws exception if owner is null"() {
 		when:
-		BinaryIdentifier.of('foo', null)
+		BinaryIdentifier.of(null, 'foo')
 
 		then:
 		def ex = thrown(IllegalArgumentException)
 		ex.message == 'Cannot construct a task identifier because the owner identifier is null.'
 	}
-
-	def "has meaningful toString() implementation"() {
-		given:
-		def rootProject = ProjectBuilder.builder().withName('foo').build()
-		def childProject = ProjectBuilder.builder().withName('bar').withParent(rootProject).build()
-
-		and:
-		def ownerProject = ProjectIdentifier.of(childProject)
-		def ownerComponent = ComponentIdentifier.ofMain(ownerProject)
-		def ownerVariant = VariantIdentifier.of('macosRelease', ownerComponent)
-
-		expect:
-		BinaryIdentifier.of('bar', ownerComponent).toString() == "binary ':main:bar'"
-		BinaryIdentifier.of('jar', ownerVariant).toString() == "binary ':main:macosRelease:jar'"
-	}
-
-	interface TestableBinary extends Binary {}
 }

@@ -16,11 +16,13 @@
 package dev.nokee.platform.nativebase.internal.linking;
 
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
+import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
@@ -59,10 +61,10 @@ public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> 
 		configurer.configure(new ConfigureLinkTaskDescriptionRule());
 	}
 
-	private static final class ConfigureLinkTaskDescriptionRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, NativeLinkTask> {
+	private static final class ConfigureLinkTaskDescriptionRule extends ModelActionWithInputs.ModelAction4<IdentifierComponent, NativeLinkTask, IdentifierDisplayNameComponent, ModelState.IsAtLeastRealized> {
 		@Override
-		protected void execute(ModelNode entity, IdentifierComponent identifier, NativeLinkTask linkTask) {
-			linkTask.get().addComponent(new TaskDescriptionComponent(String.format("Links the %s.", identifier.get())));
+		protected void execute(ModelNode entity, IdentifierComponent identifier, NativeLinkTask linkTask, IdentifierDisplayNameComponent displayName, ModelState.IsAtLeastRealized ignored) {
+			linkTask.get().addComponent(new TaskDescriptionComponent(() -> String.format("Links the %s.", displayName.get())));
 		}
 	}
 }

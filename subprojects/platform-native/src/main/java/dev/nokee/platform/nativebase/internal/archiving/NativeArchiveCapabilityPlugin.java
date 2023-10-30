@@ -16,13 +16,14 @@
 package dev.nokee.platform.nativebase.internal.archiving;
 
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
-import dev.nokee.model.internal.actions.ModelAction;
+import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
@@ -61,10 +62,10 @@ public class NativeArchiveCapabilityPlugin<T extends ExtensionAware & PluginAwar
 		}));
 	}
 
-	private static final class ConfigureCreateTaskDescriptionRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, NativeArchiveTask> {
+	private static final class ConfigureCreateTaskDescriptionRule extends ModelActionWithInputs.ModelAction4<IdentifierComponent, NativeArchiveTask, IdentifierDisplayNameComponent, ModelState.IsAtLeastRealized> {
 		@Override
-		protected void execute(ModelNode entity, IdentifierComponent identifier, NativeArchiveTask createTask) {
-			createTask.get().addComponent(new TaskDescriptionComponent(String.format("Creates the %s.", identifier.get())));
+		protected void execute(ModelNode entity, IdentifierComponent identifier, NativeArchiveTask createTask, IdentifierDisplayNameComponent displayName, ModelState.IsAtLeastRealized ignored) {
+			createTask.get().addComponent(new TaskDescriptionComponent(() -> String.format("Creates the %s.", displayName.get())));
 		}
 	}
 }
