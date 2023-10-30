@@ -19,8 +19,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.IdentifierDisplayNameComponent;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -105,7 +106,7 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		// ComponentFromEntity<ParentComponent> read-only self
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, ignored1, path, displayName, elementName) -> {
 			val parentIdentifier = entity.find(ParentComponent.class).flatMap(parent -> parent.get().find(IdentifierComponent.class)).map(IdentifierComponent::get).orElse(null);
-			entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
+			entity.addComponent(new IdentifierComponent(new DefaultModelObjectIdentifier(elementName.get(), (ModelObjectIdentifier) parentIdentifier)));
 		}));
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DescriptionRule());
