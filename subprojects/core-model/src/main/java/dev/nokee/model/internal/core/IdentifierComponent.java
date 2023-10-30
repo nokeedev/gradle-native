@@ -15,16 +15,16 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 
 public final class IdentifierComponent implements ModelComponent {
-	private final DomainObjectIdentifier value;
+	private final ModelObjectIdentifier value;
 
-	public IdentifierComponent(DomainObjectIdentifier value) {
+	public IdentifierComponent(ModelObjectIdentifier value) {
 		this.value = value;
 	}
 
-	public DomainObjectIdentifier get() {
+	public ModelObjectIdentifier get() {
 		return value;
 	}
 }

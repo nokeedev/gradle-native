@@ -43,7 +43,7 @@ public abstract class BaseComponent<T extends Variant> implements Component, Mod
 	}
 
 	public ModelObjectIdentifier getIdentifier() {
-		return (ModelObjectIdentifier) node.get(IdentifierComponent.class).get();
+		return node.get(IdentifierComponent.class).get();
 	}
 
 	public abstract Provider<T> getDevelopmentVariant();

@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ModelObjectTester;
@@ -52,7 +53,7 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 	static ModelNode newEntity(ModelRegistry modelRegistry) {
 		val entity = node("foru", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withRegistry(modelRegistry));
 		entity.addComponent(new ElementNameComponent("tare"));
-		entity.addComponent(new IdentifierComponent(Mockito.mock(DomainObjectIdentifier.class)));
+		entity.addComponent(new IdentifierComponent(Mockito.mock(ModelObjectIdentifier.class)));
 		entity.addComponent(new DisplayNameComponent("entity 'foru.tare'"));
 		return entity;
 	}

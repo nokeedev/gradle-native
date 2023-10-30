@@ -63,7 +63,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 
 	// Still required for output path generation
 	public ModelObjectIdentifier getIdentifier() {
-		return (ModelObjectIdentifier) entity.get(IdentifierComponent.class).get();
+		return entity.get(IdentifierComponent.class).get();
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {

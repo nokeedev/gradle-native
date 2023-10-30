@@ -458,7 +458,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			public void execute(AppliedPlugin ignored) {
 				project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					val binaryIdentifier = ((ModelObjectIdentifier) identifier.get()).child(ElementName.ofMain("jvmJar"));
+					val binaryIdentifier = identifier.get().child(ElementName.ofMain("jvmJar"));
 					val jvmJar = registry.instantiate(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 						.withComponent(new ParentComponent(entity))
 						.withComponentTag(ExcludeFromQualifyingNameTag.class)
@@ -550,7 +550,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, projection, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val binaryIdentifier = ((ModelObjectIdentifier) identifier.get()).child(ElementName.ofMain("jniJar"));
+			val binaryIdentifier = identifier.get().child(ElementName.ofMain("jniJar"));
 			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 				.withComponent(new ParentComponent(entity))
 				.withComponentTag(JniJarArtifactTag.class)
