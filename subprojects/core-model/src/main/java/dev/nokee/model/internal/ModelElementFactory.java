@@ -36,11 +36,9 @@ import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelElementConfigurableProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
-import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelMixInStrategy;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyTag;
@@ -362,7 +360,7 @@ public final class ModelElementFactory implements ModelComponent {
 
 		@Override
 		public DomainObjectIdentifier get() {
-			return entity.find(IdentifierComponent.class).map(IdentifierComponent::get).orElseGet(() -> ModelIdentifier.of(entity.get(ModelPathComponent.class).get(), type));
+			return entity.find(IdentifierComponent.class).map(IdentifierComponent::get).orElseThrow(() -> new RuntimeException("no identifier for " + entity));
 		}
 	}
 

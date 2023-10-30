@@ -23,12 +23,9 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.state.ModelStates;
@@ -107,7 +104,7 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 
 		@Override
 		public DomainObjectIdentifier get() {
-			return entity.find(IdentifierComponent.class).map(IdentifierComponent::get).orElseGet(() -> ModelIdentifier.of(entity.get(ModelPathComponent.class).get(), type));
+			return entity.find(IdentifierComponent.class).map(IdentifierComponent::get).orElseThrow(() -> new RuntimeException("no identifier for " + entity));
 		}
 	}
 
