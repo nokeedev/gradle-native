@@ -55,4 +55,9 @@ public /*final*/ class ModelBackedJvmJarBinary implements JvmJarBinary, Buildabl
 	public TypeOf<?> getPublicType() {
 		return TypeOf.typeOf(JvmJarBinary.class);
 	}
+
+	@Override
+	public String toString() {
+		return "JVM JAR binary '" + getName() + "'";
+	}
 }

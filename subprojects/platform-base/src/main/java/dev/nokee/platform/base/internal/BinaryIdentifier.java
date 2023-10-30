@@ -59,8 +59,12 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 		return new BinaryIdentifier(BinaryIdentity.of(name, "binary"), ownerIdentifier);
 	}
 
-	public static BinaryIdentifier of(DomainObjectIdentifier ownerIdentifier, BinaryIdentity identity) {
-		return new BinaryIdentifier(identity, ownerIdentifier);
+	public static BinaryIdentifier of(DomainObjectIdentifier ownerIdentifier, ElementName name) {
+		if (name instanceof MainName) {
+			return new BinaryIdentifier(BinaryIdentity.ofMain(name.toString(), "binary"), ownerIdentifier);
+		} else {
+			return new BinaryIdentifier(BinaryIdentity.of(name.toString(), "binary"), ownerIdentifier);
+		}
 	}
 
 	public String getOutputDirectoryBase(String outputType) {
