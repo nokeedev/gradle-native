@@ -23,6 +23,7 @@ import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -127,15 +128,15 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 	}
 
 	private static Function<Task, Provider<Directory>> forLibrary(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.fromIdentifier(identifier));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.forBinary((ModelObjectIdentifier) identifier));
 	}
 
 	private static Function<Task, Provider<Directory>> forExecutable(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir("exes/" + OutputDirectoryPath.fromIdentifier(identifier));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("exes/" + OutputDirectoryPath.forBinary((ModelObjectIdentifier) identifier));
 	}
 
 	private static Function<Task, Provider<Directory>> forBundle(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.fromIdentifier(identifier));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.forBinary((ModelObjectIdentifier) identifier));
 	}
 	//endregion
 

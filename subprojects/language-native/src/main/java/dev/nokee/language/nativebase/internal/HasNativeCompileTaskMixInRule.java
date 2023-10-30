@@ -20,6 +20,7 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.IdentifierDisplayNameComponent;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
@@ -50,7 +51,6 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
-import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction4<NativeCompileTypeComponent, IdentifierComponent, ModelComponentTag<HasNativeCompileTaskMixIn.Tag>, IdentifierDisplayNameComponent> {
 	private final ModelRegistry registry;
@@ -81,7 +81,7 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 	}
 
 	private static Function<Task, Provider<Directory>> forObjects(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir("objs/" + OutputDirectoryPath.fromIdentifier(identifier));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("objs/" + OutputDirectoryPath.forIdentifier((ModelObjectIdentifier) identifier));
 	}
 	//endregion
 

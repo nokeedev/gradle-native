@@ -23,6 +23,7 @@ import dev.nokee.language.nativebase.internal.NativeCompileTask;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -102,7 +103,7 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	}
 
 	private static Function<SwiftCompileTask, Object> ofFileSystemLocationInModulesDirectory(DomainObjectIdentifier identifier, BiFunction<? super SwiftCompileTask, ? super Provider<Directory>, ? extends Object> mapper) {
-		return task -> mapper.apply(task, task.getProject().getLayout().getBuildDirectory().dir("modules/" + OutputDirectoryPath.fromIdentifier(identifier)));
+		return task -> mapper.apply(task, task.getProject().getLayout().getBuildDirectory().dir("modules/" + OutputDirectoryPath.forBinary((ModelObjectIdentifier) identifier)));
 	}
 	//endregion
 

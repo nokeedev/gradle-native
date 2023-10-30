@@ -22,6 +22,7 @@ import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
@@ -87,7 +88,7 @@ final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.Mode
 	}
 
 	public static Function<Task, Provider<Directory>> forLibrary(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.fromIdentifier(identifier));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.forBinary((ModelObjectIdentifier) identifier));
 	}
 	//endregion
 

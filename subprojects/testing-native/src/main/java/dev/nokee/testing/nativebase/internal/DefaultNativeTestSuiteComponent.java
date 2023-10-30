@@ -302,7 +302,7 @@ public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeCompone
 					if (component instanceof DefaultNativeApplicationComponent) {
 						val relocateTask = registry.register(newEntity("relocateMainSymbolFor", UnexportMainSymbol.class, it -> it.ownedBy(((BaseVariant) variant).getNode()))).as(UnexportMainSymbol.class).configure(task -> {
 							task.getObjects().from(componentObjects);
-							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(OutputDirectoryPath.fromIdentifier(binary.getIdentifier()) + "/objs/for-test"));
+							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(OutputDirectoryPath.forIdentifier(binary.getIdentifier()) + "/objs/for-test"));
 						}).asProvider();
 						objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
 					}
