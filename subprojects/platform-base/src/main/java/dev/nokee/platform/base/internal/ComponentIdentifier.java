@@ -20,6 +20,7 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.MainName;
 import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
@@ -31,27 +32,27 @@ import static java.util.Objects.requireNonNull;
 @EqualsAndHashCode
 public final class ComponentIdentifier implements DomainObjectIdentifier, HasName {
 	private static final String DEFAULT_DISPLAY_NAME = "component";
-	private final ComponentIdentity identity;
+	private final ElementName name;
 	private final String displayName;
 	private final ProjectIdentifier projectIdentifier;
 
-	private ComponentIdentifier(ComponentIdentity identity, String displayName, ProjectIdentifier projectIdentifier) {
-		this.identity = requireNonNull(identity);
+	private ComponentIdentifier(ElementName name, String displayName, ProjectIdentifier projectIdentifier) {
+		this.name = requireNonNull(name);
 		this.displayName = requireNonNull(displayName);
 		this.projectIdentifier = requireNonNull(projectIdentifier);
 	}
 
 	public static ComponentIdentifier ofMain(ProjectIdentifier projectIdentifier) {
-		return new ComponentIdentifier(ComponentIdentity.ofMain(), DEFAULT_DISPLAY_NAME, projectIdentifier);
+		return new ComponentIdentifier(ElementName.ofMain(), DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
 	public static ComponentIdentifier of(String name, ProjectIdentifier projectIdentifier) {
-		return new ComponentIdentifier(ComponentIdentity.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
+		return new ComponentIdentifier(ElementName.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
 	@Override
 	public ElementName getName() {
-		return identity.getName();
+		return name;
 	}
 
 	// FIXME: Remove this API
@@ -65,7 +66,7 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 	}
 
 	public boolean isMainComponent() {
-		return identity.isMainComponent();
+		return name instanceof MainName;
 	}
 
 	@Override
@@ -103,7 +104,7 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 		}
 
 		public ComponentIdentifier build() {
-			return new ComponentIdentifier(ComponentIdentity.of(name), displayName, projectIdentifier);
+			return new ComponentIdentifier(name, displayName, projectIdentifier);
 		}
 	}
 }
