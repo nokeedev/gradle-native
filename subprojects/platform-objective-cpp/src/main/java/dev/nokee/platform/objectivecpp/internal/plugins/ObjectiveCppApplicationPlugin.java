@@ -101,7 +101,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration objectiveCppApplication(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ElementName.ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new NativeApplicationComponentModelRegistrationFactory(DefaultObjectiveCppApplication.class, project).create(identifier).withComponentTag(SupportObjectiveCppSourceSetTag.class).build();
 	}
 

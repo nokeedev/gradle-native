@@ -102,7 +102,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration cppLibrary(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ElementName.ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultCppLibrary.class, project).create(identifier).withComponentTag(SupportCppSourceSetTag.class).build();
 	}
 
