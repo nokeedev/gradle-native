@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayName;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;

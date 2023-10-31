@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -27,17 +28,25 @@ import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.provider.Provider;
 
+import javax.inject.Inject;
 import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelProperties.add;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, ConsumableDependencyBucketTag.class, ConfigurableTag.class})
-public class ConsumableDependencyBucketSpec extends ModelElementSupport implements ConsumableDependencyBucket, ModelNodeAware
+public abstract class ConsumableDependencyBucketSpec extends ModelElementSupport implements ConsumableDependencyBucket, ModelNodeAware
 	, DependencyBucketMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+	private final DependencyFactory factory;
+
+	@Inject
+	public ConsumableDependencyBucketSpec(DependencyHandler handler) {
+		this.factory = DependencyFactory.forHandler(handler);
+	}
 
 	@Override
 	public ConsumableDependencyBucket artifact(Object artifact) {
@@ -49,6 +58,11 @@ public class ConsumableDependencyBucketSpec extends ModelElementSupport implemen
 	@Override
 	public Provider<Set<PublishArtifact>> getArtifacts() {
 		return ProviderUtils.supplied(() -> ModelStates.finalize(ModelNodes.of(this)).get(BucketArtifacts.class).get());
+	}
+
+	@Override
+	public DependencyFactory getDependencyFactory() {
+		return factory;
 	}
 
 	@Override

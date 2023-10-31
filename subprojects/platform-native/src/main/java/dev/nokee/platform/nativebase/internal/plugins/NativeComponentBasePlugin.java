@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal.plugins;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationComponent;
@@ -79,7 +80,7 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskComponent;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.DependencyDefaultActionComponent;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
 import dev.nokee.platform.base.internal.dependencybuckets.ApiConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
@@ -149,6 +150,7 @@ import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -199,8 +201,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DarwinRuntimePlugin.class); // for now, later we will be more smart
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(FrameworkAwareDependencyBucketTag.class), (entity, ignored) -> {
-			entity.addComponent(new DependencyDefaultActionComponent(new RequestFrameworkAction(project.getObjects())));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(FrameworkAwareDependencyBucketTag.class), ModelComponentReference.ofProjection(ModelType.of(new TypeToken<NamedDomainObjectProvider<? extends DependencyBucketInternal>>() {}.getType())), (entity, ignored, projection) -> {
+			((NamedDomainObjectProvider<? extends DependencyBucketInternal>) ModelNodeUtils.get(entity, ModelType.of(new TypeToken<NamedDomainObjectProvider<? extends DependencyBucketInternal>>() {}.getType()))).configure(it -> it.getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects())));
 		}));
 
 		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory());

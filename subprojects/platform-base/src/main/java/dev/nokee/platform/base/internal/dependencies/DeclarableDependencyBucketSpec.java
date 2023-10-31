@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -22,16 +23,30 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
+
+import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, DeclarableDependencyBucketTag.class, ConfigurableTag.class})
-public class DeclarableDependencyBucketSpec extends ModelElementSupport implements DeclarableDependencyBucket, ModelNodeAware
+public abstract class DeclarableDependencyBucketSpec extends ModelElementSupport implements DeclarableDependencyBucket, ModelNodeAware
 	, DependencyBucketMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+	private final DependencyFactory factory;
+
+	@Inject
+	public DeclarableDependencyBucketSpec(DependencyHandler handler) {
+		this.factory = DependencyFactory.forHandler(handler);
+	}
 
 	@Override
 	public ModelNode getNode() {
 		return entity;
+	}
+
+	@Override
+	public DependencyFactory getDependencyFactory() {
+		return factory;
 	}
 
 	@Override

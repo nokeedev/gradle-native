@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import org.gradle.api.artifacts.Dependency;
+import dev.nokee.platform.base.DependencyBucket;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.provider.Property;
 
-import java.util.Set;
-
-public final class BucketDependencies implements ModelComponent {
-	private final Set<Dependency> value;
-
-	public BucketDependencies(Set<Dependency> value) {
-		this.value = value;
-	}
-
-	public Set<Dependency> get() {
-		return value;
-	}
+public interface DependencyBucketInternal extends DependencyBucket {
+	Property<Action<ModuleDependency>> getDefaultDependencyAction();
 }
