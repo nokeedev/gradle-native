@@ -15,8 +15,10 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.DisplayNameComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -44,6 +46,17 @@ import java.util.function.Consumer;
 
 public final class DomainObjectEntities {
 	private static final Consumer<Builder> DO_NOTHING = __ -> {};
+
+	public static <T> ModelRegistration newEntity(ModelObjectIdentifier identifier, Class<T> type) {
+		return newEntity(identifier, type, DO_NOTHING);
+	}
+
+	public static <T> ModelRegistration newEntity(ModelObjectIdentifier identifier, Class<T> type, Consumer<? super Builder> builderConsumer) {
+		return newEntity(identifier.getName(), type, builder -> {
+			builder.withComponent(new IdentifierComponent(identifier));
+			builderConsumer.accept(builder);
+		});
+	}
 
 	// TODO: Should bound type to something that is common between domain object and model
 	public static <T> ModelRegistration newEntity(String elementName, Class<T> type) {
