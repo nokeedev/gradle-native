@@ -20,9 +20,9 @@ import com.google.common.reflect.TypeToken;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DefaultModelObjectIdentifier;
-import dev.nokee.model.internal.IdentifierDisplayNameComponent;
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.core.DisplayNameComponent;
+import dev.nokee.model.internal.core.DisplayName;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -42,6 +42,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.util.internal.LazyPublishArtifact;
@@ -72,12 +73,11 @@ import static dev.nokee.model.internal.core.ModelPropertyRegistrationFactory.set
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
 import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsDeclarable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsResolvable;
 import static dev.nokee.utils.ConfigurationUtils.configureDependencies;
-import static dev.nokee.utils.ConfigurationUtils.configureDescription;
-import static dev.nokee.utils.Optionals.ifPresentOrElse;
 
 public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final NamedDomainObjectRegistry<Configuration> registry;
@@ -95,8 +95,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 	public void apply(T target) {
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), this::createConfiguration));
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new DisplayNameRule());
-
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, ignored1, configuration, ignored2) -> {
 			configuration.get().get().getExtendsFrom().forEach(it -> ((ConfigurationInternal) it).preventFromFurtherMutation());
 		}));
@@ -104,22 +102,22 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new SyncBucketDependenciesToConfigurationProjectionRule());
 
 		// ComponentFromEntity<ParentComponent> read-only self
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, ignored1, path, displayName, elementName) -> {
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, ignored1, path, elementName) -> {
 			val parentIdentifier = entity.find(ParentComponent.class).flatMap(parent -> parent.get().find(IdentifierComponent.class)).map(IdentifierComponent::get).orElse(null);
 			entity.addComponent(new IdentifierComponent(new DefaultModelObjectIdentifier(elementName.get(), parentIdentifier)));
 		}));
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new DescriptionRule());
+		dependencyBuckets(target).configureEach(new DescriptionRule());
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
-			configuration.configure(configureAsConsumable());
-		}));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ResolvableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
-			configuration.configure(configureAsResolvable());
-		}));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(DeclarableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
-			configuration.configure(configureAsDeclarable());
-		}));
+		dependencyBuckets(target).withType(ConsumableDependencyBucketSpec.class).configureEach(it -> {
+			configureAsConsumable().execute(it.getAsConfiguration());
+		});
+		dependencyBuckets(target).withType(ResolvableDependencyBucketSpec.class).configureEach(it -> {
+			configureAsResolvable().execute(it.getAsConfiguration());
+		});
+		dependencyBuckets(target).withType(DeclarableDependencyBucketSpec.class).configureEach(it -> {
+			configureAsDeclarable().execute(it.getAsConfiguration());
+		});
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ResolvableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored, configuration) -> {
 			val incoming = new IncomingArtifacts(configuration.configuration);
@@ -252,28 +250,21 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		}
 	}
 
-	// ComponentFromEntity<DisplayNameComponent> read/write self
-	// ComponentFromEntity<DeclarableDependencyBucketSpec.Tag> read-only self
-	private static final class DisplayNameRule extends ModelActionWithInputs.ModelAction3<ModelComponentTag<IsDependencyBucket>, ElementNameComponent, ModelState.IsAtLeastCreated> {
+	private static final class DescriptionRule implements Action<DependencyBucket> {
 		@Override
-		protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored1, ElementNameComponent elementName, ModelState.IsAtLeastCreated ignored2) {
-			if (!entity.has(DisplayNameComponent.class)) {
-				if (entity.hasComponent(ModelTags.typeOf(DeclarableDependencyBucketTag.class))) {
-					entity.addComponent(new DisplayNameComponent(DependencyBuckets.defaultDisplayNameOfDeclarableBucket(elementName.get())));
-				} else {
-					entity.addComponent(new DisplayNameComponent(DependencyBuckets.defaultDisplayName(elementName.get())));
-				}
-			}
-		}
-	}
+		public void execute(DependencyBucket dependencyBucket) {
+			if (dependencyBucket instanceof ModelElement) {
+				final ModelObjectIdentifier identifier = ((ModelElement) dependencyBucket).getIdentifier();
 
-	// ComponentFromEntity<IdentifierComponent> read-only parent
-	private static final class DescriptionRule extends ModelActionWithInputs.ModelAction5<ModelComponentTag<IsDependencyBucket>, ConfigurationComponent, ParentComponent, DisplayNameComponent, ModelState.IsAtLeastRealized> {
-		@Override
-		protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored, ConfigurationComponent configuration, ParentComponent parent, DisplayNameComponent displayName, ModelState.IsAtLeastRealized ignored2) {
-			ifPresentOrElse(parent.get().find(IdentifierDisplayNameComponent.class).map(IdentifierDisplayNameComponent::get),
-				it -> configuration.configure(configureDescription(DependencyBucketDescription.of(displayName.get()).forOwner(it)::toString)),
-				() -> configuration.configure(configureDescription(DependencyBucketDescription.of(displayName.get())::toString)));
+				DisplayName displayName = null;
+				if (dependencyBucket instanceof DeclarableDependencyBucket) {
+					displayName = DisplayName.of(DependencyBuckets.defaultDisplayNameOfDeclarableBucket(identifier.getName()));
+				} else {
+					displayName = DisplayName.of(DependencyBuckets.defaultDisplayName(identifier.getName()));
+				}
+
+				dependencyBucket.getAsConfiguration().setDescription(DependencyBucketDescription.of(displayName).forOwner(dependencyBucket.toString()).toString());
+			}
 		}
 	}
 

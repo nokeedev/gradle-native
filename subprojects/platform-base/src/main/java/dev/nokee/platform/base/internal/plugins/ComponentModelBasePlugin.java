@@ -103,6 +103,7 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
@@ -134,8 +135,8 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		return project.getExtensions().getByType(VARIANT_CONTAINER_TYPE);
 	}
 
-	public static ExtensiblePolymorphicDomainObjectContainer<DependencyBucket> dependencyBuckets(Project project) {
-		return project.getExtensions().getByType(DEPENDENCY_BUCKET_CONTAINER_TYPE);
+	public static ExtensiblePolymorphicDomainObjectContainer<DependencyBucket> dependencyBuckets(ExtensionAware target) {
+		return target.getExtensions().getByType(DEPENDENCY_BUCKET_CONTAINER_TYPE);
 	}
 
 	public static ExtensiblePolymorphicDomainObjectContainer<Artifact> artifacts(Project project) {

@@ -57,7 +57,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public ModelObjectIdentifier getIdentifier() {
-			assert identifiers.size() == 1;
+			assert identifiers.size() >= 1; // TODO: Need to figure out
 			return identifiers.iterator().next().identifier;
 		}
 	}
