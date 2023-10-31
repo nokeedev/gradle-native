@@ -33,7 +33,7 @@ import java.util.Set;
 import static dev.nokee.model.internal.core.ModelProperties.add;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.assertConfigurableNotation;
 
-interface DependencyBucketMixIn extends DependencyBucket, ModelBackedNamedMixIn {
+interface DependencyBucketMixIn extends DependencyBucket {
 	default void addDependency(Object notation) {
 		val entity = ModelNodes.of(this).get(BucketDependenciesProperty.class).get();
 		add(entity, new DependencyElement(notation));
