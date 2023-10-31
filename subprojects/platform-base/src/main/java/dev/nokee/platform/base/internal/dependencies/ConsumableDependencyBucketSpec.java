@@ -17,24 +17,19 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.utils.ProviderUtils;
-import lombok.val;
+import dev.nokee.util.internal.LazyPublishArtifact;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.provider.Provider;
 
 import javax.inject.Inject;
 import java.util.Set;
-
-import static dev.nokee.model.internal.core.ModelProperties.add;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, ConsumableDependencyBucketTag.class, ConfigurableTag.class})
 public abstract class ConsumableDependencyBucketSpec extends ModelElementSupport implements ConsumableDependencyBucket, ModelNodeAware
@@ -50,14 +45,13 @@ public abstract class ConsumableDependencyBucketSpec extends ModelElementSupport
 
 	@Override
 	public ConsumableDependencyBucket artifact(Object artifact) {
-		val entity = ModelNodes.of(this).get(BucketArtifactsProperty.class).get();
-		add(entity, new PublishedArtifactElement((Provider<?>) artifact));
+		getAsConfiguration().getOutgoing().getArtifacts().add(new LazyPublishArtifact((Provider<?>) artifact));
 		return this;
 	}
 
 	@Override
 	public Provider<Set<PublishArtifact>> getArtifacts() {
-		return ProviderUtils.supplied(() -> ModelStates.finalize(ModelNodes.of(this)).get(BucketArtifacts.class).get());
+		return getProviders().provider(() -> getAsConfiguration().getOutgoing().getArtifacts());
 	}
 
 	@Override

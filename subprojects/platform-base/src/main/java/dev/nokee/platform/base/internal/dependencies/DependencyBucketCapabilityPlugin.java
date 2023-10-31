@@ -15,28 +15,19 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayName;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
@@ -44,29 +35,22 @@ import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.util.internal.LazyPublishArtifact;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
-import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
-import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
-import static dev.nokee.model.internal.core.ModelPropertyRegistrationFactory.setProperty;
-import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
@@ -111,17 +95,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 			entity.addComponent(ofInstance(incoming));
 		}));
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), (entity, ignored1) -> {
-			val propertyEntity = target.getExtensions().getByType(ModelRegistry.class).register(builder()
-				.withComponent(new ElementNameComponent("artifacts"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(setProperty(PublishedArtifactElement.class))
-				.build());
-			entity.addComponent(new BucketArtifactsProperty(ModelNodes.of(propertyEntity)));
-		})));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new ComputeBucketArtifactsRule());
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new SyncBucketArtifactsToConfigurationProjectionRule());
-
 		configurations.configureEach(configuration -> {
 			val bucketResolver = (Runnable) new Runnable() {
 				private boolean locking = false;
@@ -148,27 +121,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 			configuration.defaultDependencies(__ -> bucketResolver.run());
 			((ConfigurationInternal) configuration).beforeLocking(__ -> bucketResolver.run());
 		});
-	}
-
-	// ComponentFromEntity<GradlePropertyComponent> read/write on BucketArtifactsProperty
-	private static final class ComputeBucketArtifactsRule extends ModelActionWithInputs.ModelAction2<BucketArtifactsProperty, ModelStates.Finalizing> {
-		@Override
-		protected void execute(ModelNode entity, BucketArtifactsProperty propertyEntity, ModelStates.Finalizing ignored1) {
-			@SuppressWarnings("unchecked")
-			val property = (SetProperty<PublishedArtifactElement>) propertyEntity.get().get(GradlePropertyComponent.class).get();
-			property.finalizeValue();
-
-			val bucketArtifacts = (Set<PublishArtifact>) property.get().stream().map(it -> new LazyPublishArtifact(it.get()))
-				.collect(ImmutableSet.<PublishArtifact>toImmutableSet());
-			entity.addComponent(new BucketArtifacts(bucketArtifacts));
-		}
-	}
-
-	private static final class SyncBucketArtifactsToConfigurationProjectionRule extends ModelActionWithInputs.ModelAction2<BucketArtifacts, ConfigurationComponent> {
-		@Override
-		protected void execute(ModelNode entity, BucketArtifacts bucketArtifacts, ConfigurationComponent configuration) {
-			configuration.configure(it -> it.getOutgoing().getArtifacts().addAll(bucketArtifacts.get()));
-		}
 	}
 
 	private static final class DescriptionRule implements Action<DependencyBucket> {
