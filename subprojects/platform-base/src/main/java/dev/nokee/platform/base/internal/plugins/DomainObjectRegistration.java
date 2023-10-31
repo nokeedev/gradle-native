@@ -26,7 +26,6 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementConfigurableProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTag;
@@ -39,16 +38,16 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 
 @SuppressWarnings("unchecked")
-public final class DomainObjectRegistration<T> extends ModelActionWithInputs.ModelAction4<MainProjectionComponent, ModelComponentTag<ModelTag>, FullyQualifiedNameComponent, IdentifierComponent> {
+public final class DomainObjectRegistration<T> extends ModelActionWithInputs.ModelAction3<MainProjectionComponent, ModelComponentTag<ModelTag>, IdentifierComponent> {
 	private final ModelObjectRegistry<? super T> container;
 
 	public DomainObjectRegistration(Class<? extends ModelTag> tag, ModelObjectRegistry<? super T> container) {
-		super(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf((Class<ModelTag>) tag), ModelComponentReference.of(FullyQualifiedNameComponent.class), ModelComponentReference.of(IdentifierComponent.class));
+		super(ModelComponentReference.of(MainProjectionComponent.class), ModelTags.referenceOf((Class<ModelTag>) tag), ModelComponentReference.of(IdentifierComponent.class));
 		this.container = container;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, MainProjectionComponent mainProjection, ModelComponentTag<ModelTag> ignored, FullyQualifiedNameComponent name, IdentifierComponent identifier) {
+	protected void execute(ModelNode entity, MainProjectionComponent mainProjection, ModelComponentTag<ModelTag> ignored, IdentifierComponent identifier) {
 		final Class<T> elementType = (Class<T>) mainProjection.getProjectionType();
 		final NamedDomainObjectProvider<T> elementProvider = container.register(identifier.get(), elementType).asProvider();
 		entity.addComponent(new ModelElementProviderSourceComponent(elementProvider));
