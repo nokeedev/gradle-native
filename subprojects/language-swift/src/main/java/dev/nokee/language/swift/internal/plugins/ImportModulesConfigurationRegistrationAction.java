@@ -58,8 +58,8 @@ final class ImportModulesConfigurationRegistrationAction extends ModelActionWith
 
 	@Override
 	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		val importModules = registry.register(newEntity(identifier.get().child("importModules"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-		importModules.configure(Configuration.class, forSwiftApiUsage());
+		val importModules = registry.register(newEntity(identifier.get().child("importModules"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ResolvableDependencyBucketSpec.class);
+		importModules.configure(it -> forSwiftApiUsage().execute(it.getAsConfiguration()));
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(importModules));
 		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
 		entity.addComponent(new DependentImportModules(incomingArtifacts.getAs(frameworks().negate())));

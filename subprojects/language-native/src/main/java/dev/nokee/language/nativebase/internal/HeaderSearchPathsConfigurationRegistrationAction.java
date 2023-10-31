@@ -58,8 +58,8 @@ public final class HeaderSearchPathsConfigurationRegistrationAction extends Mode
 
 	@Override
 	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, ModelComponentTag<IsLanguageSourceSet> ignored) {
-		val headerSearchPaths = registry.register(newEntity(identifier.get().child("headerSearchPaths"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(HeaderSearchPathsDependencyBucketTag.class)));
-		headerSearchPaths.configure(Configuration.class, forCPlusPlusApiUsage());
+		val headerSearchPaths = registry.register(newEntity(identifier.get().child("headerSearchPaths"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(HeaderSearchPathsDependencyBucketTag.class))).as(ResolvableDependencyBucketSpec.class);
+		headerSearchPaths.configure(it -> forCPlusPlusApiUsage().execute(it.getAsConfiguration()));
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));
 		entity.addComponent(new HeaderSearchPathsConfigurationComponent(ModelNodes.of(headerSearchPaths)));
 		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));

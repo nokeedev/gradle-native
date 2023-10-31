@@ -52,8 +52,8 @@ final class LinkLibrariesConfigurationRegistrationRule extends ModelActionWithIn
 
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> ignored, ModelProjection projection) {
-		val linkLibraries = registry.register(newEntity(identifier.get().child("linkLibraries"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(LinkLibrariesDependencyBucketTag.class)));
-		linkLibraries.configure(Configuration.class, forNativeLinkUsage());
+		val linkLibraries = registry.register(newEntity(identifier.get().child("linkLibraries"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(LinkLibrariesDependencyBucketTag.class))).as(ResolvableDependencyBucketSpec.class);
+		linkLibraries.configure(it -> forNativeLinkUsage().execute(it.getAsConfiguration()));
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(linkLibraries));
 		entity.addComponent(new DependentFrameworks(incomingArtifacts.getAs(frameworks())));
 		entity.addComponent(new DependentLinkLibraries(incomingArtifacts.getAs(frameworks().negate())));

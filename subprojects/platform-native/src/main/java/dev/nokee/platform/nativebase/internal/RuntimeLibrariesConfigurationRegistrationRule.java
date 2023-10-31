@@ -47,8 +47,8 @@ public final class RuntimeLibrariesConfigurationRegistrationRule extends ModelAc
 
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> ignored, ModelProjection projection) {
-		val runtimeLibraries = registry.register(newEntity(identifier.get().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(RuntimeLibrariesDependencyBucketTag.class)));
-		runtimeLibraries.configure(Configuration.class, forNativeRuntimeUsage());
+		val runtimeLibraries = registry.register(newEntity(identifier.get().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(RuntimeLibrariesDependencyBucketTag.class))).as(ResolvableDependencyBucketSpec.class);
+		runtimeLibraries.configure(it -> forNativeRuntimeUsage().execute(it.getAsConfiguration()));
 		entity.addComponent(new RuntimeLibrariesConfiguration(ModelNodes.of(runtimeLibraries)));
 		entity.addComponent(new DependentRuntimeLibraries(runtimeLibraries.as(Configuration.class).flatMap(it -> it.getIncoming().getFiles().getElements())));
 	}
