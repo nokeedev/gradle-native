@@ -28,7 +28,6 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
@@ -73,10 +72,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 	@Override
 	public void apply(T target) {
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), this::createConfiguration));
-
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, ignored1, configuration, ignored2) -> {
-			configuration.get().get().getExtendsFrom().forEach(it -> ((ConfigurationInternal) it).preventFromFurtherMutation());
-		}));
 
 		dependencyBuckets(target).configureEach(new DescriptionRule());
 
