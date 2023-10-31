@@ -49,7 +49,6 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
-import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
@@ -84,11 +83,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		dependencyBuckets(target).withType(DeclarableDependencyBucketSpec.class).configureEach(it -> {
 			configureAsDeclarable().execute(it.getAsConfiguration());
 		});
-
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ResolvableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored, configuration) -> {
-			val incoming = new IncomingArtifacts(configuration.configuration);
-			entity.addComponent(ofInstance(incoming));
-		}));
 
 		configurations.configureEach(configuration -> {
 			val bucketResolver = (Runnable) new Runnable() {

@@ -40,7 +40,7 @@ public abstract class ResolvableDependencyBucketSpec extends ModelElementSupport
 	@Inject
 	public ResolvableDependencyBucketSpec(DependencyHandler handler) {
 		this.factory = DependencyFactory.forHandler(handler);
-		this.incoming = ModelNodeUtils.get(entity, IncomingArtifacts.class);
+		this.incoming = new IncomingArtifacts(getAsConfiguration());
 	}
 
 	@Override
