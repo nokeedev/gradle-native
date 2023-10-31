@@ -18,6 +18,8 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.provider.ProviderConvertible;
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -38,6 +40,23 @@ interface DependencyBucketMixIn extends DependencyBucketInternal {
 	ProviderFactory getProviders();
 
 	DependencyFactory getDependencyFactory();
+
+	@Override
+	@SuppressWarnings("unchecked")
+	default DependencyBucketInternal extendsFrom(Object... buckets) {
+		for (Object bucket : buckets) {
+			if (bucket instanceof DependencyBucket) {
+				getAsConfiguration().extendsFrom(((DependencyBucket) bucket).getAsConfiguration());
+			} else if (bucket instanceof ProviderConvertible) {
+				getAsConfiguration().extendsFrom(((ProviderConvertible<DependencyBucket>) bucket).asProvider().get().getAsConfiguration());
+			} else if (bucket instanceof Provider) {
+				getAsConfiguration().extendsFrom(((Provider<DependencyBucket>) bucket).get().getAsConfiguration());
+			} else {
+				throw new UnsupportedOperationException("only accept DependencyBucket, ProviderConvertible<DependencyBucket> and Provider<DependencyBucket>");
+			}
+		}
+		return this;
+	}
 
 	// We can't realistically delay until realize because Kotlin plugin suck big time and Gradle removed important APIs... Too bad, blame Gradle or Kotlin.
 	default void addDependency(Object notation) {

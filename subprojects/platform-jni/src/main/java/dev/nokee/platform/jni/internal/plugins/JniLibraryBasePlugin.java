@@ -133,6 +133,7 @@ import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.util.internal.LazyPublishArtifact;
+import dev.nokee.utils.ConfigurationUtils;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -185,7 +186,6 @@ import static dev.nokee.platform.jni.internal.actions.WhenPlugin.any;
 import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
 import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
-import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
@@ -243,9 +243,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val api = registry.register(newEntity(identifier.get().child("api"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			val implementation = registry.register(newEntity(identifier.get().child("jvmImplementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			val runtimeOnly = registry.register(newEntity(identifier.get().child("jvmRuntimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
+			val api = registry.register(newEntity(identifier.get().child("api"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(DeclarableDependencyBucketSpec.class);
+			val implementation = registry.register(newEntity(identifier.get().child("jvmImplementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(DeclarableDependencyBucketSpec.class);
+			val runtimeOnly = registry.register(newEntity(identifier.get().child("jvmRuntimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(DeclarableDependencyBucketSpec.class);
 			project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 				private boolean alreadyExecuted = false;
 
@@ -258,22 +258,26 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					}
 				}
 			});
-			val nativeImplementation = registry.register(newEntity(identifier.get().child("nativeImplementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val nativeLinkOnly = registry.register(newEntity(identifier.get().child("nativeLinkOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val nativeRuntimeOnly = registry.register(newEntity(identifier.get().child("nativeRuntimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			implementation.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
+			val nativeImplementation = registry.register(newEntity(identifier.get().child("nativeImplementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
+			val nativeLinkOnly = registry.register(newEntity(identifier.get().child("nativeLinkOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
+			val nativeRuntimeOnly = registry.register(newEntity(identifier.get().child("nativeRuntimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
+			implementation.configure(bucket -> bucket.extendsFrom(api));
 
 			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(nativeImplementation)));
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(nativeRuntimeOnly)));
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(nativeLinkOnly)));
 
-			val apiElements = registry.register(newEntity(identifier.get().child("apiElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			apiElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
-			apiElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
+			val apiElements = registry.register(newEntity(identifier.get().child("apiElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
+			apiElements.configure(bucket -> {
+				ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(bucket.getAsConfiguration());
+			});
+			apiElements.configure(bucket -> bucket.extendsFrom(api));
 			entity.addComponent(new ApiElementsConfiguration(ModelNodes.of(apiElements)));
-			val runtimeElements = registry.register(newEntity(identifier.get().child("runtimeElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			runtimeElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
-			runtimeElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
+			val runtimeElements = registry.register(newEntity(identifier.get().child("runtimeElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
+			runtimeElements.configure(bucket -> {
+				ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(bucket.getAsConfiguration());
+			});
+			runtimeElements.configure(bucket -> bucket.extendsFrom(api));
 			entity.addComponent(new RuntimeElementsConfiguration(ModelNodes.of(runtimeElements)));
 
 			// TODO: This is an external dependency meaning we should go through the component dependencies.
@@ -303,10 +307,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 
 			project.getPluginManager().withPlugin("java", appliedPlugin -> {
-				registry.register(newEntity(identifier.get().child("implementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class)));
-				registry.register(newEntity(identifier.get().child("runtimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.configure(Configuration.class, configureExtendsFrom(runtimeOnly.as(Configuration.class)));
+				registry.register(newEntity(identifier.get().child("implementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(DeclarableDependencyBucketSpec.class)
+					.configure(bucket -> bucket.extendsFrom(implementation));
+				registry.register(newEntity(identifier.get().child("runtimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(DeclarableDependencyBucketSpec.class)
+					.configure(bucket -> bucket.extendsFrom(runtimeOnly));
 			});
 		})));
 		// TODO: When discovery will be a real feature, we shouldn't need this anymore

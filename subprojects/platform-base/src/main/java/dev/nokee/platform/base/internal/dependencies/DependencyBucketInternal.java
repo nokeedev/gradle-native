@@ -23,4 +23,7 @@ import org.gradle.api.provider.Property;
 
 public interface DependencyBucketInternal extends DependencyBucket {
 	Property<Action<ModuleDependency>> getDefaultDependencyAction();
+
+	// buckets must be Provider, ProviderConvertible, DependencyBucket
+	DependencyBucketInternal extendsFrom(Object... buckets);
 }
