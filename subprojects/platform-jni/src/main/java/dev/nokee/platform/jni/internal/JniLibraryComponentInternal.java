@@ -16,16 +16,18 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -43,13 +45,14 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareCompo
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
+import javax.inject.Inject;
 import java.util.Set;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
 	, ComponentMixIn
 	, ExtensionAwareMixIn
-	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies, ModelBackedJavaNativeInterfaceLibraryComponentDependencies>
+	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<JniLibrary>
 	, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources, JavaNativeInterfaceSourcesViewAdapter>
 	, ModelBackedBinaryAwareComponentMixIn
@@ -61,6 +64,16 @@ public /*final*/ class JniLibraryComponentInternal extends BaseComponent<JniLibr
 	, HasAssembleTaskMixIn
 	, HasDevelopmentBinaryMixIn
 {
+	@Inject
+	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		getExtensions().create("dependencies", DefaultJavaNativeInterfaceLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
+	}
+
+	@Override
+	public DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies() {
+		return (DefaultJavaNativeInterfaceLibraryComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
+	}
+
 	public VariantView<JniLibrary> getVariants() {
 		return ModelBackedVariantAwareComponentMixIn.super.getVariants();
 	}

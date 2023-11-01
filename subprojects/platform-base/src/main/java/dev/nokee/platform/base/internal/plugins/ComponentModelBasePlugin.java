@@ -294,7 +294,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "sources"));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "dependencies"));
+			if (ModelNodeUtils.hasDescendant(entity, "dependencies")) {
+				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "dependencies"));
+			}
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(TaskAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
 			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "tasks"));

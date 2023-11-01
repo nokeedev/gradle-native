@@ -31,6 +31,7 @@ import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseVariant;
@@ -69,6 +70,7 @@ import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.CURRENT_MODEL_PLUGIN_IDS;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_APPLICATION_PLUGIN_ID;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_LIBRARY_PLUGIN_ID;
@@ -120,7 +122,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, new ModelObjectFactory<JniLibraryComponentInternal>(project, IsComponent.class) {
 			@Override
 			protected JniLibraryComponentInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryComponentInternal.class);
+				return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(DependencyBucket.class)));
 			}
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
