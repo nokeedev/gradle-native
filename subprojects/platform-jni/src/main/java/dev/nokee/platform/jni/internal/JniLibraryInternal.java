@@ -49,8 +49,6 @@ import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Property;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskProvider;
 
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
@@ -58,7 +56,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ abstract class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware, HasPublicType
+public /*final*/ abstract class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware
 	, VariantMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
@@ -137,11 +135,6 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	@Override
 	public ModelNode getNode() {
 		return node;
-	}
-
-	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(JniLibrary.class);
 	}
 
 	@Override
