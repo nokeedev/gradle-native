@@ -221,13 +221,13 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, new ModelObjectFactory<ModelBackedJniJarBinary>(project, IsBinary.class) {
 			@Override
 			protected ModelBackedJniJarBinary doCreate(String name) {
-				return new ModelBackedJniJarBinary();
+				return project.getObjects().newInstance(ModelBackedJniJarBinary.class);
 			}
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJvmJarBinary.class, new ModelObjectFactory<ModelBackedJvmJarBinary>(project, IsBinary.class) {
 			@Override
 			protected ModelBackedJvmJarBinary doCreate(String name) {
-				return new ModelBackedJvmJarBinary();
+				return project.getObjects().newInstance(ModelBackedJvmJarBinary.class);
 			}
 		});
 
