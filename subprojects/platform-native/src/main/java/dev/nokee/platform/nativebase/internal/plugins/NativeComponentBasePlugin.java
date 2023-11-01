@@ -210,25 +210,25 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class, new ModelObjectFactory<SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary>(project, IsBinary.class) {
 			@Override
 			protected SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary doCreate(String name) {
-				return new SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary(project.getObjects());
+				return project.getObjects().newInstance(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class);
 			}
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class, new ModelObjectFactory<StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary>(project, IsBinary.class) {
 			@Override
 			protected StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary doCreate(String name) {
-				return new StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary(project.getObjects());
+				return project.getObjects().newInstance(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class);
 			}
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class, new ModelObjectFactory<ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary>(project, IsBinary.class) {
 			@Override
 			protected ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary doCreate(String name) {
-				return new ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary(project.getObjects());
+				return project.getObjects().newInstance(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class);
 			}
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(BundleBinaryRegistrationFactory.ModelBackedBundleBinary.class, new ModelObjectFactory<BundleBinaryRegistrationFactory.ModelBackedBundleBinary>(project, IsBinary.class) {
 			@Override
 			protected BundleBinaryRegistrationFactory.ModelBackedBundleBinary doCreate(String name) {
-				return new BundleBinaryRegistrationFactory.ModelBackedBundleBinary(project.getObjects());
+				return project.getObjects().newInstance(BundleBinaryRegistrationFactory.ModelBackedBundleBinary.class);
 			}
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryInternal.class, new ModelObjectFactory<SharedLibraryBinaryInternal>(project, IsBinary.class) {

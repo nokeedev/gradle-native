@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -47,6 +48,7 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
+import javax.inject.Inject;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -63,7 +65,7 @@ public final class BundleBinaryRegistrationFactory {
 			.build();
 	}
 
-	public static final class ModelBackedBundleBinary implements BundleBinary, HasPublicType, ModelNodeAware
+	public static /*final*/ abstract class ModelBackedBundleBinary extends ModelElementSupport implements BundleBinary, HasPublicType, ModelNodeAware
 		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
@@ -76,6 +78,7 @@ public final class BundleBinaryRegistrationFactory {
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
 		private final ObjectFactory objectFactory;
 
+		@Inject
 		public ModelBackedBundleBinary(ObjectFactory objectFactory) {
 			this.objectFactory = objectFactory;
 		}
