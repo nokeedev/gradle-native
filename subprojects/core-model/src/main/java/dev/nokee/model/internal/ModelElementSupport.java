@@ -22,7 +22,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public abstract class ModelElementSupport implements ModelElement {
+public abstract class ModelElementSupport implements ModelElement, ExtensionAware {
 	private static final ThreadLocal<ModelElement> nextIdentity = new ThreadLocal<>();
 	private final ModelElement delegate;
 
