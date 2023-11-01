@@ -112,6 +112,14 @@ public /*final*/ class JniLibraryInternal extends BaseVariant implements JniLibr
 		sharedLibrary(ConfigureUtils.configureUsing(closure));
 	}
 
+	public TaskProvider<Task> getSharedLibraryTask() {
+		return (TaskProvider<Task>) ModelElements.of(this).element("sharedLibrary", Task.class).asProvider();
+	}
+
+	public TaskProvider<Task> getObjectsTask() {
+		return (TaskProvider<Task>) ModelElements.of(this).element("objects", Task.class).asProvider();
+	}
+
 	public TargetMachine getTargetMachine() {
 		return getBuildVariant().getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 	}
