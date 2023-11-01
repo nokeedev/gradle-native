@@ -22,24 +22,17 @@ import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
 @DomainObjectEntities.Tag({SwiftSourceSetTag.class, SwiftSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
-public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn, HasNativeCompileTaskMixIn<SwiftCompileTask> {
+public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn, HasNativeCompileTaskMixIn<SwiftCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
-	}
-
-	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(SwiftSourceSet.class);
 	}
 
 	@Override

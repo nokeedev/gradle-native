@@ -20,13 +20,11 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.GroovyCompile;
@@ -35,7 +33,7 @@ import org.gradle.api.tasks.util.PatternFilterable;
 import static dev.nokee.utils.TaskDependencyUtils.of;
 
 @DomainObjectEntities.Tag({GroovySourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasConfigurableSourceMixIn {
 	public TaskProvider<GroovyCompile> getCompileTask() {
 		return (TaskProvider<GroovyCompile>) ModelElements.of(this).element("compile", GroovyCompile.class).asProvider();
 	}
@@ -63,11 +61,6 @@ public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport 
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), of(getCompileTask()));
-	}
-
-	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(GroovySourceSet.class);
 	}
 
 	public interface Tag extends ModelTag {}

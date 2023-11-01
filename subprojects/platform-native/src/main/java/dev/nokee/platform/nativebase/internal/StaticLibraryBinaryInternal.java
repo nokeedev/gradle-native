@@ -30,8 +30,6 @@ import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -40,7 +38,6 @@ import javax.inject.Inject;
 @DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class, NativeLanguageSourceSetAwareTag.class})
 public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
-	, HasPublicType
 	, ModelBackedHasBaseNameMixIn
 	, HasCreateTaskMixIn
 	, HasObjectFilesToBinaryTask
@@ -63,11 +60,6 @@ public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBi
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.of(getCreateOrLinkTask());
-	}
-
-	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(StaticLibraryBinary.class);
 	}
 
 	@Override

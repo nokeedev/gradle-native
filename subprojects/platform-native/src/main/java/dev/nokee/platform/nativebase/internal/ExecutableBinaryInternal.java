@@ -31,8 +31,6 @@ import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -42,7 +40,6 @@ import javax.inject.Inject;
 @DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class, NativeLanguageSourceSetAwareTag.class})
 public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary
 	, Buildable
-	, HasPublicType
 	, ModelBackedHasBaseNameMixIn
 	, HasLinkTaskMixIn<LinkExecutable>
 	, HasObjectFilesToBinaryTask
@@ -88,11 +85,6 @@ public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinar
 	private static boolean isBuildable(LinkExecutable linkTask) {
 		AbstractLinkTask linkTaskInternal = (AbstractLinkTask)linkTask;
 		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
-	}
-
-	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(ExecutableBinary.class);
 	}
 
 	@Override

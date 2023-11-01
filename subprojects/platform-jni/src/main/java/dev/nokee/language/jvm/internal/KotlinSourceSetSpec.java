@@ -20,19 +20,17 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import org.gradle.api.Task;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.util.PatternFilterable;
 
 @DomainObjectEntities.Tag({KotlinSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport implements KotlinSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport implements KotlinSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TaskProvider<? extends Task> getCompileTask() {
 		return (TaskProvider<Task>) ModelElements.of(this).element("compile", Task.class).asProvider();
@@ -61,11 +59,6 @@ public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport 
 	@Override
 	public KotlinSourceSet convention(Object... path) {
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(KotlinSourceSet.class);
 	}
 
 	public interface Tag extends ModelTag {}
