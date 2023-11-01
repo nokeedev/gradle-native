@@ -32,6 +32,7 @@ import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -46,15 +47,16 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
@@ -74,7 +76,7 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareCom
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
@@ -121,7 +123,7 @@ import static java.util.stream.Collectors.toList;
 public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
 	, ComponentMixIn
 	, ExtensionAwareMixIn
-	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedVariantAwareComponentMixIn<NativeTestSuiteVariant>
 	, HasDevelopmentVariantMixIn<NativeTestSuiteVariant>
@@ -137,7 +139,8 @@ public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeCompone
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry) {
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		this.objects = objects;
 		this.modelLookup = modelLookup;
 		this.registry = registry;
@@ -150,8 +153,8 @@ public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeCompone
 	}
 
 	@Override
-	public NativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
+	public DefaultNativeComponentDependencies getDependencies() {
+		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

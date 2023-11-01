@@ -25,6 +25,7 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlug
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -32,10 +33,11 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -51,7 +53,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
@@ -121,7 +123,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	public static abstract class DefaultObjectiveCIosApplication extends ModelElementSupport implements ObjectiveCIosApplication, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
-		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
+		, DependencyAwareComponentMixIn<NativeComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
 		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
@@ -136,6 +138,15 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, HasPrivateHeadersMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		public DefaultObjectiveCIosApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+			getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
+		}
+
+		@Override
+		public DefaultNativeComponentDependencies getDependencies() {
+			return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
+		}
 
 		@Override
 		public ModelNode getNode() {

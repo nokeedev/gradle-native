@@ -22,17 +22,19 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -53,7 +55,7 @@ import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
@@ -81,7 +83,7 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements ComponentMixIn
 	, ExtensionAwareMixIn
-	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedBinaryAwareComponentMixIn
@@ -98,8 +100,9 @@ public /*final*/ class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestT
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultUiTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelRegistry registry) {
+	public DefaultUiTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
 		super(objects, providers, layout, registry);
+		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		this.providers = providers;
 		this.layout = layout;
 		this.registry = registry;
@@ -228,6 +231,11 @@ public /*final*/ class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestT
 	@Override
 	public Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
 		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
+	}
+
+	@Override
+	public DefaultNativeComponentDependencies getDependencies() {
+		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

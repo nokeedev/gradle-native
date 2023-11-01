@@ -23,6 +23,7 @@ import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -33,12 +34,13 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -57,7 +59,7 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareCompo
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -130,7 +132,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, NativeApplicationComponent
 		, ComponentMixIn
 		, ExtensionAwareMixIn
-		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
+		, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
@@ -142,6 +144,16 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, HasAssembleTaskMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Inject
+		public DefaultNativeApplicationExtension(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+			getExtensions().create("dependencies", DefaultNativeApplicationComponentDependencies.class, getIdentifier(), bucketRegistry);
+		}
+
+		@Override
+		public DefaultNativeApplicationComponentDependencies getDependencies() {
+			return (DefaultNativeApplicationComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
+		}
 
 		@Override
 		public ModelNode getNode() {

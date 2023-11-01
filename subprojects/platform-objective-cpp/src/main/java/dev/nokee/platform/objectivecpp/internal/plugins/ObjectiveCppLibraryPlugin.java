@@ -26,6 +26,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBase
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -34,10 +35,11 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -52,7 +54,7 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareCom
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibrary;
 import lombok.AccessLevel;
@@ -66,6 +68,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
@@ -90,7 +93,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCppLibrary.class, new ModelObjectFactory<DefaultObjectiveCppLibrary>(project, IsComponent.class) {
 			@Override
 			protected DefaultObjectiveCppLibrary doCreate(String name) {
-				return project.getObjects().newInstance(DefaultObjectiveCppLibrary.class);
+				return project.getObjects().newInstance(DefaultObjectiveCppLibrary.class, model(project, registryOf(DependencyBucket.class)));
 			}
 		});
 
@@ -112,7 +115,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 	public static abstract class DefaultObjectiveCppLibrary extends ModelElementSupport implements ObjectiveCppLibrary, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
-		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
+		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
@@ -128,6 +131,16 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		, HasPublicHeadersMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Inject
+		public DefaultObjectiveCppLibrary(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+			getExtensions().create("dependencies", DefaultNativeLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
+		}
+
+		@Override
+		public DefaultNativeLibraryComponentDependencies getDependencies() {
+			return (DefaultNativeLibraryComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
+		}
 
 		@Override
 		public ModelNode getNode() {
