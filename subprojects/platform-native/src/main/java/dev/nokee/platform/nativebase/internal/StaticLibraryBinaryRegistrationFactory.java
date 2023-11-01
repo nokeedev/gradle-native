@@ -42,8 +42,6 @@ import lombok.val;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -64,7 +62,7 @@ public final class StaticLibraryBinaryRegistrationFactory {
 			.build();
 	}
 
-	public static /*final*/ abstract class ModelBackedStaticLibraryBinary extends ModelElementSupport implements StaticLibraryBinary, HasPublicType, ModelNodeAware
+	public static /*final*/ abstract class ModelBackedStaticLibraryBinary extends ModelElementSupport implements StaticLibraryBinary, ModelNodeAware
 		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
@@ -99,11 +97,6 @@ public final class StaticLibraryBinaryRegistrationFactory {
 		@Override
 		public TaskDependency getBuildDependencies() {
 			return TaskDependencyUtils.composite(TaskDependencyUtils.ofIterable(getCompileTasks().getElements()), TaskDependencyUtils.of(getCreateTask()));
-		}
-
-		@Override
-		public TypeOf<?> getPublicType() {
-			return TypeOf.typeOf(StaticLibraryBinary.class);
 		}
 
 		@Override

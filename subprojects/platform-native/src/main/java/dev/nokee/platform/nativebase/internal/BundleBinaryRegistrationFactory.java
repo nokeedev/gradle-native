@@ -43,8 +43,6 @@ import lombok.val;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -65,7 +63,7 @@ public final class BundleBinaryRegistrationFactory {
 			.build();
 	}
 
-	public static /*final*/ abstract class ModelBackedBundleBinary extends ModelElementSupport implements BundleBinary, HasPublicType, ModelNodeAware
+	public static /*final*/ abstract class ModelBackedBundleBinary extends ModelElementSupport implements BundleBinary, ModelNodeAware
 		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
@@ -102,11 +100,6 @@ public final class BundleBinaryRegistrationFactory {
 		@Override
 		public TaskDependency getBuildDependencies() {
 			return TaskDependencyUtils.composite(TaskDependencyUtils.ofIterable(getCompileTasks().getElements()), TaskDependencyUtils.of(getLinkTask()));
-		}
-
-		@Override
-		public TypeOf<?> getPublicType() {
-			return TypeOf.typeOf(BundleBinary.class);
 		}
 
 		@Override
