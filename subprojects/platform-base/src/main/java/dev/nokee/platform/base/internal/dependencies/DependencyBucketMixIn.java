@@ -107,6 +107,6 @@ interface DependencyBucketMixIn extends DependencyBucketInternal {
 
 	@Override
 	default Configuration getAsConfiguration() {
-		return ModelNodeUtils.get(ModelNodes.of(this), Configuration.class);
+		return getExtensions().getByType(Configuration.class);
 	}
 }

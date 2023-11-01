@@ -17,28 +17,27 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
 
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, ResolvableDependencyBucketTag.class, ConfigurableTag.class})
-public abstract class ResolvableDependencyBucketSpec extends ModelElementSupport implements ResolvableDependencyBucket, ModelNodeAware
+public abstract class ResolvableDependencyBucketSpec extends ModelElementSupport implements ResolvableDependencyBucket
 	, DependencyBucketMixIn
 {
-	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final IncomingArtifacts incoming;
 	private final DependencyFactory factory;
 
 	@Inject
-	public ResolvableDependencyBucketSpec(DependencyHandler handler) {
+	public ResolvableDependencyBucketSpec(DependencyHandler handler, ModelObjectRegistry<Configuration> configurationRegistry) {
+		getExtensions().add("$configuration", configurationRegistry.register(getIdentifier(), Configuration.class).get());
+
 		this.factory = DependencyFactory.forHandler(handler);
 		this.incoming = new IncomingArtifacts(getAsConfiguration());
 	}
@@ -56,11 +55,6 @@ public abstract class ResolvableDependencyBucketSpec extends ModelElementSupport
 	@Override
 	public DependencyFactory getDependencyFactory() {
 		return factory;
-	}
-
-	@Override
-	public ModelNode getNode() {
-		return entity;
 	}
 
 	@Override

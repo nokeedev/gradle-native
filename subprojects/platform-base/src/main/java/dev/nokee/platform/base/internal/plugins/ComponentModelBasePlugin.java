@@ -103,6 +103,7 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -178,19 +179,19 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class, new ModelObjectFactory<ConsumableDependencyBucketSpec>(project, IsDependencyBucket.class) {
 			@Override
 			protected ConsumableDependencyBucketSpec doCreate(String name) {
-				return project.getObjects().newInstance(ConsumableDependencyBucketSpec.class);
+				return project.getObjects().newInstance(ConsumableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 			}
 		});
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class, new ModelObjectFactory<ResolvableDependencyBucketSpec>(project, IsDependencyBucket.class) {
 			@Override
 			protected ResolvableDependencyBucketSpec doCreate(String name) {
-				return project.getObjects().newInstance(ResolvableDependencyBucketSpec.class);
+				return project.getObjects().newInstance(ResolvableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 			}
 		});
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class, new ModelObjectFactory<DeclarableDependencyBucketSpec>(project, IsDependencyBucket.class) {
 			@Override
 			protected DeclarableDependencyBucketSpec doCreate(String name) {
-				return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class);
+				return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 			}
 		});
 
