@@ -7,7 +7,7 @@ It allows compilation of languages such C, {cpp}, Objective-C and Objective-{cpp
 
 *For more information, visit the link:https://nokee.dev[official project homepage]*
 
-image:https://img.shields.io/badge/Revved%20up%20by-Gradle%20Enterprise-06A0CE?logo=Gradle&labelColor=02303A[link=https://ge.nokee.dev/scans]
+image:https://img.shields.io/badge/Revved%20up%20by-Develocity-06A0CE?logo=Gradle&labelColor=02303A[link=https://ge.nokee.dev/scans]
 
 == Install
 
