@@ -79,7 +79,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements ComponentMixIn
+public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements ComponentMixIn
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>

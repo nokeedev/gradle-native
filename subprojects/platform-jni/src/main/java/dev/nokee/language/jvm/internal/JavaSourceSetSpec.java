@@ -33,7 +33,7 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.util.PatternFilterable;
 
 @DomainObjectEntities.Tag({JavaSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ class JavaSourceSetSpec extends ModelElementSupport implements JavaSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ abstract class JavaSourceSetSpec extends ModelElementSupport implements JavaSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet>, HasConfigurableSourceMixIn {
 	public TaskProvider<JavaCompile> getCompileTask() {
 		return (TaskProvider<JavaCompile>) ModelElements.of(this).element("compile", JavaCompile.class).asProvider();
 	}

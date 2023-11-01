@@ -43,7 +43,7 @@ import org.gradle.api.provider.Property;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
+public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
 	, VariantMixIn
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn

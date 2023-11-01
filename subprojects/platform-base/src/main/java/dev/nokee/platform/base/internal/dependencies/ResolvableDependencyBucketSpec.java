@@ -28,7 +28,7 @@ import org.gradle.api.file.FileCollection;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, ResolvableDependencyBucketTag.class, ConfigurableTag.class})
-public abstract class ResolvableDependencyBucketSpec extends ModelElementSupport implements ResolvableDependencyBucket
+public /*final*/ abstract class ResolvableDependencyBucketSpec extends ModelElementSupport implements ResolvableDependencyBucket
 	, DependencyBucketMixIn
 {
 	private final IncomingArtifacts incoming;

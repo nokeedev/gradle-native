@@ -34,7 +34,7 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
 @DomainObjectEntities.Tag({CppSourceSetTag.class, CppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
-public /*final*/ class CppSourceSetSpec extends ModelElementSupport implements CppSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<CppCompileTask> {
+public /*final*/ abstract class CppSourceSetSpec extends ModelElementSupport implements CppSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<CppCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), getHeaders().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));

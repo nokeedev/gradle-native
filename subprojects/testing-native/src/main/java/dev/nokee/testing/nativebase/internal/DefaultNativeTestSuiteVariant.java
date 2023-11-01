@@ -46,7 +46,7 @@ import org.gradle.api.provider.Property;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ class DefaultNativeTestSuiteVariant extends BaseVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware
+public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware
 	, VariantMixIn
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn

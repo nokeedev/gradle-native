@@ -112,7 +112,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(DefaultCApplication.class, project).create(identifier).withComponentTag(SupportCSourceSetTag.class).build();
 	}
 
-	public static abstract class DefaultCApplication extends ModelElementSupport implements CApplication, ModelNodeAware
+	public static /*final*/ abstract class DefaultCApplication extends ModelElementSupport implements CApplication, ModelNodeAware
 		, NativeApplicationComponent
 		, ComponentMixIn
 		, ExtensionAwareMixIn

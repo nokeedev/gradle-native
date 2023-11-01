@@ -28,7 +28,7 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
 @DomainObjectEntities.Tag({LegacySourceSetTag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
-public /*final*/ class IosResourceSetSpec extends ModelElementSupport implements IosResourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<IosResourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ abstract class IosResourceSetSpec extends ModelElementSupport implements IosResourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<IosResourceSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return getSource().getBuildDependencies();

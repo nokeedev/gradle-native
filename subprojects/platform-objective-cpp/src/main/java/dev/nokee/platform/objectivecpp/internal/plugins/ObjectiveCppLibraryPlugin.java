@@ -112,7 +112,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultObjectiveCppLibrary.class, project).create(identifier).withComponentTag(SupportObjectiveCppSourceSetTag.class).build();
 	}
 
-	public static abstract class DefaultObjectiveCppLibrary extends ModelElementSupport implements ObjectiveCppLibrary, ModelNodeAware
+	public static /*final*/ abstract class DefaultObjectiveCppLibrary extends ModelElementSupport implements ObjectiveCppLibrary, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>

@@ -95,7 +95,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		return new IosApplicationComponentModelRegistrationFactory(DefaultSwiftIosApplication.class, project).create(identifier).withComponentTag(SupportSwiftSourceSetTag.class).build();
 	}
 
-	public static abstract class DefaultSwiftIosApplication extends ModelElementSupport implements SwiftIosApplication, ModelNodeAware
+	public static /*final*/ abstract class DefaultSwiftIosApplication extends ModelElementSupport implements SwiftIosApplication, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies>

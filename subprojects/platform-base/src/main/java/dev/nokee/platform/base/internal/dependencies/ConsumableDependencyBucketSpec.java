@@ -31,7 +31,7 @@ import javax.inject.Inject;
 import java.util.Set;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, ConsumableDependencyBucketTag.class, ConfigurableTag.class})
-public abstract class ConsumableDependencyBucketSpec extends ModelElementSupport implements ConsumableDependencyBucket
+public /*final*/ abstract class ConsumableDependencyBucketSpec extends ModelElementSupport implements ConsumableDependencyBucket
 	, DependencyBucketMixIn
 {
 	private final DependencyFactory factory;

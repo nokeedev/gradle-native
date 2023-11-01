@@ -120,7 +120,7 @@ import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static java.util.stream.Collectors.toList;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
+public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
 	, ComponentMixIn
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>

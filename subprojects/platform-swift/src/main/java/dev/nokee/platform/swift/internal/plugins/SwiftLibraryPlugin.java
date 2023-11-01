@@ -111,7 +111,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultSwiftLibrary.class, project).create(identifier).withComponentTag(SupportSwiftSourceSetTag.class).build();
 	}
 
-	public static abstract class DefaultSwiftLibrary extends ModelElementSupport implements SwiftLibrary, ModelNodeAware
+	public static /*final*/ abstract class DefaultSwiftLibrary extends ModelElementSupport implements SwiftLibrary, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>

@@ -58,7 +58,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware, HasPublicType
+public /*final*/ abstract class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware, HasPublicType
 	, VariantMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>

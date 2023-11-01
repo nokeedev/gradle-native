@@ -38,7 +38,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeAppl
 import org.gradle.api.provider.Property;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ class DefaultNativeApplicationVariant extends BaseVariant implements NativeApplication, VariantInternal, ModelNodeAware
+public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVariant implements NativeApplication, VariantInternal, ModelNodeAware
 	, VariantMixIn
 	, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn

@@ -27,7 +27,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, DeclarableDependencyBucketTag.class, ConfigurableTag.class})
-public abstract class DeclarableDependencyBucketSpec extends ModelElementSupport implements DeclarableDependencyBucket
+public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElementSupport implements DeclarableDependencyBucket
 	, DependencyBucketMixIn
 {
 	private final DependencyFactory factory;

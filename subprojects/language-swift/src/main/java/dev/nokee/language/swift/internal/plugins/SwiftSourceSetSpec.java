@@ -31,7 +31,7 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
 @DomainObjectEntities.Tag({SwiftSourceSetTag.class, SwiftSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
-public /*final*/ class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn, HasNativeCompileTaskMixIn<SwiftCompileTask> {
+public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn, HasNativeCompileTaskMixIn<SwiftCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));

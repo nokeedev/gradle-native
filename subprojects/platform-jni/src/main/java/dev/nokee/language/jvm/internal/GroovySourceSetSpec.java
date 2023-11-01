@@ -35,7 +35,7 @@ import org.gradle.api.tasks.util.PatternFilterable;
 import static dev.nokee.utils.TaskDependencyUtils.of;
 
 @DomainObjectEntities.Tag({GroovySourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasConfigurableSourceMixIn {
 	public TaskProvider<GroovyCompile> getCompileTask() {
 		return (TaskProvider<GroovyCompile>) ModelElements.of(this).element("compile", GroovyCompile.class).asProvider();
 	}

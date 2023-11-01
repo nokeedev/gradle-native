@@ -112,7 +112,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultCppLibrary.class, project).create(identifier).withComponentTag(SupportCppSourceSetTag.class).build();
 	}
 
-	public static abstract class DefaultCppLibrary extends ModelElementSupport implements CppLibrary, ModelNodeAware
+	public static /*final*/ abstract class DefaultCppLibrary extends ModelElementSupport implements CppLibrary, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>

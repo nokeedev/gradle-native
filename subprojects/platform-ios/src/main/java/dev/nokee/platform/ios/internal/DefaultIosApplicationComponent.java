@@ -95,7 +95,7 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements ComponentMixIn
+public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements ComponentMixIn
 	, ExtensionAwareMixIn
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, ComponentSources>

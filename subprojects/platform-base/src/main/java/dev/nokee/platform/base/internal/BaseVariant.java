@@ -24,7 +24,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import org.gradle.api.provider.Property;
 
-public class BaseVariant extends ModelElementSupport implements ModelNodeAware {
+public abstract class BaseVariant extends ModelElementSupport implements ModelNodeAware {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
 	public VariantIdentifier getIdentifier() {

@@ -120,7 +120,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).withComponentTag(SupportObjectiveCSourceSetTag.class).build();
 	}
 
-	public static abstract class DefaultObjectiveCIosApplication extends ModelElementSupport implements ObjectiveCIosApplication, ModelNodeAware
+	public static /*final*/ abstract class DefaultObjectiveCIosApplication extends ModelElementSupport implements ObjectiveCIosApplication, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies>

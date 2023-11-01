@@ -112,7 +112,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(DefaultCppApplication.class, project).create(identifier).withComponentTag(SupportCppSourceSetTag.class).build();
 	}
 
-	public static abstract class DefaultCppApplication extends ModelElementSupport implements CppApplication, ModelNodeAware
+	public static /*final*/ abstract class DefaultCppApplication extends ModelElementSupport implements CppApplication, ModelNodeAware
 		, NativeApplicationComponent
 		, ComponentMixIn
 		, ExtensionAwareMixIn

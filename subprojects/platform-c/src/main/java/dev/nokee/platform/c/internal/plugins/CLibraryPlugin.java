@@ -112,7 +112,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultCLibrary.class, project).create(identifier).withComponentTag(SupportCSourceSetTag.class).build();
 	}
 
-	public static abstract class DefaultCLibrary extends ModelElementSupport implements CLibrary, ModelNodeAware
+	public static /*final*/ abstract class DefaultCLibrary extends ModelElementSupport implements CLibrary, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>

@@ -112,7 +112,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(DefaultObjectiveCppApplication.class, project).create(identifier).withComponentTag(SupportObjectiveCppSourceSetTag.class).build();
 	}
 
-	public static abstract class DefaultObjectiveCppApplication extends ModelElementSupport implements ObjectiveCppApplication, ModelNodeAware
+	public static /*final*/ abstract class DefaultObjectiveCppApplication extends ModelElementSupport implements ObjectiveCppApplication, ModelNodeAware
 		, NativeApplicationComponent
 		, ComponentMixIn
 		, ExtensionAwareMixIn

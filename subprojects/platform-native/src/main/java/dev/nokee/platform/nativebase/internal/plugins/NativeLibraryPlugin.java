@@ -117,7 +117,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	}
 
 	@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-	public static abstract class DefaultNativeLibraryExtension extends ModelElementSupport implements NativeLibraryExtension, ModelNodeAware
+	public static /*final*/ abstract class DefaultNativeLibraryExtension extends ModelElementSupport implements NativeLibraryExtension, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>

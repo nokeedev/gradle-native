@@ -31,7 +31,7 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 
 @DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class})
-public /*final*/ class ModelBackedJvmJarBinary extends ModelElementSupport implements JvmJarBinary, Buildable, ModelNodeAware {
+public /*final*/ abstract class ModelBackedJvmJarBinary extends ModelElementSupport implements JvmJarBinary, Buildable, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Override

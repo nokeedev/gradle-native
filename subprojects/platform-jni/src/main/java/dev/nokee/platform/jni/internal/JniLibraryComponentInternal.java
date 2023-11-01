@@ -50,7 +50,7 @@ import javax.inject.Inject;
 import java.util.Set;
 
 @DomainObjectEntities.Tag({IsComponent.class, NativeSourcesAwareTag.class})
-public /*final*/ class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
+public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<JniLibrary>

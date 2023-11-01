@@ -39,7 +39,7 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class, NativeLanguageSourceSetAwareTag.class})
-public /*final*/ class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
+public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
 	, HasPublicType
 	, ModelBackedNamedMixIn
