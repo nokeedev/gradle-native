@@ -21,7 +21,6 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkTaskMixIn;
@@ -48,7 +47,6 @@ import javax.inject.Inject;
 public /*final*/ abstract class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary
 	, Buildable
 	, HasPublicType
-	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, HasLinkTaskMixIn<LinkSharedLibrary>
 	, HasObjectFilesToBinaryTask

@@ -29,7 +29,6 @@ import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -51,7 +50,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-	, ModelBackedNamedMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, HasDevelopmentBinaryMixIn
 	, HasAssembleTaskMixIn

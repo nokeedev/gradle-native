@@ -21,7 +21,6 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.HasCreateTaskMixIn;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTask;
@@ -42,7 +41,6 @@ import javax.inject.Inject;
 public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
 	, HasPublicType
-	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, HasCreateTaskMixIn
 	, HasObjectFilesToBinaryTask

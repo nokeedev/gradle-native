@@ -32,7 +32,6 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.HasCreateTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
@@ -63,7 +62,6 @@ public final class StaticLibraryBinaryRegistrationFactory {
 	}
 
 	public static /*final*/ abstract class ModelBackedStaticLibraryBinary extends ModelElementSupport implements StaticLibraryBinary, ModelNodeAware
-		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
 		, HasCreateTaskMixIn

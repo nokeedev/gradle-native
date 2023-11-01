@@ -32,7 +32,6 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkTaskMixIn;
@@ -64,7 +63,6 @@ public final class BundleBinaryRegistrationFactory {
 	}
 
 	public static /*final*/ abstract class ModelBackedBundleBinary extends ModelElementSupport implements BundleBinary, ModelNodeAware
-		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
 		, HasLinkLibrariesDependencyBucket

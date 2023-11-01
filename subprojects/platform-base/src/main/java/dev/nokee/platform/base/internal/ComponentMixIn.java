@@ -18,5 +18,5 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.platform.base.Component;
 
 @DomainObjectEntities.Tag(IsComponent.class)
-public interface ComponentMixIn extends Component, ModelBackedNamedMixIn {
+public interface ComponentMixIn extends Component {
 }

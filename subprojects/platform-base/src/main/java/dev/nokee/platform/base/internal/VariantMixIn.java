@@ -19,5 +19,5 @@ import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.platform.base.Variant;
 
 @DomainObjectEntities.Tag(IsVariant.class)
-public interface VariantMixIn extends Variant, ModelBackedNamedMixIn {
+public interface VariantMixIn extends Variant {
 }

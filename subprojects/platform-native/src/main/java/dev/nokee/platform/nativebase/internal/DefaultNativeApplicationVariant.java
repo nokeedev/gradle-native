@@ -26,7 +26,6 @@ import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.VariantMixIn;
@@ -43,7 +42,6 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 	, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedNamedMixIn
 	, HasDevelopmentBinaryMixIn
 	, HasAssembleTaskMixIn
 {

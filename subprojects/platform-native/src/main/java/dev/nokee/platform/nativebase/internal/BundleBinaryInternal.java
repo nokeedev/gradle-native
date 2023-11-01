@@ -21,7 +21,6 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkTaskMixIn;
@@ -44,7 +43,6 @@ import javax.inject.Inject;
 public /*final*/ abstract class BundleBinaryInternal extends BaseNativeBinary implements BundleBinary
 	, Buildable
 	, HasPublicType
-	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, HasLinkTaskMixIn<LinkBundle>
 	, HasObjectFilesToBinaryTask
