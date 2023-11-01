@@ -39,12 +39,16 @@ public abstract class ModelObjectFactory<T> implements NamedDomainObjectFactory<
 
 	@Override
 	public T create(String name) {
-		ModelNode entity = project.getExtensions().getByType(ModelLookup.class).query(withName(name, tag)).get().stream().findFirst().orElseThrow(() -> new RuntimeException("could not find entity matching '" + name + "'"));
-		return ModelNodeContext.of(entity).execute(__ -> {
-			T result = doCreate(name);
-			ModelNodeContext.injectCurrentModelNodeIfAllowed(result);
-			return result;
-		});
+		ModelNode entity = project.getExtensions().getByType(ModelLookup.class).query(withName(name, tag)).get().stream().findFirst().orElse(null);
+		if (entity == null) {
+			return doCreate(name);
+		} else {
+			return ModelNodeContext.of(entity).execute(__ -> {
+				T result = doCreate(name);
+				ModelNodeContext.injectCurrentModelNodeIfAllowed(result);
+				return result;
+			});
+		}
 	}
 
 	protected abstract T doCreate(String name);
