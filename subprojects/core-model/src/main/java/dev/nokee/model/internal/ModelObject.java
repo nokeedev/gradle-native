@@ -16,9 +16,12 @@
 
 package dev.nokee.model.internal;
 
+import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectProvider;
 
 public interface ModelObject<ObjectType> extends Named {
 	NamedDomainObjectProvider<ObjectType> asProvider();
+	ObjectType get();
+	ModelObject<ObjectType> configure(Action<? super ObjectType> configureAction);
 }

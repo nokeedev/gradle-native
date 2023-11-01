@@ -20,6 +20,7 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.names.ElementName;
+import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectFactory;
@@ -203,6 +204,17 @@ public final class ModelMapAdapters {
 		@SuppressWarnings("unchecked")
 		public NamedDomainObjectProvider<Object> asProvider() {
 			return (NamedDomainObjectProvider<Object>) elementProvider;
+		}
+
+		@Override
+		public Object get() {
+			return elementProvider.get();
+		}
+
+		@Override
+		public ModelObject<Object> configure(Action<? super Object> configureAction) {
+			elementProvider.configure(configureAction);
+			return this;
 		}
 	}
 }
