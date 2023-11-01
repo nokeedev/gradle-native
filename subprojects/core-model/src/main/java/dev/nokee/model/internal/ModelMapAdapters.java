@@ -101,7 +101,9 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	public static /*final*/ class ForConfigurationContainer implements ModelObjectRegistry<Configuration> {
+	public interface ForNamedDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType> {}
+
+	public static /*final*/ class ForConfigurationContainer implements ForNamedDomainObjectContainer<Configuration>, HasPublicType {
 		private final KnownElements knownElements;
 		private final ConfigurationContainer delegate;
 
@@ -123,6 +125,11 @@ public final class ModelMapAdapters {
 			}
 
 			// TODO: Account for ConsumableConfiguration, ResolvableConfiguration, DependencyScopeConfiguration
+		}
+
+		@Override
+		public TypeOf<?> getPublicType() {
+			return TypeOf.typeOf(new TypeToken<ForNamedDomainObjectContainer<Configuration>>() {}.getType());
 		}
 	}
 
