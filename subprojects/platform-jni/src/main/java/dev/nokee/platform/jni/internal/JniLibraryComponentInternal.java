@@ -27,6 +27,7 @@ import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
@@ -48,9 +49,8 @@ import org.gradle.api.provider.Provider;
 import javax.inject.Inject;
 import java.util.Set;
 
-@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
+@DomainObjectEntities.Tag({IsComponent.class, NativeSourcesAwareTag.class})
 public /*final*/ class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
-	, ComponentMixIn
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<JniLibrary>
