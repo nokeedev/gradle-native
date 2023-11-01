@@ -16,8 +16,6 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.provider.ProviderConvertible;
 import dev.nokee.utils.ActionUtils;
@@ -26,6 +24,7 @@ import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
@@ -35,7 +34,7 @@ import java.util.Set;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.assertConfigurableNotation;
 import static dev.nokee.utils.ProviderUtils.finalizeValue;
 
-interface DependencyBucketMixIn extends DependencyBucketInternal {
+interface DependencyBucketMixIn extends DependencyBucketInternal, ExtensionAware {
 	@Inject
 	ProviderFactory getProviders();
 
@@ -45,14 +44,20 @@ interface DependencyBucketMixIn extends DependencyBucketInternal {
 	@SuppressWarnings("unchecked")
 	default DependencyBucketInternal extendsFrom(Object... buckets) {
 		for (Object bucket : buckets) {
+			Configuration parentConfiguration = null;
 			if (bucket instanceof DependencyBucket) {
-				getAsConfiguration().extendsFrom(((DependencyBucket) bucket).getAsConfiguration());
+				parentConfiguration = ((DependencyBucket) bucket).getAsConfiguration();
 			} else if (bucket instanceof ProviderConvertible) {
-				getAsConfiguration().extendsFrom(((ProviderConvertible<DependencyBucket>) bucket).asProvider().get().getAsConfiguration());
+				parentConfiguration = ((ProviderConvertible<DependencyBucket>) bucket).asProvider().get().getAsConfiguration();
 			} else if (bucket instanceof Provider) {
-				getAsConfiguration().extendsFrom(((Provider<DependencyBucket>) bucket).get().getAsConfiguration());
+				parentConfiguration = ((Provider<DependencyBucket>) bucket).get().getAsConfiguration();
 			} else {
 				throw new UnsupportedOperationException("only accept DependencyBucket, ProviderConvertible<DependencyBucket> and Provider<DependencyBucket>");
+			}
+
+			// Avoid cyclic extendsFrom
+			if (!getAsConfiguration().equals(parentConfiguration)) {
+				getAsConfiguration().extendsFrom(parentConfiguration);
 			}
 		}
 		return this;
