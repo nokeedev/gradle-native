@@ -46,6 +46,7 @@ import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask;
@@ -175,7 +176,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 		Provider<String> identifier = providers.provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
 		val resources = sourceViewOf(this).named("resources", IosResourceSet.class).get();
 
-		val compileStoryboardTask = registry.register(newEntity("compileStoryboard", StoryboardCompileTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(StoryboardCompileTask.class).configure(task -> {
+		val compileStoryboardTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("compileStoryboard")), StoryboardCompileTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(StoryboardCompileTask.class).configure(task -> {
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/compiled/main"));
 			task.getModule().set(moduleName);
 			task.getSources().from(resources.getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")));
@@ -183,7 +184,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 			task.getInterfaceBuilderTool().finalizeValueOnRead();
 		}).asProvider();
 
-		val linkStoryboardTask = registry.register(newEntity("linkStoryboard", StoryboardLinkTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(StoryboardLinkTask.class).configure(task -> {
+		val linkStoryboardTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("linkStoryboard")), StoryboardLinkTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(StoryboardLinkTask.class).configure(task -> {
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/linked/main"));
 			task.getModule().set(moduleName);
 			task.getSources().from(compileStoryboardTask.flatMap(StoryboardCompileTask::getDestinationDirectory));
@@ -191,14 +192,14 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 			task.getInterfaceBuilderTool().finalizeValueOnRead();
 		}).asProvider();
 
-		val assetCatalogCompileTaskTask = registry.register(newEntity("compileAssetCatalog", AssetCatalogCompileTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(AssetCatalogCompileTask.class).configure(task -> {
+		val assetCatalogCompileTaskTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("compileAssetCatalog")), AssetCatalogCompileTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(AssetCatalogCompileTask.class).configure(task -> {
 			task.getSource().set(new File(resources.getSourceDirectories().getSingleFile(), "Assets.xcassets"));
 			task.getIdentifier().set(identifier);
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/assets/main"));
 			task.getAssetCompilerTool().set(assetCompilerTool);
 		}).asProvider();
 
-		val processPropertyListTask = registry.register(newEntity("processPropertyList", ProcessPropertyListTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(ProcessPropertyListTask.class).configure(task -> {
+		val processPropertyListTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("processPropertyList")), ProcessPropertyListTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(ProcessPropertyListTask.class).configure(task -> {
 			task.dependsOn(resources.getSourceDirectories());
 			task.getIdentifier().set(identifier);
 			task.getModule().set(moduleName);
@@ -215,7 +216,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 			task.getOutputFile().set(layout.getBuildDirectory().file("ios/Info.plist"));
 		}).asProvider();
 
-		val createApplicationBundleTask = registry.register(newEntity("createApplicationBundle", CreateIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(CreateIosApplicationBundleTask.class).configure(task -> {
+		val createApplicationBundleTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("createApplicationBundle")), CreateIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(CreateIosApplicationBundleTask.class).configure(task -> {
 			Provider<List<? extends Provider<RegularFile>>> binaries = variant.flatMap(application -> application.getBinaries().withType(ExecutableBinaryInternal.class).map(it -> it.getLinkTask().flatMap(LinkExecutable::getLinkedFile)));
 
 			task.getExecutable().set(binaries.flatMap(it -> it.iterator().next())); // TODO: Fix this approximation
@@ -237,7 +238,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 			}))
 			.build());
 
-		val signApplicationBundleTask = registry.register(newEntity("signApplicationBundle", SignIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(SignIosApplicationBundleTask.class).configure(task -> {
+		val signApplicationBundleTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("signApplicationBundle")), SignIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(SignIosApplicationBundleTask.class).configure(task -> {
 			task.getUnsignedApplicationBundle().set(createApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/main/" + moduleName + ".app"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
@@ -287,7 +288,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 			});
 		});
 
-		val bundle = registry.register(newEntity("bundle", Task.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(Task.class).configure(task -> {
+		val bundle = registry.register(newEntity(variantIdentifier.child(TaskName.of("bundle")), Task.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(Task.class).configure(task -> {
 			task.dependsOn(variant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
 		});
 	}

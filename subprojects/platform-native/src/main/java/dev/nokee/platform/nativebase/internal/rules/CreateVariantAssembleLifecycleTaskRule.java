@@ -22,6 +22,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -48,7 +49,7 @@ public class CreateVariantAssembleLifecycleTaskRule implements Action<KnownDomai
 
 	private void doExecute(VariantIdentifier variantIdentifier, Provider<Binary> binaryProvider, ModelNode entity) {
 		// For single variant component, the task may already exists, coming from 'lifecycle-base'.
-		val assembleTask = registry.register(newEntity(ASSEMBLE_TASK_NAME, Task.class, it -> it.ownedBy(entity))).as(Task.class).configure(configureGroup(BUILD_GROUP));
+		val assembleTask = registry.register(newEntity(variantIdentifier.child(TaskName.of(ASSEMBLE_TASK_NAME)), Task.class, it -> it.ownedBy(entity))).as(Task.class).configure(configureGroup(BUILD_GROUP));
 
 		// Only multi-variant component should attach the proper dependency to the assemble task.
 		//   Single variant depends on the a more complex logic around buildability, see CreateVariantAwareComponentAssembleLifecycleTaskRule

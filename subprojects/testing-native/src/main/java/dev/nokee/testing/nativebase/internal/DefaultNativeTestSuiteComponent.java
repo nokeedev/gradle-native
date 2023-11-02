@@ -32,6 +32,7 @@ import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodeUtils;
@@ -206,14 +207,14 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
 		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(registry));
 
-		val checkTask = registry.register(newEntity("check", Task.class, it -> it.ownedBy(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root())))).as(Task.class);
+		val checkTask = registry.register(newEntity(getIdentifier().child(TaskName.of("check")), Task.class, it -> it.ownedBy(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root())))).as(Task.class);
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
 			val variantIdentifier = VariantIdentifier.builder().withComponentIdentifier(getIdentifier()).withBuildVariant((BuildVariantInternal) buildVariant).build();
 
 			// TODO: The variant should have give access to the testTask
-			val runTask = registry.register(newEntity("run", RunTestExecutable.class, it -> it.ownedBy(modelLookup.get(DomainObjectIdentifierUtils.toPath(variantIdentifier))))).as(RunTestExecutable.class).configure(task -> {
+			val runTask = registry.register(newEntity(getIdentifier().child(TaskName.of("run")), RunTestExecutable.class, it -> it.ownedBy(modelLookup.get(DomainObjectIdentifierUtils.toPath(variantIdentifier))))).as(RunTestExecutable.class).configure(task -> {
 				// TODO: Use a provider of the variant here
 				task.dependsOn((Callable) () -> getVariants().filter(it -> it.getBuildVariant().equals(buildVariant)).flatMap(it -> it.get(0).getDevelopmentBinary()));
 				task.setOutputDir(task.getTemporaryDir());
@@ -226,7 +227,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 				});
 			}).asProvider();
 			// TODO: The following is a gap is how we declare task, it should be possible to register a lifecycle task for a entity
-			val testTask = registry.register(newEntity(TaskName.lifecycle(), Task.class, it -> it.ownedBy(modelLookup.get(DomainObjectIdentifierUtils.toPath(variantIdentifier))))).as(Task.class).configure(task -> {
+			val testTask = registry.register(newEntity(getIdentifier().child(TaskName.lifecycle()), Task.class, it -> it.ownedBy(modelLookup.get(DomainObjectIdentifierUtils.toPath(variantIdentifier))))).as(Task.class).configure(task -> {
 				task.dependsOn(runTask);
 			}).asProvider();
 			checkTask.configure(configureDependsOn(testTask));
@@ -303,7 +304,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 					ConfigurableFileCollection objects = this.objects.fileCollection();
 					objects.from(componentObjects);
 					if (component instanceof NativeApplicationComponent) {
-						val relocateTask = registry.register(newEntity("relocateMainSymbolFor", UnexportMainSymbol.class, it -> it.ownedBy(((BaseVariant) variant).getNode()))).as(UnexportMainSymbol.class).configure(task -> {
+						val relocateTask = registry.register(newEntity(((ModelElement) variant).getIdentifier().child(TaskName.of("relocateMainSymbolFor")), UnexportMainSymbol.class, it -> it.ownedBy(((BaseVariant) variant).getNode()))).as(UnexportMainSymbol.class).configure(task -> {
 							task.getObjects().from(componentObjects);
 							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(OutputDirectoryPath.forIdentifier(binary.getIdentifier()) + "/objs/for-test"));
 						}).asProvider();

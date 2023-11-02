@@ -34,6 +34,7 @@ import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -91,7 +92,7 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 		@SuppressWarnings("unchecked")
 		val implementationType = implementationType(taskType((ModelType<? extends HasLinkTaskMixIn<? extends ObjectLink>>) projection.getType()));
 
-		val linkTask = registry.register(newEntity("link", implementationType, it -> it.ownedBy(entity)));
+		val linkTask = registry.register(newEntity(identifier.get().child(TaskName.of("link")), implementationType, it -> it.ownedBy(entity)));
 		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
 		if (ModelNodeUtils.canBeViewedAs(entity, of(ExecutableBinary.class))) {

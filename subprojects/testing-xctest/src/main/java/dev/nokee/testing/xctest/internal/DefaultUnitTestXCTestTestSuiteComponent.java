@@ -114,20 +114,20 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 		String moduleName = BaseNameUtils.from(variantIdentifier).getAsCamelCase();
 
 		// XCTest Unit Testing
-		val processUnitTestPropertyListTask = registry.register(newEntity(TaskName.of("process", "propertyList"), ProcessPropertyListTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(ProcessPropertyListTask.class).configure(task -> {
+		val processUnitTestPropertyListTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("process", "propertyList")), ProcessPropertyListTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(ProcessPropertyListTask.class).configure(task -> {
 			task.getIdentifier().set(providers.provider(() -> getGroupId().get().get().get() + "." + moduleName));
 			task.getModule().set(moduleName);
 			task.getSources().from("src/unitTest/resources/Info.plist");
 			task.getOutputFile().set(layout.getBuildDirectory().file("ios/unitTest/Info.plist"));
 		}).asProvider();
 
-		val createUnitTestXCTestBundle = registry.register(newEntity(TaskName.of("create", "xCTestBundle"), CreateIosXCTestBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(CreateIosXCTestBundleTask.class).configure(task -> {
+		val createUnitTestXCTestBundle = registry.register(newEntity(variantIdentifier.child(TaskName.of("create", "xCTestBundle")), CreateIosXCTestBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(CreateIosXCTestBundleTask.class).configure(task -> {
 			task.getXCTestBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + moduleName + "-unsigned.xctest"));
 			task.getSources().from(processUnitTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 			task.getSources().from(variant.flatMap(testSuite -> testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList()))));
 		}).asProvider();
 		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/codesign")));
-		val signUnitTestXCTestBundle = registry.register(newEntity(TaskName.of("sign", "xCTestBundle"), SignIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(SignIosApplicationBundleTask.class).configure(task -> {
+		val signUnitTestXCTestBundle = registry.register(newEntity(variantIdentifier.child(TaskName.of("sign", "xCTestBundle")), SignIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(SignIosApplicationBundleTask.class).configure(task -> {
 			task.getUnsignedApplicationBundle().set(createUnitTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + moduleName + ".xctest"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
@@ -145,7 +145,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 		// We could use signed bundle as development binary but right now it's only used in Xcode which Xcode will perform the signing so no need to provide a signed bundle
 		variant.configure(it -> it.getDevelopmentBinary().set(xcTestBundle));
 
-		val createUnitTestApplicationBundleTask = registry.register(newEntity(TaskName.of("create", "launcherApplicationBundle"), CreateIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(CreateIosApplicationBundleTask.class).configure(task -> {
+		val createUnitTestApplicationBundleTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("create", "launcherApplicationBundle")), CreateIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(CreateIosApplicationBundleTask.class).configure(task -> {
 			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getBaseName().get() + "-unsigned.app"));
 			task.getSources().from(getTestedComponent().flatMap(c -> c.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources()))));
 			task.getPlugIns().from(signUnitTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
@@ -154,7 +154,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 			task.getSwiftSupportRequired().set(false);
 		}).asProvider();
 
-		val signTask = registry.register(newEntity(TaskName.of("sign", "launcherApplicationBundle"), SignIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(SignIosApplicationBundleTask.class).configure(task -> {
+		val signTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("sign", "launcherApplicationBundle")), SignIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(SignIosApplicationBundleTask.class).configure(task -> {
 			task.getUnsignedApplicationBundle().set(createUnitTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getBaseName().get() + ".app"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
@@ -175,7 +175,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 			});
 		});
 
-		registry.register(newEntity("bundle", Task.class, it -> it.ownedBy(ModelNodes.of(variant)))).configure(Task.class, task -> {
+		registry.register(newEntity(variantIdentifier.child(TaskName.of("bundle")), Task.class, it -> it.ownedBy(ModelNodes.of(variant)))).configure(Task.class, task -> {
 			task.dependsOn(variant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
 		});
 	}

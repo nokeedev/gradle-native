@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal.rules;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import org.gradle.api.Action;
 
@@ -33,6 +34,6 @@ public class CreateVariantAwareComponentObjectsLifecycleTaskRule implements Acti
 
 	@Override
 	public void execute(VariantAwareComponentInternal<?> component) {
-		registry.register(newEntity("objects", ObjectsLifecycleTask.class, it -> it.ownedBy(ModelNodes.of(component)))).configure(ObjectsLifecycleTask.class, configureDependsOn(component.getDevelopmentVariant().flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
+		registry.register(newEntity(component.getIdentifier().child(TaskName.of("objects")), ObjectsLifecycleTask.class, it -> it.ownedBy(ModelNodes.of(component)))).configure(ObjectsLifecycleTask.class, configureDependsOn(component.getDevelopmentVariant().flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
 	}
 }

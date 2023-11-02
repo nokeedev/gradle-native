@@ -17,10 +17,12 @@ package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
@@ -39,10 +41,10 @@ public class CreateVariantObjectsLifecycleTaskRule implements Action<KnownDomain
 
 	@Override
 	public void execute(KnownDomainObject<? extends Variant> knownVariant) {
-		doExecute(ModelNodes.of(knownVariant), knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS));
+		doExecute(ModelNodes.of(knownVariant), knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS), (ModelObjectIdentifier) knownVariant.getIdentifier());
 	}
 
-	private void doExecute(ModelNode entity, Provider<Set<? extends SourceCompile>> compileTasksProvider) {
-		registry.register(newEntity("objects", ObjectsLifecycleTask.class, it -> it.ownedBy(entity))).configure(ObjectsLifecycleTask.class, configureDependsOn(compileTasksProvider));
+	private void doExecute(ModelNode entity, Provider<Set<? extends SourceCompile>> compileTasksProvider, ModelObjectIdentifier identifier) {
+		registry.register(newEntity(identifier.child(TaskName.of("objects")), ObjectsLifecycleTask.class, it -> it.ownedBy(entity))).configure(ObjectsLifecycleTask.class, configureDependsOn(compileTasksProvider));
 	}
 }

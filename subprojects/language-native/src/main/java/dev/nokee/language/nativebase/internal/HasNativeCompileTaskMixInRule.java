@@ -28,6 +28,7 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -65,7 +66,7 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, ModelComponentTag<HasNativeCompileTaskMixIn.Tag> ignored, IdentifierDisplayNameComponent displayName) {
 		val implementationType = knownObject.getNativeCompileTaskType();
 
-		val compileTask = ModelNodes.of(registry.register(newEntity("compile", implementationType, it -> it.ownedBy(entity))));
+		val compileTask = ModelNodes.of(registry.register(newEntity(identifier.get().child(TaskName.of("compile")), implementationType, it -> it.ownedBy(entity))));
 		registry.instantiate(configure(compileTask.getId(), implementationType, task -> {
 			task.setDescription(String.format("Compiles the %s.", displayName.get()));
 		}));

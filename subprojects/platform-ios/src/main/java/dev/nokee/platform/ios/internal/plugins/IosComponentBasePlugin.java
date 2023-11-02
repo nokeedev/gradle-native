@@ -107,7 +107,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, identifier, tag, fullyQualifiedName) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(newEntity("resources", IosResourceSetSpec.class, it -> it.ownedBy(entity))).configure(IosResourceSet.class, sourceSet -> sourceSet.from("src/" + fullyQualifiedName.get() + "/resources"));
+			registry.register(newEntity(identifier.get().child("resources"), IosResourceSetSpec.class, it -> it.ownedBy(entity))).configure(IosResourceSet.class, sourceSet -> sourceSet.from("src/" + fullyQualifiedName.get() + "/resources"));
 
 			val implementation = registry.register(newEntity(identifier.get().child("implementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 			val compileOnly = registry.register(newEntity(identifier.get().child("compileOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));

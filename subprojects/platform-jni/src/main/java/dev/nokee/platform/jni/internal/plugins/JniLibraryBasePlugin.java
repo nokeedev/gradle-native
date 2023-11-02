@@ -77,6 +77,7 @@ import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigur
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JniJarBinary;
@@ -287,11 +288,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			registry.instantiate(configureEach(descendantOf(entity.getId()), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
 
 			project.getPluginManager().withPlugin("groovy", ignored -> {
-				val sourceSet = registry.register(newEntity("groovy", GroovySourceSetSpec.class, it -> it.ownedBy(entity)));
+				val sourceSet = registry.register(newEntity(identifier.get().child("groovy"), GroovySourceSetSpec.class, it -> it.ownedBy(entity)));
 				entity.addComponent(new GroovyLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("java", ignored -> {
-				val sourceSet = registry.register(newEntity("java", JavaSourceSetSpec.class, it -> it.ownedBy(entity)));
+				val sourceSet = registry.register(newEntity(identifier.get().child("java"), JavaSourceSetSpec.class, it -> it.ownedBy(entity)));
 
 				sourceSet.as(JavaSourceSet.class).configure(it -> {
 					it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(identifier.get(), project.getLayout()));
@@ -303,7 +304,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				entity.addComponent(new JavaLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
-				val sourceSet = registry.register(newEntity("kotlin", KotlinSourceSetSpec.class, it -> it.ownedBy(entity)));
+				val sourceSet = registry.register(newEntity(identifier.get().child("kotlin"), KotlinSourceSetSpec.class, it -> it.ownedBy(entity)));
 				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));
@@ -390,7 +391,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJniJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(IdentifierDisplayNameComponent.class), (entity, projection, identifier, tag, elementName, displayName) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val jarTask = registry.instantiate(newEntity("jar", Jar.class, it -> it.ownedBy(entity)));
+			val jarTask = registry.instantiate(newEntity(identifier.get().child(TaskName.of("jar")), Jar.class, it -> it.ownedBy(entity)));
 			ModelStates.register(jarTask);
 			entity.addComponent(new JarTaskComponent(jarTask));
 		})));
@@ -411,7 +412,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJvmJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(IdentifierDisplayNameComponent.class), (entity, projection, identifier, tag, elementName, displayName) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val jarTask = registry.instantiate(newEntity("jar", Jar.class, it -> it.ownedBy(entity)));
+			val jarTask = registry.instantiate(newEntity(identifier.get().child(TaskName.of("jar")), Jar.class, it -> it.ownedBy(entity)));
 			ModelStates.register(jarTask);
 			entity.addComponent(new JarTaskComponent(jarTask));
 		})));
@@ -508,15 +509,14 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
-			val sharedLibrary = registry.register(newEntity("sharedLibrary", SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
+			val sharedLibrary = registry.register(newEntity(identifier.child(ElementName.ofMain("sharedLibrary")), SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
 				.displayName("shared library binary")
-				.withComponent(new IdentifierComponent(identifier.child(ElementName.ofMain("sharedLibrary"))))
 				.withComponent(new BuildVariantComponent(identifier.getBuildVariant()))
 				.withTag(ExcludeFromQualifyingNameTag.class)
 			));
-			registry.register(newEntity("sharedLibrary", Task.class, it -> it.ownedBy(entity)));
+			registry.register(newEntity(identifier.child(TaskName.of("sharedLibrary")), Task.class, it -> it.ownedBy(entity)));
 
-			registry.register(newEntity("objects", Task.class, it -> it.ownedBy(entity)));
+			registry.register(newEntity(identifier.child(TaskName.of("objects")), Task.class, it -> it.ownedBy(entity)));
 		})));
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
 			variant.getNativeRuntimeFiles().from(variant.getSharedLibrary().getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile));

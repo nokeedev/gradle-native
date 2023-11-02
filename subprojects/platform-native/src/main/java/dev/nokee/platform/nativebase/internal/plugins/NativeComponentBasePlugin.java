@@ -89,6 +89,7 @@ import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurati
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeBinary;
@@ -343,9 +344,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				if (linkage.isExecutable()) {
 					val binaryIdentifier = identifier.get().child(ElementName.ofMain("executable"));
 
-					val executableBinary = registry.register(newEntity("executable", ExecutableBinaryInternal.class, it -> it.ownedBy(entity)
+					val executableBinary = registry.register(newEntity(binaryIdentifier, ExecutableBinaryInternal.class, it -> it.ownedBy(entity)
 						.displayName("executable binary")
-						.withComponent(new IdentifierComponent(binaryIdentifier))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withTag(ExcludeFromQualifyingNameTag.class)
 					));
@@ -353,9 +353,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				} else if (linkage.isShared()) {
 					val binaryIdentifier = identifier.get().child(ElementName.ofMain("sharedLibrary"));
 
-					val sharedLibraryBinary = registry.register(newEntity("sharedLibrary", SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
+					val sharedLibraryBinary = registry.register(newEntity(binaryIdentifier, SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
 						.displayName("shared library binary")
-						.withComponent(new IdentifierComponent(binaryIdentifier))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withTag(ExcludeFromQualifyingNameTag.class)
 					));
@@ -363,18 +362,16 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				} else if (linkage.isBundle()) {
 					val binaryIdentifier = identifier.get().child(ElementName.ofMain("bundle"));
 
-					registry.register(newEntity("bundle", BundleBinaryInternal.class, it -> it.ownedBy(entity)
+					registry.register(newEntity(binaryIdentifier, BundleBinaryInternal.class, it -> it.ownedBy(entity)
 						.displayName("bundle binary")
-						.withComponent(new IdentifierComponent(binaryIdentifier))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withTag(ExcludeFromQualifyingNameTag.class)
 					));
 				} else if (linkage.isStatic()) {
 					val binaryIdentifier = identifier.get().child(ElementName.ofMain("staticLibrary"));
 
-					val staticLibraryBinary = registry.register(newEntity("staticLibrary", StaticLibraryBinaryInternal.class, it -> it.ownedBy(entity)
+					val staticLibraryBinary = registry.register(newEntity(binaryIdentifier, StaticLibraryBinaryInternal.class, it -> it.ownedBy(entity)
 							.displayName("static library binary")
-							.withComponent(new IdentifierComponent(binaryIdentifier))
 							.withComponent(new BuildVariantComponent(buildVariant))
 							.withTag(ExcludeFromQualifyingNameTag.class)
 						));
@@ -524,9 +521,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 
 		// TODO: Should be part of native-application-base plugin
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeExecutableBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeExecutableBinaryComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, ignored1, buildVariant, parent, binary, identifier) -> {
 			if (parent.get().hasComponent(ModelTags.typeOf(NativeApplicationTag.class))) {
-				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("executable", Task.class, it -> it.ownedBy(entity)));
+				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(identifier.get().child(TaskName.of("executable")), Task.class, it -> it.ownedBy(entity)));
 				lifecycleTask.configure(Task.class, configureBuildGroup());
 				lifecycleTask.configure(Task.class, task -> {
 					task.setDescription(String.format("Assembles a executable binary containing the objects files of %s.", binary.get().get(IdentifierDisplayNameComponent.class).get()));
@@ -536,9 +533,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 
 		// TODO: Should be part of native-library-base plugin
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeSharedLibraryBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeSharedLibraryBinaryComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, ignored1, buildVariant, parent, binary, identifier) -> {
 			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
-				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("sharedLibrary", Task.class, it -> it.ownedBy(entity)));
+				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(identifier.get().child(TaskName.of("sharedLibrary")), Task.class, it -> it.ownedBy(entity)));
 				lifecycleTask.configure(Task.class, configureBuildGroup());
 				lifecycleTask.configure(Task.class, task -> {
 					task.setDescription(String.format("Assembles a shared library binary containing the objects files of %s.", binary.get().get(IdentifierDisplayNameComponent.class).get()));
@@ -547,9 +544,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		}));
 		// TODO: Should be part of native-library-base plugin
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeStaticLibraryBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeStaticLibraryBinaryComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, ignored1, buildVariant, parent, binary, identifier) -> {
 			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
-				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("staticLibrary", Task.class, it -> it.ownedBy(entity)));
+				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(identifier.get().child(TaskName.of("staticLibrary")), Task.class, it -> it.ownedBy(entity)));
 				lifecycleTask.configure(Task.class, configureBuildGroup());
 				lifecycleTask.configure(Task.class, task -> {
 					task.setDescription(String.format("Assembles a static library binary containing the objects files of %s.", binary.get().get(IdentifierDisplayNameComponent.class).get()));

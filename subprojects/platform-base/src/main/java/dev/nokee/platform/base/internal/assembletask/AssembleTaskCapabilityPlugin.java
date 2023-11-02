@@ -27,6 +27,7 @@ import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
 import dev.nokee.platform.base.internal.tasks.TaskGroupComponent;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Task;
@@ -62,7 +63,7 @@ public class AssembleTaskCapabilityPlugin<T extends ExtensionAware & PluginAware
 		}
 	}
 
-	private static final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInputs.ModelAction1<ModelComponentTag<HasAssembleTaskMixIn.Tag>> {
+	private static final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInputs.ModelAction2<ModelComponentTag<HasAssembleTaskMixIn.Tag>, IdentifierComponent> {
 		private final ModelRegistry registry;
 
 		public RegisterAssembleLifecycleTaskRule(ModelRegistry registry) {
@@ -70,8 +71,8 @@ public class AssembleTaskCapabilityPlugin<T extends ExtensionAware & PluginAware
 		}
 
 		@Override
-		protected void execute(ModelNode entity, ModelComponentTag<HasAssembleTaskMixIn.Tag> ignored1) {
-			val task = registry.instantiate(newEntity(ASSEMBLE_TASK_NAME, Task.class, it -> it.ownedBy(entity)));
+		protected void execute(ModelNode entity, ModelComponentTag<HasAssembleTaskMixIn.Tag> ignored1, IdentifierComponent identifier) {
+			val task = registry.instantiate(newEntity(identifier.get().child(TaskName.of(ASSEMBLE_TASK_NAME)), Task.class, it -> it.ownedBy(entity)));
 			entity.addComponent(new AssembleTaskComponent(task));
 			ModelStates.register(task);
 		}

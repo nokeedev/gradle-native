@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal.rules;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.DeferUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -46,7 +47,7 @@ public class CreateVariantAwareComponentAssembleLifecycleTaskRule implements Act
 		//   then we configure the dependency.
 		//   Note that the dependency may already exists for single variant component but it's not a big deal.
 		val logger = new WarnUnbuildableLogger(component.getIdentifier());
-		registry.register(newEntity(ASSEMBLE_TASK_NAME, Task.class, it -> it.ownedBy(ModelNodes.of(component)))).as(Task.class)
+		registry.register(newEntity(component.getIdentifier().child(TaskName.of(ASSEMBLE_TASK_NAME)), Task.class, it -> it.ownedBy(ModelNodes.of(component)))).as(Task.class)
 			.configure(configureGroup(BUILD_GROUP))
 			.configure(configureDependsOn(component.getDevelopmentVariant().flatMap(TO_DEVELOPMENT_BINARY).map(Arrays::asList).orElse(DeferUtils.executes(onlyOnce(logger::warn)))));
 	}
