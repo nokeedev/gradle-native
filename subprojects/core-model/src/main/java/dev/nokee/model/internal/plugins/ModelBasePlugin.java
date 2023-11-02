@@ -22,10 +22,12 @@ import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.ancestors.AncestryCapabilityPlugin;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.names.NamesCapabilityPlugin;
@@ -34,12 +36,16 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.tasks.ModelReportTask;
 import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.TaskUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Rule;
 import org.gradle.api.Task;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
@@ -48,6 +54,7 @@ import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
 	private final PluginTargetSupport pluginScopes = PluginTargetSupport.builder()
@@ -103,6 +110,26 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		project.getExtensions().getByType(ModelExtension.class).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations());
 		project.getExtensions().getByType(ModelExtension.class).getExtensions().create("$tasks", ModelMapAdapters.ForPolymorphicDomainObjectContainer.class, Task.class, new Task.Namer(), project.getTasks());
+
+		project.getTasks().addRule(new Rule() {
+			@Override
+			public String getDescription() {
+				return "discover tasks";
+			}
+
+			@Override
+			public void apply(String domainObjectName) {
+				List<ModelNode> candidateEntities = null;
+				while(!(candidateEntities = project.getExtensions().getByType(ModelLookup.class).query(it -> it.hasComponent(ModelTags.typeOf(ConfigurableTag.class)) && !it.has(ModelState.IsAtLeastRealized.class)).get()).isEmpty()) {
+					for (ModelNode entity : candidateEntities) {
+						ModelStates.realize(entity);
+						if (project.getTasks().getNames().contains(domainObjectName)) {
+							return; // found
+						}
+					}
+				}
+			}
+		});
 	}
 
 	public static ModelExtension model(ExtensionAware target) {

@@ -71,7 +71,6 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskComponent;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
@@ -81,7 +80,6 @@ import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurati
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
-import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JvmJarBinary;
@@ -150,7 +148,6 @@ import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
@@ -345,21 +342,20 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(compileTask.get().getId(), Task.class, configureDependsOn((Callable<?>) () -> DependencyBuckets.finalize(project.getConfigurations().getByName(it.getCompileClasspathConfigurationName())))));
 			});
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(AssembleTaskComponent.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class), (entity, assembleTask, projection) -> {
-			val component = project.provider(() -> ModelNodeUtils.get(entity, of(JavaNativeInterfaceLibrary.class)));
-			Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> v.getSharedLibrary().isBuildable()));
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn(component.flatMap(JavaNativeInterfaceLibrary::getDevelopmentVariant).map(JniLibrary::getJavaNativeInterfaceJar).map(Collections::singletonList).orElse(Collections.emptyList()))));
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(assembleTask.get().getId(), Task.class, task -> {
+		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+			Provider<List<JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> v.getSharedLibrary().isBuildable());
+			component.getAssembleTask().configure(configureDependsOn(component.getDevelopmentVariant().map(JniLibrary::getJavaNativeInterfaceJar).map(Collections::singletonList).orElse(Collections.emptyList())));
+			component.getAssembleTask().configure(task -> {
 				task.dependsOn((Callable<Object>) () -> {
-					val buildVariants = component.get().getBuildVariants().get();
+					val buildVariants = component.getBuildVariants().get();
 					val firstBuildVariant = Iterables.getFirst(buildVariants, null);
 					if (buildVariants.size() == 1 && allBuildableVariants.get().isEmpty() && firstBuildVariant.hasAxisOf(TargetMachines.host().getOperatingSystemFamily())) {
 						throw new RuntimeException(String.format("No tool chain is available to build for platform '%s'", platformNameFor(((BuildVariantInternal) firstBuildVariant).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS))));
 					}
 					return ImmutableList.of();
 				});
-			}));
-		}));
+			});
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, identifier, elementName, projection, variants) -> {
 			val variantFactory = new JavaNativeInterfaceLibraryVariantRegistrationFactory();
 			val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
@@ -533,9 +529,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				.withComponent(new BuildVariantComponent(identifier.getBuildVariant()))
 				.withTag(ExcludeFromQualifyingNameTag.class)
 			));
-			registry.register(newEntity(identifier.child(TaskName.of("sharedLibrary")), Task.class, it -> it.ownedBy(entity)));
-
-			registry.register(newEntity(identifier.child(TaskName.of("objects")), Task.class, it -> it.ownedBy(entity)));
 		})));
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
 			variant.getNativeRuntimeFiles().from(variant.getSharedLibrary().getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile));

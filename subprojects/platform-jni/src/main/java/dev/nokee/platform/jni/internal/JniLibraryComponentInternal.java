@@ -35,15 +35,18 @@ import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
+import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -59,15 +62,15 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
 	, HasDevelopmentVariantMixIn<JniLibrary>
-	, HasAssembleTaskMixIn
 	, HasDevelopmentBinary
 {
 	@Inject
-	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objects) {
+	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects) {
 		getExtensions().create("dependencies", DefaultJavaNativeInterfaceLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("developmentVariant", objects.property(JniLibrary.class));
+		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 	}
 
 	@Override
@@ -106,6 +109,11 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return ModelBackedVariantAwareComponentMixIn.super.getBuildVariants();
+	}
+
+	@SuppressWarnings("unchecked")
+	public TaskProvider<Task> getAssembleTask() {
+		return (TaskProvider<Task>) getExtensions().getByName("assembleTask");
 	}
 
 	public String toString() {

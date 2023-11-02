@@ -50,6 +50,7 @@ import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
@@ -122,13 +123,13 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, new ModelObjectFactory<JniLibraryComponentInternal>(project, IsComponent.class) {
 			@Override
 			protected JniLibraryComponentInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(DependencyBucket.class)));
+				return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
 			}
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
 			@Override
 			protected JniLibraryInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryInternal.class);
+				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)));
 			}
 		});
 

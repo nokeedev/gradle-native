@@ -19,6 +19,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -36,7 +37,7 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.VariantMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
@@ -64,14 +65,16 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	, ModelBackedBinaryAwareComponentMixIn
 	, HasBaseName
 	, HasDevelopmentBinary
-	, HasAssembleTaskMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public JniLibraryInternal(ObjectFactory objects) {
+	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("baseName", objects.property(String.class));
+		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
+		getExtensions().add("sharedLibraryTask", taskRegistry.register(getIdentifier().child(TaskName.of("sharedLibrary")), Task.class).asProvider());
+		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 	}
 
 	@Override
@@ -114,20 +117,23 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 		sharedLibrary(ConfigureUtils.configureUsing(closure));
 	}
 
+	@SuppressWarnings("unchecked")
 	public TaskProvider<Task> getSharedLibraryTask() {
-		return (TaskProvider<Task>) ModelElements.of(this).element("sharedLibrary", Task.class).asProvider();
+		return (TaskProvider<Task>) getExtensions().getByName("sharedLibraryTask");
 	}
 
+	@SuppressWarnings("unchecked")
 	public TaskProvider<Task> getObjectsTask() {
-		return (TaskProvider<Task>) ModelElements.of(this).element("objects", Task.class).asProvider();
+		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
 
 	public TargetMachine getTargetMachine() {
 		return getBuildVariant().getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 	}
 
+	@SuppressWarnings("unchecked")
 	public TaskProvider<Task> getAssembleTask() {
-		return (TaskProvider<Task>) ModelElements.of(this).element("assemble", Task.class).asProvider();
+		return (TaskProvider<Task>) getExtensions().getByName("assembleTask");
 	}
 
 	@Override
