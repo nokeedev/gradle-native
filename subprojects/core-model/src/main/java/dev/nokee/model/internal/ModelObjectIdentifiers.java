@@ -21,6 +21,7 @@ import dev.nokee.model.internal.names.MainName;
 import dev.nokee.model.internal.names.QualifyingName;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public final class ModelObjectIdentifiers {
 	public static FullyQualifiedName asFullyQualifiedName(ModelObjectIdentifier identifier) {
@@ -41,5 +42,13 @@ public final class ModelObjectIdentifiers {
 		} else {
 			return QualifyingName.of(identifier.getName().toQualifiedName(asQualifyingName(identifier.getParent())));
 		}
+	}
+
+	public static boolean descendantOf(ModelObjectIdentifier thiz, ModelObjectIdentifier parentCandidate) {
+		while ((thiz = thiz.getParent()) != null && !thiz.equals(parentCandidate)) {
+			// continue
+		}
+
+		return Objects.equals(thiz, parentCandidate);
 	}
 }

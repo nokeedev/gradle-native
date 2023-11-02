@@ -26,6 +26,7 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
+import org.gradle.api.Namer;
 import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -139,10 +140,17 @@ public final class ModelMapAdapters {
 		private final PolymorphicDomainObjectContainer<ElementType> delegate;
 
 		@Inject
-		public ForPolymorphicDomainObjectContainer(Class<ElementType> elementType, PolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects) {
+		public ForPolymorphicDomainObjectContainer(Class<ElementType> elementType, Namer<ElementType> namer, PolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects) {
 			this.elementType = elementType;
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
+
+			delegate.configureEach(it -> {
+				KnownElement element = knownElements.mapping.findByName(namer.determineName(it));
+				if (element != null) {
+					ModelElementSupport.injectIdentifier(it, element);
+				}
+			});
 		}
 
 		@Override

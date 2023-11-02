@@ -26,17 +26,17 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.VariantMixIn;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
@@ -47,8 +47,11 @@ import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskProvider;
+
+import javax.inject.Inject;
 
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
@@ -59,11 +62,17 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies, ModelBackedJavaNativeInterfaceNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
-	, ModelBackedHasBaseNameMixIn
-	, HasDevelopmentBinaryMixIn
+	, HasBaseName
+	, HasDevelopmentBinary
 	, HasAssembleTaskMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
+
+	@Inject
+	public JniLibraryInternal(ObjectFactory objects) {
+		getExtensions().add("developmentBinary", objects.property(Binary.class));
+		getExtensions().add("baseName", objects.property(String.class));
+	}
 
 	@Override
 	public abstract Property<String> getResourcePath();
@@ -71,8 +80,15 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	public abstract ConfigurableFileCollection getNativeRuntimeFiles();
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Property<Binary> getDevelopmentBinary() {
-		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
+		return (Property<Binary>) getExtensions().getByName("developmentBinary");
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Property<String> getBaseName() {
+		return (Property<String>) getExtensions().getByName("baseName");
 	}
 
 	@Override

@@ -102,7 +102,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new IdentifierComponent(ProjectIdentifier.of(project)));
 
 		project.getExtensions().getByType(ModelExtension.class).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations());
-		project.getExtensions().getByType(ModelExtension.class).getExtensions().create("$tasks", ModelMapAdapters.ForPolymorphicDomainObjectContainer.class, Task.class, project.getTasks());
+		project.getExtensions().getByType(ModelExtension.class).getExtensions().create("$tasks", ModelMapAdapters.ForPolymorphicDomainObjectContainer.class, Task.class, new Task.Namer(), project.getTasks());
 	}
 
 	public static ModelExtension model(ExtensionAware target) {

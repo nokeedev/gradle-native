@@ -32,13 +32,19 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.Artifact;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import dev.nokee.utils.Cast;
 import lombok.val;
+import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
@@ -48,7 +54,6 @@ import org.gradle.api.provider.ProviderFactory;
 import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.type.ModelType.of;
 
 public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final ProviderFactory providers;
@@ -65,11 +70,33 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 		return (ModelType<ViewAdapter<S>>) ModelType.of(new TypeToken<ViewAdapter<S>>() {}.where(new TypeParameter<S>() {}, elementType.getConcreteType()).getType());
 	}
 
+	private static NamedDomainObjectCollection<?> collectionOf(ExtensionAware target, Class<?> elementType) {
+		if (Variant.class.isAssignableFrom(elementType)) {
+			return (NamedDomainObjectCollection<?>) target.getExtensions().getByName("$variants");
+		} else if (Artifact.class.isAssignableFrom(elementType)) {
+			return (NamedDomainObjectCollection<?>) target.getExtensions().getByName("$artifacts");
+		} else if (Component.class.isAssignableFrom(elementType)) {
+			return (NamedDomainObjectCollection<?>) target.getExtensions().getByName("$components");
+		} else if (Task.class.isAssignableFrom(elementType)) {
+			return ((Project) target).getTasks();
+		} else {
+			try {
+				Class<?> LanguageSourceSet = Class.forName("dev.nokee.language.base.LanguageSourceSet");
+				if (LanguageSourceSet.isAssignableFrom(elementType)) {
+					return (NamedDomainObjectCollection<?>) target.getExtensions().getByName("$sources");
+				}
+			} catch (ClassNotFoundException e) {
+				// ignores
+			}
+			throw new UnsupportedOperationException("unknown element type for view -- " + elementType.getSimpleName());
+		}
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void apply(T target) {
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, tag, elementType, parent) -> {
-			entity.addComponent(createdUsing(Cast.uncheckedCastBecauseOfTypeErasure(viewFor(elementType.get())), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(providers, () -> ModelStates.finalize(parent.get())))));
+			entity.addComponent(createdUsing(Cast.uncheckedCastBecauseOfTypeErasure(viewFor(elementType.get())), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(collectionOf(target, elementType.get().getConcreteType()), providers, () -> ModelStates.finalize(parent.get())))));
 		}));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(GradlePropertyComponent.class), (entity, tag, base, elementType, property) -> {
 			((MapProperty<String, Object>) property.get()).set(providers.provider(() -> {

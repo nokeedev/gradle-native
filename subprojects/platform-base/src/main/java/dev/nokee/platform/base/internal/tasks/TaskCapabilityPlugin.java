@@ -63,7 +63,9 @@ public class TaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implem
 			.configure(new SyncGroupToTaskProjectionRule());
 
 		tasks.configureEach(task -> {
-			target.getExtensions().getByType(ModelLookup.class).query(entity -> entity.find(TaskProjectionComponent.class).map(it -> it.get().getName()).map(task.getName()::equals).orElse(false)).forEach(ModelStates::realize);
+			MutationGuards.of(tasks).withMutationEnabled(__ -> {
+				target.getExtensions().getByType(ModelLookup.class).query(entity -> entity.find(TaskProjectionComponent.class).map(it -> it.get().getName()).map(task.getName()::equals).orElse(false)).forEach(ModelStates::realize);
+			}).execute(null);
 		});
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(TaskTypeComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, ignored1, implementationType, fullyQualifiedName, identifier) -> {

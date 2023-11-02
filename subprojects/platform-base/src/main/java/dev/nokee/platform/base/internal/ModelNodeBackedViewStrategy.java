@@ -19,9 +19,13 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.names.RelativeName;
@@ -29,6 +33,7 @@ import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
 import dev.nokee.platform.base.internal.elements.ComponentElementsFilterComponent;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Provider;
@@ -42,21 +47,24 @@ import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
 public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	private static final Runnable NO_OP_REALIZE = () -> {};
+	private final NamedDomainObjectCollection<?> collection;
 	private final Runnable realize;
 	private final ModelNode entity;
 	private final ProviderFactory providerFactory;
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory) {
+	public ModelNodeBackedViewStrategy(NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory) {
+		this.collection = collection;
 		this.providerFactory = providerFactory;
 		this.entity = ModelNodeContext.getCurrentModelNode();
 		this.realize = NO_OP_REALIZE;
 	}
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize) {
-		this(providerFactory, realize, ModelNodeContext.getCurrentModelNode());
+	public ModelNodeBackedViewStrategy(NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, Runnable realize) {
+		this(collection, providerFactory, realize, ModelNodeContext.getCurrentModelNode());
 	}
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize, ModelNode entity) {
+	public ModelNodeBackedViewStrategy(NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, Runnable realize, ModelNode entity) {
+		this.collection = collection;
 		this.providerFactory = providerFactory;
 		this.realize = new RunOnceRunnable(realize);
 		this.entity = entity;
@@ -64,12 +72,17 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 
 	@Override
 	public <T> void configureEach(Class<T> elementType, Action<? super T> action) {
-		val descendantOfSpec = descendantOf(entity.get(ViewConfigurationBaseComponent.class).get().getId());
-		if (entity.has(BaseModelSpecComponent.class)) {
-			instantiate(entity, ModelAction.configureEach(entity.get(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
-		} else {
-			instantiate(entity, ModelAction.configureEach(descendantOfSpec, elementType, action));
-		}
+		final ModelNode baseRef = entity.get(ViewConfigurationBaseComponent.class).get();
+		collection.configureEach(object -> {
+			if (elementType.isInstance(object)) {
+				ModelElementSupport.safeAsModelElement(object).ifPresent(element -> {
+					final ModelObjectIdentifier baseIdentifier = baseRef.get(IdentifierComponent.class).get();
+					if (ModelObjectIdentifiers.descendantOf(element.getIdentifier(), baseIdentifier)) {
+						action.execute(elementType.cast(object));
+					}
+				});
+			}
+		});
 	}
 
 	@Override

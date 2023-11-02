@@ -58,10 +58,7 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 		if (object instanceof ModelElement) {
 			return Optional.of((ModelElement) object);
 		} else if (object instanceof ExtensionAware) {
-			ModelElement id = ((ExtensionAware) object).getExtensions().findByType(ModelElement.class);
-			if (id != null) {
-				return Optional.of(id);
-			}
+			return Optional.ofNullable(((ExtensionAware) object).getExtensions().findByType(ModelElement.class));
 		}
 
 		return Optional.empty();
