@@ -15,6 +15,9 @@
  */
 package dev.nokee.language.jvm.internal.plugins;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.MoreCollectors;
+import com.google.common.collect.Streams;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.jvm.internal.CompileTaskComponent;
@@ -47,12 +50,14 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.JavaBasePlugin;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.compile.JavaCompile;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.stream.StreamSupport;
 
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
@@ -79,9 +84,9 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
 			})));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourceSetComponent.class), (entity, projection, identifier, parent, sourceSet) -> {
-				val sourceSetProvider = sourceSet.get();
+				final Provider<SourceSet> sourceSetProvider = sourceSet.get();
 				@SuppressWarnings("unchecked")
-				val KotlinCompile  = (Class<Task>) ModelTypeUtils.toUndecoratedType(sourceSetProvider.flatMap(it -> project.getTasks().named(it.getCompileTaskName("kotlin"))).get().getClass());
+				val KotlinCompile  = (Class<Task>) ModelTypeUtils.toUndecoratedType(sourceSetProvider.map(it -> Streams.stream(project.getTasks().getCollectionSchema().getElements()).filter(t -> t.getName().equals(it.getCompileTaskName("kotlin"))).map(t -> t.getPublicType().getConcreteClass()).collect(MoreCollectors.onlyElement())).get());
 				val compileTask = registry.register(newEntity(identifier.get().child(TaskName.of("compile")), KotlinCompile, it -> it.ownedBy(entity)));
 				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
 			})));

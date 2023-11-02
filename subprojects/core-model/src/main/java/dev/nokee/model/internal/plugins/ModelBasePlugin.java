@@ -48,6 +48,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Rule;
 import org.gradle.api.Task;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.internal.MutationGuards;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
@@ -122,7 +123,9 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 				List<ModelNode> candidateEntities = null;
 				while(!(candidateEntities = project.getExtensions().getByType(ModelLookup.class).query(it -> it.hasComponent(ModelTags.typeOf(ConfigurableTag.class)) && !it.has(ModelState.IsAtLeastRealized.class)).get()).isEmpty()) {
 					for (ModelNode entity : candidateEntities) {
-						ModelStates.realize(entity);
+						MutationGuards.of(project.getTasks()).withMutationEnabled(__ -> {
+							ModelStates.realize(entity);
+						}).execute(null);
 						if (project.getTasks().getNames().contains(domainObjectName)) {
 							return; // found
 						}

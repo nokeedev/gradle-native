@@ -23,7 +23,6 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
-import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.internal.CompileTaskComponent;
 import dev.nokee.language.jvm.internal.GroovyLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.GroovySourceSetSpec;
@@ -35,7 +34,7 @@ import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
 import dev.nokee.language.jvm.internal.SourceSetComponent;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasObjectFiles;
-import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
+import dev.nokee.language.nativebase.internal.HasConfigurableHeaders;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
@@ -47,14 +46,12 @@ import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
@@ -85,7 +82,6 @@ import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.platform.jni.internal.ConfigureJniHeaderDirectoryOnJavaCompileAction;
 import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceLibraryComponentDependencies;
-import dev.nokee.platform.jni.internal.GeneratedJniHeadersComponent;
 import dev.nokee.platform.jni.internal.JarTaskComponent;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
@@ -140,7 +136,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
@@ -278,6 +273,25 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		});
 
 		// Component rules
+		project.getPluginManager().withPlugin("java", ignored -> {
+			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+				component.getSources().configureEach(JavaSourceSetSpec.class, sourceSet -> {
+					sourceSet.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(component.getIdentifier(), project.getLayout()));
+				});
+				component.getSources().configureEach(sourceSet -> {
+					if (sourceSet instanceof HasConfigurableHeaders) {
+						((HasConfigurableHeaders) sourceSet).getHeaders().from((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).getElements().map(it -> {
+							final ConfigurableFileCollection result = project.getObjects().fileCollection();
+							for (JavaSourceSetSpec spec : it) {
+								result.from(spec.getCompileTask().flatMap(t -> t.getOptions().getHeaderOutputDirectory()));
+							}
+							return result;
+						})::get);
+					}
+				});
+			});
+		});
+
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -292,14 +306,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 			project.getPluginManager().withPlugin("java", ignored -> {
 				val sourceSet = registry.register(newEntity(identifier.get().child("java"), JavaSourceSetSpec.class, it -> it.ownedBy(entity)));
-
-				sourceSet.as(JavaSourceSet.class).configure(it -> {
-					it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(identifier.get(), project.getLayout()));
-				});
-
-				entity.addComponent(new GeneratedJniHeadersComponent(project.getObjects().fileCollection().from((Callable<?>) () -> {
-					return sourceSet.as(JavaSourceSet.class).flatMap(ss -> ss.getCompileTask().flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
-				})));
 				entity.addComponent(new JavaLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
@@ -566,14 +572,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				it.warn((ModelObjectIdentifier) identifier.getOwnerIdentifier()); // TODO: Remove assumption
 				return null;
 			}))));
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {
-			// Attach generated JNI headers
-			// FIXME shoul not stream parent in a callable...
-			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).filter(it -> it.has(GeneratedJniHeadersComponent.class)).map(it -> it.get(GeneratedJniHeadersComponent.class).get()).collect(Collectors.toList());
-			});
 		}));
 	}
 
