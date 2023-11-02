@@ -53,8 +53,6 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperty;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementName;
@@ -102,7 +100,6 @@ import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
 import dev.nokee.platform.jni.internal.MultiVariantTag;
 import dev.nokee.platform.jni.internal.actions.OnceAction;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
-import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.DependentRuntimeLibraries;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
@@ -139,7 +136,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -149,7 +145,6 @@ import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platf
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
-import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -513,8 +508,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
-			registry.register(builder().withComponent(new ElementNameComponent("resourcePath")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(String.class)).build());
-
 			val sharedLibrary = registry.register(newEntity("sharedLibrary", SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
 				.displayName("shared library binary")
 				.withComponent(new IdentifierComponent(identifier.child(ElementName.ofMain("sharedLibrary"))))
@@ -524,11 +517,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			registry.register(newEntity("sharedLibrary", Task.class, it -> it.ownedBy(entity)));
 
 			registry.register(newEntity("objects", Task.class, it -> it.ownedBy(entity)));
-
-			val nativeRuntimeFiles = registry.register(builder().withComponent(new ElementNameComponent("nativeRuntimeFiles")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createFileCollectionProperty()).build());
-			((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from(sharedLibrary.as(SharedLibraryBinary.class).flatMap(SharedLibraryBinary::getLinkTask).flatMap(LinkSharedLibrary::getLinkedFile));
-			((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from((Callable<Object>) () -> ModelNodes.of(sharedLibrary).get(DependentRuntimeLibraries.class));
 		})));
+		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+			variant.getNativeRuntimeFiles().from(variant.getSharedLibrary().getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile));
+			variant.getNativeRuntimeFiles().from((Callable<Object>) () -> ModelNodes.of(variant.getSharedLibrary()).get(DependentRuntimeLibraries.class));
+		});
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
 			variant.getDevelopmentBinary().convention(variant.getJavaNativeInterfaceJar());
 		});

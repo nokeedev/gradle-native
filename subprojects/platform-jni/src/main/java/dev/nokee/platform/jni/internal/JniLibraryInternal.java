@@ -24,7 +24,6 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.BaseVariant;
@@ -51,8 +50,6 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskProvider;
 
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
@@ -69,18 +66,9 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Override
-	public Property<String> getResourcePath() {
-		return ModelProperties.getProperty(this, "resourcePath").asProperty(property(of(String.class)));
-	}
+	public abstract Property<String> getResourcePath();
 
-	@Override
-	public String getName() {
-		return node.get(FullyQualifiedNameComponent.class).get().toString();
-	}
-
-	public ConfigurableFileCollection getNativeRuntimeFiles() {
-		return ModelProperties.getProperty(this, "nativeRuntimeFiles").asProperty(of(ConfigurableFileCollection.class));
-	}
+	public abstract ConfigurableFileCollection getNativeRuntimeFiles();
 
 	@Override
 	public Property<Binary> getDevelopmentBinary() {
