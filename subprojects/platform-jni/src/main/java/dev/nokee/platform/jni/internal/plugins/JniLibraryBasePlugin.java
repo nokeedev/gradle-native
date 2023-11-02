@@ -90,7 +90,6 @@ import dev.nokee.platform.jni.internal.JvmJarArtifactComponent;
 import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
 import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
 import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
-import dev.nokee.platform.jni.internal.MultiVariantTag;
 import dev.nokee.platform.jni.internal.actions.OnceAction;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.DependentRuntimeLibraries;
@@ -502,10 +501,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, id, tag) -> {
 			val identifier = (VariantIdentifier) id.get();
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			if (!((VariantIdentifier) id.get()).getUnambiguousName().isEmpty()) {
-				entity.addComponentTag(MultiVariantTag.class);
-			}
 
 			val implementation = registry.register(newEntity(identifier.child("nativeImplementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 			val linkOnly = registry.register(newEntity(identifier.child("nativeLinkOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
