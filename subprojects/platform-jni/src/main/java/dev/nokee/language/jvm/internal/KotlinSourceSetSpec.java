@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.KotlinSourceSet;
@@ -24,13 +24,39 @@ import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
+import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.util.PatternFilterable;
 
+import javax.inject.Inject;
+import java.lang.reflect.InvocationTargetException;
+
 @DomainObjectEntities.Tag({KotlinSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport implements KotlinSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport implements KotlinSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasSource {
+	@Inject
+	public KotlinSourceSetSpec(NamedDomainObjectProvider<SourceSet> sourceSetProvider) {
+		getSource().from(sourceSetProvider.map(KotlinSourceSetSpec::asSourceDirectorySet));
+		getSource().disallowChanges();
+	}
+
+	private static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+		try {
+			val kotlinSourceSet = new DslObject(sourceSet).getConvention().getPlugins().get("kotlin");
+			val DefaultKotlinSourceSet = kotlinSourceSet.getClass();
+			val getKotlin = DefaultKotlinSourceSet.getMethod("getKotlin");
+			return (SourceDirectorySet) getKotlin.invoke(kotlinSourceSet);
+		} catch (NoSuchMethodException | IllegalAccessException |
+				 InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public TaskProvider<? extends Task> getCompileTask() {
 		return (TaskProvider<Task>) ModelElements.of(this).element("compile", Task.class).asProvider();

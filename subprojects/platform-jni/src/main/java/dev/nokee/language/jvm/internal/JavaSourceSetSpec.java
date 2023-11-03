@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.JavaSourceSet;
@@ -25,13 +25,28 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.util.PatternFilterable;
 
+import javax.inject.Inject;
+
 @DomainObjectEntities.Tag({JavaSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ abstract class JavaSourceSetSpec extends ModelElementSupport implements JavaSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ abstract class JavaSourceSetSpec extends ModelElementSupport implements JavaSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet>, HasSource {
+	@Inject
+	public JavaSourceSetSpec(NamedDomainObjectProvider<SourceSet> sourceSetProvider) {
+		getSource().from(sourceSetProvider.map(JavaSourceSetSpec::asSourceDirectorySet));
+		getSource().disallowChanges();
+	}
+
+	private static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+		return sourceSet.getJava();
+	}
+
 	public TaskProvider<JavaCompile> getCompileTask() {
 		return (TaskProvider<JavaCompile>) ModelElements.of(this).element("compile", JavaCompile.class).asProvider();
 	}

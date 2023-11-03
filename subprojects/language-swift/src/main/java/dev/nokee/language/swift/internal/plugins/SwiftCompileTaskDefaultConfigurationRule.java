@@ -18,7 +18,6 @@ package dev.nokee.language.swift.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.language.base.internal.SourceFiles;
 import dev.nokee.language.nativebase.internal.NativeCompileTask;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
@@ -49,24 +48,22 @@ import java.util.function.Function;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
-import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction4<ModelProjection, IdentifierComponent, NativeCompileTask, SourceFiles> {
+final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, NativeCompileTask> {
 	private final ModelRegistry registry;
 
 	public SwiftCompileTaskDefaultConfigurationRule(ModelRegistry registry) {
-		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeCompileTask.class), ModelComponentReference.of(SourceFiles.class));
+		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeCompileTask.class));
 		this.registry = registry;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
+	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, NativeCompileTask compileTask) {
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier.get(), asModuleFileOfModuleName())))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureModuleName(convention(toModuleName((ElementName) ((HasName) identifier.get()).getName())))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5))));
-		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureSources(from(sourceFiles))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureDebuggable(convention(false))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureOptimized(convention(false))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureCompilerArgs(addAll(forMacOsSdkIfAvailable()))));
@@ -120,12 +117,6 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	//region Source compatibility
 	private static Action<SwiftCompileTask> configureSourceCompatibility(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<SwiftVersion>> action) {
 		return task -> action.accept(task, wrap(task.getSourceCompatibility()));
-	}
-	//endregion
-
-	//region Task sources
-	private static Action<SwiftCompileTask> configureSources(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.FileCollectionProperty> action) {
-		return task -> action.accept(task, wrap(task.getSource()));
 	}
 	//endregion
 

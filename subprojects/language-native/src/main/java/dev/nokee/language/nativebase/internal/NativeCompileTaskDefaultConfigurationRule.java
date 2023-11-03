@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.SourceFiles;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
@@ -44,7 +43,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-public final class NativeCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction2<NativeCompileTask, SourceFiles> {
+public final class NativeCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction1<NativeCompileTask> {
 	private final ModelRegistry registry;
 
 	public NativeCompileTaskDefaultConfigurationRule(ModelRegistry registry) {
@@ -52,10 +51,9 @@ public final class NativeCompileTaskDefaultConfigurationRule extends ModelAction
 	}
 
 	@Override
-	protected void execute(ModelNode entity, NativeCompileTask compileTask, SourceFiles sourceFiles) {
+	protected void execute(ModelNode entity, NativeCompileTask compileTask) {
 		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompileTask.class, configurePositionIndependentCode(set(true))));
 		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompileTask.class, configureSystemIncludes(from(platformTool()))));
-		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompileTask.class, configureSources(from(sourceFiles))));
 	}
 
 	//region Position independent code
@@ -95,12 +93,6 @@ public final class NativeCompileTaskDefaultConfigurationRule extends ModelAction
 		} else {
 			throw new IllegalArgumentException(String.format("Unknown task type, '%s', cannot choose ToolType.", taskType.getSimpleName()));
 		}
-	}
-	//endregion
-
-	//region Task sources
-	public static Action<NativeSourceCompileTask> configureSources(BiConsumer<? super NativeSourceCompileTask, ? super PropertyUtils.FileCollectionProperty> action) {
-		return task -> action.accept(task, wrap(task.getSource()));
 	}
 	//endregion
 }

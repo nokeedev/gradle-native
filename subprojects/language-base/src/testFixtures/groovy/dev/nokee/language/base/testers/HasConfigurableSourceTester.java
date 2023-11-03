@@ -15,18 +15,18 @@
  */
 package dev.nokee.language.base.testers;
 
-import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.language.base.internal.HasConfigurableSource;
+import dev.nokee.language.base.HasSource;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
 public interface HasConfigurableSourceTester {
-	HasConfigurableSource subject();
+	HasSource subject();
 
 	@Test
 	default void hasSourceProperty() {
-		assertThat(subject().getSource(), isA(ConfigurableSourceSet.class));
+		assertThat(subject().getSource(), isA(ConfigurableFileCollection.class));
 	}
 }

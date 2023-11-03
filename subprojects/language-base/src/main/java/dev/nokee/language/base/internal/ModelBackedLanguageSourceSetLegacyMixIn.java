@@ -15,11 +15,9 @@
  */
 package dev.nokee.language.base.internal;
 
-import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
@@ -36,17 +34,16 @@ public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSo
 	}
 
 	default SELF from(Object... paths) {
-		ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().from(paths);
-		return (SELF) this;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	default void setFrom(Object... paths) {
-		ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().setFrom(paths);
+		throw new UnsupportedOperationException();
 	}
 
 	default FileCollection getSourceDirectories() {
-		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getSourceDirectories();
+		throw new UnsupportedOperationException();
 	}
 
 	default SELF filter(Action<? super PatternFilterable> action) {
@@ -59,16 +56,15 @@ public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSo
 	}
 
 	default PatternFilterable getFilter() {
-		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getFilter();
+		throw new UnsupportedOperationException();
 	}
 
 	default FileTree getAsFileTree() {
-		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getAsFileTree();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	default SELF convention(Object... path) {
-		ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().convention(path);
-		return (SELF) this;
+		throw new UnsupportedOperationException();
 	}
 }

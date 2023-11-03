@@ -15,6 +15,8 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.language.base.HasSource;
+import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -23,12 +25,29 @@ import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.project.ProjectInternal;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.language.swift.tasks.SwiftCompile;
+
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 
 public class LanguageNativeBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class); // TODO: Revisit if this is a good idea
 		project.getPluginManager().apply(LanguageBasePlugin.class);
+
+		// Attach native source to compile task
+		sources(project).configureEach(sourceSet -> {
+			if (sourceSet instanceof HasSource && sourceSet instanceof HasCompileTask) {
+				((HasCompileTask) sourceSet).getCompileTask().configure(task -> {
+					if (task instanceof AbstractNativeCompileTask) {
+						((AbstractNativeCompileTask) task).getSource().from(((HasSource) sourceSet).getSource().getAsFileTree());
+					} else if (task instanceof SwiftCompile) {
+						((SwiftCompile) task).getSource().from(((HasSource) sourceSet).getSource().getAsFileTree());
+					}
+				});
+			}
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasNativeCompileTaskMixInRule(
 			project.getExtensions().getByType(ModelRegistry.class),

@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.objectivec;
 
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
@@ -25,4 +26,4 @@ import dev.nokee.language.nativebase.HasHeaders;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface ObjectiveCSourceSet extends SelfAwareLanguageSourceSet<ObjectiveCSourceSet>, HasHeaders {}
+public interface ObjectiveCSourceSet extends SelfAwareLanguageSourceSet<ObjectiveCSourceSet>, HasSource, HasHeaders {}

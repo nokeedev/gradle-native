@@ -35,7 +35,6 @@ import dev.nokee.language.jvm.internal.SourceSetComponent;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
-import dev.nokee.language.nativebase.internal.HasConfigurableHeaders;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
@@ -120,6 +119,7 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
@@ -171,19 +171,19 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(GroovySourceSetSpec.class, new ModelObjectFactory<GroovySourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected GroovySourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(GroovySourceSetSpec.class);
+				return project.getObjects().newInstance(GroovySourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class).named(name));
 			}
 		});
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(JavaSourceSetSpec.class, new ModelObjectFactory<JavaSourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected JavaSourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(JavaSourceSetSpec.class);
+				return project.getObjects().newInstance(JavaSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class).named(name));
 			}
 		});
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(KotlinSourceSetSpec.class, new ModelObjectFactory<KotlinSourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected KotlinSourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(KotlinSourceSetSpec.class);
+				return project.getObjects().newInstance(KotlinSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class).named(name));
 			}
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, new ModelObjectFactory<ModelBackedJniJarBinary>(project, IsBinary.class) {

@@ -17,7 +17,6 @@ package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
@@ -25,10 +24,10 @@ import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.HasObjectiveCSourcesMixIn;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTag;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourcesComponent;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourcesPropertyComponent;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
@@ -68,6 +67,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
 
@@ -122,14 +122,7 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 				.build()));
 			entity.addComponent(new ObjectiveCSourcesPropertyComponent(property));
 		})));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ObjectiveCSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
-			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				ModelStates.finalize(parent.get());
-				return ParentUtils.stream(parent).flatMap(it -> stream(it.find(ObjectiveCSourcesComponent.class))).findFirst()
-					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>("objectiveCSources"));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
 			ModelStates.finalize(swiftSources.get());

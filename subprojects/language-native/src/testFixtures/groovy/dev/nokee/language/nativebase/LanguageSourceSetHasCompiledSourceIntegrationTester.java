@@ -15,9 +15,9 @@
  */
 package dev.nokee.language.nativebase;
 
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.HasCompileTask;
-import dev.nokee.language.base.internal.HasConfigurableSource;
 import dev.nokee.language.base.tasks.SourceCompile;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.isA;
 
-public interface LanguageSourceSetHasCompiledSourceIntegrationTester<T extends LanguageSourceSet & HasConfigurableSource & HasCompileTask> {
+public interface LanguageSourceSetHasCompiledSourceIntegrationTester<T extends LanguageSourceSet & HasSource & HasCompileTask> {
 	T subject();
 
 	@BeforeEach

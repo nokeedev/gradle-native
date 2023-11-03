@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.objectivec.internal.plugins;
 
-import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.nativebase.internal.DefaultCompilableNativeComponentDependencies;
@@ -41,7 +40,6 @@ import javax.inject.Inject;
 @DomainObjectEntities.Tag({ObjectiveCSourceSetTag.class, ObjectiveCSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
 public /*final*/ abstract class ObjectiveCSourceSetSpec extends ModelElementSupport implements ObjectiveCSourceSet
 	, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet>
-	, HasConfigurableSourceMixIn
 	, HasNativeCompileTaskMixIn<ObjectiveCCompileTask>
 	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>
 	, HasHeaderSearchPaths

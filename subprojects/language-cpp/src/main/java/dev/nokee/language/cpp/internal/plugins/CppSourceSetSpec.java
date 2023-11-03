@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.cpp.internal.plugins;
 
-import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.cpp.CppSourceSet;
@@ -41,7 +40,6 @@ import javax.inject.Inject;
 @DomainObjectEntities.Tag({CppSourceSetTag.class, CppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
 public /*final*/ abstract class CppSourceSetSpec extends ModelElementSupport implements CppSourceSet
 	, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>
-	, HasConfigurableSourceMixIn
 	, HasNativeCompileTaskMixIn<CppCompileTask>
 	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>
 	, HasHeaderSearchPaths

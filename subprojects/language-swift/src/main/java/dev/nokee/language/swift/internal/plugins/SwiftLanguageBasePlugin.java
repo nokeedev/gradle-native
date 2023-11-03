@@ -17,13 +17,13 @@ package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -61,6 +61,7 @@ import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.ha
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
 
@@ -117,14 +118,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 				.build()));
 			entity.addComponent(new SwiftSourcesPropertyComponent(property));
 		})));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(SwiftSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
-			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				ModelStates.finalize(parent.get());
-				return ParentUtils.stream(parent).flatMap(it -> stream(it.find(SwiftSourcesComponent.class))).findFirst()
-					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>("swiftSources"));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
 			ModelStates.finalize(swiftSources.get());

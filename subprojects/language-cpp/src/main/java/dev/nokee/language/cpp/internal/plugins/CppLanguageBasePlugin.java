@@ -17,9 +17,7 @@ package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.cpp.CppSourceSet;
-import dev.nokee.language.cpp.internal.CppSourceSetTag;
 import dev.nokee.language.cpp.internal.CppSourcesComponent;
 import dev.nokee.language.cpp.internal.CppSourcesPropertyComponent;
 import dev.nokee.language.cpp.internal.HasCppSourcesMixIn;
@@ -31,6 +29,7 @@ import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -68,6 +67,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
 
@@ -121,14 +121,7 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 				.build()));
 			entity.addComponent(new CppSourcesPropertyComponent(property));
 		})));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(CppSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
-			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				ModelStates.finalize(parent.get());
-				return ParentUtils.stream(parent).flatMap(it -> stream(it.find(CppSourcesComponent.class))).findFirst()
-					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>("cppSources"));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CppSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
 			ModelStates.finalize(swiftSources.get());

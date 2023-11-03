@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.GroovySourceSet;
@@ -25,15 +25,32 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.util.PatternFilterable;
 
+import javax.inject.Inject;
+
 import static dev.nokee.utils.TaskDependencyUtils.of;
 
 @DomainObjectEntities.Tag({GroovySourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasSource {
+	@Inject
+	public GroovySourceSetSpec(NamedDomainObjectProvider<SourceSet> sourceSetProvider) {
+		getSource().setFrom(sourceSetProvider.map(GroovySourceSetSpec::asSourceDirectorySet));
+		getSource().disallowChanges();
+
+	}
+
+	private static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+		return ((org.gradle.api.tasks.GroovySourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("groovy")).getGroovy();
+	}
+
 	public TaskProvider<GroovyCompile> getCompileTask() {
 		return (TaskProvider<GroovyCompile>) ModelElements.of(this).element("compile", GroovyCompile.class).asProvider();
 	}

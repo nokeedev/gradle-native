@@ -17,12 +17,9 @@ package dev.nokee.language.base.internal.plugins;
 
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.HasConfigurableSourceMixInRule;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.ModelMapAdapters;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -80,9 +77,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<LanguageSourceSet>(IsLanguageSourceSet.class, model(project, registryOf(LanguageSourceSet.class))));
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
-
-		project.getExtensions().add("__nokee_sourceSetFactory", new SourceSetFactory(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 
