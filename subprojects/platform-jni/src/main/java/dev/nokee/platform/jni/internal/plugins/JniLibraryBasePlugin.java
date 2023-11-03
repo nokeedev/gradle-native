@@ -33,6 +33,7 @@ import dev.nokee.language.jvm.internal.KotlinLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
 import dev.nokee.language.jvm.internal.SourceSetComponent;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeaders;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
@@ -275,8 +276,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					sourceSet.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(component.getIdentifier(), project.getLayout()));
 				});
 				component.getSources().configureEach(sourceSet -> {
-					if (sourceSet instanceof HasConfigurableHeaders) {
-						((HasConfigurableHeaders) sourceSet).getHeaders().from((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).getElements().map(it -> {
+					if (sourceSet instanceof HasHeaders) {
+						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).getElements().map(it -> {
 							final ConfigurableFileCollection result = project.getObjects().fileCollection();
 							for (JavaSourceSetSpec spec : it) {
 								result.from(spec.getCompileTask().flatMap(t -> t.getOptions().getHeaderOutputDirectory()));

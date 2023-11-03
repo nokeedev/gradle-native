@@ -16,7 +16,6 @@
 package dev.nokee.language.nativebase;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.nativebase.internal.HasConfigurableHeaders;
 import lombok.val;
 import org.gradle.api.Buildable;
 import org.gradle.api.Task;
@@ -29,7 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.mock;
 
-public interface LanguageSourceSetHasBuildableHeadersIntegrationTester<T extends LanguageSourceSet & Buildable & HasConfigurableHeaders> {
+public interface LanguageSourceSetHasBuildableHeadersIntegrationTester<T extends LanguageSourceSet & Buildable & HasHeaders> {
 	T subject();
 
 	@Test

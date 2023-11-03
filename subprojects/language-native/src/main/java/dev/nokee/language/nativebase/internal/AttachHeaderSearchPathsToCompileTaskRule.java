@@ -35,6 +35,7 @@ import java.util.function.BiConsumer;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
+import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
@@ -43,7 +44,7 @@ public final class AttachHeaderSearchPathsToCompileTaskRule<T> implements Action
 	public void execute(T t) {
 		if (t instanceof HasCompileTask) {
 			if (t instanceof HasHeaders) {
-				((HasCompileTask) t).getCompileTask().configure(configureIncludeRoots(from(((HasHeaders) t).getHeaders().getSourceDirectories())));
+				((HasCompileTask) t).getCompileTask().configure(configureIncludeRoots(from(sourceDirectories(((HasHeaders) t).getHeaders()))));
 			}
 			if (t instanceof HasHeaderSearchPaths) {
 				((HasCompileTask) t).getCompileTask().configure(configureIncludeRoots(from(((HasHeaderSearchPaths) t).getDependentHeaderSearchPaths())));

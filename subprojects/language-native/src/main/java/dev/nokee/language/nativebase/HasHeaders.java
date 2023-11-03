@@ -16,6 +16,7 @@
 package dev.nokee.language.nativebase;
 
 import dev.nokee.language.base.SourceSet;
+import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Represents an element that carries native headers.
@@ -28,5 +29,5 @@ public interface HasHeaders {
 	 *
 	 * @return a {@link SourceSet}, never null
 	 */
-	SourceSet getHeaders();
+	ConfigurableFileCollection getHeaders();
 }

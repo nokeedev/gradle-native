@@ -15,18 +15,17 @@
  */
 package dev.nokee.language.nativebase;
 
-import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.language.nativebase.internal.HasConfigurableHeaders;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
 public interface HasConfigurableHeadersTester {
-	HasConfigurableHeaders subject();
+	HasHeaders subject();
 
 	@Test
 	default void hasHeaders() {
-		assertThat(subject().getHeaders(), isA(ConfigurableSourceSet.class));
+		assertThat(subject().getHeaders(), isA(ConfigurableFileCollection.class));
 	}
 }

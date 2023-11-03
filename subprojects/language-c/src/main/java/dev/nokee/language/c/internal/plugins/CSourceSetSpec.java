@@ -22,7 +22,6 @@ import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.CSourceSetTag;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.internal.DefaultCompilableNativeComponentDependencies;
-import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
 import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
@@ -43,7 +42,6 @@ import javax.inject.Inject;
 public /*final*/ abstract class CSourceSetSpec extends ModelElementSupport implements CSourceSet
 	, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet>
 	, HasConfigurableSourceMixIn
-	, HasConfigurableHeadersMixIn
 	, HasNativeCompileTaskMixIn<CCompileTask>
 	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>
 	, HasHeaderSearchPaths
