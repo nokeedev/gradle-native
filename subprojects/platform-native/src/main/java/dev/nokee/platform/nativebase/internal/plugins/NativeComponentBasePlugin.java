@@ -183,6 +183,7 @@ import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
@@ -276,6 +277,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		components(project).configureEach(new ExtendsFromParentDependencyBucketAction<>());
 		components(project).configureEach(new ImplementationExtendsFromApiDependencyBucketAction<>());
 		components(project).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
+		variants(project).configureEach(new HeaderSearchPathsExtendsFromParentDependencyBucketAction<>());
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HeaderSearchPathsConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headerSearchPaths, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);

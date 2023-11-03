@@ -16,39 +16,43 @@
 package dev.nokee.language.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.utils.FileSystemLocationUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionWithInputs.ModelAction4<DependentHeaderSearchPaths, DependentFrameworkSearchPaths, ProjectHeaderSearchPaths, NativeCompileTask> {
-	private final ModelRegistry registry;
-
-	public AttachHeaderSearchPathsToCompileTaskRule(ModelRegistry registry) {
-		this.registry = registry;
-	}
-
+public final class AttachHeaderSearchPathsToCompileTaskRule<T> implements Action<T> {
 	@Override
-	protected void execute(ModelNode entity, DependentHeaderSearchPaths incomingHeaders, DependentFrameworkSearchPaths incomingFrameworks, ProjectHeaderSearchPaths userHeaders, NativeCompileTask compileTask) {
-		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompile.class, configureIncludeRoots(from(userHeaders).andThen(from(incomingHeaders)))));
-		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks)))));
+	public void execute(T t) {
+		if (t instanceof HasCompileTask) {
+			if (t instanceof HasHeaders) {
+				((HasCompileTask) t).getCompileTask().configure(configureIncludeRoots(from(((HasHeaders) t).getHeaders().getSourceDirectories())));
+			}
+			if (t instanceof HasHeaderSearchPaths) {
+				((HasCompileTask) t).getCompileTask().configure(configureIncludeRoots(from(((HasHeaderSearchPaths) t).getDependentHeaderSearchPaths())));
+				((HasCompileTask) t).getCompileTask().configure(task -> {
+					assert task instanceof SourceCompile;
+					configureCompilerArgs(addAll(asFrameworkSearchPathFlags(((HasHeaderSearchPaths) t).getDependentFrameworkSearchPaths()))).execute((SourceCompile) task);
+				});
+			}
+		}
 	}
 
 	//region Includes
@@ -74,8 +78,8 @@ public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionW
 		return it -> ImmutableList.of("-F", it.toString());
 	}
 
-	private static Provider<Iterable<String>> asFrameworkSearchPathFlags(DependentFrameworkSearchPaths frameworksSearchPaths) {
-		return frameworksSearchPaths.getAsProvider().map(flatTransformEach(toFrameworkSearchPathFlags()));
+	private static Provider<Iterable<String>> asFrameworkSearchPathFlags(FileCollection frameworksSearchPaths) {
+		return frameworksSearchPaths.getElements().map(transformEach(FileSystemLocationUtils::asPath)).map(flatTransformEach(toFrameworkSearchPathFlags()));
 	}
 	//endregion
 }

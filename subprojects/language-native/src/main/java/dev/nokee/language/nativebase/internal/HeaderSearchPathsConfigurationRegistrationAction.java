@@ -15,19 +15,7 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
+import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
@@ -41,29 +29,27 @@ import java.nio.file.Path;
 import java.util.Set;
 
 import static dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts.frameworks;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, ModelComponentTag<IsLanguageSourceSet>> {
-	private final ModelRegistry registry;
+public final class HeaderSearchPathsConfigurationRegistrationAction<T> implements Action<T> {
 	private final ObjectFactory objects;
 
-	HeaderSearchPathsConfigurationRegistrationAction(ModelRegistry registry, ObjectFactory objects) {
-		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsLanguageSourceSet.class));
-		this.registry = registry;
+	HeaderSearchPathsConfigurationRegistrationAction(ObjectFactory objects) {
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, ModelComponentTag<IsLanguageSourceSet> ignored) {
-		val headerSearchPaths = registry.register(newEntity(identifier.get().child("headerSearchPaths"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(HeaderSearchPathsDependencyBucketTag.class))).as(ResolvableDependencyBucketSpec.class);
-		headerSearchPaths.configure(it -> forCPlusPlusApiUsage().execute(it.getAsConfiguration()));
-		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));
-		entity.addComponent(new HeaderSearchPathsConfigurationComponent(ModelNodes.of(headerSearchPaths)));
-		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
-		entity.addComponent(new DependentHeaderSearchPaths(incomingArtifacts.getAs(frameworks().negate())));
+	public void execute(T t) {
+		if (t instanceof HasHeaderSearchPaths) {
+			final Configuration headerSearchPaths = ((HasHeaderSearchPaths) t).getHeaderSearchPaths().getAsConfiguration();
+
+			forCPlusPlusApiUsage().execute(headerSearchPaths);
+			val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));
+			((HasHeaderSearchPaths) t).getDependentFrameworkSearchPaths().from(incomingArtifacts.getAs(frameworks()).map(parentFiles()));
+			((HasHeaderSearchPaths) t).getDependentHeaderSearchPaths().from(incomingArtifacts.getAs(frameworks().negate()));
+		}
 	}
 
 	private Action<Configuration> forCPlusPlusApiUsage() {
@@ -74,7 +60,7 @@ public final class HeaderSearchPathsConfigurationRegistrationAction extends Mode
 		return transformEach(Path::getParent).andThen(toSetTransformer(Path.class));
 	}
 
-	private Provider<ResolvableDependencies> incomingArtifactsOf(ModelElement element) {
-		return element.as(Configuration.class).map(DependencyBuckets::finalize).map(Configuration::getIncoming);
+	private Provider<ResolvableDependencies> incomingArtifactsOf(Configuration config) {
+		return ProviderUtils.fixed(config.getIncoming());
 	}
 }

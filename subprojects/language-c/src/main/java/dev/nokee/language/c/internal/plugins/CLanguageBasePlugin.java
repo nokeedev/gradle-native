@@ -49,6 +49,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
@@ -65,6 +66,7 @@ import java.util.concurrent.Callable;
 import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
@@ -79,7 +81,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(CSourceSetSpec.class, new ModelObjectFactory<CSourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected CSourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(CSourceSetSpec.class);
+				return project.getObjects().newInstance(CSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
 			}
 		});
 

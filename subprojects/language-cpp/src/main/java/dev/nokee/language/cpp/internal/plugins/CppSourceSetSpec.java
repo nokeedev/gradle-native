@@ -21,21 +21,46 @@ import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSetTag;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
+import dev.nokee.language.nativebase.internal.DefaultCompilableNativeComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
+import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
 import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.tasks.TaskDependency;
 
+import javax.inject.Inject;
+
 @DomainObjectEntities.Tag({CppSourceSetTag.class, CppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
-public /*final*/ abstract class CppSourceSetSpec extends ModelElementSupport implements CppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<CppCompileTask> {
+public /*final*/ abstract class CppSourceSetSpec extends ModelElementSupport implements CppSourceSet
+	, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>
+	, HasConfigurableSourceMixIn
+	, HasConfigurableHeadersMixIn
+	, HasNativeCompileTaskMixIn<CppCompileTask>
+	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>
+	, HasHeaderSearchPaths
+{
+	@Inject
+	public CppSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		getExtensions().create("dependencies", DefaultCompilableNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
+	}
+
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), getHeaders().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
+	}
+
+	@Override
+	public ResolvableDependencyBucketSpec getHeaderSearchPaths() {
+		return getDependencies().getHeaderSearchPaths();
 	}
 
 	@Override
