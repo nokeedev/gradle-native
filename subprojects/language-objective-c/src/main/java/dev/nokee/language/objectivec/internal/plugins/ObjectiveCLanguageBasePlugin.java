@@ -149,7 +149,7 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 	static final class DefaultObjectiveCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
 		@Override
 		public ModelRegistration create(ModelNode owner) {
-			return DomainObjectEntities.newEntity("objectiveC", ObjectiveCSourceSetSpec.class, it -> it.ownedBy(owner).displayName("Objective-C sources"));
+			return DomainObjectEntities.newEntity(owner.get(IdentifierComponent.class).get().child("objectiveC"), ObjectiveCSourceSetSpec.class, it -> it.ownedBy(owner).displayName("Objective-C sources"));
 		}
 	}
 }
