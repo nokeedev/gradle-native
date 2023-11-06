@@ -91,6 +91,12 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				});
 			}
 		});
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, privateHeaders, ignored1) -> {
+			ModelStates.finalize(privateHeaders.get());
+			val sources = (ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get();
+			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+			entity.addComponent(new PrivateHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+		}));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), (entity, publicHeaders) -> {
 			ModelNodeUtils.get(entity, ExtensionAware.class).getExtensions().add(ConfigurableFileCollection.class, "privateHeaders", (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get());
@@ -129,6 +135,13 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				});
 			}
 		});
+		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, publicHeaders, ignored1) -> {
+			ModelStates.finalize(publicHeaders.get());
+			val sources = (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get();
+			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+			entity.addComponent(new PublicHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+		}));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), (entity, publicHeaders) -> {
 			ModelNodeUtils.get(entity, ExtensionAware.class).getExtensions().add(ConfigurableFileCollection.class, "publicHeaders", (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get());
