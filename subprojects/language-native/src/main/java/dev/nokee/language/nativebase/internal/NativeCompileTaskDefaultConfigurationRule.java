@@ -15,10 +15,8 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -38,22 +36,25 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-public final class NativeCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction1<NativeCompileTask> {
-	private final ModelRegistry registry;
-
-	public NativeCompileTaskDefaultConfigurationRule(ModelRegistry registry) {
-		this.registry = registry;
-	}
-
+public final class NativeCompileTaskDefaultConfigurationRule<T> implements Action<T> {
 	@Override
-	protected void execute(ModelNode entity, NativeCompileTask compileTask) {
-		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompileTask.class, configurePositionIndependentCode(set(true))));
-		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompileTask.class, configureSystemIncludes(from(platformTool()))));
+	public void execute(T t) {
+		if (t instanceof HasCompileTask) {
+			((HasCompileTask) t).getCompileTask().configure(task -> {
+				if (task instanceof NativeSourceCompileTask) {
+					configurePositionIndependentCode(set(true)).execute((NativeSourceCompileTask) task);
+				}
+			});
+			((HasCompileTask) t).getCompileTask().configure(task -> {
+				if (task instanceof NativeSourceCompileTask) {
+					configureSystemIncludes(from(platformTool())).execute((NativeSourceCompileTask) task);
+				}
+			});
+		}
 	}
 
 	//region Position independent code

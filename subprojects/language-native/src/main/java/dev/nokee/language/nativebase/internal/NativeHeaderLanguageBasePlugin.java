@@ -56,8 +56,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 
 		sources(project).configureEach(new HeaderSearchPathsConfigurationRegistrationAction<>(project.getObjects()));
 		sources(project).configureEach(new AttachHeaderSearchPathsToCompileTaskRule<>());
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NativeCompileTaskDefaultConfigurationRule(project.getExtensions().getByType(ModelRegistry.class)));
+		sources(project).configureEach(new NativeCompileTaskDefaultConfigurationRule<>());
 
 		// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, privateHeaders, fullyQualifiedName) -> {
