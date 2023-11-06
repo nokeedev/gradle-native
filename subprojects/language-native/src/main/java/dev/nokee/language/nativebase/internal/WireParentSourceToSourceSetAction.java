@@ -28,9 +28,11 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 
 public final class WireParentSourceToSourceSetAction<T> implements Action<T> {
+	private final Class<? extends LanguageSourceSet> sourceType;
 	private final String sourceExtensionName;
 
-	public WireParentSourceToSourceSetAction(String sourceExtensionName) {
+	public WireParentSourceToSourceSetAction(Class<? extends LanguageSourceSet> sourceType, String sourceExtensionName) {
+		this.sourceType = sourceType;
 		this.sourceExtensionName = sourceExtensionName;
 	}
 
@@ -41,7 +43,7 @@ public final class WireParentSourceToSourceSetAction<T> implements Action<T> {
 			@SuppressWarnings("unchecked")
 			final View<LanguageSourceSet> sources = (View<LanguageSourceSet>) ((SourceAwareComponent<?>) t).getSources();
 			sources.configureEach(sourceSet -> {
-				if (sourceSet instanceof HasSource) {
+				if (sourceType.isInstance(sourceSet) && sourceSet instanceof HasSource) {
 					((HasSource) sourceSet).getSource().from((Callable<Object>) () -> {
 						return Optional.ofNullable(((ExtensionAware) t).getExtensions().findByName(sourceExtensionName)).orElse(Collections.emptyList());
 					});

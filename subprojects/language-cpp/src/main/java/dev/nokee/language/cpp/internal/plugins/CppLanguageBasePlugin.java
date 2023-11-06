@@ -122,7 +122,7 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 				.build()));
 			entity.addComponent(new CppSourcesPropertyComponent(property));
 		})));
-		variants(project).configureEach(new WireParentSourceToSourceSetAction<>("cppSources"));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(CppSourceSetSpec.class, "cppSources"));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CppSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
 			ModelStates.finalize(swiftSources.get());

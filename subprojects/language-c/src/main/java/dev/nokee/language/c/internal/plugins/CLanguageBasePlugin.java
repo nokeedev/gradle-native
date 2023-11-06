@@ -123,7 +123,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 				.build()));
 			entity.addComponent(new CSourcesPropertyComponent(property));
 		})));
-		variants(project).configureEach(new WireParentSourceToSourceSetAction<>("cSources"));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(CSourceSetSpec.class, "cSources"));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, cSources, ignored1) -> {
 			ModelStates.finalize(cSources.get());

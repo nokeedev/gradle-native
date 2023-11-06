@@ -123,7 +123,7 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 				.build()));
 			entity.addComponent(new ObjectiveCSourcesPropertyComponent(property));
 		})));
-		variants(project).configureEach(new WireParentSourceToSourceSetAction<>("objectiveCSources"));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(ObjectiveCSourceSetSpec.class, "objectiveCSources"));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
 			ModelStates.finalize(swiftSources.get());

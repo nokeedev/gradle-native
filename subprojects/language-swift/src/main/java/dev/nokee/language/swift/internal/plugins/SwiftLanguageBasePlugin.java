@@ -119,7 +119,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 				.build()));
 			entity.addComponent(new SwiftSourcesPropertyComponent(property));
 		})));
-		variants(project).configureEach(new WireParentSourceToSourceSetAction<>("swiftSources"));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(SwiftSourceSetSpec.class, "swiftSources"));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
 			ModelStates.finalize(swiftSources.get());

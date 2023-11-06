@@ -123,7 +123,7 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 				.build()));
 			entity.addComponent(new ObjectiveCppSourcesPropertyComponent(property));
 		})));
-		variants(project).configureEach(new WireParentSourceToSourceSetAction<>("objectiveCppSources"));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(ObjectiveCppSourceSetSpec.class, "objectiveCppSources"));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCppSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
 			ModelStates.finalize(swiftSources.get());
