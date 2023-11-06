@@ -22,6 +22,7 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -30,6 +31,7 @@ import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.SourceAwareComponent;
@@ -85,6 +87,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
+							ModelStates.finalize(ModelNodes.of(variant));
 							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName("privateHeaders")).orElse(Collections.emptyList());
 						});
 					}
@@ -129,6 +132,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
+							ModelStates.finalize(ModelNodes.of(variant));
 							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName("publicHeaders")).orElse(Collections.emptyList());
 						});
 					}

@@ -18,6 +18,8 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
 import org.gradle.api.Action;
@@ -45,6 +47,8 @@ public final class WireParentSourceToSourceSetAction<T> implements Action<T> {
 			sources.configureEach(sourceSet -> {
 				if (sourceType.isInstance(sourceSet) && sourceSet instanceof HasSource) {
 					((HasSource) sourceSet).getSource().from((Callable<Object>) () -> {
+						ModelStates.finalize(ModelNodes.of(t));
+
 						return Optional.ofNullable(((ExtensionAware) t).getExtensions().findByName(sourceExtensionName)).orElse(Collections.emptyList());
 					});
 				}
