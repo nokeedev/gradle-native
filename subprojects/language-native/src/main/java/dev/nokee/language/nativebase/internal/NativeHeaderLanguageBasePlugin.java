@@ -98,8 +98,8 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 			entity.addComponent(new PrivateHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
 		}));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), (entity, publicHeaders) -> {
-			ModelNodeUtils.get(entity, ExtensionAware.class).getExtensions().add(ConfigurableFileCollection.class, "privateHeaders", (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), (entity, privateHeaders) -> {
+			ModelNodeUtils.get(entity, ExtensionAware.class).getExtensions().add(ConfigurableFileCollection.class, "privateHeaders", (ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get());
 		}));
 
 		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
