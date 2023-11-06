@@ -171,19 +171,19 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(GroovySourceSetSpec.class, new ModelObjectFactory<GroovySourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected GroovySourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(GroovySourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class).named(name));
+				return project.getObjects().newInstance(GroovySourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class));
 			}
 		});
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(JavaSourceSetSpec.class, new ModelObjectFactory<JavaSourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected JavaSourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(JavaSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class).named(name));
+				return project.getObjects().newInstance(JavaSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class));
 			}
 		});
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(KotlinSourceSetSpec.class, new ModelObjectFactory<KotlinSourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected KotlinSourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(KotlinSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class).named(name));
+				return project.getObjects().newInstance(KotlinSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class));
 			}
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, new ModelObjectFactory<ModelBackedJniJarBinary>(project, IsBinary.class) {

@@ -25,6 +25,7 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import lombok.val;
+import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.file.SourceDirectorySet;
@@ -37,10 +38,14 @@ import org.gradle.api.tasks.util.PatternFilterable;
 import javax.inject.Inject;
 import java.lang.reflect.InvocationTargetException;
 
+import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedName;
+import static java.util.Objects.requireNonNull;
+
 @DomainObjectEntities.Tag({KotlinSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
 public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport implements KotlinSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasSource {
 	@Inject
-	public KotlinSourceSetSpec(NamedDomainObjectProvider<SourceSet> sourceSetProvider) {
+	public KotlinSourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets) {
+		NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());
 		getSource().from(sourceSetProvider.map(KotlinSourceSetSpec::asSourceDirectorySet));
 		getSource().disallowChanges();
 	}

@@ -25,6 +25,7 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
@@ -36,12 +37,15 @@ import org.gradle.api.tasks.util.PatternFilterable;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedName;
 import static dev.nokee.utils.TaskDependencyUtils.of;
+import static java.util.Objects.requireNonNull;
 
 @DomainObjectEntities.Tag({GroovySourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
 public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasSource {
 	@Inject
-	public GroovySourceSetSpec(NamedDomainObjectProvider<SourceSet> sourceSetProvider) {
+	public GroovySourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets) {
+		NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());
 		getSource().setFrom(sourceSetProvider.map(GroovySourceSetSpec::asSourceDirectorySet));
 		getSource().disallowChanges();
 

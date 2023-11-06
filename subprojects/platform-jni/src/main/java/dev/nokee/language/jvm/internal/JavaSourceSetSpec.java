@@ -20,11 +20,13 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.SourceSet;
@@ -35,10 +37,14 @@ import org.gradle.api.tasks.util.PatternFilterable;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedName;
+import static java.util.Objects.requireNonNull;
+
 @DomainObjectEntities.Tag({JavaSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
 public /*final*/ abstract class JavaSourceSetSpec extends ModelElementSupport implements JavaSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet>, HasSource {
 	@Inject
-	public JavaSourceSetSpec(NamedDomainObjectProvider<SourceSet> sourceSetProvider) {
+	public JavaSourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets) {
+		NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());
 		getSource().from(sourceSetProvider.map(JavaSourceSetSpec::asSourceDirectorySet));
 		getSource().disallowChanges();
 	}
