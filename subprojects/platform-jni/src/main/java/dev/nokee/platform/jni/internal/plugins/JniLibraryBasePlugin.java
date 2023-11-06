@@ -35,6 +35,7 @@ import dev.nokee.language.jvm.internal.SourceSetComponent;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
+import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
@@ -206,6 +207,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies = component.getDependencies();
+			dependencies.getNative().getCompileOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
 			dependencies.getNativeImplementation().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
 			dependencies.getNativeLinkOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
 			dependencies.getNativeRuntimeOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
@@ -215,6 +217,12 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				((DeclarableDependencyBucketSpec) variant.getDependencies().getNativeImplementation()).extendsFrom(dependencies.getNativeImplementation());
 				((DeclarableDependencyBucketSpec) variant.getDependencies().getNativeLinkOnly()).extendsFrom(dependencies.getNativeLinkOnly());
 				((DeclarableDependencyBucketSpec) variant.getDependencies().getNativeRuntimeOnly()).extendsFrom(dependencies.getNativeRuntimeOnly());
+
+				variant.getSources().configureEach(sourceSet -> {
+					if (sourceSet instanceof HasHeaderSearchPaths) {
+						((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().extendsFrom(variant.getDependencies().getNativeImplementation());
+					}
+				});
 			});
 
 			dependencies.getJvmImplementation().extendsFrom(dependencies.getApi());
