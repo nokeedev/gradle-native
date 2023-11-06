@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -26,6 +29,7 @@ import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.VariantMixIn;
@@ -40,6 +44,7 @@ import org.gradle.api.provider.Property;
 public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVariant implements NativeApplication, VariantInternal, ModelNodeAware
 	, VariantMixIn
 	, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
+	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, HasDevelopmentBinaryMixIn
