@@ -48,8 +48,10 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.utils.Optionals.stream;
+import static dev.nokee.utils.ProviderUtils.disallowChanges;
 
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -124,7 +126,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				.build()));
 			entity.addComponent(new PublicHeadersPropertyComponent(property));
 		})));
-		variants(project).configureEach(variant -> {
+		components(project).configureEach(variant -> {
 			// TODO: check if it's a native variant?
 			if (variant instanceof SourceAwareComponent && ((SourceAwareComponent<?>) variant).getSources() instanceof View) {
 				@SuppressWarnings("unchecked")
