@@ -260,18 +260,20 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, new ModelObjectFactory<DefaultNativeApplicationVariant>(project, IsVariant.class) {
 			@Override
 			protected DefaultNativeApplicationVariant doCreate(String name) {
-				val result = project.getObjects().newInstance(DefaultNativeApplicationVariant.class);
-				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
-				return result;
+				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class);
 			}
+		});
+		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(result -> {
+			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibraryVariant.class, new ModelObjectFactory<DefaultNativeLibraryVariant>(project, IsVariant.class) {
 			@Override
 			protected DefaultNativeLibraryVariant doCreate(String name) {
-				val result = project.getObjects().newInstance(DefaultNativeLibraryVariant.class);
-				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
-				return result;
+				return project.getObjects().newInstance(DefaultNativeLibraryVariant.class);
 			}
+		});
+		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(result -> {
+			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 
 		components(project).configureEach(new ExtendsFromParentDependencyBucketAction<>());
