@@ -17,9 +17,11 @@ package dev.nokee.platform.base.internal.elements;
 
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ancestors.AncestorRef;
 import dev.nokee.model.internal.ancestors.AncestorsComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
@@ -35,6 +37,7 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
@@ -125,7 +128,21 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 	@SuppressWarnings("unchecked")
 	public void apply(T target) {
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, tag, elementType, parent) -> {
-			entity.addComponent(createdUsing(Cast.uncheckedCastBecauseOfTypeErasure(viewFor(elementType.get())), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(collectionOf(target, elementType.get().getConcreteType()), providers, () -> ModelStates.finalize(parent.get())))));
+			entity.addComponent(createdUsing(Cast.uncheckedCastBecauseOfTypeErasure(viewFor(elementType.get())), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy((Namer<? super Object>) namerOf(elementType.get().getConcreteType()), collectionOf(target, elementType.get().getConcreteType()), providers, objects, () -> {
+				ModelStates.finalize(parent.get());
+				target.getExtensions().getByType(ModelLookup.class).query(it -> it.find(IdentifierComponent.class).map(id -> ModelObjectIdentifiers.descendantOf(id.get(), parent.get().get(IdentifierComponent.class).get())).orElse(false)).forEach(it -> {
+					it.find(MainProjectionComponent.class).ifPresent(component -> {
+						try {
+							Class<?> LanguageSourceSet = Class.forName("dev.nokee.language.base.LanguageSourceSet");
+							if (LanguageSourceSet.isAssignableFrom(component.getProjectionType())) {
+								ModelStates.finalize(it);
+							}
+						} catch (ClassNotFoundException e) {
+							// ignores
+						}
+					});
+				});
+			}))));
 		}));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(GradlePropertyComponent.class), (entity, tag, base, elementType, property) -> {
 			((MapProperty<String, Object>) property.get()).set(providers.provider(() -> {
