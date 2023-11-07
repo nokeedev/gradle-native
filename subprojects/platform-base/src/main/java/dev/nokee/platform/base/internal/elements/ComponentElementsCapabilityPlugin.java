@@ -40,11 +40,14 @@ import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import dev.nokee.utils.Cast;
 import lombok.val;
+import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Namer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
@@ -70,6 +73,30 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 		return (ModelType<ViewAdapter<S>>) ModelType.of(new TypeToken<ViewAdapter<S>>() {}.where(new TypeParameter<S>() {}, elementType.getConcreteType()).getType());
 	}
 
+	private static Namer<? extends Object> namerOf(Class<?> elementType) {
+		if (Variant.class.isAssignableFrom(elementType)) {
+			return new Named.Namer();
+		} else if (Artifact.class.isAssignableFrom(elementType)) {
+			return new Named.Namer();
+		} else if (Component.class.isAssignableFrom(elementType)) {
+			return new Named.Namer();
+		} else if (Task.class.isAssignableFrom(elementType)) {
+			return new Task.Namer();
+		} else if (Configuration.class.isAssignableFrom(elementType)) {
+			return new Configuration.Namer();
+		} else {
+			try {
+				Class<?> LanguageSourceSet = Class.forName("dev.nokee.language.base.LanguageSourceSet");
+				if (LanguageSourceSet.isAssignableFrom(elementType)) {
+					return new Named.Namer();
+				}
+			} catch (ClassNotFoundException e) {
+				// ignores
+			}
+			throw new UnsupportedOperationException("unknown element type for view -- " + elementType.getSimpleName());
+		}
+	}
+
 	private static NamedDomainObjectCollection<?> collectionOf(ExtensionAware target, Class<?> elementType) {
 		if (Variant.class.isAssignableFrom(elementType)) {
 			return (NamedDomainObjectCollection<?>) target.getExtensions().getByName("$variants");
@@ -79,6 +106,8 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 			return (NamedDomainObjectCollection<?>) target.getExtensions().getByName("$components");
 		} else if (Task.class.isAssignableFrom(elementType)) {
 			return ((Project) target).getTasks();
+		} else if (Configuration.class.isAssignableFrom(elementType)) {
+			return ((Project) target).getConfigurations();
 		} else {
 			try {
 				Class<?> LanguageSourceSet = Class.forName("dev.nokee.language.base.LanguageSourceSet");

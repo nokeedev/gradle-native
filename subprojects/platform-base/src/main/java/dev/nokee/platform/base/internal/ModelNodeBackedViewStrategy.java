@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.model.KnownDomainObject;
@@ -29,15 +28,16 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.names.RelativeName;
-import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
-import dev.nokee.platform.base.internal.elements.ComponentElementsFilterComponent;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Namer;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 
 import java.util.Set;
 
@@ -51,21 +51,27 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	private final Runnable realize;
 	private final ModelNode entity;
 	private final ProviderFactory providerFactory;
+	private final ObjectFactory objects;
+	private final Namer<? super Object> namer;
 
-	public ModelNodeBackedViewStrategy(NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory) {
+	public ModelNodeBackedViewStrategy(Namer<? super Object> namer, NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, ObjectFactory objects) {
+		this.namer = namer;
 		this.collection = collection;
 		this.providerFactory = providerFactory;
+		this.objects = objects;
 		this.entity = ModelNodeContext.getCurrentModelNode();
 		this.realize = NO_OP_REALIZE;
 	}
 
-	public ModelNodeBackedViewStrategy(NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, Runnable realize) {
-		this(collection, providerFactory, realize, ModelNodeContext.getCurrentModelNode());
+	public ModelNodeBackedViewStrategy(Namer<? super Object> namer, NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, ObjectFactory objects, Runnable realize) {
+		this(namer, collection, providerFactory, objects, realize, ModelNodeContext.getCurrentModelNode());
 	}
 
-	public ModelNodeBackedViewStrategy(NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, Runnable realize, ModelNode entity) {
+	public ModelNodeBackedViewStrategy(Namer<? super Object> namer, NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, ObjectFactory objects, Runnable realize, ModelNode entity) {
+		this.namer = namer;
 		this.collection = collection;
 		this.providerFactory = providerFactory;
+		this.objects = objects;
 		this.realize = new RunOnceRunnable(realize);
 		this.entity = entity;
 	}
@@ -91,12 +97,24 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 		return providerFactory.provider(() -> {
 			realize.run(); // TODO: Should move to some provider source or something
 
-			// FIXME: We should accumulate the elements in another component so can put ad-hoc View element
-			if (entity.get(ComponentElementTypeComponent.class).get().getType().equals(elementType)) {
-				return ((MapProperty<String, T>) entity.get(GradlePropertyComponent.class).get())
-					.map(it -> ImmutableSet.copyOf(it.values()));
-			}
-			return entity.get(ComponentElementsFilterComponent.class).get(elementType);
+			final SetProperty<T> result = objects.setProperty(elementType);
+			final ModelNode baseRef = entity.get(ViewConfigurationBaseComponent.class).get();
+			collection.matching(object -> {
+				if (elementType.isInstance(object)) {
+					return ModelElementSupport.safeAsModelElement(object).map(element -> {
+						final ModelObjectIdentifier baseIdentifier = baseRef.get(IdentifierComponent.class).get();
+						if (ModelObjectIdentifiers.descendantOf(element.getIdentifier(), baseIdentifier)) {
+							return true;
+						}
+						return false;
+					}).orElse(false);
+				}
+				return false;
+			}).forEach(it -> {
+				result.add(((NamedDomainObjectCollection<? super T>) collection).named(namer.determineName(it), elementType));
+			});
+
+			return result;
 		}).flatMap(noOpTransformer());
 	}
 
