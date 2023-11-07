@@ -19,9 +19,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
-import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationComponent;
+import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
@@ -37,6 +38,7 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.IdentifierDisplayNameComponent;
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -64,8 +66,10 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
+import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.BaseNameComponent;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -281,23 +285,18 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		components(project).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
 		variants(project).configureEach(new HeaderSearchPathsExtendsFromParentDependencyBucketAction<>());
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HeaderSearchPathsConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headerSearchPaths, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, configureExtendsFrom((Callable<?>) () -> {
-				val result = ImmutableList.builder();
-				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(ImplementationConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
-				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(CompileOnlyConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
-				return result.build();
-			})));
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HeaderSearchPathsConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headerSearchPaths, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(BuildVariantComponent.class))).findFirst().ifPresent(it -> {
-				registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) it.get(), project.getObjects())));
-			});
-			registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-		}));
+		variants(project).configureEach(variant -> {
+			if (variant instanceof SourceAwareComponent && ((SourceAwareComponent<?>) variant).getSources() instanceof View) {
+				final View<LanguageSourceSet> sources = (View<LanguageSourceSet>) ((SourceAwareComponent<?>) variant).getSources();
+				sources.configureEach(sourceSet -> {
+					if (sourceSet instanceof HasHeaderSearchPaths) {
+						final Configuration headerSearchPaths = ((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().getAsConfiguration();
+						ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(headerSearchPaths);
+						ConfigurationUtilsEx.configureAsGradleDebugCompatible(headerSearchPaths);
+					}
+				});
+			}
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ImportModulesConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, importModules, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -656,12 +655,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 				@Override
 				public Void apply(BuildVariant buildVariant, ModelNode variant) {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(((dev.nokee.model.internal.ModelElement) component).getIdentifier()).build();
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(((ModelElement) component).getIdentifier()).build();
 					nativeLibraryVariant(variantIdentifier).getComponents().forEach(variant::addComponent);
 					variant.addComponent(new BuildVariantComponent(buildVariant));
 					ModelStates.register(variant);
 
-					onEachVariantDependencies(variant.get(ModelElementFactory.class).createObject(variant, ModelType.of(NativeLibrary.class)), variant.getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)), variantIdentifier);
+					onEachVariantDependencies(variant.get(ModelElementFactory.class).createObject(variant, of(NativeLibrary.class)), variant.getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)), variantIdentifier);
 					return null;
 				}
 

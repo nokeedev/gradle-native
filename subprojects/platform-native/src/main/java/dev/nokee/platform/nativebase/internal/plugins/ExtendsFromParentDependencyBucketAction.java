@@ -23,6 +23,8 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import org.gradle.api.Action;
 
 public final class ExtendsFromParentDependencyBucketAction<TargetType> implements Action<TargetType> {
@@ -50,6 +52,10 @@ public final class ExtendsFromParentDependencyBucketAction<TargetType> implement
 		} else if (target.getDependencies() instanceof DefaultNativeComponentDependencies) {
 			action.execute((NativeComponentDependencies) target.getDependencies());
 		} else if (target.getDependencies() instanceof DefaultNativeApplicationComponentDependencies) {
+			action.execute((NativeComponentDependencies) target.getDependencies());
+		} else if (target.getDependencies() instanceof ModelBackedNativeApplicationComponentDependencies) {
+			action.execute((NativeComponentDependencies) target.getDependencies());
+		} else if (target.getDependencies() instanceof ModelBackedNativeLibraryComponentDependencies) {
 			action.execute((NativeComponentDependencies) target.getDependencies());
 		}
 	}
