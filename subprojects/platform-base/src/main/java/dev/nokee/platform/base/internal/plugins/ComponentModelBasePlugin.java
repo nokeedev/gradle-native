@@ -29,6 +29,7 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -110,6 +111,8 @@ import org.gradle.api.provider.Provider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -175,6 +178,22 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Binary>(IsBinary.class, model(project, registryOf(Artifact.class))));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Variant>(IsVariant.class, model(project, registryOf(Variant.class))));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<DependencyBucket>(IsDependencyBucket.class, model(project, registryOf(DependencyBucket.class))));
+
+		// FIXME: This is temporary until we convert all entity
+		project.afterEvaluate(__ -> {
+			int previousCount = 0;
+			List<ModelNode> result = Collections.emptyList();
+			do
+			{
+				previousCount = result.size();
+				result = project.getExtensions().getByType(ModelLookup.class).query(it -> it.has(MainProjectionComponent.class)).get();
+				result.forEach(it -> {
+					it.find(MainProjectionComponent.class).ifPresent(component -> {
+						ModelStates.finalize(it);
+					});
+				});
+			} while (previousCount != result.size());
+		});
 
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class, new ModelObjectFactory<ConsumableDependencyBucketSpec>(project, IsDependencyBucket.class) {
 			@Override
