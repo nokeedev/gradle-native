@@ -15,20 +15,29 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.provider.MapProperty;
+import org.gradle.api.plugins.ExtensionAware;
 
-public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies implements JavaNativeInterfaceNativeComponentDependencies, ModelNodeAware {
-	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
+import javax.inject.Inject;
+
+public abstract class DefaultJavaNativeInterfaceNativeComponentDependencies implements JavaNativeInterfaceNativeComponentDependencies, ExtensionAware {
+	@Inject
+	public DefaultJavaNativeInterfaceNativeComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		getExtensions().create("native", DefaultNativeComponentDependencies.class, identifier.child("native"), bucketRegistry);
+	}
+
+	public DefaultNativeComponentDependencies getNative() {
+		return (DefaultNativeComponentDependencies) getExtensions().getByName("native");
+	}
 
 	@Override
 	public void nativeImplementation(Object notation) {
@@ -46,9 +55,8 @@ public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies imp
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public DependencyBucket getNativeImplementation() {
-		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("nativeImplementation").get();
+	public DeclarableDependencyBucketSpec getNativeImplementation() {
+		return getNative().getImplementation();
 	}
 
 	@Override
@@ -67,9 +75,8 @@ public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies imp
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public DependencyBucket getNativeLinkOnly() {
-		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("nativeLinkOnly").get();
+	public DeclarableDependencyBucketSpec getNativeLinkOnly() {
+		return getNative().getLinkOnly();
 	}
 
 	@Override
@@ -88,13 +95,7 @@ public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies imp
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public DependencyBucket getNativeRuntimeOnly() {
-		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("nativeRuntimeOnly").get();
-	}
-
-	@Override
-	public ModelNode getNode() {
-		return node;
+	public DeclarableDependencyBucketSpec getNativeRuntimeOnly() {
+		return getNative().getRuntimeOnly();
 	}
 }

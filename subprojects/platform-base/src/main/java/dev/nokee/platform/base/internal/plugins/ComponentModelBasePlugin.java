@@ -16,7 +16,6 @@
 package dev.nokee.platform.base.internal.plugins;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.capabilities.variants.CreateVariantsRule;
 import dev.nokee.model.capabilities.variants.IsVariant;
@@ -54,8 +53,6 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.ComponentDependencies;
-import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.TaskAwareComponent;
@@ -77,7 +74,6 @@ import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.IsTask;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
@@ -109,7 +105,6 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.List;
@@ -268,21 +263,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Binary>>() {})))))
 				.build());
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedDependencyAwareComponentMixIn<? extends ComponentDependencies, ? extends ComponentDependencies>>() {})), (entity, projection) -> {
-			Class<ComponentDependencies> type = (Class<ComponentDependencies>) dependenciesType((ModelType<DependencyAwareComponent<? extends ComponentDependencies>>)projection.getType());
-			modeRegistry.register(builder()
-				.withComponent(new ElementNameComponent("dependencies"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(DependencyBucket.class)).build())
-				.withComponent(createdUsing(of(type), () -> {
-					try {
-						return type.getConstructor().newInstance();
-					} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-						throw new RuntimeException(e);
-					}
-				}))
-				.build());
-		})));
 
 		// ComponentFromEntity<ParentComponent> read-only self
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {
@@ -311,11 +291,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(SourceAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
 			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "sources"));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (ModelNodeUtils.hasDescendant(entity, "dependencies")) {
-				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "dependencies"));
-			}
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(TaskAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
 			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "tasks"));
@@ -353,11 +328,5 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		} catch (NoSuchMethodException e) {
 			throw new UnsupportedOperationException();
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private static Class<? extends ComponentDependencies> dependenciesType(ModelType<? extends DependencyAwareComponent<? extends ComponentDependencies>> type) {
-		val t = type.getInterfaces().stream().filter(it -> it.getRawType().equals(ModelBackedDependencyAwareComponentMixIn.class)).map(it -> (ModelType<ComponentDependencies>) it).collect(MoreCollectors.onlyElement());
-		return (Class<? extends ComponentDependencies>) ((ParameterizedType) t.getType()).getActualTypeArguments()[1];
 	}
 }

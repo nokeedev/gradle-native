@@ -32,7 +32,6 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelRegistrationFactory;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
@@ -43,6 +42,8 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.GroupId;
@@ -100,6 +101,8 @@ import javax.inject.Inject;
 import java.util.Collections;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
@@ -156,7 +159,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
 			});
 			val outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new IosApplicationOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(runtimeElements), Configuration.class), project.getObjects())));
-			entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(ModelProperties.getProperty(entity, "dependencies").as(NativeComponentDependencies.class)::get, outgoing.get()));
+			entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(() -> (NativeComponentDependencies) ModelNodeUtils.get(entity, DependencyAwareComponent.class).getDependencies(), outgoing.get()));
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, path, tag, variants) -> {
 			val component = ModelNodeUtils.get(entity, BaseXCTestTestSuiteComponent.class);
@@ -269,7 +272,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponentTag(NativeVariantTag.class)
 			.mergeFrom(tagsOf(DefaultXCTestTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> {
-				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class);
+				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)));
 			}))
 			.build()
 			;

@@ -20,7 +20,6 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.LibraryComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import org.gradle.api.Action;
 
 public final class ImplementationExtendsFromApiDependencyBucketAction<TargetType> implements Action<TargetType> {
@@ -35,8 +34,6 @@ public final class ImplementationExtendsFromApiDependencyBucketAction<TargetType
 
 	private void ifNativeLibraryComponentDependencies(DependencyAwareComponent<?> target, Action<? super LibraryComponentDependencies> action) {
 		if (target.getDependencies() instanceof DefaultNativeLibraryComponentDependencies) {
-			action.execute((LibraryComponentDependencies) target.getDependencies());
-		} else if (target.getDependencies() instanceof ModelBackedNativeLibraryComponentDependencies) {
 			action.execute((LibraryComponentDependencies) target.getDependencies());
 		}
 	}

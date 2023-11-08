@@ -20,16 +20,18 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -37,7 +39,7 @@ import dev.nokee.platform.base.internal.VariantMixIn;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
@@ -49,7 +51,7 @@ import javax.inject.Inject;
 public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware
 	, NativeSourcesAware
 	, VariantMixIn
-	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedTaskAwareComponentMixIn
@@ -59,8 +61,14 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultNativeTestSuiteVariant() {
+	public DefaultNativeTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+	}
+
+	@Override
+	public DefaultNativeComponentDependencies getDependencies() {
+		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

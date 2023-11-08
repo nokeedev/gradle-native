@@ -129,7 +129,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
 			@Override
 			protected JniLibraryInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)));
+				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)));
 			}
 		});
 

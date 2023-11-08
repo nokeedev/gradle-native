@@ -17,16 +17,18 @@ package dev.nokee.testing.xctest.internal;
 
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.VariantMixIn;
@@ -35,7 +37,7 @@ import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMi
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import org.gradle.api.provider.Property;
 
 import javax.inject.Inject;
@@ -44,7 +46,7 @@ import javax.inject.Inject;
 public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
 	, NativeSourcesAware
 	, VariantMixIn
-	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, HasDevelopmentBinaryMixIn
@@ -53,13 +55,14 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultXCTestTestSuiteVariant() {
+	public DefaultXCTestTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}
 
 	@Override
-	public NativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
+	public DefaultNativeComponentDependencies getDependencies() {
+		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

@@ -23,8 +23,6 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkAction;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
@@ -66,10 +64,6 @@ public final class LegacyFrameworkAwareDependencyBucketAction<TargetType> implem
 		} else if (target.getDependencies() instanceof DefaultNativeComponentDependencies) {
 			action.execute((NativeComponentDependencies) target.getDependencies());
 		} else if (target.getDependencies() instanceof DefaultNativeApplicationComponentDependencies) {
-			action.execute((NativeComponentDependencies) target.getDependencies());
-		} else if (target.getDependencies() instanceof ModelBackedNativeApplicationComponentDependencies) {
-			action.execute((NativeComponentDependencies) target.getDependencies());
-		} else if (target.getDependencies() instanceof ModelBackedNativeLibraryComponentDependencies) {
 			action.execute((NativeComponentDependencies) target.getDependencies());
 		}
 	}

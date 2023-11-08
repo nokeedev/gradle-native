@@ -28,12 +28,13 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -63,7 +64,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	, VariantMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies, ModelBackedJavaNativeInterfaceNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, HasBaseName
 	, HasDevelopmentBinary
@@ -71,12 +72,18 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry) {
+	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		getExtensions().create("dependencies", DefaultJavaNativeInterfaceNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sharedLibraryTask", taskRegistry.register(getIdentifier().child(TaskName.of("sharedLibrary")), Task.class).asProvider());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
+	}
+
+	@Override
+	public DefaultJavaNativeInterfaceNativeComponentDependencies getDependencies() {
+		return (DefaultJavaNativeInterfaceNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

@@ -86,11 +86,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	}
 
 	@Override
-	public NativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
-	}
-
-	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
 	}

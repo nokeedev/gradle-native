@@ -45,6 +45,8 @@ import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSet
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -71,6 +73,7 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
@@ -95,9 +98,11 @@ import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
 import dev.nokee.platform.jni.internal.actions.OnceAction;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.DependentRuntimeLibraries;
+import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
 import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkAction;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
@@ -143,6 +148,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
@@ -221,6 +227,17 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					if (sourceSet instanceof HasHeaderSearchPaths) {
 						((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().extendsFrom(variant.getDependencies().getNativeImplementation());
 					}
+				});
+
+				variant.getBinaries().configureEach(binary -> {
+					ModelElementSupport.safeAsModelElement(binary).ifPresent(element -> {
+						if (binary instanceof HasLinkLibrariesDependencyBucket) {
+							dependencyBuckets(project).withType(ResolvableDependencyBucketSpec.class).getByName(ModelObjectIdentifiers.asFullyQualifiedName(element.getIdentifier().child("linkLibraries")).toString()).extendsFrom(variant.getDependencies().getNativeImplementation(), variant.getDependencies().getNativeLinkOnly());
+						}
+						if (binary instanceof HasRuntimeLibrariesDependencyBucket) {
+							dependencyBuckets(project).withType(ResolvableDependencyBucketSpec.class).getByName(ModelObjectIdentifiers.asFullyQualifiedName(element.getIdentifier().child("runtimeLibraries")).toString()).extendsFrom(variant.getDependencies().getNativeImplementation(), variant.getDependencies().getNativeRuntimeOnly());
+						}
+					});
 				});
 			});
 

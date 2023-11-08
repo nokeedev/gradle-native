@@ -50,7 +50,6 @@ import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
@@ -65,6 +64,8 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.Variant;
@@ -182,10 +183,12 @@ import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
@@ -263,7 +266,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, new ModelObjectFactory<DefaultNativeApplicationVariant>(project, IsVariant.class) {
 			@Override
 			protected DefaultNativeApplicationVariant doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class);
+				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)));
 			}
 		});
 		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(result -> {
@@ -272,7 +275,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibraryVariant.class, new ModelObjectFactory<DefaultNativeLibraryVariant>(project, IsVariant.class) {
 			@Override
 			protected DefaultNativeLibraryVariant doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeLibraryVariant.class);
+				return project.getObjects().newInstance(DefaultNativeLibraryVariant.class, model(project, registryOf(DependencyBucket.class)));
 			}
 		});
 		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(result -> {
@@ -283,6 +286,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		components(project).configureEach(new ImplementationExtendsFromApiDependencyBucketAction<>());
 		components(project).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
 		variants(project).configureEach(new HeaderSearchPathsExtendsFromParentDependencyBucketAction<>());
+		variants(project).configureEach(new LinkLibrariesExtendsFromParentDependencyBucketAction<>(dependencyBuckets(project)));
+		variants(project).configureEach(new RuntimeLibrariesExtendsFromParentDependencyBucketAction<>(dependencyBuckets(project)));
 
 		variants(project).configureEach(variant -> {
 			if (variant instanceof SourceAwareComponent && ((SourceAwareComponent<?>) variant).getSources() instanceof View) {
@@ -410,7 +415,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 
 			val outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new NativeApplicationOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(runtimeElements), Configuration.class), project.getObjects())));
-			entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(ModelProperties.getProperty(entity, "dependencies").as(NativeComponentDependencies.class)::get, outgoing.get()));
+			entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(() -> (NativeComponentDependencies) ModelNodeUtils.get(entity, DependencyAwareComponent.class).getDependencies(), outgoing.get()));
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			if (!parent.get().hasComponent(typeOf(NativeLibraryTag.class))) {
@@ -469,7 +474,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			} else {
 				outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new NativeLibraryOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(apiElements), Configuration.class), ModelNodeUtils.get(ModelNodes.of(linkElements), Configuration.class), ModelNodeUtils.get(ModelNodes.of(runtimeElements), Configuration.class), project.getObjects())));
 			}
-			entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(ModelProperties.getProperty(entity, "dependencies").as(NativeComponentDependencies.class)::get, outgoing.get()));
+			entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(() -> (NativeComponentDependencies) ModelNodeUtils.get(entity, DependencyAwareComponent.class).getDependencies(), outgoing.get()));
 		})));
 
 		project.getPluginManager().apply(NativeCompileCapabilityPlugin.class);

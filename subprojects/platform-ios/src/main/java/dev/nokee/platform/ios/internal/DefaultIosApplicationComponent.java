@@ -23,6 +23,7 @@ import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -34,10 +35,11 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -61,6 +63,7 @@ import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
@@ -102,7 +105,7 @@ import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements ComponentMixIn
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponent<NativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, ComponentSources>
 	, ModelBackedVariantAwareComponentMixIn<IosApplication>
 	, ModelBackedBinaryAwareComponentMixIn
@@ -118,7 +121,8 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelRegistry registry) {
+	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;
@@ -129,8 +133,8 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	}
 
 	@Override
-	public NativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
+	public DefaultNativeComponentDependencies getDependencies() {
+		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override
