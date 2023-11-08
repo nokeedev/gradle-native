@@ -46,9 +46,10 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
@@ -64,6 +65,7 @@ import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
@@ -96,7 +98,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeLibraryExtension.class, new ModelObjectFactory<DefaultNativeLibraryExtension>(project, IsComponent.class) {
 			@Override
 			protected DefaultNativeLibraryExtension doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeLibraryExtension.class, model(project, registryOf(DependencyBucket.class)));
+				return project.getObjects().newInstance(DefaultNativeLibraryExtension.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
 			}
 		});
 
@@ -127,14 +129,15 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
-		, HasAssembleTaskMixIn
+		, AssembleTaskMixIn
 		, HasDevelopmentVariantMixIn<NativeLibrary>
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
 		@Inject
-		public DefaultNativeLibraryExtension(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		public DefaultNativeLibraryExtension(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
 			getExtensions().create("dependencies", DefaultNativeLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
+			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		}
 
 		@Override

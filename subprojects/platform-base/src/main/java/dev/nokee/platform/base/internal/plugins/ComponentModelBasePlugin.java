@@ -126,11 +126,11 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<DependencyBucket>> DEPENDENCY_BUCKET_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<DependencyBucket>>() {};
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Artifact>> ARTIFACT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Artifact>>() {};
 
-	public static ExtensiblePolymorphicDomainObjectContainer<Component> components(Project project) {
+	public static ExtensiblePolymorphicDomainObjectContainer<Component> components(ExtensionAware project) {
 		return project.getExtensions().getByType(COMPONENT_CONTAINER_TYPE);
 	}
 
-	public static ExtensiblePolymorphicDomainObjectContainer<Variant> variants(Project project) {
+	public static ExtensiblePolymorphicDomainObjectContainer<Variant> variants(ExtensionAware project) {
 		return project.getExtensions().getByType(VARIANT_CONTAINER_TYPE);
 	}
 

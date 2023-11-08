@@ -15,66 +15,41 @@
  */
 package dev.nokee.platform.base.internal.assembletask;
 
-import dev.nokee.model.internal.IdentifierDisplayNameComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
-import dev.nokee.platform.base.internal.tasks.TaskGroupComponent;
-import dev.nokee.platform.base.internal.tasks.TaskName;
-import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
-import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
-import static java.lang.String.format;
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.BUILD_GROUP;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.utils.TaskUtils.configureBuildGroup;
+import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public class AssembleTaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
 	public void apply(T target) {
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(target.getExtensions().getByType(ModelRegistry.class))));
-		target.getExtensions().getByType(ModelConfigurer.class)
-			.configure(new ConfigureAssembleTaskDescriptionRule());
-		target.getExtensions().getByType(ModelConfigurer.class)
-			.configure(new ConfigureAssembleTaskGroupRule());
+		components(target).configureEach(new ConfigureAssembleTaskDescriptionRule<>());
+		variants(target).configureEach(new ConfigureAssembleTaskDescriptionRule<>());
+
+		components(target).configureEach(new ConfigureAssembleTaskGroupRule<>());
+		variants(target).configureEach(new ConfigureAssembleTaskGroupRule<>());
 	}
 
-	private static final class ConfigureAssembleTaskDescriptionRule extends ModelActionWithInputs.ModelAction3<AssembleTaskComponent, IdentifierDisplayNameComponent, ModelState.IsAtLeastRealized> {
+	private static final class ConfigureAssembleTaskDescriptionRule<TargetType> implements Action<TargetType> {
 		@Override
-		protected void execute(ModelNode entity, AssembleTaskComponent assembleTask, IdentifierDisplayNameComponent displayName, ModelState.IsAtLeastRealized ignored) {
-			assembleTask.get().addComponent(new TaskDescriptionComponent(() -> format("Assembles the outputs of the %s.", displayName.get())));
+		public void execute(TargetType target) {
+			if (target instanceof HasAssembleTask) {
+				((HasAssembleTask) target).getAssembleTask().configure(configureDescription("Assembles the outputs of the %s.", target));
+			}
 		}
 	}
 
-	private static final class ConfigureAssembleTaskGroupRule extends ModelActionWithInputs.ModelAction2<AssembleTaskComponent, IdentifierComponent> {
+	private static final class ConfigureAssembleTaskGroupRule<TargetType> implements Action<TargetType> {
 		@Override
-		protected void execute(ModelNode entity, AssembleTaskComponent assembleTask, IdentifierComponent identifier) {
-			assembleTask.get().addComponent(new TaskGroupComponent(BUILD_GROUP));
-		}
-	}
-
-	private static final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInputs.ModelAction2<ModelComponentTag<HasAssembleTaskMixIn.Tag>, IdentifierComponent> {
-		private final ModelRegistry registry;
-
-		public RegisterAssembleLifecycleTaskRule(ModelRegistry registry) {
-			this.registry = registry;
-		}
-
-		@Override
-		protected void execute(ModelNode entity, ModelComponentTag<HasAssembleTaskMixIn.Tag> ignored1, IdentifierComponent identifier) {
-			val task = registry.instantiate(newEntity(identifier.get().child(TaskName.of(ASSEMBLE_TASK_NAME)), Task.class, it -> it.ownedBy(entity)));
-			entity.addComponent(new AssembleTaskComponent(task));
-			ModelStates.register(task);
+		public void execute(TargetType target) {
+			if (target instanceof HasAssembleTask) {
+				((HasAssembleTask) target).getAssembleTask().configure(configureBuildGroup());
+			}
 		}
 	}
 }

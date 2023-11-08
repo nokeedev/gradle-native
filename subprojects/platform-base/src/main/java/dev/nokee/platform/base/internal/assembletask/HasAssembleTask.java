@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package dev.nokee.platform.base.internal.assembletask;
 
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
-@DomainObjectEntities.Tag(HasAssembleTaskMixIn.Tag.class)
-public interface HasAssembleTaskMixIn {
-	default TaskProvider<Task> getAssembleTask() {
-		return (TaskProvider<Task>) ModelElements.of(this, AssembleTaskComponent.class).as(Task.class).asProvider();
-	}
-
-	interface Tag extends ModelTag {}
+public interface HasAssembleTask {
+	TaskProvider<Task> getAssembleTask();
 }

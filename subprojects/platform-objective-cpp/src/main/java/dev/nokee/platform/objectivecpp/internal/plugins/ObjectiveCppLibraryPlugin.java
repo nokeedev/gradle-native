@@ -45,9 +45,10 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
@@ -62,6 +63,7 @@ import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
@@ -93,7 +95,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCppLibrary.class, new ModelObjectFactory<DefaultObjectiveCppLibrary>(project, IsComponent.class) {
 			@Override
 			protected DefaultObjectiveCppLibrary doCreate(String name) {
-				return project.getObjects().newInstance(DefaultObjectiveCppLibrary.class, model(project, registryOf(DependencyBucket.class)));
+				return project.getObjects().newInstance(DefaultObjectiveCppLibrary.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
 			}
 		});
 
@@ -125,7 +127,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
-		, HasAssembleTaskMixIn
+		, AssembleTaskMixIn
 		, ObjectiveCppSourcesMixIn
 		, PrivateHeadersMixIn
 		, HasPublicHeadersMixIn
@@ -133,8 +135,9 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
 		@Inject
-		public DefaultObjectiveCppLibrary(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		public DefaultObjectiveCppLibrary(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
 			getExtensions().create("dependencies", DefaultNativeLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
+			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		}
 
 		@Override

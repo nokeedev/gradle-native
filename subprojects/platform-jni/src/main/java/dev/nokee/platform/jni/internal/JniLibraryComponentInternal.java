@@ -33,7 +33,7 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -47,7 +47,6 @@ import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -65,6 +64,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, ModelBackedTargetLinkageAwareComponentMixIn
 	, HasDevelopmentVariantMixIn<JniLibrary>
 	, HasDevelopmentBinary
+	, AssembleTaskMixIn
 {
 	@Inject
 	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects) {
@@ -111,11 +111,6 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return ModelBackedVariantAwareComponentMixIn.super.getBuildVariants();
-	}
-
-	@SuppressWarnings("unchecked")
-	public TaskProvider<Task> getAssembleTask() {
-		return (TaskProvider<Task>) getExtensions().getByName("assembleTask");
 	}
 
 	public String toString() {
