@@ -15,11 +15,9 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -46,6 +44,5 @@ public final class TargetLinkagesPropertyRegistrationRule extends ModelActionWit
 			.elementType(TargetLinkage.class)
 			.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
 			.build()).build());
-		entity.addComponent(new TargetLinkagesPropertyComponent(ModelNodes.of(targetLinkages)));
 	}
 }

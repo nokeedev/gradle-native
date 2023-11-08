@@ -54,6 +54,7 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -116,6 +117,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 
 	@DomainObjectEntities.Tag(IsComponent.class)
 	public static /*final*/ abstract class DefaultObjectiveCppLibrary extends ModelElementSupport implements ObjectiveCppLibrary, ModelNodeAware
+		, NativeLibraryComponent
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>

@@ -18,7 +18,6 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -27,7 +26,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import lombok.val;
 
 public final class TargetBuildTypesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
@@ -45,8 +43,6 @@ public final class TargetBuildTypesPropertyRegistrationRule extends ModelActionW
 		val targetBuildTypes = registry.register(ModelRegistration.builder().withComponent(new ElementNameComponent("targetBuildTypes")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.newAxisProperty()
 			.elementType(TargetBuildType.class)
 			.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
-			.defaultValue(TargetBuildTypes.DEFAULT)
 			.build()).build());
-		entity.addComponent(new TargetBuildTypesPropertyComponent(ModelNodes.of(targetBuildTypes)));
 	}
 }

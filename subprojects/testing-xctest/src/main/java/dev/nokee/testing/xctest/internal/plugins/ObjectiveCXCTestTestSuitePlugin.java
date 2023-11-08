@@ -23,7 +23,6 @@ import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -61,23 +60,16 @@ import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyComponent;
-import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
-import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependenciesComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.IsTestComponent;
-import dev.nokee.testing.base.internal.TestedComponentPropertyComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.xctest.internal.BaseXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
@@ -95,7 +87,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -107,6 +98,7 @@ import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
@@ -185,17 +177,16 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 			component.getVariants().get(); // Force realization, for now
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.BUNDLE));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetBuildTypesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetBuildTypes, testedComponent) -> {
-			((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get())
-				.convention(ImmutableSet.of(TargetBuildTypes.DEFAULT));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetMachinesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetMachines, testedComponent) -> {
-			((SetProperty<TargetMachine>) targetMachines.get().get(GradlePropertyComponent.class).get())
-				.convention(ImmutableSet.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
-		}));
+
+		components(project).withType(BaseXCTestTestSuiteComponent.class).configureEach(component -> {
+			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.BUNDLE));
+		});
+		components(project).withType(BaseXCTestTestSuiteComponent.class).configureEach(component -> {
+			component.getTargetBuildTypes().convention(ImmutableSet.of(TargetBuildTypes.DEFAULT));
+		});
+		components(project).withType(BaseXCTestTestSuiteComponent.class).configureEach(component -> {
+			component.getTargetMachines().convention(ImmutableSet.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
+		});
 
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			BaseNativeComponent<?> application = ModelNodeUtils.get(ModelNodes.of(project.getExtensions().getByType(ObjectiveCIosApplication.class)), BaseNativeComponent.class);

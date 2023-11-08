@@ -102,6 +102,9 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
+import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
+import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
@@ -109,8 +112,10 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationTag;
 import dev.nokee.platform.nativebase.internal.NativeExecutableBinaryComponent;
+import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryTag;
 import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinaryComponent;
 import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinaryComponent;
@@ -122,7 +127,6 @@ import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFac
 import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyRegistrationRule;
-import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
 import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyRegistrationRule;
 import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyRegistrationRule;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
@@ -146,9 +150,10 @@ import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransform
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
-import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
+import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
+import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.utils.ConfigurationUtils;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
@@ -163,7 +168,6 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Sync;
 
 import java.util.Arrays;
@@ -198,6 +202,7 @@ import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
+import static java.util.Collections.singletonList;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
 	@Override
@@ -483,14 +488,28 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeArchiveCapabilityPlugin.class);
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new TargetMachinesPropertyRegistrationRule(project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class), project.getObjects().newInstance(ToolChainSelectorInternal.class))));
+		components(project).configureEach(component -> {
+			if (component instanceof TargetMachineAwareComponent) {
+				((TargetMachineAwareComponent) component).getTargetMachines().convention(singletonList(TargetMachines.host()));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new TargetBuildTypesPropertyRegistrationRule(project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
+		components(project).configureEach(component -> {
+			if (component instanceof TargetBuildTypeAwareComponent) {
+				((TargetBuildTypeAwareComponent) component).getTargetBuildTypes().convention(singletonList(TargetBuildTypes.DEFAULT));
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new TargetLinkagesPropertyRegistrationRule(project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeApplicationTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeLibraryTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.SHARED));
-		}));
+		components(project).configureEach(component -> {
+			if (component instanceof NativeApplicationComponent && component instanceof TargetLinkageAwareComponent) {
+				((TargetLinkageAwareComponent) component).getTargetLinkages().convention(singletonList(TargetLinkages.EXECUTABLE));
+			}
+		});
+		components(project).configureEach(component -> {
+			if (component instanceof NativeLibraryComponent && component instanceof TargetLinkageAwareComponent) {
+				((TargetLinkageAwareComponent) component).getTargetLinkages().convention(singletonList(TargetLinkages.SHARED));
+			}
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(LinkLibrariesConfiguration.class), ModelComponentReference.of(ParentComponent.class), (e, linkLibraries, parent) -> {
 			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(linkLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, LinkOnlyConfigurationComponent.class))));

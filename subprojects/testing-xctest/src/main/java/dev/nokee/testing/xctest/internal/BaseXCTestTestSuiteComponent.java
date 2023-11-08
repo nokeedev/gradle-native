@@ -34,6 +34,9 @@ import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
+import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
@@ -66,6 +69,9 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements TestSuiteComponent
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, BinaryAwareComponent
+	, TargetMachineAwareComponent
+	, TargetLinkageAwareComponent
+	, TargetBuildTypeAwareComponent
 {
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;

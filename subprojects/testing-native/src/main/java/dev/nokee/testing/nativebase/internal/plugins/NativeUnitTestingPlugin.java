@@ -31,7 +31,6 @@ import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -40,8 +39,6 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
@@ -69,10 +66,9 @@ import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationC
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyComponent;
-import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
-import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
@@ -81,9 +77,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDepen
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
@@ -103,13 +96,10 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 
 import java.util.Collections;
-import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
@@ -120,6 +110,7 @@ import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class NativeUnitTestingPlugin implements Plugin<Project> {
@@ -197,33 +188,29 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			component.finalizeExtension(project);
 			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), ModelComponentReference.of(TargetBuildTypesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetBuildTypes, testedComponent) -> {
-			((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get())
-				.convention(((Property<Component>) testedComponent.get().get(GradlePropertyComponent.class).get())
-					.flatMap(component -> {
-						val property = ModelProperties.findProperty(component, "targetBuildTypes");
-						if (property.isPresent()) {
-							return ((ModelProperty<Set<TargetBuildType>>) property.get()).asProvider();
-						} else {
-							return ProviderUtils.notDefined();
-						}
-					}).orElse(ImmutableSet.of(TargetBuildTypes.DEFAULT)));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), ModelComponentReference.of(TargetMachinesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetMachines, testedComponent) -> {
-			((SetProperty<TargetMachine>) targetMachines.get().get(GradlePropertyComponent.class).get())
-				.convention(((Property<Component>) testedComponent.get().get(GradlePropertyComponent.class).get())
-					.flatMap(component -> {
-						val property = ModelProperties.findProperty(component, "targetMachines");
-						if (property.isPresent()) {
-							return ((ModelProperty<Set<TargetMachine>>) property.get()).asProvider();
-						} else {
-							return ProviderUtils.notDefined();
-						}
-					}).orElse(ImmutableSet.of(TargetMachines.host())));
-		}));
+		components(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
+			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
+		});
+		components(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
+			component.getTargetBuildTypes().convention(component.getTestedComponent()
+				.flatMap(it -> {
+					if (it instanceof TargetBuildTypeAwareComponent) {
+						return ((TargetBuildTypeAwareComponent) it).getTargetBuildTypes();
+					} else {
+						return ProviderUtils.notDefined();
+					}
+				}).orElse(ImmutableSet.of(TargetBuildTypes.DEFAULT)));
+		});
+		components(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
+			component.getTargetMachines().convention(component.getTestedComponent()
+				.flatMap(it -> {
+					if (it instanceof TargetMachineAwareComponent) {
+						return ((TargetMachineAwareComponent) it).getTargetMachines();
+					} else {
+						return ProviderUtils.notDefined();
+					}
+				}).orElse(ImmutableSet.of(TargetMachines.host())));
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), (entity, ignored1) -> {
 			if (project.getPlugins().hasPlugin(CLanguageBasePlugin.class)) {
 				entity.addComponentTag(SupportCSourceSetTag.class);

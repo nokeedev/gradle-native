@@ -17,11 +17,9 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.Streams;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -30,7 +28,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.val;
 
 import java.util.List;
@@ -54,10 +51,8 @@ public final class TargetMachinesPropertyRegistrationRule extends ModelActionWit
 	protected void execute(ModelNode entity, ModelProjection tag) {
 		val targetMachines = registry.register(ModelRegistration.builder().withComponent(new ElementNameComponent("targetMachines")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.newAxisProperty()
 			.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
-			.defaultValue(TargetMachines.host())
 			.validateUsing((Iterable<Coordinate<TargetMachine>> it) -> assertTargetMachinesAreKnown(it, toolChainSelector))
 			.build()).build());
-		entity.addComponent(new TargetMachinesPropertyComponent(ModelNodes.of(targetMachines)));
 	}
 
 	private static void assertTargetMachinesAreKnown(Iterable<Coordinate<TargetMachine>> targetMachines, ToolChainSelectorInternal toolChainSelector) {

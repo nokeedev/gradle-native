@@ -57,6 +57,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
@@ -119,6 +120,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 
 	@DomainObjectEntities.Tag({NativeSourcesAwareTag.class, IsComponent.class})
 	public static /*final*/ abstract class DefaultNativeLibraryExtension extends ModelElementSupport implements NativeLibraryExtension, ModelNodeAware
+		, NativeLibraryComponent
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
