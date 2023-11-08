@@ -18,7 +18,7 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.utils.ConfigureUtils;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -37,6 +37,6 @@ public interface ModelBackedTaskAwareComponentMixIn extends TaskAwareComponent {
 
 	@Override
 	default void tasks(@SuppressWarnings("rawtypes") Closure closure) {
-		tasks(ConfigureUtils.configureUsing(closure));
+		tasks(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

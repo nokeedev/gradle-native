@@ -18,7 +18,12 @@ package dev.nokee.platform.base.internal;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.VariantDimensions;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
@@ -36,15 +41,13 @@ public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extend
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	default void variants(Action<? super VariantView<T>> action) {
-		ModelProperties.getProperty(this, "variants").as((Class<VariantView<T>>)new TypeToken<VariantView<T>>(getClass()) {}.getRawType()).configure(action);
+		action.execute(getVariants());
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	default void variants(@SuppressWarnings("rawtypes") Closure closure) {
-		ModelProperties.getProperty(this, "variants").as((Class<VariantView<T>>)new TypeToken<VariantView<T>>(getClass()) {}.getRawType()).configure(closure);
+		variants(new ClosureWrappedConfigureAction<>(closure));
 	}
 
 	@Override

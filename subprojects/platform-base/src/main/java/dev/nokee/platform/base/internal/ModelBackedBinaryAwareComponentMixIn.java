@@ -20,7 +20,7 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.utils.ConfigureUtils;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 
@@ -38,6 +38,6 @@ public interface ModelBackedBinaryAwareComponentMixIn extends BinaryAwareCompone
 
 	@Override
 	default void binaries(@SuppressWarnings("rawtypes") Closure closure) {
-		binaries(ConfigureUtils.configureUsing(closure));
+		binaries(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

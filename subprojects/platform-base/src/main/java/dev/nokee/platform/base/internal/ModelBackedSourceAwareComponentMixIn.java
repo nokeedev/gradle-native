@@ -19,6 +19,7 @@ import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.SourceAwareComponent;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 
@@ -30,14 +31,12 @@ public interface ModelBackedSourceAwareComponentMixIn<T extends ComponentSources
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	default void sources(Action<? super T> action) {
-		ModelProperties.getProperty(this, "sources").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).configure(action);
+		action.execute(getSources());
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	default void sources(@SuppressWarnings("rawtypes") Closure closure) {
-		ModelProperties.getProperty(this, "sources").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).configure(closure);
+		sources(new ClosureWrappedConfigureAction<>(closure));
 	}
 }
