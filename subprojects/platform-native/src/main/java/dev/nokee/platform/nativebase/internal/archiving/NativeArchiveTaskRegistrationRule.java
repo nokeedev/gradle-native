@@ -23,20 +23,13 @@ import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.HasCreateTask;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.utils.TextCaseUtils;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
@@ -58,30 +51,24 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.CollectionProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<ModelProjection, IdentifierComponent> {
-	private final ModelRegistry registry;
+final class NativeArchiveTaskRegistrationRule implements Action<Artifact> {
 	private final NativeToolChainSelector toolChainSelector;
 
-	public NativeArchiveTaskRegistrationRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.ofProjection(HasCreateTaskMixIn.class), ModelComponentReference.of(IdentifierComponent.class));
-		this.registry = registry;
+	public NativeArchiveTaskRegistrationRule(NativeToolChainSelector toolChainSelector) {
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection projection, IdentifierComponent identifier) {
-		val implementationType = CreateStaticLibraryTask.class;
-
-		val createTask = registry.register(newEntity(identifier.get().child(TaskName.of("create")), CreateStaticLibraryTask.class, it -> it.ownedBy(entity)));
-//		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
-		createTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
-		entity.addComponent(new NativeArchiveTask(ModelNodes.of(createTask)));
+	public void execute(Artifact target) {
+		if (target instanceof HasCreateTask) {
+//			linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
+			((HasCreateTask) target).getCreateTask().configure(configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
+		}
 	}
 
 	//region Destination directory

@@ -50,10 +50,10 @@ public class NativeArchiveCapabilityPlugin<T extends ExtensionAware & PluginAwar
 	@Override
 	public void apply(T target) {
 		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
-		configurer.configure(new OnDiscover(new NativeArchiveTaskRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers))));
+		artifacts(target).configureEach(new NativeArchiveTaskRegistrationRule(new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers)));
 		artifacts(target).configureEach(new ConfigureCreateTaskFromBaseNameRule());
-		configurer.configure(new ConfigureCreateTaskTargetPlatformFromBuildVariantRule(target.getExtensions().getByType(ModelRegistry.class)));
-		configurer.configure(new AttachObjectFilesToCreateTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
+		configurer.configure(new ConfigureCreateTaskTargetPlatformFromBuildVariantRule());
+		configurer.configure(new AttachObjectFilesToCreateTaskRule());
 		artifacts(target).configureEach(new ConfigureCreateTaskDescriptionRule());
 		artifacts(target).configureEach(it -> {
 			if (it instanceof HasCreateTask) {

@@ -17,9 +17,12 @@ package dev.nokee.platform.nativebase.internal.linking;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.HasLinkTask;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.utils.ActionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -33,23 +36,21 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
-final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.ModelAction3<DependentLinkLibraries, DependentFrameworks, NativeLinkTask> {
-	private final ModelRegistry registry;
-
-	public AttachLinkLibrariesToLinkTaskRule(ModelRegistry registry) {
-		this.registry = registry;
+final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.ModelAction3<DependentLinkLibraries, DependentFrameworks, ModelProjection> {
+	public AttachLinkLibrariesToLinkTaskRule() {
+		super(ModelComponentReference.of(DependentLinkLibraries.class), ModelComponentReference.of(DependentFrameworks.class), ModelComponentReference.ofProjection(HasLinkTask.class));
 	}
 
 	@Override
-	protected void execute(ModelNode entity, DependentLinkLibraries incomingLibraries, DependentFrameworks incomingFrameworks, NativeLinkTask linkTask) {
-		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLibraries(from(incomingLibraries))));
-		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(asFrameworkFlags(incomingFrameworks)))));
+	@SuppressWarnings("unchecked")
+	protected void execute(ModelNode entity, DependentLinkLibraries incomingLibraries, DependentFrameworks incomingFrameworks, ModelProjection ignored) {
+		ModelNodeUtils.get(entity, HasLinkTask.class).getLinkTask().configure(configureLibraries(from(incomingLibraries)));
+		ModelNodeUtils.get(entity, HasLinkTask.class).getLinkTask().configure(configureLinkerArgs(addAll(asFrameworkFlags(incomingFrameworks))));
 	}
 
 	//region Link libraries

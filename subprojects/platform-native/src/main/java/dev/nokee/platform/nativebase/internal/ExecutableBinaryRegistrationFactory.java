@@ -20,9 +20,9 @@ import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -31,14 +31,15 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
-import dev.nokee.platform.nativebase.internal.linking.HasLinkTaskMixIn;
+import dev.nokee.platform.nativebase.internal.linking.LinkTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
+import org.gradle.api.Task;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -63,11 +64,10 @@ public final class ExecutableBinaryRegistrationFactory {
 	}
 
 	public static /*final*/ abstract class ModelBackedExecutableBinary extends ModelElementSupport implements ExecutableBinary, ModelNodeAware
-		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
 		, HasLinkLibrariesDependencyBucket
 		, HasRuntimeLibrariesDependencyBucket
-		, HasLinkTaskMixIn<LinkExecutable>
+		, LinkTaskMixIn<LinkExecutable, LinkExecutableTask>
 		, HasObjectFilesToBinaryTask
 	{
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -75,7 +75,8 @@ public final class ExecutableBinaryRegistrationFactory {
 		private final ObjectFactory objectFactory;
 
 		@Inject
-		public ModelBackedExecutableBinary(ObjectFactory objectFactory) {
+		public ModelBackedExecutableBinary(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objectFactory) {
+			getExtensions().add("linkTask", taskRegistry.register(getIdentifier().child(TaskName.of("link")), LinkExecutableTask.class).asProvider());
 			this.objectFactory = objectFactory;
 		}
 
@@ -83,11 +84,6 @@ public final class ExecutableBinaryRegistrationFactory {
 		@SuppressWarnings("unchecked")
 		public TaskView<SourceCompile> getCompileTasks() {
 			return ModelProperties.getProperty(this, "compileTasks").as(TaskView.class).get();
-		}
-
-		@Override
-		public TaskProvider<LinkExecutable> getLinkTask() {
-			return (TaskProvider<LinkExecutable>) ModelElements.of(this).element("link", LinkExecutable.class).asProvider();
 		}
 
 		@Override
@@ -114,7 +110,7 @@ public final class ExecutableBinaryRegistrationFactory {
 
 		@Override
 		public TaskProvider<LinkExecutableTask> getCreateOrLinkTask() {
-			return (TaskProvider<LinkExecutableTask>) ModelElements.of(this).element("link", LinkExecutableTask.class).asProvider();
+			return getLinkTask();
 		}
 
 		@Override

@@ -15,13 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal.linking;
 
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.compiling.ObjectFiles;
-import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Task;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -32,16 +33,15 @@ import java.util.function.BiConsumer;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class AttachObjectFilesToLinkTaskRule extends ModelActionWithInputs.ModelAction2<ObjectFiles, NativeLinkTask> {
-	private final ModelRegistry registry;
-
-	public AttachObjectFilesToLinkTaskRule(ModelRegistry registry) {
-		this.registry = registry;
+final class AttachObjectFilesToLinkTaskRule extends ModelActionWithInputs.ModelAction2<ObjectFiles, ModelProjection> {
+	public AttachObjectFilesToLinkTaskRule() {
+		super(ModelComponentReference.of(ObjectFiles.class), ModelComponentReference.ofProjection(HasLinkTask.class));
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ObjectFiles objectFiles, NativeLinkTask linkTask) {
-		registry.instantiate(ModelAction.configure(linkTask.get().getId(), ObjectLink.class, configureSource(from(objectFiles))));
+	@SuppressWarnings("unchecked")
+	protected void execute(ModelNode entity, ObjectFiles objectFiles, ModelProjection ignored) {
+		ModelNodeUtils.get(entity, HasLinkTask.class).getLinkTask().configure(configureSource(from(objectFiles)));
 	}
 
 	//region Task sources

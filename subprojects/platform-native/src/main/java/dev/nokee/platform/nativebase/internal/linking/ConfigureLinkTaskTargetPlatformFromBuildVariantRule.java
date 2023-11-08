@@ -16,15 +16,16 @@
 package dev.nokee.platform.nativebase.internal.linking;
 
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
-import dev.nokee.platform.nativebase.tasks.ObjectLink;
+import dev.nokee.platform.nativebase.HasLinkTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -38,16 +39,15 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class ConfigureLinkTaskTargetPlatformFromBuildVariantRule extends ModelActionWithInputs.ModelAction2<BuildVariantComponent, NativeLinkTask> {
-	private final ModelRegistry registry;
-
-	public ConfigureLinkTaskTargetPlatformFromBuildVariantRule(ModelRegistry registry) {
-		this.registry = registry;
+final class ConfigureLinkTaskTargetPlatformFromBuildVariantRule extends ModelActionWithInputs.ModelAction2<BuildVariantComponent, ModelProjection> {
+	public ConfigureLinkTaskTargetPlatformFromBuildVariantRule() {
+		super(ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.ofProjection(HasLinkTask.class));
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BuildVariantComponent buildVariant, NativeLinkTask linkTask) {
-		registry.instantiate(ModelAction.configure(linkTask.get().getId(), ObjectLink.class, configureTargetPlatform(set(fromBuildVariant(buildVariant.get())).andThen(lockProperty()))));
+	@SuppressWarnings("unchecked")
+	protected void execute(ModelNode entity, BuildVariantComponent buildVariant, ModelProjection ignored) {
+		ModelNodeUtils.get(entity, HasLinkTask.class).getLinkTask().configure(configureTargetPlatform(set(fromBuildVariant(buildVariant.get()))/*.andThen(lockProperty())*/));
 	}
 
 	//region Target platform

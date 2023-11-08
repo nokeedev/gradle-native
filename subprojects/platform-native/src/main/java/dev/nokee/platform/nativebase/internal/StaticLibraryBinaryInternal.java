@@ -16,18 +16,18 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
-import dev.nokee.platform.nativebase.internal.archiving.HasCreateTaskMixIn;
-import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTask;
-import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
+import dev.nokee.platform.nativebase.internal.archiving.CreateTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
+import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
+import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskDependency;
@@ -38,23 +38,18 @@ import javax.inject.Inject;
 @DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class, NativeLanguageSourceSetAwareTag.class})
 public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
-	, ModelBackedHasBaseNameMixIn
-	, HasCreateTaskMixIn
+	, CreateTaskMixIn
 	, HasObjectFilesToBinaryTask
 {
 	@Inject
-	public StaticLibraryBinaryInternal(ObjectFactory objects, ProviderFactory providers) {
+	public StaticLibraryBinaryInternal(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
-	}
-
-	@Override
-	public TaskProvider<CreateStaticLibrary> getCreateTask() {
-		return (TaskProvider<CreateStaticLibrary>) ModelElements.of(this, NativeArchiveTask.class).as(CreateStaticLibrary.class).asProvider();
+		getExtensions().add("createTask", taskRegistry.register(getIdentifier().child(TaskName.of("create")), CreateStaticLibraryTask.class).asProvider());
 	}
 
 	@Override
 	public TaskProvider<CreateStaticLibraryTask> getCreateOrLinkTask() {
-		return (TaskProvider<CreateStaticLibraryTask>) ModelElements.of(this, NativeArchiveTask.class).as(CreateStaticLibraryTask.class).asProvider();
+		return getCreateTask();
 	}
 
 	@Override

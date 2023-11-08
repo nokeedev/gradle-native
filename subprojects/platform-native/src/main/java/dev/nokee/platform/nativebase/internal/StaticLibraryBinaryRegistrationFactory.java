@@ -20,9 +20,9 @@ import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -31,13 +31,14 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
-import dev.nokee.platform.nativebase.internal.archiving.HasCreateTaskMixIn;
-import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
+import dev.nokee.platform.nativebase.internal.archiving.CreateTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
+import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
+import org.gradle.api.Task;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -62,9 +63,8 @@ public final class StaticLibraryBinaryRegistrationFactory {
 	}
 
 	public static /*final*/ abstract class ModelBackedStaticLibraryBinary extends ModelElementSupport implements StaticLibraryBinary, ModelNodeAware
-		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
-		, HasCreateTaskMixIn
+		, CreateTaskMixIn
 		, HasObjectFilesToBinaryTask
 	{
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -72,7 +72,8 @@ public final class StaticLibraryBinaryRegistrationFactory {
 		private final ObjectFactory objectFactory;
 
 		@Inject
-		public ModelBackedStaticLibraryBinary(ObjectFactory objectFactory) {
+		public ModelBackedStaticLibraryBinary(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objectFactory) {
+			getExtensions().add("createTask", taskRegistry.register(getIdentifier().child(TaskName.of("create")), CreateStaticLibraryTask.class).asProvider());
 			this.objectFactory = objectFactory;
 		}
 
@@ -80,11 +81,6 @@ public final class StaticLibraryBinaryRegistrationFactory {
 		@SuppressWarnings("unchecked")
 		public TaskView<SourceCompile> getCompileTasks() {
 			return ModelProperties.getProperty(this, "compileTasks").as(TaskView.class).get();
-		}
-
-		@Override
-		public TaskProvider<CreateStaticLibrary> getCreateTask() {
-			return (TaskProvider<CreateStaticLibrary>) ModelElements.of(this).element("create", CreateStaticLibrary.class).asProvider();
 		}
 
 		@Override
@@ -111,7 +107,7 @@ public final class StaticLibraryBinaryRegistrationFactory {
 
 		@Override
 		public TaskProvider<CreateStaticLibraryTask> getCreateOrLinkTask() {
-			return (TaskProvider<CreateStaticLibraryTask>) ModelElements.of(this).element("create", CreateStaticLibraryTask.class).asProvider();
+			return getCreateTask();
 		}
 
 		@Override

@@ -51,12 +51,12 @@ public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> 
 		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
 		configurer.configure(new AttachAttributesToConfigurationRule<>(LinkLibrariesConfiguration.class, target.getExtensions().getByType(ModelRegistry.class), objects));
 		configurer.configure(new OnDiscover(new LinkLibrariesConfigurationRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), objects)));
-		configurer.configure(new OnDiscover(new NativeLinkTaskRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers))));
-		configurer.configure(new AttachLinkLibrariesToLinkTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
+		artifacts(target).configureEach(new NativeLinkTaskRegistrationRule(new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers)));
+		configurer.configure(new AttachLinkLibrariesToLinkTaskRule());
 		artifacts(target).configureEach(new ConfigureLinkTaskFromBaseNameRule());
-		configurer.configure(new AttachObjectFilesToLinkTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
+		configurer.configure(new AttachObjectFilesToLinkTaskRule());
 		artifacts(target).configureEach(new ConfigureLinkTaskDefaultsRule());
-		configurer.configure(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(target.getExtensions().getByType(ModelRegistry.class)));
+		configurer.configure(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule());
 		artifacts(target).configureEach(new ConfigureLinkTaskBundleRule());
 		artifacts(target).configureEach(new ConfigureLinkTaskDescriptionRule());
 	}

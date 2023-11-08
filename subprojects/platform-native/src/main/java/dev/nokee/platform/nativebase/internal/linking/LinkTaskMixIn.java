@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal.archiving;
+package dev.nokee.platform.nativebase.internal.linking;
 
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.platform.nativebase.HasLinkTask;
+import dev.nokee.platform.nativebase.tasks.ObjectLink;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.tasks.TaskProvider;
 
-public final class NativeArchiveTask implements ModelComponent, LinkedEntity {
-	private final ModelNode value;
-
-	public NativeArchiveTask(ModelNode value) {
-		this.value = value;
-	}
-
-	@Override
-	public ModelNode get() {
-		return value;
+public interface LinkTaskMixIn<T extends ObjectLink, U extends T> extends HasLinkTask<T>, ExtensionAware {
+	@SuppressWarnings("unchecked")
+	default TaskProvider<U> getLinkTask() {
+		return (TaskProvider<U>) getExtensions().getByName("linkTask");
 	}
 }

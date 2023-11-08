@@ -15,18 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal.archiving;
 
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.nativebase.HasCreateTask;
-import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
+import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.TaskProvider;
 
-@DomainObjectEntities.Tag(HasCreateTaskMixIn.Tag.class)
-public interface HasCreateTaskMixIn extends HasCreateTask {
-	default TaskProvider<CreateStaticLibrary> getCreateTask() {
-		return (TaskProvider<CreateStaticLibrary>) ModelElements.of(this, NativeArchiveTask.class).as(CreateStaticLibrary.class).asProvider();
+public interface CreateTaskMixIn extends HasCreateTask, ExtensionAware {
+	@SuppressWarnings("unchecked")
+	default TaskProvider<CreateStaticLibraryTask> getCreateTask() {
+		return (TaskProvider<CreateStaticLibraryTask>) getExtensions().getByName("createTask");
 	}
-
-	interface Tag extends ModelTag {}
 }

@@ -16,19 +16,19 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
-import dev.nokee.platform.nativebase.internal.linking.HasLinkTaskMixIn;
-import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
+import dev.nokee.platform.nativebase.internal.linking.LinkTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
+import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskDependency;
@@ -40,15 +40,15 @@ import javax.inject.Inject;
 @DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class, NativeLanguageSourceSetAwareTag.class})
 public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary
 	, Buildable
-	, ModelBackedHasBaseNameMixIn
-	, HasLinkTaskMixIn<LinkExecutable>
+	, LinkTaskMixIn<LinkExecutable, LinkExecutableTask>
 	, HasObjectFilesToBinaryTask
 	, HasLinkLibrariesDependencyBucket
 	, HasRuntimeLibrariesDependencyBucket
 {
 	@Inject
-	public ExecutableBinaryInternal(ObjectFactory objects, ProviderFactory providers) {
+	public ExecutableBinaryInternal(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
+		getExtensions().add("linkTask", taskRegistry.register(getIdentifier().child(TaskName.of("link")), LinkExecutableTask.class).asProvider());
 
 		getCreateOrLinkTask().configure(this::configureExecutableTask);
 	}
@@ -59,13 +59,8 @@ public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinar
 	}
 
 	@Override
-	public TaskProvider<LinkExecutable> getLinkTask() {
-		return (TaskProvider<LinkExecutable>) ModelElements.of(this, NativeLinkTask.class).as(LinkExecutable.class).asProvider();
-	}
-
-	@Override
 	public TaskProvider<LinkExecutableTask> getCreateOrLinkTask() {
-		return (TaskProvider<LinkExecutableTask>) ModelElements.of(this, NativeLinkTask.class).as(LinkExecutableTask.class).asProvider();
+		return getLinkTask();
 	}
 
 	@Override

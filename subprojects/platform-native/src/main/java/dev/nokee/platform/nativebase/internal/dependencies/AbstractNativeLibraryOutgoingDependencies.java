@@ -22,7 +22,6 @@ import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
-import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.util.internal.LazyPublishArtifact;
 import lombok.Getter;
 import lombok.val;
@@ -68,7 +67,7 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 
 	private Provider<Iterable<PublishArtifact>> getOutgoingLinkLibrary(Binary binary) {
 		if (binary instanceof SharedLibraryBinaryInternal) {
-			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(it -> ((LinkSharedLibraryTask) it).getImportLibrary().orElse(((LinkSharedLibraryTask) it).getLinkedFile())))));
+			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(it -> it.getImportLibrary().orElse(it.getLinkedFile())))));
 		} else if (binary instanceof StaticLibraryBinary) {
 			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((StaticLibraryBinary) binary).getCreateTask().flatMap(CreateStaticLibrary::getOutputFile))));
 		} else if (binary instanceof HasOutputFile) {

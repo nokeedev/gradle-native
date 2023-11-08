@@ -15,14 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal.archiving;
 
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.HasCreateTask;
 import dev.nokee.platform.nativebase.internal.compiling.ObjectFiles;
-import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
-import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Task;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -33,16 +33,14 @@ import java.util.function.BiConsumer;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class AttachObjectFilesToCreateTaskRule extends ModelActionWithInputs.ModelAction2<ObjectFiles, NativeArchiveTask> {
-	private final ModelRegistry registry;
-
-	public AttachObjectFilesToCreateTaskRule(ModelRegistry registry) {
-		this.registry = registry;
+final class AttachObjectFilesToCreateTaskRule extends ModelActionWithInputs.ModelAction2<ObjectFiles, ModelProjection> {
+	public AttachObjectFilesToCreateTaskRule() {
+		super(ModelComponentReference.of(ObjectFiles.class), ModelComponentReference.ofProjection(HasCreateTask.class));
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ObjectFiles objectFiles, NativeArchiveTask linkTask) {
-		registry.instantiate(ModelAction.configure(linkTask.get().getId(), CreateStaticLibrary.class, configureSource(from(objectFiles))));
+	protected void execute(ModelNode entity, ObjectFiles objectFiles, ModelProjection ignored) {
+		ModelNodeUtils.get(entity, HasCreateTask.class).getCreateTask().configure(configureSource(from(objectFiles)));
 	}
 
 	//region Task sources

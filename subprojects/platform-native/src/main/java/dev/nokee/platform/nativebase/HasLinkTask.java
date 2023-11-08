@@ -29,5 +29,5 @@ public interface HasLinkTask<T extends ObjectLink> {
 	 *
 	 * @return a provider of {@link ObjectLink} task, never null.
 	 */
-	TaskProvider<T> getLinkTask();
+	TaskProvider<? extends T> getLinkTask();
 }
