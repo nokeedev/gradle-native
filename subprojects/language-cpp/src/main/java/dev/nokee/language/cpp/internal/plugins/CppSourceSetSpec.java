@@ -22,7 +22,6 @@ import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.internal.DefaultCompilableNativeComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
-import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -38,7 +37,7 @@ import org.gradle.api.tasks.TaskDependency;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag({CppSourceSetTag.class, CppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
+@DomainObjectEntities.Tag({CppSourceSetTag.class, CppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
 public /*final*/ abstract class CppSourceSetSpec extends ModelElementSupport implements CppSourceSet
 	, NativeCompileTaskMixIn<CppCompileTask>
 	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>

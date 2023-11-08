@@ -19,7 +19,6 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.nativebase.internal.DefaultCompilableNativeComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
-import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
@@ -38,7 +37,7 @@ import org.gradle.api.tasks.TaskDependency;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag({ObjectiveCppSourceSetTag.class, ObjectiveCppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
+@DomainObjectEntities.Tag({ObjectiveCppSourceSetTag.class, ObjectiveCppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
 public /*final*/ abstract class ObjectiveCppSourceSetSpec extends ModelElementSupport implements ObjectiveCppSourceSet
 	, NativeCompileTaskMixIn<ObjectiveCppCompileTask>
 	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>
