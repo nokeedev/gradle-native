@@ -37,13 +37,11 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import org.gradle.api.Task;
-import org.gradle.api.provider.Property;
 
 import javax.inject.Inject;
 
@@ -54,7 +52,6 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, HasDevelopmentBinaryMixIn
 	, AssembleTaskMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -68,11 +65,6 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 	@Override
 	public DefaultNativeLibraryComponentDependencies getDependencies() {
 		return (DefaultNativeLibraryComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
-	}
-
-	@Override
-	public Property<Binary> getDevelopmentBinary() {
-		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
 	}
 
 	@Override

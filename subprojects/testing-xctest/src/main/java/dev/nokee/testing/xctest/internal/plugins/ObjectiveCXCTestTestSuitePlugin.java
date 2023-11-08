@@ -41,9 +41,9 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.GroupId;
@@ -54,10 +54,10 @@ import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurati
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
+import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
@@ -94,7 +94,6 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
@@ -108,6 +107,7 @@ import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
 public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
@@ -122,6 +122,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
 		project.getPluginManager().apply(TestingBasePlugin.class);
+
+		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
+			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -279,8 +283,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			;
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void onEachVariantDependencies(ModelNode variant, VariantComponentDependencies<?> dependencies, ProviderFactory providers) {
-		dependencies.getOutgoing().getExportedBinary().convention(providers.provider(() -> (Provider<Binary>) ModelStates.finalize(variant).get(DevelopmentBinaryPropertyComponent.class).get().get(GradlePropertyComponent.class).get()).flatMap(it -> it));
+		dependencies.getOutgoing().getExportedBinary().convention(providers.provider(() -> ModelNodeUtils.get(ModelStates.finalize(variant), HasDevelopmentBinary.class).getDevelopmentBinary()).flatMap(it -> it));
 	}
 }

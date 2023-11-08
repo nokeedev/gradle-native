@@ -33,10 +33,8 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
-import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import lombok.Getter;
@@ -52,7 +50,6 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, HasDevelopmentBinaryMixIn
 	, AssembleTaskMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -63,18 +60,11 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		this.productBundleIdentifier = objects.property(String.class);
-
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
 		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
-	}
-
-	@Override
-	public Property<Binary> getDevelopmentBinary() {
-		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
 	}
 
 	@Override

@@ -33,14 +33,11 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
-import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import org.gradle.api.Task;
-import org.gradle.api.provider.Property;
 
 import javax.inject.Inject;
 
@@ -50,7 +47,6 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, HasDevelopmentBinaryMixIn
 	, AssembleTaskMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -59,17 +55,11 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 	public DefaultXCTestTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
 		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
-	}
-
-	@Override
-	public Property<Binary> getDevelopmentBinary() {
-		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
 	}
 
 	@Override

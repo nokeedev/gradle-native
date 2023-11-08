@@ -53,10 +53,10 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -67,7 +67,6 @@ import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurati
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
@@ -80,6 +79,8 @@ import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutg
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependenciesComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -119,6 +120,7 @@ import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class NativeUnitTestingPlugin implements Plugin<Project> {
 	@Override
@@ -126,6 +128,10 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(TestingBasePlugin.class);
+
+		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
+			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+		});
 
 		val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
 		val componentRegistry = ModelNodeUtils.get(ModelNodes.of(testSuites), NodeRegistrationFactoryRegistry.class);
@@ -268,8 +274,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			;
 	}
 
-	@SuppressWarnings("unchecked")
 	private static void onEachVariantDependencies(ModelNode variant, VariantComponentDependencies<?> dependencies, ProviderFactory providers) {
-		dependencies.getOutgoing().getExportedBinary().convention(providers.provider(() -> (Provider<Binary>) ModelStates.finalize(variant).get(DevelopmentBinaryPropertyComponent.class).get().get(GradlePropertyComponent.class).get()).flatMap(it -> it));
+		dependencies.getOutgoing().getExportedBinary().convention(providers.provider(() -> ModelNodeUtils.get(ModelStates.finalize(variant), HasDevelopmentBinary.class).getDevelopmentBinary()).flatMap(it -> it));
 	}
 }

@@ -37,15 +37,11 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
-import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import org.gradle.api.Task;
-import org.gradle.api.provider.Property;
 
 import javax.inject.Inject;
 
@@ -56,7 +52,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedTaskAwareComponentMixIn
-	, HasDevelopmentBinaryMixIn
 	, AssembleTaskMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -65,17 +60,11 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	public DefaultNativeTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 	}
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
 		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
-	}
-
-	@Override
-	public Property<Binary> getDevelopmentBinary() {
-		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
 	}
 
 	@Override

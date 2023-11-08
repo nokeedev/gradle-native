@@ -39,9 +39,7 @@ public abstract class BaseVariant extends ModelElementSupport implements ModelNo
 		throw new UnsupportedOperationException();
 	}
 
-	public Property<Binary> getDevelopmentBinary() {
-		throw new UnsupportedOperationException();
-	}
+	public abstract Property<Binary> getDevelopmentBinary();
 
 	@Override
 	public ModelNode getNode() {
