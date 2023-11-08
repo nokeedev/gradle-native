@@ -31,7 +31,6 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
-import org.gradle.api.tasks.util.PatternFilterable;
 
 import javax.inject.Inject;
 
@@ -54,26 +53,6 @@ public /*final*/ abstract class JavaSourceSetSpec extends ModelElementSupport im
 
 	public TaskProvider<JavaCompile> getCompileTask() {
 		return (TaskProvider<JavaCompile>) ModelElements.of(this).element("compile", JavaCompile.class).asProvider();
-	}
-
-	@Override
-	public JavaSourceSet from(Object... paths) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setFrom(Object... paths) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public PatternFilterable getFilter() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public JavaSourceSet convention(Object... path) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

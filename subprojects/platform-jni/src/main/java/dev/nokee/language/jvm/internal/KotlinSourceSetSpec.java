@@ -32,7 +32,6 @@ import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.util.PatternFilterable;
 
 import javax.inject.Inject;
 import java.lang.reflect.InvocationTargetException;
@@ -70,26 +69,6 @@ public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport 
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return getSource().getBuildDependencies();
-	}
-
-	@Override
-	public KotlinSourceSet from(Object... paths) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setFrom(Object... paths) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public PatternFilterable getFilter() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public KotlinSourceSet convention(Object... path) {
-		throw new UnsupportedOperationException();
 	}
 
 	public interface Tag extends ModelTag {}

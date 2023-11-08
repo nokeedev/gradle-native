@@ -32,7 +32,6 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.GroovyCompile;
-import org.gradle.api.tasks.util.PatternFilterable;
 
 import javax.inject.Inject;
 
@@ -57,26 +56,6 @@ public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport 
 
 	public TaskProvider<GroovyCompile> getCompileTask() {
 		return (TaskProvider<GroovyCompile>) ModelElements.of(this).element("compile", GroovyCompile.class).asProvider();
-	}
-
-	@Override
-	public GroovySourceSet from(Object... paths) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setFrom(Object... paths) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public PatternFilterable getFilter() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public GroovySourceSet convention(Object... path) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
