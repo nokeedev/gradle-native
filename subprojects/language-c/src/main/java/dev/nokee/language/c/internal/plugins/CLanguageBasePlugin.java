@@ -21,10 +21,8 @@ import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.CSourcesComponent;
 import dev.nokee.language.c.internal.CSourcesPropertyComponent;
 import dev.nokee.language.c.internal.HasCSourcesMixIn;
-import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
-import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
@@ -95,9 +93,6 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 
 		val registrationFactory = new DefaultCSourceSetRegistrationFactory();
 		project.getExtensions().add("__nokee_defaultCSourceSetFactory", registrationFactory);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(CSourceSetSpec.Tag.class), (entity, ignored) -> {
-			entity.addComponent(new NativeCompileTypeComponent(CCompileTask.class));
-		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportCSourceSetTag.class))).findFirst().ifPresent(ignored -> {
 				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(entity));
