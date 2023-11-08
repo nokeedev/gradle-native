@@ -16,21 +16,14 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.HasDestinationDirectory;
+import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.IdentifierDisplayNameComponent;
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
@@ -46,39 +39,36 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
-import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
+import static dev.nokee.utils.TaskUtils.configureDescription;
 
-public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction4<NativeCompileTypeComponent, IdentifierComponent, ModelComponentTag<HasNativeCompileTaskMixIn.Tag>, IdentifierDisplayNameComponent> {
-	private final ModelRegistry registry;
+public final class HasNativeCompileTaskMixInRule<T> implements Action<T> {
 	private final NativeToolChainSelector toolChainSelector;
 
-	public HasNativeCompileTaskMixInRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
-		this.registry = registry;
+	public HasNativeCompileTaskMixInRule(NativeToolChainSelector toolChainSelector) {
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, ModelComponentTag<HasNativeCompileTaskMixIn.Tag> ignored, IdentifierDisplayNameComponent displayName) {
-		val implementationType = knownObject.getNativeCompileTaskType();
-
-		val compileTask = ModelNodes.of(registry.register(newEntity(identifier.get().child(TaskName.of("compile")), implementationType, it -> it.ownedBy(entity))));
-		registry.instantiate(configure(compileTask.getId(), implementationType, task -> {
-			task.setDescription(String.format("Compiles the %s.", displayName.get()));
-		}));
-		registry.instantiate(configure(compileTask.getId(), implementationType, configureDestinationDirectory(convention(forObjects(identifier.get())))));
-		registry.instantiate(configure(compileTask.getId(), implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty()))));
-		registry.instantiate(configure(compileTask.getId(), implementationType, configureObjectFiles(from(objectFilesInDestinationDirectory()))));
-		entity.addComponent(new NativeCompileTask(compileTask));
+	public void execute(T t) {
+		if (t instanceof HasCompileTask && t instanceof ModelElement) {
+			((HasCompileTask) t).getCompileTask().configure(configureDescription("Compiles the %s.", t));
+			((HasCompileTask) t).getCompileTask().configure(configureDestinationDirectory(convention(forObjects(((ModelElement) t).getIdentifier()))));
+			((HasCompileTask) t).getCompileTask().configure(configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
+			((HasCompileTask) t).getCompileTask().configure(configureObjectFiles(from(objectFilesInDestinationDirectory())));
+		}
 	}
 
 	//region Destination directory
-	private static <SELF extends Task & HasDestinationDirectory> Action<SELF> configureDestinationDirectory(BiConsumer<? super SELF, ? super PropertyUtils.Property<? extends Directory>> action) {
-		return task -> action.accept(task, wrap(task.getDestinationDirectory()));
+	private static <SELF extends Task> Action<SELF> configureDestinationDirectory(BiConsumer<? super SELF, ? super PropertyUtils.Property<? extends Directory>> action) {
+		return task -> {
+			if (task instanceof HasDestinationDirectory) {
+				action.accept(task, wrap(((HasDestinationDirectory) task).getDestinationDirectory()));
+			}
+		};
 	}
 
 	private static Function<Task, Provider<Directory>> forObjects(DomainObjectIdentifier identifier) {
@@ -108,8 +98,12 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 	//endregion
 
 	//region Object files
-	private static Action<SourceCompile> configureObjectFiles(BiConsumer<? super SourceCompile, ? super PropertyUtils.FileCollectionProperty> action) {
-		return task -> action.accept(task, wrap(objectFilesProperty(task)));
+	private static Action<Task> configureObjectFiles(BiConsumer<? super SourceCompile, ? super PropertyUtils.FileCollectionProperty> action) {
+		return task -> {
+			if (task instanceof SourceCompile) {
+				action.accept((SourceCompile) task, wrap(objectFilesProperty(task)));
+			}
+		};
 	}
 
 	private static ConfigurableFileCollection objectFilesProperty(Task task) {

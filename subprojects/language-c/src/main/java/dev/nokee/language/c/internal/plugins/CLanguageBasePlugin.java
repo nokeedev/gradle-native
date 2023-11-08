@@ -57,6 +57,7 @@ import dev.nokee.scripts.DefaultImporter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.plugins.ExtensionAware;
 
@@ -82,7 +83,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(CSourceSetSpec.class, new ModelObjectFactory<CSourceSetSpec>(project, IsLanguageSourceSet.class) {
 			@Override
 			protected CSourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(CSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
+				return project.getObjects().newInstance(CSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
 			}
 		});
 

@@ -19,7 +19,7 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.nativebase.internal.DefaultCompilableNativeComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
-import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
+import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTag;
@@ -32,7 +32,9 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskDependency;
 
 import javax.inject.Inject;
@@ -40,13 +42,14 @@ import javax.inject.Inject;
 @DomainObjectEntities.Tag({ObjectiveCSourceSetTag.class, ObjectiveCSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
 public /*final*/ abstract class ObjectiveCSourceSetSpec extends ModelElementSupport implements ObjectiveCSourceSet
 	, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet>
-	, HasNativeCompileTaskMixIn<ObjectiveCCompileTask>
+	, NativeCompileTaskMixIn<ObjectiveCCompileTask>
 	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>
 	, HasHeaderSearchPaths
 {
 	@Inject
-	public ObjectiveCSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+	public ObjectiveCSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().create("dependencies", DefaultCompilableNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
+		getExtensions().add("compileTask", taskRegistry.register(getIdentifier().child(TaskName.of("compile")), ObjectiveCCompileTask.class).asProvider());
 	}
 
 	@Override

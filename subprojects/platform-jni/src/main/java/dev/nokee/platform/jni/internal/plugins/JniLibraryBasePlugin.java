@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
@@ -40,7 +41,6 @@ import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.capabilities.variants.IsVariant;
@@ -48,6 +48,7 @@ import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -136,8 +137,6 @@ import java.util.function.Consumer;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
-import static dev.nokee.model.internal.actions.ModelAction.configureEach;
-import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
@@ -303,7 +302,13 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			// TODO: This is an external dependency meaning we should go through the component dependencies.
 			//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
 			//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
-			registry.instantiate(configureEach(descendantOf(entity.getId()), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
+			variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+				variant.getSources().configureEach(sourceSet -> {
+					if (sourceSet instanceof HasCompileTask) {
+						((HasCompileTask) sourceSet).getCompileTask().configure(includeRoots(from(jvmIncludes())));
+					}
+				});
+			});
 
 			project.getPluginManager().withPlugin("groovy", ignored -> {
 				val sourceSet = registry.register(newEntity(identifier.get().child("groovy"), GroovySourceSetSpec.class, it -> it.ownedBy(entity)));
@@ -339,12 +344,13 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 		});
 		// TODO: When discovery will be a real feature, we shouldn't need this anymore
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, ignored) -> {
+		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+			final ModelNode entity = component.getNode();
 			project.getPluginManager().withPlugin("dev.nokee.c-language", __ -> entity.addComponentTag(SupportCSourceSetTag.class));
 			project.getPluginManager().withPlugin("dev.nokee.cpp-language", __ -> entity.addComponentTag(SupportCppSourceSetTag.class));
 			project.getPluginManager().withPlugin("dev.nokee.objective-c-language", __ -> entity.addComponentTag(SupportObjectiveCSourceSetTag.class));
 			project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", __ -> entity.addComponentTag(SupportObjectiveCppSourceSetTag.class));
-		})));
+		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			component.getDevelopmentVariant().convention((Provider<? extends JniLibrary>) project.provider(new BuildableDevelopmentVariantConvention(() -> component.getVariants().getElements().get())));
 		});

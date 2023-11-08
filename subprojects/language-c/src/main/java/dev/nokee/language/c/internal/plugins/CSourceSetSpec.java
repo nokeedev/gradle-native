@@ -22,7 +22,7 @@ import dev.nokee.language.c.internal.CSourceSetTag;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.internal.DefaultCompilableNativeComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
-import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
+import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -32,7 +32,9 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskDependency;
 
 import javax.inject.Inject;
@@ -40,13 +42,14 @@ import javax.inject.Inject;
 @DomainObjectEntities.Tag({CSourceSetTag.class, CSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
 public /*final*/ abstract class CSourceSetSpec extends ModelElementSupport implements CSourceSet
 	, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet>
-	, HasNativeCompileTaskMixIn<CCompileTask>
+	, NativeCompileTaskMixIn<CCompileTask>
 	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>
 	, HasHeaderSearchPaths
 {
 	@Inject
-	public CSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+	public CSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().create("dependencies", DefaultCompilableNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
+		getExtensions().add("compileTask", taskRegistry.register(getIdentifier().child(TaskName.of("compile")), CCompileTask.class).asProvider());
 	}
 
 	@Override

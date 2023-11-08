@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
+import org.gradle.api.file.ConfigurableFileCollection;
 
-public final class ImportModulesConfigurationComponent implements ModelComponent {
-	private final ModelNode value;
-
-	public ImportModulesConfigurationComponent(ModelNode value) {
-		this.value = value;
-	}
-
-	public ModelNode get() {
-		return value;
-	}
+public interface HasImportModules {
+	ResolvableDependencyBucketSpec getImportModules();
+	ConfigurableFileCollection getDependentImportModules();
+	ConfigurableFileCollection getDependentFrameworkSearchPaths();
 }

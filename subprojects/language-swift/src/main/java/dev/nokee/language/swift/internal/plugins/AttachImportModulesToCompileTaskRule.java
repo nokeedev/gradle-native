@@ -17,40 +17,31 @@ package dev.nokee.language.swift.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.nativebase.internal.DependentFrameworkSearchPaths;
-import dev.nokee.language.nativebase.internal.NativeCompileTask;
-import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.utils.FileSystemLocationUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
-final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.ModelAction3<DependentImportModules, DependentFrameworkSearchPaths, NativeCompileTask> {
-	private final ModelRegistry registry;
-
-	public AttachImportModulesToCompileTaskRule(ModelRegistry registry) {
-		this.registry = registry;
-	}
-
+final class AttachImportModulesToCompileTaskRule implements Action<SwiftSourceSetSpec> {
 	@Override
-	protected void execute(ModelNode entity, DependentImportModules incomingModules, DependentFrameworkSearchPaths incomingFrameworks, NativeCompileTask compileTask) {
-		registry.instantiate(configure(compileTask.get().getId(), SwiftCompile.class, configureImportModules(from(incomingModules))));
-		registry.instantiate(configure(compileTask.get().getId(), SwiftCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks)))));
+	public void execute(SwiftSourceSetSpec sourceSet) {
+		sourceSet.getCompileTask().configure(configureImportModules(from(sourceSet.getDependentImportModules())));
+		sourceSet.getCompileTask().configure(configureCompilerArgs(addAll(asFrameworkSearchPathFlags(sourceSet.getDependentFrameworkSearchPaths().getElements()))));
 	}
 
 	//region Import modules
@@ -76,8 +67,8 @@ final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.M
 		return it -> ImmutableList.of("-F", it.toString());
 	}
 
-	private static Provider<Iterable<String>> asFrameworkSearchPathFlags(DependentFrameworkSearchPaths frameworksSearchPaths) {
-		return frameworksSearchPaths.getAsProvider().map(flatTransformEach(toFrameworkSearchPathFlags()));
+	private static Provider<Iterable<String>> asFrameworkSearchPathFlags(Provider<Set<FileSystemLocation>> frameworksSearchPaths) {
+		return frameworksSearchPaths.map(transformEach(FileSystemLocationUtils::asPath)).map(flatTransformEach(toFrameworkSearchPathFlags()));
 	}
 	//endregion
 }

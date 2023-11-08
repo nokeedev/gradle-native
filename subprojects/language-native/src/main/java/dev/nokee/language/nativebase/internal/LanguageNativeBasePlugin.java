@@ -18,10 +18,7 @@ package dev.nokee.language.nativebase.internal;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.project.ProjectInternal;
@@ -49,9 +46,6 @@ public class LanguageNativeBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasNativeCompileTaskMixInRule(
-			project.getExtensions().getByType(ModelRegistry.class),
-			new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders())
-		)));
+		sources(project).configureEach(new HasNativeCompileTaskMixInRule<>(new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders())));
 	}
 }

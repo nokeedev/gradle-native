@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.DisplayNameComponent;
@@ -64,11 +65,13 @@ public final class DomainObjectEntities {
 	}
 
 	public static <T> ModelRegistration newEntity(String elementName, Class<T> type, Consumer<? super Builder> builderConsumer) {
+		ModelObjectIdentifier identifier;
 		if (Task.class.isAssignableFrom(type)) {
-			return newEntity(TaskName.of(elementName), type, builderConsumer);
+			identifier = new DefaultModelObjectIdentifier(TaskName.of(elementName));
 		} else {
-			return newEntity(ElementName.of(elementName), type, builderConsumer);
+			identifier = new DefaultModelObjectIdentifier(ElementName.of(elementName));
 		}
+		return newEntity(identifier, type, builderConsumer);
 	}
 
 	public static <T> ModelRegistration newEntity(ElementName elementName, Class<T> type, Consumer<? super Builder> builderConsumer) {

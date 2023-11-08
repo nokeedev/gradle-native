@@ -15,19 +15,8 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.nativebase.internal.DependentFrameworkSearchPaths;
 import dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
+import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
@@ -41,29 +30,24 @@ import java.nio.file.Path;
 import java.util.Set;
 
 import static dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts.frameworks;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, ModelState.IsAtLeastRegistered> {
-	private final ModelRegistry registry;
+final class ImportModulesConfigurationRegistrationAction implements Action<SwiftSourceSetSpec> {
 	private final ObjectFactory objects;
 
-	ImportModulesConfigurationRegistrationAction(ModelRegistry registry, ObjectFactory objects) {
-		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
-		this.registry = registry;
+	ImportModulesConfigurationRegistrationAction(ObjectFactory objects) {
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		val importModules = registry.register(newEntity(identifier.get().child("importModules"), ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ResolvableDependencyBucketSpec.class);
-		importModules.configure(it -> forSwiftApiUsage().execute(it.getAsConfiguration()));
+	public void execute(SwiftSourceSetSpec sourceSet) {
+		Configuration importModules = sourceSet.getImportModules().getAsConfiguration();
+		forSwiftApiUsage().execute(importModules);
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(importModules));
-		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
-		entity.addComponent(new DependentImportModules(incomingArtifacts.getAs(frameworks().negate())));
-		entity.addComponent(new ImportModulesConfigurationComponent(ModelNodes.of(importModules)));
+		sourceSet.getDependentFrameworkSearchPaths().from(incomingArtifacts.getAs(frameworks()).map(parentFiles()));
+		sourceSet.getDependentImportModules().from(incomingArtifacts.getAs(frameworks().negate()));
 	}
 
 	private Action<Configuration> forSwiftApiUsage() {
@@ -74,7 +58,7 @@ final class ImportModulesConfigurationRegistrationAction extends ModelActionWith
 		return transformEach(Path::getParent).andThen(toSetTransformer(Path.class));
 	}
 
-	private Provider<ResolvableDependencies> incomingArtifactsOf(ModelElement element) {
-		return element.as(Configuration.class).map(DependencyBuckets::finalize).map(Configuration::getIncoming);
+	private Provider<ResolvableDependencies> incomingArtifactsOf(Configuration config) {
+		return ProviderUtils.fixed(config.getIncoming());
 	}
 }
