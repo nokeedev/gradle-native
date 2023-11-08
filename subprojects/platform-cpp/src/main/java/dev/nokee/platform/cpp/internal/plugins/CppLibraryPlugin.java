@@ -96,7 +96,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultCppLibrary.class, new ModelObjectFactory<DefaultCppLibrary>(project, IsComponent.class) {
 			@Override
 			protected DefaultCppLibrary doCreate(String name) {
-				return project.getObjects().newInstance(DefaultCppLibrary.class, model(project, registryOf(DependencyBucket.class)));
+				return project.getObjects().newInstance(DefaultCppLibrary.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
 			}
 		});
 

@@ -15,13 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.linking;
 
-import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -32,23 +26,25 @@ import org.gradle.api.provider.Provider;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class ConfigureLinkTaskDefaultsRule extends ModelActionWithInputs.ModelAction2<NativeLinkTask, ModelProjection> {
-	private final ModelRegistry registry;
-
-	public ConfigureLinkTaskDefaultsRule(ModelRegistry registry) {
-		super(ModelComponentReference.of(NativeLinkTask.class), ModelComponentReference.ofProjection(SharedLibraryBinary.class));
-		this.registry = registry;
-	}
-
+final class ConfigureLinkTaskDefaultsRule implements Action<Artifact> {
 	@Override
-	protected void execute(ModelNode entity, NativeLinkTask linkTask, ModelProjection tag) {
-		registry.instantiate(ModelAction.configure(linkTask.get().getId(), LinkSharedLibraryTask.class, configureInstallName(convention(ofLinkedFileFileName()))));
-		registry.instantiate(ModelAction.configure(linkTask.get().getId(), LinkSharedLibraryTask.class, configureImportLibrary(lockProperty()))); // Already has sensible default in task implementation)
+	public void execute(Artifact target) {
+		if (target instanceof SharedLibraryBinary) {
+			((SharedLibraryBinary) target).getLinkTask().configure(task -> {
+				if (task instanceof LinkSharedLibraryTask) {
+					configureInstallName(convention(ofLinkedFileFileName())).execute((LinkSharedLibraryTask) task);
+				}
+			});
+			((SharedLibraryBinary) target).getLinkTask().configure(task -> {
+				if (task instanceof LinkSharedLibraryTask) {
+					configureImportLibrary(lockProperty()).execute((LinkSharedLibraryTask) task);
+				}
+			}); // Already has sensible default in task implementation
+		}
 	}
 
 	//region Install name

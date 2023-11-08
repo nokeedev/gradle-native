@@ -16,18 +16,15 @@
 package dev.nokee.platform.nativebase.internal.archiving;
 
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
-import dev.nokee.model.internal.IdentifierDisplayNameComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
-import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
+import dev.nokee.platform.nativebase.HasCreateTask;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.plugins.ExtensionAware;
@@ -36,10 +33,11 @@ import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTaskRegistrationRule.configureDestinationDirectory;
 import static dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTaskRegistrationRule.forLibrary;
+import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public class NativeArchiveCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final ProviderFactory providers;
@@ -53,19 +51,26 @@ public class NativeArchiveCapabilityPlugin<T extends ExtensionAware & PluginAwar
 	public void apply(T target) {
 		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
 		configurer.configure(new OnDiscover(new NativeArchiveTaskRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers))));
-		configurer.configure(new ConfigureCreateTaskFromBaseNameRule(target.getExtensions().getByType(ModelRegistry.class)));
+		artifacts(target).configureEach(new ConfigureCreateTaskFromBaseNameRule());
 		configurer.configure(new ConfigureCreateTaskTargetPlatformFromBuildVariantRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new AttachObjectFilesToCreateTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
-		configurer.configure(new ConfigureCreateTaskDescriptionRule());
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasCreateTaskMixIn.class), ModelComponentReference.of(NativeArchiveTask.class), (entity, identifier, ignored1, createTask) -> {
-			target.getExtensions().getByType(ModelRegistry.class).instantiate(configure(createTask.get().getId(), CreateStaticLibrary.class, configureDestinationDirectory(convention(forLibrary(identifier.get())))));
-		}));
+		artifacts(target).configureEach(new ConfigureCreateTaskDescriptionRule());
+		artifacts(target).configureEach(it -> {
+			if (it instanceof HasCreateTask) {
+				ModelElementSupport.safeAsModelElement(it).map(ModelElement::getIdentifier).ifPresent(identifier -> {
+					((HasCreateTask) it).getCreateTask().configure(configureDestinationDirectory(convention(forLibrary(identifier))));
+				});
+
+			}
+		});
 	}
 
-	private static final class ConfigureCreateTaskDescriptionRule extends ModelActionWithInputs.ModelAction4<IdentifierComponent, NativeArchiveTask, IdentifierDisplayNameComponent, ModelState.IsAtLeastRealized> {
+	private static final class ConfigureCreateTaskDescriptionRule implements Action<Artifact> {
 		@Override
-		protected void execute(ModelNode entity, IdentifierComponent identifier, NativeArchiveTask createTask, IdentifierDisplayNameComponent displayName, ModelState.IsAtLeastRealized ignored) {
-			createTask.get().addComponent(new TaskDescriptionComponent(() -> String.format("Creates the %s.", displayName.get())));
+		public void execute(Artifact target) {
+			if (target instanceof HasCreateTask) {
+				((HasCreateTask) target).getCreateTask().configure(configureDescription("Creates the %s.", target));
+			}
 		}
 	}
 }

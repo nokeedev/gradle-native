@@ -16,17 +16,15 @@
 package dev.nokee.platform.nativebase.internal.linking;
 
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
-import dev.nokee.model.internal.IdentifierDisplayNameComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
+import dev.nokee.platform.nativebase.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
+import dev.nokee.utils.TaskUtils;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.model.ObjectFactory;
@@ -35,6 +33,8 @@ import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
+
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 
 public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final ObjectFactory objects;
@@ -53,18 +53,20 @@ public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> 
 		configurer.configure(new OnDiscover(new LinkLibrariesConfigurationRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), objects)));
 		configurer.configure(new OnDiscover(new NativeLinkTaskRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers))));
 		configurer.configure(new AttachLinkLibrariesToLinkTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
-		configurer.configure(new ConfigureLinkTaskFromBaseNameRule(target.getExtensions().getByType(ModelRegistry.class)));
+		artifacts(target).configureEach(new ConfigureLinkTaskFromBaseNameRule());
 		configurer.configure(new AttachObjectFilesToLinkTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
-		configurer.configure(new ConfigureLinkTaskDefaultsRule(target.getExtensions().getByType(ModelRegistry.class)));
+		artifacts(target).configureEach(new ConfigureLinkTaskDefaultsRule());
 		configurer.configure(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(target.getExtensions().getByType(ModelRegistry.class)));
-		configurer.configure(new ConfigureLinkTaskBundleRule(target.getExtensions().getByType(ModelRegistry.class)));
-		configurer.configure(new ConfigureLinkTaskDescriptionRule());
+		artifacts(target).configureEach(new ConfigureLinkTaskBundleRule());
+		artifacts(target).configureEach(new ConfigureLinkTaskDescriptionRule());
 	}
 
-	private static final class ConfigureLinkTaskDescriptionRule extends ModelActionWithInputs.ModelAction4<IdentifierComponent, NativeLinkTask, IdentifierDisplayNameComponent, ModelState.IsAtLeastRealized> {
+	private static final class ConfigureLinkTaskDescriptionRule implements Action<Artifact> {
 		@Override
-		protected void execute(ModelNode entity, IdentifierComponent identifier, NativeLinkTask linkTask, IdentifierDisplayNameComponent displayName, ModelState.IsAtLeastRealized ignored) {
-			linkTask.get().addComponent(new TaskDescriptionComponent(() -> String.format("Links the %s.", displayName.get())));
+		public void execute(Artifact target) {
+			if (target instanceof HasLinkTask) {
+				((HasLinkTask<?>) target).getLinkTask().configure(TaskUtils.configureDescription("Links the %s.", target));
+			}
 		}
 	}
 }

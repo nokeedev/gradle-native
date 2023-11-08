@@ -137,7 +137,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		return target.getExtensions().getByType(DEPENDENCY_BUCKET_CONTAINER_TYPE);
 	}
 
-	public static ExtensiblePolymorphicDomainObjectContainer<Artifact> artifacts(Project project) {
+	public static ExtensiblePolymorphicDomainObjectContainer<Artifact> artifacts(ExtensionAware project) {
 		return project.getExtensions().getByType(ARTIFACT_CONTAINER_TYPE);
 	}
 

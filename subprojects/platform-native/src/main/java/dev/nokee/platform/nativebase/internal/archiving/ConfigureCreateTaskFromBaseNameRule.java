@@ -15,16 +15,12 @@
  */
 package dev.nokee.platform.nativebase.internal.archiving;
 
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
+import dev.nokee.platform.base.Artifact;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.HasCreateTask;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
-import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
@@ -42,22 +38,16 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 
-final class ConfigureCreateTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction2<BaseNamePropertyComponent, NativeArchiveTask> {
-	private final ModelRegistry registry;
-
-	public ConfigureCreateTaskFromBaseNameRule(ModelRegistry registry) {
-		this.registry = registry;
-	}
-
+final class ConfigureCreateTaskFromBaseNameRule implements Action<Artifact> {
 	@Override
-	protected void execute(ModelNode entity, BaseNamePropertyComponent baseNameProperty, NativeArchiveTask createTask) {
-		@SuppressWarnings("unchecked")
-		val baseName = (Provider<String>) baseNameProperty.get().get(GradlePropertyComponent.class).get();
+	public void execute(Artifact target) {
+		if (target instanceof HasBaseName && target instanceof HasCreateTask) {
+			final Provider<String> baseName = ((HasBaseName) target).getBaseName();
 //		registry.instantiate(configure(createTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName)))));
-		registry.instantiate(configure(createTask.get().getId(), CreateStaticLibrary.class, configureOutputFile(convention(asStaticLibraryFile(baseName)))));
+			((HasCreateTask) target).getCreateTask().configure(configureOutputFile(convention(asStaticLibraryFile(baseName))));
+		}
 	}
 
 	//region Output file
