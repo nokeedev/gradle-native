@@ -35,7 +35,6 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
@@ -127,10 +126,9 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			;
 	}
 
-	@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
+	@DomainObjectEntities.Tag({NativeSourcesAwareTag.class, IsComponent.class})
 	public static abstract class DefaultNativeApplicationExtension extends ModelElementSupport implements NativeApplicationExtension, ModelNodeAware
 		, NativeApplicationComponent
-		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>

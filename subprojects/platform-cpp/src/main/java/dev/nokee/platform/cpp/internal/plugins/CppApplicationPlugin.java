@@ -35,8 +35,8 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -112,9 +112,9 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(DefaultCppApplication.class, project).create(identifier).withComponentTag(SupportCppSourceSetTag.class).build();
 	}
 
+	@DomainObjectEntities.Tag(IsComponent.class)
 	public static /*final*/ abstract class DefaultCppApplication extends ModelElementSupport implements CppApplication, ModelNodeAware
 		, NativeApplicationComponent
-		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
