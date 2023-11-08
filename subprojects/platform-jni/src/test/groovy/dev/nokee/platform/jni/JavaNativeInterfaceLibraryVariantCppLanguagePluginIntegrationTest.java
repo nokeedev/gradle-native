@@ -21,17 +21,10 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.cpp.tasks.CppCompile;
-import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.DefaultBuildVariant;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
 import lombok.val;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -46,9 +39,12 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
 import static dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentIntegrationTest.realize;
-import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
+import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 @PluginRequirement.Require(id = "dev.nokee.cpp-language")
@@ -138,12 +134,12 @@ class JavaNativeInterfaceLibraryVariantCppLanguagePluginIntegrationTest extends 
 
 		@Test
 		void usesConventionalSourceLocation() {
-			assertThat(subject().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/difi/cpp")))));
+			assertThat(sourceDirectories(subject().getSource()), providerOf(hasItem(aFile(withAbsolutePath(endsWith("/src/difi/cpp"))))));
 		}
 
 		@Test
 		void usesConventionalHeadersLocation() {
-			assertThat(((HasHeaders) subject()).getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/difi/headers")))));
+			assertThat(sourceDirectories(subject().getHeaders()), providerOf(hasItem(aFile(withAbsolutePath(endsWith("/src/difi/headers"))))));
 		}
 	}
 }

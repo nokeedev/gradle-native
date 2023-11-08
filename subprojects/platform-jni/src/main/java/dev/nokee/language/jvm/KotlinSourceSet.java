@@ -16,7 +16,6 @@
 package dev.nokee.language.jvm;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -26,6 +25,6 @@ import org.gradle.api.tasks.TaskProvider;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface KotlinSourceSet extends SelfAwareLanguageSourceSet<KotlinSourceSet> {
+public interface KotlinSourceSet extends LanguageSourceSet {
 	TaskProvider<? extends Task> getCompileTask();
 }

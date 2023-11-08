@@ -16,6 +16,7 @@
 package dev.nokee.platform.ios.internal;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.MoreCollectors;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
@@ -94,6 +95,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
+import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements ComponentMixIn
@@ -179,7 +181,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 		val compileStoryboardTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("compileStoryboard")), StoryboardCompileTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(StoryboardCompileTask.class).configure(task -> {
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/compiled/main"));
 			task.getModule().set(moduleName);
-			task.getSources().from(resources.getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")));
+			task.getSources().from(resources.getSources().getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")));
 			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
 			task.getInterfaceBuilderTool().finalizeValueOnRead();
 		}).asProvider();
@@ -193,21 +195,21 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 		}).asProvider();
 
 		val assetCatalogCompileTaskTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("compileAssetCatalog")), AssetCatalogCompileTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(AssetCatalogCompileTask.class).configure(task -> {
-			task.getSource().set(new File(resources.getSourceDirectories().getSingleFile(), "Assets.xcassets"));
+			task.getSource().set(new File(sourceDirectories(resources.getSources()).map(it -> it.stream().collect(MoreCollectors.onlyElement())).get(), "Assets.xcassets"));
 			task.getIdentifier().set(identifier);
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/assets/main"));
 			task.getAssetCompilerTool().set(assetCompilerTool);
 		}).asProvider();
 
 		val processPropertyListTask = registry.register(newEntity(variantIdentifier.child(TaskName.of("processPropertyList")), ProcessPropertyListTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(ProcessPropertyListTask.class).configure(task -> {
-			task.dependsOn(resources.getSourceDirectories());
+			task.dependsOn(resources.getSources());
 			task.getIdentifier().set(identifier);
 			task.getModule().set(moduleName);
 			task.getSources().from(providers.provider(() -> {
 				// TODO: I'm not sure we should jump through some hoops for a missing Info.plist.
 				//  I'm under the impression that a missing Info.plist file is an error and should be failing in some way.
 				// TODO: Regardless of what we do above, the "skip when empty" should be handled by the task itself
-				File plistFile = new File(resources.getSourceDirectories().getSingleFile(), "Info.plist");
+				File plistFile = new File(sourceDirectories(resources.getSources()).map(it -> it.stream().collect(MoreCollectors.onlyElement())).get(), "Info.plist");
 				if (plistFile.exists()) {
 					return ImmutableList.of(plistFile);
 				}

@@ -17,7 +17,6 @@ package dev.nokee.language.cpp;
 
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
 
 /**
@@ -26,4 +25,4 @@ import dev.nokee.language.nativebase.HasHeaders;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface CppSourceSet extends SelfAwareLanguageSourceSet<CppSourceSet>, HasSource, HasHeaders {}
+public interface CppSourceSet extends LanguageSourceSet, HasSource, HasHeaders {}

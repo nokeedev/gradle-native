@@ -25,6 +25,7 @@ import dev.nokee.ide.visualstudio.VisualStudioIdeTarget;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeProject;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeTarget;
 import dev.nokee.ide.visualstudio.internal.tasks.GenerateVisualStudioIdeProjectTask;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.HasHeaders;
@@ -71,6 +72,7 @@ import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceV
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
+import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 
@@ -107,7 +109,13 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			}
 
 			private Provider<List<? extends FileTree>> componentSources(BaseComponent<?> component) {
-				return sourceViewOf(component).getElements().map(transformEach(LanguageSourceSet::getAsFileTree));
+				return sourceViewOf(component).getElements().map(flatTransformEach(it -> {
+					if (it instanceof HasSource) {
+						return Collections.singletonList(((HasSource) it).getSource().getAsFileTree());
+					} else {
+						return Collections.emptyList();
+					}
+				}));
 			}
 
 			private Provider<List<FileTree>> componentHeaders(BaseComponent<?> component) {

@@ -16,7 +16,6 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
@@ -37,7 +36,6 @@ import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({SwiftSourceSetTag.class, SwiftSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
 public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet
-	, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>
 	, NativeCompileTaskMixIn<SwiftCompileTask>
 	, DependencyAwareComponentMixIn<DefaultSwiftComponentDependencies>
 	, HasImportModules

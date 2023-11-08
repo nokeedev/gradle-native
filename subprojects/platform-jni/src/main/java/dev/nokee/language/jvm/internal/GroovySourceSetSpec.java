@@ -17,7 +17,6 @@ package dev.nokee.language.jvm.internal;
 
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -42,7 +41,8 @@ import static dev.nokee.utils.TaskDependencyUtils.of;
 import static java.util.Objects.requireNonNull;
 
 @DomainObjectEntities.Tag({GroovySourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasSource {
+public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet
+	, HasSource {
 	@Inject
 	public GroovySourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets) {
 		NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());

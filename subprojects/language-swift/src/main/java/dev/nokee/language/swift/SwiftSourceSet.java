@@ -17,7 +17,6 @@ package dev.nokee.language.swift;
 
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 
 /**
  * A set of Swift source files.
@@ -25,4 +24,4 @@ import dev.nokee.language.base.SelfAwareLanguageSourceSet;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface SwiftSourceSet extends SelfAwareLanguageSourceSet<SwiftSourceSet>, HasSource {}
+public interface SwiftSourceSet extends LanguageSourceSet, HasSource {}

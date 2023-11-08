@@ -18,14 +18,20 @@ package dev.nokee.ide.xcode.internal.rules;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.ide.xcode.*;
+import dev.nokee.ide.xcode.XcodeIdeBuildConfiguration;
+import dev.nokee.ide.xcode.XcodeIdeGroup;
+import dev.nokee.ide.xcode.XcodeIdeProductType;
+import dev.nokee.ide.xcode.XcodeIdeProductTypes;
+import dev.nokee.ide.xcode.XcodeIdeProject;
+import dev.nokee.ide.xcode.XcodeIdeProjectExtension;
+import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildConfiguration;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeGroup;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeTarget;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNodeUtils;
@@ -39,7 +45,11 @@ import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.ios.IosResourceSet;
-import dev.nokee.platform.ios.internal.*;
+import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
+import dev.nokee.platform.ios.internal.DefaultIosApplicationVariant;
+import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
+import dev.nokee.platform.ios.internal.SignedIosApplicationBundle;
+import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
@@ -58,7 +68,11 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
-import org.gradle.api.file.*;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.file.FileVisitDetails;
+import org.gradle.api.file.FileVisitor;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -76,10 +90,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 
@@ -104,7 +118,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 
 	@Override
 	public void execute(ModelElement knownComponent) {
-		registerXcodeIdeProjectIfAbsent(extension.getProjects(), projectIdentifier.getName()).configure(configureXcodeIdeProject(knownComponent));
+		registerXcodeIdeProjectIfAbsent(extension.getProjects(), projectIdentifier.getName().toString()).configure(configureXcodeIdeProject(knownComponent));
 	}
 
 	private NamedDomainObjectProvider<XcodeIdeProject> registerXcodeIdeProjectIfAbsent(NamedDomainObjectContainer<XcodeIdeProject> container, String name) {
@@ -148,11 +162,11 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 	private FileCollection toSource(LanguageSourceSet sourceSet) {
 		if (sourceSet instanceof IosResourceSet) {
 			return objectFactory.fileCollection()
-				.from(sourceSet.getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")))
-				.from(sourceSet.getAsFileTree().matching(it -> it.exclude("*.lproj", "*.xcassets/**")))
+				.from(((IosResourceSet) sourceSet).getSources().getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")))
+				.from(((IosResourceSet) sourceSet).getSources().getAsFileTree().matching(it -> it.exclude("*.lproj", "*.xcassets/**")))
 				.from((Callable<List<File>>)() -> {
 					List<File> result = new ArrayList<>();
-					sourceSet.getAsFileTree().visit(new FileVisitor() {
+					((IosResourceSet) sourceSet).getSources().getAsFileTree().visit(new FileVisitor() {
 						@Override
 						public void visitDir(FileVisitDetails details) {
 							if (details.getName().endsWith(".xcassets")) {
@@ -168,10 +182,11 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 					return result;
 				});
 		} else if (sourceSet instanceof HasHeaders) {
-			return sourceSet.getAsFileTree().plus(((HasHeaders) sourceSet).getHeaders().getAsFileTree());
+			return ((HasSource) sourceSet).getSource().getAsFileTree().plus(((HasHeaders) sourceSet).getHeaders().getAsFileTree());
 		}
-		// TODO: Should fetch the source property
-		return sourceSet.getAsFileTree();
+
+		// TODO: We should just ignore the source set.
+		throw new UnsupportedOperationException();
 	}
 
 	private Transformer<Provider<List<XcodeIdeTarget>>, BaseComponent<?>> toXcodeIdeTargets() {

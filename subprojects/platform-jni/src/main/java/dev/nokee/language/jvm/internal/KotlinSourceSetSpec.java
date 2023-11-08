@@ -17,7 +17,6 @@ package dev.nokee.language.jvm.internal;
 
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -42,7 +41,8 @@ import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedNa
 import static java.util.Objects.requireNonNull;
 
 @DomainObjectEntities.Tag({KotlinSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport implements KotlinSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasSource {
+public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport implements KotlinSourceSet
+	, HasSource {
 	@Inject
 	public KotlinSourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets) {
 		NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());

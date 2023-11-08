@@ -16,7 +16,6 @@
 package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.CSourceSetTag;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
@@ -41,7 +40,6 @@ import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({CSourceSetTag.class, CSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
 public /*final*/ abstract class CSourceSetSpec extends ModelElementSupport implements CSourceSet
-	, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet>
 	, NativeCompileTaskMixIn<CCompileTask>
 	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>
 	, HasHeaderSearchPaths
