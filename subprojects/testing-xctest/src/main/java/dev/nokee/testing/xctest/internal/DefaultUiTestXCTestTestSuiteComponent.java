@@ -20,6 +20,7 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -82,6 +83,7 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements ComponentMixIn
+	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>

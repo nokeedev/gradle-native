@@ -18,10 +18,10 @@ package dev.nokee.platform.cpp.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.language.cpp.internal.HasCppSourcesMixIn;
+import dev.nokee.language.cpp.internal.CppSourcesMixIn;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
+import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -127,8 +127,8 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasAssembleTaskMixIn
-		, HasPrivateHeadersMixIn
-		, HasCppSourcesMixIn
+		, PrivateHeadersMixIn
+		, CppSourcesMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 

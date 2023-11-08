@@ -17,35 +17,28 @@ package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
+import dev.nokee.language.nativebase.HasPrivateHeaders;
+import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
-import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.language.nativebase.internal.NativeSourcesMixInRule;
+import dev.nokee.language.nativebase.internal.UseConventionalLayout;
 import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.language.objectivec.HasObjectiveCSources;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
-import dev.nokee.language.objectivec.internal.HasObjectiveCSourcesMixIn;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourcesComponent;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourcesPropertyComponent;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
@@ -56,20 +49,13 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.plugins.ExtensionAware;
 
-import java.util.Collections;
-import java.util.concurrent.Callable;
-
-import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
-import static dev.nokee.utils.Optionals.stream;
-import static dev.nokee.utils.ProviderUtils.disallowChanges;
 
 public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -88,6 +74,17 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		DefaultImporter.forProject(project)
 			.defaultImport(ObjectiveCSourceSet.class);
 
+		components(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("objectiveCSources", HasObjectiveCSources.class, HasObjectiveCSources::getObjectiveCSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
+		variants(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("objectiveCSources", HasObjectiveCSources.class, HasObjectiveCSources::getObjectiveCSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
+
+		components(project).configureEach(new UseConventionalLayout<>("objectiveCSources", "src/%s/objectiveC", "src/%s/objc"));
+		variants(project).configureEach(new UseConventionalLayout<>("objectiveCSources", "src/%s/objectiveC", "src/%s/objc"));
+		components(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
+		variants(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
+
+		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("objectiveCSources"));
+		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("privateHeaders"));
+
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
@@ -100,47 +97,7 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 			});
 		})));
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, objcSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/objectiveC", "src/" + fullyQualifiedName.get() + "/objc");
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, objcSources, parent) -> {
-			((ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(ObjectiveCSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasObjectiveCSourcesMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("objectiveCSources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new ObjectiveCSourcesPropertyComponent(property));
-		})));
 		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(ObjectiveCSourceSetSpec.class, "objectiveCSources"));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
-			ModelStates.finalize(swiftSources.get());
-			val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new ObjectiveCSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), (entity, objcSources) -> {
-			ModelNodeUtils.get(entity, ExtensionAware.class).getExtensions().add(ConfigurableFileCollection.class, "objectiveCSources", (ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get());
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
-			ParentUtils.stream(parent).filter(has(SupportObjectiveCSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponentTag(SupportObjectiveCSourceSetTag.class);
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportObjectiveCSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponentTag(HasObjectiveCSourcesMixIn.Tag.class);
-			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
-		}));
 	}
 
 	static final class DefaultObjectiveCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {

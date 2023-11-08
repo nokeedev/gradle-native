@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -53,6 +54,7 @@ import java.util.Set;
 
 @DomainObjectEntities.Tag({IsComponent.class, NativeSourcesAwareTag.class})
 public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
+	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<JniLibrary>

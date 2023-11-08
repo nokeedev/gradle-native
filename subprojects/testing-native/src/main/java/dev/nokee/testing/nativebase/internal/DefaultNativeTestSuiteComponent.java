@@ -21,6 +21,7 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersComponent;
 import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
@@ -122,6 +123,7 @@ import static java.util.stream.Collectors.toList;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
+	, NativeSourcesAware
 	, ComponentMixIn
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>

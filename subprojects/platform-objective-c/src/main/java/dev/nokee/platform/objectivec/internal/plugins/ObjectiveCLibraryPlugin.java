@@ -18,10 +18,10 @@ package dev.nokee.platform.objectivec.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasPublicHeadersMixIn;
+import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.language.objectivec.internal.HasObjectiveCSourcesMixIn;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
@@ -126,8 +126,8 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasAssembleTaskMixIn
-		, HasObjectiveCSourcesMixIn
-		, HasPrivateHeadersMixIn
+		, ObjectiveCSourcesMixIn
+		, PrivateHeadersMixIn
 		, HasPublicHeadersMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();

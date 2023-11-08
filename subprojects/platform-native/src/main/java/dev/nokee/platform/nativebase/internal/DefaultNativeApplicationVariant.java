@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -42,6 +43,7 @@ import org.gradle.api.provider.Property;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVariant implements NativeApplication, VariantInternal, ModelNodeAware
+	, NativeSourcesAware
 	, VariantMixIn
 	, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>

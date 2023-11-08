@@ -16,24 +16,12 @@
 package dev.nokee.language.objectivec.internal;
 
 import dev.nokee.language.objectivec.HasObjectiveCSources;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
-import static dev.nokee.model.internal.type.ModelType.of;
-
-@DomainObjectEntities.Tag(HasObjectiveCSourcesMixIn.Tag.class)
-public interface HasObjectiveCSourcesMixIn extends HasObjectiveCSources {
-	@Override
-	default ConfigurableFileCollection getObjectiveCSources() {
-		return ModelProperties.of(this, ObjectiveCSourcesPropertyComponent.class).asProperty(of(ConfigurableFileCollection.class));
-	}
-
+public interface ObjectiveCSourcesMixIn extends HasObjectiveCSources {
 	@Override
 	default void objectiveCSources(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getObjectiveCSources());
@@ -43,6 +31,4 @@ public interface HasObjectiveCSourcesMixIn extends HasObjectiveCSources {
 	default void objectiveCSources(@SuppressWarnings("rawtypes") Closure closure) {
 		objectiveCSources(new ClosureWrappedConfigureAction<>(closure));
 	}
-
-	interface Tag extends ModelTag {}
 }

@@ -18,34 +18,27 @@ package dev.nokee.language.c.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CSourceSet;
-import dev.nokee.language.c.internal.CSourcesComponent;
-import dev.nokee.language.c.internal.CSourcesPropertyComponent;
-import dev.nokee.language.c.internal.HasCSourcesMixIn;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
+import dev.nokee.language.c.HasCSources;
+import dev.nokee.language.nativebase.HasPrivateHeaders;
+import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
-import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.language.nativebase.internal.NativeSourcesMixInRule;
+import dev.nokee.language.nativebase.internal.UseConventionalLayout;
 import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
@@ -56,20 +49,13 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.plugins.ExtensionAware;
 
-import java.util.Collections;
-import java.util.concurrent.Callable;
-
-import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
-import static dev.nokee.utils.Optionals.stream;
-import static dev.nokee.utils.ProviderUtils.disallowChanges;
 
 public class CLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -91,6 +77,17 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as CHeaderSet and CSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
+		components(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("cSources", HasCSources.class, HasCSources::getCSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
+		variants(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("cSources", HasCSources.class, HasCSources::getCSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
+
+		components(project).configureEach(new UseConventionalLayout<>("cSources", "src/%s/c"));
+		variants(project).configureEach(new UseConventionalLayout<>("cSources", "src/%s/c"));
+		components(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
+		variants(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
+
+		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("cSources"));
+		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("privateHeaders"));
+
 		val registrationFactory = new DefaultCSourceSetRegistrationFactory();
 		project.getExtensions().add("__nokee_defaultCSourceSetFactory", registrationFactory);
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
@@ -100,47 +97,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 			});
 		})));
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, cSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/c");
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, cSources, parent) -> {
-			((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(CSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasCSourcesMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("cSources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new CSourcesPropertyComponent(property));
-		})));
 		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(CSourceSetSpec.class, "cSources"));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, cSources, ignored1) -> {
-			ModelStates.finalize(cSources.get());
-			val sources = (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new CSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), (entity, cSources) -> {
-			ModelNodeUtils.get(entity, ExtensionAware.class).getExtensions().add(ConfigurableFileCollection.class, "cSources", (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get());
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
-			ParentUtils.stream(parent).filter(has(SupportCSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponentTag(SupportCSourceSetTag.class);
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportCSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponentTag(HasCSourcesMixIn.Tag.class);
-			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
-		}));
 	}
 
 	static final class DefaultCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {

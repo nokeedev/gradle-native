@@ -15,6 +15,7 @@
  */
 package dev.nokee.testing.xctest.internal;
 
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -41,6 +42,7 @@ import javax.inject.Inject;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
+	, NativeSourcesAware
 	, VariantMixIn
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn

@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.c.internal;
+package dev.nokee.language.cpp.internal;
 
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.language.cpp.HasCppSources;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
+import groovy.lang.Closure;
+import org.gradle.api.Action;
+import org.gradle.api.file.ConfigurableFileCollection;
 
-public final class CSourcesPropertyComponent implements ModelComponent, LinkedEntity {
-	private final ModelNode value;
+public interface CppSourcesMixIn extends HasCppSources {
+	@Override
+	ConfigurableFileCollection getCppSources();
 
-	public CSourcesPropertyComponent(ModelNode value) {
-		this.value = value;
+	@Override
+	default void cppSources(Action<? super ConfigurableFileCollection> action) {
+		action.execute(getCppSources());
 	}
 
 	@Override
-	public ModelNode get() {
-		return value;
+	default void cppSources(@SuppressWarnings("rawtypes") Closure closure) {
+		cppSources(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

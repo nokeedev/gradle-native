@@ -18,34 +18,27 @@ package dev.nokee.language.cpp.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
-import dev.nokee.language.cpp.internal.CppSourcesComponent;
-import dev.nokee.language.cpp.internal.CppSourcesPropertyComponent;
-import dev.nokee.language.cpp.internal.HasCppSourcesMixIn;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
+import dev.nokee.language.cpp.HasCppSources;
+import dev.nokee.language.nativebase.HasPrivateHeaders;
+import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
-import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.language.nativebase.internal.NativeSourcesMixInRule;
+import dev.nokee.language.nativebase.internal.UseConventionalLayout;
 import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
@@ -56,20 +49,13 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.plugins.ExtensionAware;
 
-import java.util.Collections;
-import java.util.concurrent.Callable;
-
-import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
-import static dev.nokee.utils.Optionals.stream;
-import static dev.nokee.utils.ProviderUtils.disallowChanges;
 
 public class CppLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -91,6 +77,17 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as CppHeaderSet and CppSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
+		components(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("cppSources", HasCppSources.class, HasCppSources::getCppSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
+		variants(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("cppSources", HasCppSources.class, HasCppSources::getCppSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
+
+		components(project).configureEach(new UseConventionalLayout<>("cppSources", "src/%s/cpp"));
+		variants(project).configureEach(new UseConventionalLayout<>("cppSources", "src/%s/cpp"));
+		components(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
+		variants(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
+
+		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("cppSources"));
+		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("privateHeaders"));
+
 		project.getExtensions().add("__nokee_defaultCppSourceSet", new DefaultCppSourceSetRegistrationFactory());
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportCppSourceSetTag.class))).findFirst().ifPresent(ignored -> {
@@ -99,47 +96,7 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 			});
 		})));
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CppSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, cppSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) cppSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/cpp");
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CppSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, cppSources, parent) -> {
-			((ConfigurableFileCollection) cppSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(CppSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasCppSourcesMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("cppSources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new CppSourcesPropertyComponent(property));
-		})));
 		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(CppSourceSetSpec.class, "cppSources"));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CppSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
-			ModelStates.finalize(swiftSources.get());
-			val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new CppSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CppSourcesPropertyComponent.class), (entity, cppSources) -> {
-			ModelNodeUtils.get(entity, ExtensionAware.class).getExtensions().add(ConfigurableFileCollection.class, "cppSources", (ConfigurableFileCollection) cppSources.get().get(GradlePropertyComponent.class).get());
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
-			ParentUtils.stream(parent).filter(has(SupportCppSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponentTag(SupportCppSourceSetTag.class);
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportCppSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponentTag(HasCppSourcesMixIn.Tag.class);
-			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
-		}));
 	}
 
 	static final class DefaultCppSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {

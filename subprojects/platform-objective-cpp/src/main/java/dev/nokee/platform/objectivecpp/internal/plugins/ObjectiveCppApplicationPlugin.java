@@ -18,9 +18,9 @@ package dev.nokee.platform.objectivecpp.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
+import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.language.objectivecpp.internal.HasObjectiveCppSourcesMixIn;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesMixIn;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
@@ -127,8 +127,8 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasAssembleTaskMixIn
-		, HasObjectiveCppSourcesMixIn
-		, HasPrivateHeadersMixIn
+		, ObjectiveCppSourcesMixIn
+		, PrivateHeadersMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 

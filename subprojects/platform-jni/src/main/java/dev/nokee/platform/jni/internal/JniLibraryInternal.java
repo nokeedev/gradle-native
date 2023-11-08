@@ -18,6 +18,7 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.core.ModelElements;
@@ -58,6 +59,7 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ abstract class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware
+	, NativeSourcesAware
 	, VariantMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>

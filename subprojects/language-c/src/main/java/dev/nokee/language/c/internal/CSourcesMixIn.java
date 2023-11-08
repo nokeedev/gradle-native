@@ -15,25 +15,13 @@
  */
 package dev.nokee.language.c.internal;
 
-import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.HasCSources;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
-import static dev.nokee.model.internal.type.ModelType.of;
-
-@DomainObjectEntities.Tag(HasCSourcesMixIn.Tag.class)
-public interface HasCSourcesMixIn extends HasCSources {
-	@Override
-	default ConfigurableFileCollection getCSources() {
-		return ModelProperties.of(this, CSourcesPropertyComponent.class).asProperty(of(ConfigurableFileCollection.class));
-	}
-
+public interface CSourcesMixIn extends HasCSources {
 	// For Groovy DSL
 	default ConfigurableFileCollection getcSources() {
 		return getCSources();
@@ -48,6 +36,4 @@ public interface HasCSourcesMixIn extends HasCSources {
 	default void cSources(@SuppressWarnings("rawtypes") Closure closure) {
 		cSources(new ClosureWrappedConfigureAction<>(closure));
 	}
-
-	interface Tag extends ModelTag {}
 }

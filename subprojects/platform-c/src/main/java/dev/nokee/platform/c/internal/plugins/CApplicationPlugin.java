@@ -18,10 +18,10 @@ package dev.nokee.platform.c.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.language.c.internal.HasCSourcesMixIn;
+import dev.nokee.language.c.internal.CSourcesMixIn;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
+import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -127,8 +127,8 @@ public class CApplicationPlugin implements Plugin<Project> {
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasAssembleTaskMixIn
-		, HasPrivateHeadersMixIn
-		, HasCSourcesMixIn
+		, PrivateHeadersMixIn
+		, CSourcesMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 

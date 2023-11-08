@@ -16,23 +16,12 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.swift.HasSwiftSources;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
-import static dev.nokee.model.internal.type.ModelType.of;
-
-@DomainObjectEntities.Tag(HasSwiftSourcesMixIn.Tag.class)
-public interface HasSwiftSourcesMixIn extends HasSwiftSources {
-	@Override
-	default ConfigurableFileCollection getSwiftSources() {
-		return ModelProperties.of(this, SwiftSourcesPropertyComponent.class).asProperty(of(ConfigurableFileCollection.class));
-	}
-
+public interface SwiftSourcesMixIn extends HasSwiftSources {
 	@Override
 	default void swiftSources(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getSwiftSources());
@@ -42,6 +31,4 @@ public interface HasSwiftSourcesMixIn extends HasSwiftSources {
 	default void swiftSources(@SuppressWarnings("rawtypes") Closure closure) {
 		swiftSources(new ClosureWrappedConfigureAction<>(closure));
 	}
-
-	interface Tag extends ModelTag {}
 }

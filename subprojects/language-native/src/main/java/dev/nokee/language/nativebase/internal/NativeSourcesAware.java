@@ -13,19 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.cpp.internal;
+package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import org.gradle.api.file.FileCollection;
-
-public final class CppSourcesComponent implements ModelComponent {
-	private final FileCollection value;
-
-	public CppSourcesComponent(FileCollection value) {
-		this.value = value;
-	}
-
-	public FileCollection get() {
-		return value;
-	}
+public interface NativeSourcesAware {
 }

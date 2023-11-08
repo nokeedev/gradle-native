@@ -18,6 +18,7 @@ package dev.nokee.testing.nativebase.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -46,6 +47,7 @@ import javax.inject.Inject;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware
+	, NativeSourcesAware
 	, VariantMixIn
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
