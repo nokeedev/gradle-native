@@ -59,7 +59,6 @@ import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
@@ -131,7 +130,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, HasDevelopmentVariantMixIn<NativeTestSuiteVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, AssembleTaskMixIn
-	, ModelBackedHasBaseNameMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
 	, ModelBackedTargetMachineAwareComponentMixIn
