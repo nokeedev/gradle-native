@@ -26,6 +26,7 @@ import dev.nokee.utils.TaskUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
+import org.gradle.api.Task;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -34,7 +35,10 @@ import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final ObjectFactory objects;
@@ -56,7 +60,7 @@ public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> 
 		artifacts(target).configureEach(new ConfigureLinkTaskFromBaseNameRule());
 		configurer.configure(new AttachObjectFilesToLinkTaskRule());
 		artifacts(target).configureEach(new ConfigureLinkTaskDefaultsRule());
-		configurer.configure(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule());
+		variants(target).configureEach(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(model(target, mapOf(Task.class))));
 		artifacts(target).configureEach(new ConfigureLinkTaskBundleRule());
 		artifacts(target).configureEach(new ConfigureLinkTaskDescriptionRule());
 	}

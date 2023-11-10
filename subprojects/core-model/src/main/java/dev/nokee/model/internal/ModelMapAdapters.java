@@ -143,6 +143,20 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
+		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
+			if (Configuration.class.isAssignableFrom(type)) {
+				delegate.withType((Class<? extends Configuration>) type).configureEach((Action<? super Configuration>) configureAction);
+			} else {
+				delegate.configureEach(it -> {
+					if (type.isInstance(it)) {
+						configureAction.execute(type.cast(it));
+					}
+				});
+			}
+		}
+
+		@Override
 		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.forEach(configureAction);
 		}
@@ -183,6 +197,20 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
+		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
+			if (elementType.isAssignableFrom(type)) {
+				delegate.withType((Class<? extends ElementType>) type).configureEach((Action<? super ElementType>) configureAction);
+			} else {
+				delegate.configureEach(it -> {
+					if (type.isInstance(it)) {
+						configureAction.execute(type.cast(it));
+					}
+				});
+			}
+		}
+
+		@Override
 		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.forEach(configureAction);
 		}
@@ -218,6 +246,20 @@ public final class ModelMapAdapters {
 		@Override
 		public void configureEach(Action<? super ElementType> configureAction) {
 			delegate.configureEach(configureAction);
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
+			if (elementType.isAssignableFrom(type)) {
+				delegate.withType((Class<? extends ElementType>) type).configureEach((Action<? super ElementType>) configureAction);
+			} else {
+				delegate.configureEach(it -> {
+					if (type.isInstance(it)) {
+						configureAction.execute(type.cast(it));
+					}
+				});
+			}
 		}
 
 		@Override

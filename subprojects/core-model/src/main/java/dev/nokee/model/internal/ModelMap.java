@@ -21,6 +21,7 @@ import org.gradle.api.Action;
 public interface ModelMap<ElementType> {
 //	Class<ElementType> getElementType();
 	void configureEach(Action<? super ElementType> configureAction);
+	<U> void configureEach(Class<U> type, Action<? super U> configureAction);
 
 	void whenElementKnow(Action<? super ModelMapAdapters.ModelElementIdentity> configureAction);
 }

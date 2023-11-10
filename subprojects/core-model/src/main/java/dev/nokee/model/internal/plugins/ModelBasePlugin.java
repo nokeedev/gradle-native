@@ -19,6 +19,7 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.ModelExtension;
+import dev.nokee.model.internal.ModelMap;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -157,5 +158,9 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 	public static <S> TypeOf<ModelObjectFactoryRegistry<S>> factoryRegistryOf(Class<S> type) {
 		return TypeOf.typeOf(new TypeToken<ModelObjectFactoryRegistry<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
+	}
+
+	public static <S> TypeOf<ModelMap<S>> mapOf(Class<S> type) {
+		return TypeOf.typeOf(new TypeToken<ModelMap<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
 	}
 }

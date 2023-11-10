@@ -19,13 +19,12 @@ import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.HasCreateTask;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
+import org.gradle.api.Task;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
@@ -33,7 +32,10 @@ import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTaskRegistrationRule.configureDestinationDirectory;
 import static dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTaskRegistrationRule.forLibrary;
@@ -52,7 +54,7 @@ public class NativeArchiveCapabilityPlugin<T extends ExtensionAware & PluginAwar
 		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
 		artifacts(target).configureEach(new NativeArchiveTaskRegistrationRule(new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers)));
 		artifacts(target).configureEach(new ConfigureCreateTaskFromBaseNameRule());
-		configurer.configure(new ConfigureCreateTaskTargetPlatformFromBuildVariantRule());
+		variants(target).configureEach(new ConfigureCreateTaskTargetPlatformFromBuildVariantRule(model(target, mapOf(Task.class))));
 		configurer.configure(new AttachObjectFilesToCreateTaskRule());
 		artifacts(target).configureEach(new ConfigureCreateTaskDescriptionRule());
 		artifacts(target).configureEach(it -> {
