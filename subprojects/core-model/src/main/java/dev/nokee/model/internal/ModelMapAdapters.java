@@ -100,9 +100,13 @@ public final class ModelMapAdapters {
 
 			return ModelElementSupport.newInstance(element, (Factory<S>) () -> factory.create(name));
 		}
+
+		public void forEach(Action<? super ModelElementIdentity> configureAction) {
+			knownElements.configureEach(configureAction);
+		}
 	}
 
-	public interface ForNamedDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType> {}
+	public interface ForNamedDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
 	public static /*final*/ class ForConfigurationContainer implements ForNamedDomainObjectContainer<Configuration>, HasPublicType {
 		private final KnownElements knownElements;
@@ -132,9 +136,19 @@ public final class ModelMapAdapters {
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForNamedDomainObjectContainer<Configuration>>() {}.getType());
 		}
+
+		@Override
+		public void configureEach(Action<? super Configuration> configureAction) {
+			delegate.configureEach(configureAction);
+		}
+
+		@Override
+		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
+			knownElements.forEach(configureAction);
+		}
 	}
 
-	public static /*final*/ class ForPolymorphicDomainObjectContainer<ElementType> implements ModelObjectRegistry<ElementType>, HasPublicType {
+	public static /*final*/ class ForPolymorphicDomainObjectContainer<ElementType> implements ModelObjectRegistry<ElementType>, ModelMap<ElementType>, HasPublicType {
 		private final Class<ElementType> elementType;
 		private final KnownElements knownElements;
 		private final PolymorphicDomainObjectContainer<ElementType> delegate;
@@ -162,9 +176,19 @@ public final class ModelMapAdapters {
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForPolymorphicDomainObjectContainer<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getType());
 		}
+
+		@Override
+		public void configureEach(Action<? super ElementType> configureAction) {
+			delegate.configureEach(configureAction);
+		}
+
+		@Override
+		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
+			knownElements.forEach(configureAction);
+		}
 	}
 
-	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, HasPublicType {
+	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, ModelMap<ElementType>, HasPublicType {
 		private final Class<ElementType> elementType;
 		private final KnownElements knownElements;
 		private final ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate;
@@ -190,6 +214,16 @@ public final class ModelMapAdapters {
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForExtensiblePolymorphicDomainObjectContainer<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getType());
 		}
+
+		@Override
+		public void configureEach(Action<? super ElementType> configureAction) {
+			delegate.configureEach(configureAction);
+		}
+
+		@Override
+		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
+			knownElements.forEach(configureAction);
+		}
 	}
 
 	public static final class ModelElementIdentity implements ModelObject<Object> {
@@ -204,6 +238,14 @@ public final class ModelMapAdapters {
 
 		public String getName() {
 			return ModelObjectIdentifiers.asFullyQualifiedName(identifier).toString();
+		}
+
+		public ModelObjectIdentifier getIdentifier() {
+			return identifier;
+		}
+
+		public Class<?> getType() {
+			return implementationType;
 		}
 
 		public void attachProvider(NamedDomainObjectProvider<?> elementProvider) {

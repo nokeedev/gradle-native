@@ -21,10 +21,8 @@ import dev.nokee.model.capabilities.variants.CreateVariantsRule;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
 import dev.nokee.model.internal.DefaultModelObjectIdentifier;
-import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.buffers.ModelBuffers;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -38,7 +36,6 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -64,7 +61,6 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BaseNameComponent;
 import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
@@ -100,28 +96,29 @@ import dev.nokee.platform.base.internal.project.ProjectProjectionComponent;
 import dev.nokee.platform.base.internal.tasks.TaskCapabilityPlugin;
 import lombok.val;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
+import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
+import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
-import static com.google.common.base.Suppliers.ofInstance;
-import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -165,10 +162,10 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(DEPENDENCY_BUCKET_CONTAINER_TYPE, "$dependencyBuckets", project.getObjects().polymorphicDomainObjectContainer(DependencyBucket.class));
 		project.getExtensions().add(ARTIFACT_CONTAINER_TYPE, "$artifacts", project.getObjects().polymorphicDomainObjectContainer(Artifact.class));
 
-		model(project).getExtensions().create("components", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Component.class, components(project));
-		model(project).getExtensions().create("variants", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Variant.class, variants(project));
-		model(project).getExtensions().create("dependencyBuckets", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, DependencyBucket.class, dependencyBuckets(project));
-		model(project).getExtensions().create("artifacts", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Artifact.class, artifacts(project));
+		model(project, objects()).register(model(project).getExtensions().create("components", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Component.class, components(project)));
+		model(project, objects()).register(model(project).getExtensions().create("variants", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Variant.class, variants(project)));
+		model(project, objects()).register(model(project).getExtensions().create("dependencyBuckets", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, DependencyBucket.class, dependencyBuckets(project)));
+		model(project, objects()).register(model(project).getExtensions().create("artifacts", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Artifact.class, artifacts(project)));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(MainProjectionComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, mainProjection, ignored) -> {
 			ModelNodeUtils.get(entity, mainProjection.getProjectionType()); // realize provider
@@ -309,29 +306,45 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			entity.addComponent(new BaseNamePropertyComponent(baseNameProperty));
 		})));
 
-		artifacts(project).configureEach(artifact -> {
-			if (artifact instanceof HasBaseName) {
-				safeAsModelElement(artifact).map(ModelElement::getIdentifier).map(ModelObjectIdentifier::getParent).ifPresent(parentIdentifier -> {
-					((HasBaseName) artifact).getBaseName().convention(project.provider(() -> {
-						return Optional.ofNullable(variants(project).findByName(ModelObjectIdentifiers.asFullyQualifiedName(parentIdentifier).toString())).filter(HasBaseName.class::isInstance).map(HasBaseName.class::cast).map(HasBaseName::getBaseName).orElse(null);
+		model(project, objects()).configureEach(new BiConsumer<ModelObjectIdentifier, Object>() {
+			@Override
+			public void accept(ModelObjectIdentifier identifier, Object target) {
+				if (target instanceof HasBaseName) {
+					((HasBaseName) target).getBaseName().convention(project.provider(() -> {
+						return model(project, objects()).parentsOf(identifier)
+							.flatMap(projectionOf(HasBaseName.class))
+							.map(toProviderOf(HasBaseName::getBaseName))
+							.findFirst().orElseGet(() -> project.provider(notDefined()))
+							.orElse(project.provider(() -> {
+								if (target instanceof Named) {
+									return ((Named) target).getName();
+								} else {
+									return null;
+								}
+							}));
 					}).flatMap(it -> it));
-				});
+				}
+			}
+
+			private /*static*/ <V> Callable<V> notDefined() {
+				return () -> null;
+			}
+
+			private /*static*/ <T> Function<ModelMapAdapters.ModelElementIdentity, Stream<T>> projectionOf(Class<T> type) {
+				return it -> {
+					if (type.isAssignableFrom(it.getType())) {
+						return Stream.of(it.asModelObject(type).get());
+					} else {
+						return Stream.empty();
+					}
+				};
+			}
+
+			// Useful because the intention is to use the Provider type of a Property (for example)
+			private /*static*/ <T, U> Function<U, Provider<T>> toProviderOf(Function<? super U, ? extends Provider<T>> mapper) {
+				return mapper::apply;
 			}
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), (entity, property) -> {
-			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(project.getProviders().provider(() -> {
-				return entity.find(ParentComponent.class)
-					.flatMap(parent -> ParentUtils.stream(parent).map(ModelStates::finalize).filter(it -> it.has(BaseNameComponent.class)).findFirst())
-					.map(parent -> (Supplier<String>) parent.get(BaseNameComponent.class)::get)
-					.orElseGet(() -> entity.find(ElementNameComponent.class).map(it -> (Supplier<String>) it.get()::toString).orElse(ofInstance(null)))
-					.get();
-			}));
-		}));
-
-		// ComponentFromEntity<GradlePropertyComponent> read-write on BaseNamePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), ModelComponentReference.of(ModelStates.Finalizing.class), (entity, property, ignored1) -> {
-			entity.addComponent(new BaseNameComponent(((Property<String>) property.get().get(GradlePropertyComponent.class).get()).get()));
-		}));
 	}
 
 	@SuppressWarnings("unchecked")

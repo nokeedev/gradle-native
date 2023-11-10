@@ -62,9 +62,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -340,26 +338,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			component.getBaseName().convention(component.getName());
-			component.getBinaries().configureEach(binary -> {
-				if (binary instanceof HasBaseName) {
-					((HasBaseName) binary).getBaseName().convention(component.getBaseName());
-				}
-			});
-			component.getVariants().configureEach(variant -> {
-				if (variant instanceof HasBaseName) {
-					variant.getBaseName().convention(component.getBaseName());
-					if (variant instanceof BinaryAwareComponent) {
-						variant.getBinaries().configureEach(binary -> {
-							if (binary instanceof HasBaseName) {
-								((HasBaseName) binary).getBaseName().convention(variant.getBaseName());
-							}
-						});
-					}
-				}
-			});
-		});
 		// TODO: When discovery will be a real feature, we shouldn't need this anymore
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			final ModelNode entity = component.getNode();

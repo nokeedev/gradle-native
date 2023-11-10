@@ -17,10 +17,12 @@ package dev.nokee.model.internal.plugins;
 
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelActionSystem;
@@ -100,6 +102,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		applyToAllTarget(settings);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void applyToProject(Project project) {
 		project.getConfigurations().all(ActionUtils.doNothing()); // Because... don't get me started with this... :'(
 
@@ -109,8 +112,9 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new IdentifierComponent(ProjectIdentifier.of(project)));
 
-		project.getExtensions().getByType(ModelExtension.class).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations());
-		project.getExtensions().getByType(ModelExtension.class).getExtensions().create("$tasks", ModelMapAdapters.ForPolymorphicDomainObjectContainer.class, Task.class, new Task.Namer(), project.getTasks());
+		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
+		objects.register(model(project).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations()));
+		objects.register(model(project).getExtensions().create("$tasks", ModelMapAdapters.ForPolymorphicDomainObjectContainer.class, Task.class, new Task.Namer(), project.getTasks()));
 
 		project.getTasks().addRule(new Rule() {
 			@Override
@@ -143,11 +147,15 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		return model(target).getExtensions().getByType(type);
 	}
 
-	public static final <S> TypeOf<ModelObjectRegistry<S>> registryOf(Class<S> type) {
+	public static TypeOf<ModelObjects> objects() {
+		return TypeOf.typeOf(ModelObjects.class);
+	}
+
+	public static <S> TypeOf<ModelObjectRegistry<S>> registryOf(Class<S> type) {
 		return TypeOf.typeOf(new TypeToken<ModelObjectRegistry<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
 	}
 
-	public static final <S> TypeOf<ModelObjectFactoryRegistry<S>> factoryRegistryOf(Class<S> type) {
+	public static <S> TypeOf<ModelObjectFactoryRegistry<S>> factoryRegistryOf(Class<S> type) {
 		return TypeOf.typeOf(new TypeToken<ModelObjectFactoryRegistry<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
 	}
 }

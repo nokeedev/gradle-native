@@ -40,6 +40,7 @@ import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementFactory;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -66,12 +67,12 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.View;
-import dev.nokee.platform.base.internal.BaseNameComponent;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
@@ -188,6 +189,7 @@ import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -344,7 +346,17 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				}));
 				registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftSourceSetSpec.class, sourceSet -> {
 					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					sourceSet.getCompileTask().configure(task -> task.getModuleName().set(project.getProviders().provider(() -> TextCaseUtils.toCamelCase(ModelStates.finalize(ModelNodes.of(sourceSet).get(ParentComponent.class).get()).get(BaseNameComponent.class).get()))));
+					sourceSet.getCompileTask().configure(task -> {
+						ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(id -> {
+							task.getModuleName().set(project.provider(() -> {
+								return model(project, objects()).parentsOf(id)
+									.filter(it -> HasBaseName.class.isAssignableFrom(it.getType()))
+									.map(it -> (Provider<String>) it.asModelObject(HasBaseName.class).get().getBaseName())
+									.findFirst()
+									.orElseGet(() -> project.provider(() -> null));
+							}).flatMap(it -> it).map(TextCaseUtils::toCamelCase));
+						});
+					});
 					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
 				}));
 
