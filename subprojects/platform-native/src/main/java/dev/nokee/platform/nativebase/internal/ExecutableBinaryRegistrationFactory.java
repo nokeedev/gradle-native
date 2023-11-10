@@ -23,9 +23,6 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.DependencyBucket;
@@ -65,14 +62,13 @@ public final class ExecutableBinaryRegistrationFactory {
 			.build();
 	}
 
-	public static /*final*/ abstract class ModelBackedExecutableBinary extends ModelElementSupport implements ExecutableBinary, ModelNodeAware
+	public static /*final*/ abstract class ModelBackedExecutableBinary extends ModelElementSupport implements ExecutableBinary
 		, HasHeaderSearchPaths
 		, HasLinkLibrariesDependencyBucket
 		, HasRuntimeLibrariesDependencyBucket
 		, LinkTaskMixIn<LinkExecutable, LinkExecutableTask>
 		, HasObjectFilesToBinaryTask
 	{
-		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
 		private final ObjectFactory objectFactory;
 
@@ -98,11 +94,6 @@ public final class ExecutableBinaryRegistrationFactory {
 		@Override
 		public TaskDependency getBuildDependencies() {
 			return TaskDependencyUtils.composite(TaskDependencyUtils.ofIterable(getCompileTasks().getElements()), TaskDependencyUtils.of(getLinkTask()));
-		}
-
-		@Override
-		public ModelNode getNode() {
-			return node;
 		}
 
 		@Override

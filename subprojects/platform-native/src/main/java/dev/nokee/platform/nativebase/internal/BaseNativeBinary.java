@@ -19,11 +19,6 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
@@ -52,19 +47,13 @@ import java.util.function.Supplier;
 
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public abstract class BaseNativeBinary extends ModelElementSupport implements Binary, NativeBinary, HasHeaderSearchPaths, ModelNodeAware {
-	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+public abstract class BaseNativeBinary extends ModelElementSupport implements Binary, NativeBinary, HasHeaderSearchPaths {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 
 	public BaseNativeBinary(ObjectFactory objects, ProviderFactory providers) {
 		this.objects = objects;
 		this.providers = providers;
-	}
-
-	// Still required for output path generation
-	public ModelObjectIdentifier getIdentifier() {
-		return entity.get(IdentifierComponent.class).get();
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
@@ -160,10 +149,5 @@ public abstract class BaseNativeBinary extends ModelElementSupport implements Bi
 	@SuppressWarnings("unchecked")
 	public TaskView<SourceCompile> getCompileTasks() {
 		return ModelProperties.getProperty(this, "compileTasks").as(TaskView.class).get();
-	}
-
-	@Override
-	public ModelNode getNode() {
-		return entity;
 	}
 }

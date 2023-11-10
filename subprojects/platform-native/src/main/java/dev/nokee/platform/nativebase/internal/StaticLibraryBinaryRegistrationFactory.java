@@ -23,9 +23,6 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.TaskView;
@@ -35,7 +32,6 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.CreateTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
-import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
 import org.gradle.api.Task;
@@ -62,12 +58,11 @@ public final class StaticLibraryBinaryRegistrationFactory {
 			.build();
 	}
 
-	public static /*final*/ abstract class ModelBackedStaticLibraryBinary extends ModelElementSupport implements StaticLibraryBinary, ModelNodeAware
+	public static /*final*/ abstract class ModelBackedStaticLibraryBinary extends ModelElementSupport implements StaticLibraryBinary
 		, HasHeaderSearchPaths
 		, CreateTaskMixIn
 		, HasObjectFilesToBinaryTask
 	{
-		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
 		private final ObjectFactory objectFactory;
 
@@ -91,11 +86,6 @@ public final class StaticLibraryBinaryRegistrationFactory {
 		@Override
 		public TaskDependency getBuildDependencies() {
 			return TaskDependencyUtils.composite(TaskDependencyUtils.ofIterable(getCompileTasks().getElements()), TaskDependencyUtils.of(getCreateTask()));
-		}
-
-		@Override
-		public ModelNode getNode() {
-			return node;
 		}
 
 		@Override
