@@ -15,5 +15,12 @@
  */
 package dev.nokee.platform.nativebase.internal.linking;
 
-public interface HasLinkLibrariesDependencyBucket {
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
+import org.gradle.api.plugins.ExtensionAware;
+
+// TODO: Convert into MixIn interface
+public interface HasLinkLibrariesDependencyBucket extends ExtensionAware {
+	default ResolvableDependencyBucketSpec getLinkLibraries() {
+		return (ResolvableDependencyBucketSpec) getExtensions().getByName("linkLibraries");
+	}
 }

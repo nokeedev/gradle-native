@@ -44,6 +44,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
@@ -111,8 +112,8 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 		return ModelElements.of(this).element("jniJar", JniJarBinary.class).get();
 	}
 
-	public SharedLibraryBinary getSharedLibrary() {
-		return ModelElements.of(this).element("sharedLibrary", SharedLibraryBinary.class).get();
+	public SharedLibraryBinaryInternal getSharedLibrary() {
+		return (SharedLibraryBinaryInternal) ModelElements.of(this).element("sharedLibrary", SharedLibraryBinary.class).get();
 	}
 
 	@Override

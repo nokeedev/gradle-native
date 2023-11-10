@@ -95,7 +95,6 @@ import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
 import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
 import dev.nokee.platform.jni.internal.actions.OnceAction;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
-import dev.nokee.platform.nativebase.internal.DependentRuntimeLibraries;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
@@ -528,7 +527,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		})));
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
 			variant.getNativeRuntimeFiles().from(variant.getSharedLibrary().getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile));
-			variant.getNativeRuntimeFiles().from((Callable<Object>) () -> ModelNodes.of(variant.getSharedLibrary()).get(DependentRuntimeLibraries.class));
+			variant.getNativeRuntimeFiles().from((Callable<Object>) () -> variant.getSharedLibrary().getRuntimeLibraries().getAsConfiguration().getIncoming().getFiles());
 		});
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
 			variant.getDevelopmentBinary().convention(variant.getJavaNativeInterfaceJar());

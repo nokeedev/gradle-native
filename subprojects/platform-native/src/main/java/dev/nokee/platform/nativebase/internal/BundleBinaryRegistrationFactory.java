@@ -28,9 +28,11 @@ import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
@@ -75,8 +77,10 @@ public final class BundleBinaryRegistrationFactory {
 		private final ObjectFactory objectFactory;
 
 		@Inject
-		public ModelBackedBundleBinary(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objectFactory) {
+		public ModelBackedBundleBinary(ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objectFactory) {
 			getExtensions().add("linkTask", taskRegistry.register(getIdentifier().child(TaskName.of("link")), LinkBundleTask.class).asProvider());
+			getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
+			getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
 			this.objectFactory = objectFactory;
 		}
 

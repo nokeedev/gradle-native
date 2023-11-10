@@ -15,32 +15,46 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BuildVariantComponent;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelMap;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
+import dev.nokee.platform.base.Artifact;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
-import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 
-public final class AttachAttributesToConfigurationRule<T extends LinkedEntity & ModelComponent> extends ModelActionWithInputs.ModelAction2<T, BuildVariantComponent> {
-	private final ModelRegistry registry;
+import java.util.function.Function;
+
+public final class AttachAttributesToConfigurationRule implements Action<Variant> {
+	private final Class<?> type;
+	private final Function<Object, ResolvableDependencyBucketSpec> mapper;
+	private final ModelMap<Artifact> artifacts;
 	private final ObjectFactory objects;
 
-	public AttachAttributesToConfigurationRule(Class<T> configurationType, ModelRegistry registry, ObjectFactory objects) {
-		super(ModelComponentReference.of(configurationType), ModelComponentReference.of(BuildVariantComponent.class));
-		this.registry = registry;
+	@SuppressWarnings("unchecked")
+	public <T> AttachAttributesToConfigurationRule(Class<T> type, Function<T, ResolvableDependencyBucketSpec> mapper, ObjectFactory objects, ModelMap<Artifact> artifacts) {
+		this.type = type;
+		this.mapper = (Function<Object, ResolvableDependencyBucketSpec>) mapper;
 		this.objects = objects;
+		this.artifacts = artifacts;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, T configuration, BuildVariantComponent buildVariant) {
-		registry.instantiate(ModelAction.configure(configuration.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) buildVariant.get(), objects)));
-		registry.instantiate(ModelAction.configure(configuration.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
+	public void execute(Variant variant) {
+		ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(variantIdentifier -> {
+			artifacts.configureEach(type, artifact -> {
+				ModelElementSupport.safeAsModelElement(artifact).map(ModelElement::getIdentifier).ifPresent(artifactIdentifier -> {
+					if (ModelObjectIdentifiers.descendantOf(artifactIdentifier, variantIdentifier)) {
+						final ResolvableDependencyBucketSpec bucket = mapper.apply(artifact);
+						ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) variant.getBuildVariant(), objects).execute(bucket.getAsConfiguration());
+						ConfigurationUtilsEx.configureAsGradleDebugCompatible(bucket.getAsConfiguration());
+					}
+				});
+			});
+		});
 	}
 }

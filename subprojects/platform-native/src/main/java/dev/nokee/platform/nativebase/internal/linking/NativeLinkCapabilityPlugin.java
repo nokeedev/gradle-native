@@ -17,9 +17,7 @@ package dev.nokee.platform.nativebase.internal.linking;
 
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
 import dev.nokee.utils.TaskUtils;
@@ -37,6 +35,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
@@ -53,10 +52,9 @@ public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> 
 	@Override
 	public void apply(T target) {
 		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
-		configurer.configure(new AttachAttributesToConfigurationRule<>(LinkLibrariesConfiguration.class, target.getExtensions().getByType(ModelRegistry.class), objects));
-		configurer.configure(new OnDiscover(new LinkLibrariesConfigurationRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), objects)));
+		variants(target).configureEach(new AttachAttributesToConfigurationRule(HasLinkLibrariesDependencyBucket.class, HasLinkLibrariesDependencyBucket::getLinkLibraries, objects, model(target, mapOf(Artifact.class))));
+		artifacts(target).configureEach(new LinkLibrariesConfigurationRegistrationRule(objects, model(target, objects())));
 		artifacts(target).configureEach(new NativeLinkTaskRegistrationRule(new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers)));
-		configurer.configure(new AttachLinkLibrariesToLinkTaskRule());
 		artifacts(target).configureEach(new ConfigureLinkTaskFromBaseNameRule());
 		configurer.configure(new AttachObjectFilesToLinkTaskRule());
 		artifacts(target).configureEach(new ConfigureLinkTaskDefaultsRule());

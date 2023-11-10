@@ -18,8 +18,10 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
@@ -46,9 +48,11 @@ public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinar
 	, HasRuntimeLibrariesDependencyBucket
 {
 	@Inject
-	public ExecutableBinaryInternal(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, ProviderFactory providers) {
+	public ExecutableBinaryInternal(ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
 		getExtensions().add("linkTask", taskRegistry.register(getIdentifier().child(TaskName.of("link")), LinkExecutableTask.class).asProvider());
+		getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
+		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
 
 		getCreateOrLinkTask().configure(this::configureExecutableTask);
 	}
