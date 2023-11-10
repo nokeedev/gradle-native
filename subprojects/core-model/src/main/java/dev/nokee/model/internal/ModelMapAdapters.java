@@ -244,8 +244,8 @@ public final class ModelMapAdapters {
 			return identifier;
 		}
 
-		public Class<?> getType() {
-			return implementationType;
+		public boolean instanceOf(Class<?> type) {
+			return type.isAssignableFrom(implementationType);
 		}
 
 		public void attachProvider(NamedDomainObjectProvider<?> elementProvider) {

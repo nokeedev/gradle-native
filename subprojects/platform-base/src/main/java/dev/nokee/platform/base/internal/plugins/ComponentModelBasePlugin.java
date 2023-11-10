@@ -332,7 +332,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 			private /*static*/ <T> Function<ModelMapAdapters.ModelElementIdentity, Stream<T>> projectionOf(Class<T> type) {
 				return it -> {
-					if (type.isAssignableFrom(it.getType())) {
+					if (it.instanceOf(type)) {
 						return Stream.of(it.asModelObject(type).get());
 					} else {
 						return Stream.empty();

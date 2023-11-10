@@ -350,7 +350,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(id -> {
 							task.getModuleName().set(project.provider(() -> {
 								return model(project, objects()).parentsOf(id)
-									.filter(it -> HasBaseName.class.isAssignableFrom(it.getType()))
+									.filter(it -> it.instanceOf(HasBaseName.class))
 									.map(it -> (Provider<String>) it.asModelObject(HasBaseName.class).get().getBaseName())
 									.findFirst()
 									.orElseGet(() -> project.provider(() -> null));
