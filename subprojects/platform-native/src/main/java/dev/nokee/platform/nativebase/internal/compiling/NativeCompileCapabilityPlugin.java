@@ -20,11 +20,7 @@ import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjects;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.internal.HasObjectFilesToBinaryTask;
 import dev.nokee.utils.ActionUtils;
@@ -53,7 +49,6 @@ public class NativeCompileCapabilityPlugin<T extends ExtensionAware & PluginAwar
 	@Override
 	public void apply(T target) {
 		artifacts(target).configureEach(new AttachObjectFilesToCreateOrLinkTaskAction(model(target, objects())));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterCompileTasksPropertyRule(target.getExtensions().getByType(ModelRegistry.class), target.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class))));
 	}
 
 	private static class AttachObjectFilesToCreateOrLinkTaskAction implements Action<Artifact> {

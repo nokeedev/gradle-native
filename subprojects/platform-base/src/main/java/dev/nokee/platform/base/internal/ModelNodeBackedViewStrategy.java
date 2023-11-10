@@ -40,6 +40,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
@@ -53,6 +54,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objects;
 	private final Namer<? super Object> namer;
+	private final Supplier<ModelObjectIdentifier> baseIdentifierSupplier;
 
 	public ModelNodeBackedViewStrategy(Namer<? super Object> namer, NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, ObjectFactory objects) {
 		this.namer = namer;
@@ -61,6 +63,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 		this.objects = objects;
 		this.entity = ModelNodeContext.getCurrentModelNode();
 		this.realize = NO_OP_REALIZE;
+		this.baseIdentifierSupplier = () -> entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get();
 	}
 
 	public ModelNodeBackedViewStrategy(Namer<? super Object> namer, NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, ObjectFactory objects, Runnable realize) {
@@ -74,15 +77,25 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 		this.objects = objects;
 		this.realize = new RunOnceRunnable(realize);
 		this.entity = entity;
+		this.baseIdentifierSupplier = () -> entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get();
+	}
+
+	public ModelNodeBackedViewStrategy(Namer<? super Object> namer, NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, ObjectFactory objects, Runnable realize, ModelObjectIdentifier baseIdentifier) {
+		this.namer = namer;
+		this.collection = collection;
+		this.providerFactory = providerFactory;
+		this.objects = objects;
+		this.realize = new RunOnceRunnable(realize);
+		this.entity = null;
+		this.baseIdentifierSupplier = () -> baseIdentifier;
 	}
 
 	@Override
 	public <T> void configureEach(Class<T> elementType, Action<? super T> action) {
-		final ModelNode baseRef = entity.get(ViewConfigurationBaseComponent.class).get();
 		collection.configureEach(object -> {
 			if (elementType.isInstance(object)) {
 				ModelElementSupport.safeAsModelElement(object).ifPresent(element -> {
-					final ModelObjectIdentifier baseIdentifier = baseRef.get(IdentifierComponent.class).get();
+					final ModelObjectIdentifier baseIdentifier = baseIdentifierSupplier.get();
 					if (ModelObjectIdentifiers.descendantOf(element.getIdentifier(), baseIdentifier)) {
 						action.execute(elementType.cast(object));
 					}
@@ -98,11 +111,10 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 			realize.run(); // TODO: Should move to some provider source or something
 
 			final SetProperty<T> result = objects.setProperty(elementType);
-			final ModelNode baseRef = entity.get(ViewConfigurationBaseComponent.class).get();
 			collection.matching(object -> {
 				if (elementType.isInstance(object)) {
 					return ModelElementSupport.safeAsModelElement(object).map(element -> {
-						final ModelObjectIdentifier baseIdentifier = baseRef.get(IdentifierComponent.class).get();
+						final ModelObjectIdentifier baseIdentifier = baseIdentifierSupplier.get();
 						if (ModelObjectIdentifiers.descendantOf(element.getIdentifier(), baseIdentifier)) {
 							return true;
 						}

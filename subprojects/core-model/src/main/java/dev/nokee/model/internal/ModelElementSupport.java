@@ -73,4 +73,9 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 			((ExtensionAware) target).getExtensions().add(ModelElement.class, "$identity", identity);
 		}
 	}
+
+	// TODO: Should probably remove this API
+	public static ModelObjectIdentifier nextIdentifier() {
+		return nextIdentity.get().getIdentifier();
+	}
 }

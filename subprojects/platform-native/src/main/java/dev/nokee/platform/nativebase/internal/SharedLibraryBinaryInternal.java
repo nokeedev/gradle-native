@@ -15,10 +15,13 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.internal.Factory;
+import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
@@ -50,6 +53,7 @@ public /*final*/ abstract class SharedLibraryBinaryInternal extends BaseNativeBi
 	, HasObjectFilesToBinaryTask
 	, HasLinkLibrariesDependencyBucket
 	, HasRuntimeLibrariesDependencyBucket
+	, CompileTasksMixIn
 {
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
@@ -57,11 +61,12 @@ public /*final*/ abstract class SharedLibraryBinaryInternal extends BaseNativeBi
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objects, ProviderFactory providers) {
+	public SharedLibraryBinaryInternal(ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
 		getExtensions().add("linkTask", taskRegistry.register(getIdentifier().child(TaskName.of("link")), LinkSharedLibraryTask.class).asProvider());
 		getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
 		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
+		getExtensions().add("compileTasks", compileTasksFactory.create());
 		this.objects = objects;
 		this.providerFactory = providers;
 		this.linkedFile = objects.fileProperty();
@@ -77,6 +82,11 @@ public /*final*/ abstract class SharedLibraryBinaryInternal extends BaseNativeBi
 
 		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 		task.getInstallName().set(installName);
+	}
+
+	@Override
+	public TaskView<SourceCompile> getCompileTasks() {
+		return CompileTasksMixIn.super.getCompileTasks();
 	}
 
 	@Override

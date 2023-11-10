@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.internal.Factory;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
@@ -23,7 +24,6 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -62,20 +62,16 @@ public final class StaticLibraryBinaryRegistrationFactory {
 		, HasHeaderSearchPaths
 		, CreateTaskMixIn
 		, HasObjectFilesToBinaryTask
+		, CompileTasksMixIn
 	{
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
 		private final ObjectFactory objectFactory;
 
 		@Inject
-		public ModelBackedStaticLibraryBinary(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objectFactory) {
+		public ModelBackedStaticLibraryBinary(ModelObjectRegistry<Task> taskRegistry, Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objectFactory) {
 			getExtensions().add("createTask", taskRegistry.register(getIdentifier().child(TaskName.of("create")), CreateStaticLibraryTask.class).asProvider());
+			getExtensions().add("compileTasks", compileTasksFactory.create());
 			this.objectFactory = objectFactory;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public TaskView<SourceCompile> getCompileTasks() {
-			return ModelProperties.getProperty(this, "compileTasks").as(TaskView.class).get();
 		}
 
 		@Override

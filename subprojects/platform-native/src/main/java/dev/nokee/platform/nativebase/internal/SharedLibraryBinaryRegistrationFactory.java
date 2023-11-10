@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.internal.Factory;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
@@ -23,7 +24,6 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
@@ -68,22 +68,18 @@ public final class SharedLibraryBinaryRegistrationFactory {
 		, HasRuntimeLibrariesDependencyBucket
 		, LinkTaskMixIn<LinkSharedLibrary, LinkSharedLibraryTask>
 		, HasObjectFilesToBinaryTask
+		, CompileTasksMixIn
 	{
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
 		private final ObjectFactory objectFactory;
 
 		@Inject
-		public ModelBackedSharedLibraryBinary(ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objectFactory) {
+		public ModelBackedSharedLibraryBinary(ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objectFactory) {
 			getExtensions().add("linkTask", taskRegistry.register(getIdentifier().child(TaskName.of("link")), LinkSharedLibraryTask.class).asProvider());
 			getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
 			getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
+			getExtensions().add("compileTasks", compileTasksFactory.create());
 			this.objectFactory = objectFactory;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public TaskView<SourceCompile> getCompileTasks() {
-			return ModelProperties.getProperty(this, "compileTasks").as(TaskView.class).get();
 		}
 
 		@Override

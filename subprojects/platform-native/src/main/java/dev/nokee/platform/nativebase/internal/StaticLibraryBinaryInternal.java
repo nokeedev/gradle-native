@@ -15,9 +15,13 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.internal.Factory;
+import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -40,11 +44,18 @@ public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBi
 	, Buildable
 	, CreateTaskMixIn
 	, HasObjectFilesToBinaryTask
+	, CompileTasksMixIn
 {
 	@Inject
-	public StaticLibraryBinaryInternal(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, ProviderFactory providers) {
+	public StaticLibraryBinaryInternal(ModelObjectRegistry<Task> taskRegistry, Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
 		getExtensions().add("createTask", taskRegistry.register(getIdentifier().child(TaskName.of("create")), CreateStaticLibraryTask.class).asProvider());
+		getExtensions().add("compileTasks", compileTasksFactory.create());
+	}
+
+	@Override
+	public TaskView<SourceCompile> getCompileTasks() {
+		return CompileTasksMixIn.super.getCompileTasks();
 	}
 
 	@Override

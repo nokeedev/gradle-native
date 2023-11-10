@@ -16,12 +16,9 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.utils.Cast;
 import lombok.val;
@@ -143,11 +140,5 @@ public abstract class BaseNativeBinary extends ModelElementSupport implements Bi
 		NativePlatformInternal platformInternal = (NativePlatformInternal)platform;
 		PlatformToolProvider toolProvider = toolchainInternal.select(platformInternal);
 		return toolProvider.isAvailable();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public TaskView<SourceCompile> getCompileTasks() {
-		return ModelProperties.getProperty(this, "compileTasks").as(TaskView.class).get();
 	}
 }
