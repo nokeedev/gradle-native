@@ -16,32 +16,15 @@
 package dev.nokee.platform.nativebase.internal.compiling;
 
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
-import lombok.val;
-import org.gradle.api.Transformer;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.provider.Provider;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.util.Set;
-
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static dev.nokee.utils.TransformerUtils.onlyInstanceOf;
-import static dev.nokee.utils.TransformerUtils.stream;
 
 final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelComponentTag<IsBinary>> {
-	private static final ModelType<TaskView<SourceCompile>> TASK_VIEW_MODEL_TYPE = ModelType.of(new TypeOf<TaskView<SourceCompile>>() {});
 	private final ModelRegistry registry;
 	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
 
@@ -52,19 +35,6 @@ final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.Model
 
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> tag) {
-		val compileTasks = registry.register(tasksPropertyRegistrationFactory.create("compileTasks", entity, SourceCompile.class));
-		entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
-	}
-
-	private static Transformer<Provider<Set<Path>>, TaskView<SourceCompile>> toObjectFiles() {
-		return view -> view.flatMap(onlyInstanceOf(HasObjectFiles.class, asObjectFiles())).map(asFlattenPathSet());
-	}
-
-	private static Transformer<FileCollection, HasObjectFiles> asObjectFiles() {
-		return HasObjectFiles::getObjectFiles;
-	}
-
-	private static Transformer<Set<Path>, Iterable<FileCollection>> asFlattenPathSet() {
-		return stream(s -> s.flatMap(it -> it.getFiles().stream()).map(File::toPath).collect(toImmutableSet()));
+		registry.register(tasksPropertyRegistrationFactory.create("compileTasks", entity, SourceCompile.class));
 	}
 }

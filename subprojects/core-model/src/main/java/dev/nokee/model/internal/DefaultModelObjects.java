@@ -18,6 +18,10 @@ package dev.nokee.model.internal;
 
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
+import org.gradle.api.specs.Spec;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -27,19 +31,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public /*final*/ class DefaultModelObjects implements ModelObjects {
 	private final Map<ModelObjectIdentifier, ModelMapAdapters.ModelElementIdentity> identifierToElements = new HashMap<>();
 	private final List<ModelMapAdapters.ModelElementIdentity> elements = new ArrayList<>();
+	private final ProviderFactory providers;
+	private final ObjectFactory objects;
 	@SuppressWarnings("rawtypes") private final DomainObjectSet<ModelMap> collections;
 
 	@Inject
-	public DefaultModelObjects(ObjectFactory objects) {
+	public DefaultModelObjects(ProviderFactory providers, ObjectFactory objects) {
+		this.providers = providers;
+		this.objects = objects;
 		this.collections = objects.domainObjectSet(ModelMap.class);
 	}
 
@@ -88,6 +98,53 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 			final ModelObjectIdentifier result = nextValue;
 			nextValue = nextValue.getParent();
 			return result;
+		}
+	}
+
+	@Override
+	public <T> Provider<Set<T>> get(Class<T> type) {
+		return providers.provider(() -> {
+			final List<ModelMapAdapters.ModelElementIdentity> result = new ArrayList<>();
+
+			forEachIdentity(it -> {
+				// TODO: Should provide automatic discovery
+				if (it.instanceOf(type)) {
+					result.add(it);
+				}
+			});
+			return result;
+		}).flatMap(identities -> {
+			SetProperty<T> result = objects.setProperty(type);
+			identities.forEach(it -> result.add(it.asModelObject(type).asProvider()));
+			return result;
+		});
+	}
+
+	@Override
+	public <T> Provider<Set<T>> get(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec) {
+		return providers.provider(() -> {
+			final List<ModelMapAdapters.ModelElementIdentity> result = new ArrayList<>();
+
+			forEachIdentity(it -> {
+				if (spec.isSatisfiedBy(it)) {
+					if (it.instanceOf(type)) {
+						result.add(it);
+					}
+				}
+			});
+			return result;
+		}).flatMap(identities -> {
+			SetProperty<T> result = objects.setProperty(type);
+			identities.forEach(it -> result.add(it.asModelObject(type).asProvider()));
+			return result;
+		});
+	}
+
+	private void forEachIdentity(Consumer<? super ModelMapAdapters.ModelElementIdentity> action) {
+		// WARNING: Don't listen to IntelliJ. It's retarded and a index loop is the only way...
+		//   Because more elements may appear in the list as they are discovered.
+		for (int i = 0; i < elements.size(); ++i) {
+			action.accept(elements.get(i));
 		}
 	}
 }

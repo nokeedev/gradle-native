@@ -18,10 +18,8 @@ package dev.nokee.platform.nativebase.internal.archiving;
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.nativebase.HasCreateTask;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Task;
@@ -51,11 +49,9 @@ public class NativeArchiveCapabilityPlugin<T extends ExtensionAware & PluginAwar
 
 	@Override
 	public void apply(T target) {
-		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
 		artifacts(target).configureEach(new NativeArchiveTaskRegistrationRule(new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers)));
 		artifacts(target).configureEach(new ConfigureCreateTaskFromBaseNameRule());
 		variants(target).configureEach(new ConfigureCreateTaskTargetPlatformFromBuildVariantRule(model(target, mapOf(Task.class))));
-		configurer.configure(new AttachObjectFilesToCreateTaskRule());
 		artifacts(target).configureEach(new ConfigureCreateTaskDescriptionRule());
 		artifacts(target).configureEach(it -> {
 			if (it instanceof HasCreateTask) {

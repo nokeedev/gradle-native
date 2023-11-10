@@ -16,12 +16,10 @@
 package dev.nokee.platform.nativebase.internal.linking;
 
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.nativebase.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
 import dev.nokee.utils.TaskUtils;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Task;
@@ -51,12 +49,10 @@ public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> 
 
 	@Override
 	public void apply(T target) {
-		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
 		variants(target).configureEach(new AttachAttributesToConfigurationRule(HasLinkLibrariesDependencyBucket.class, HasLinkLibrariesDependencyBucket::getLinkLibraries, objects, model(target, mapOf(Artifact.class))));
 		artifacts(target).configureEach(new LinkLibrariesConfigurationRegistrationRule(objects, model(target, objects())));
 		artifacts(target).configureEach(new NativeLinkTaskRegistrationRule(new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers)));
 		artifacts(target).configureEach(new ConfigureLinkTaskFromBaseNameRule());
-		configurer.configure(new AttachObjectFilesToLinkTaskRule());
 		artifacts(target).configureEach(new ConfigureLinkTaskDefaultsRule());
 		variants(target).configureEach(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(model(target, mapOf(Task.class))));
 		artifacts(target).configureEach(new ConfigureLinkTaskBundleRule());
