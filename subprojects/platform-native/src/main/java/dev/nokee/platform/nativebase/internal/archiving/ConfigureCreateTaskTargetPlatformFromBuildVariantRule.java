@@ -46,7 +46,7 @@ final class ConfigureCreateTaskTargetPlatformFromBuildVariantRule extends ModelA
 
 	@Override
 	protected void execute(ModelNode entity, BuildVariantComponent buildVariant, ModelProjection ignored) {
-		ModelNodeUtils.get(entity, HasCreateTask.class).getCreateTask().configure(configureTargetPlatform(set(fromBuildVariant(buildVariant.get())).andThen(lockProperty())));
+		ModelNodeUtils.get(entity, HasCreateTask.class).getCreateTask().configure(configureTargetPlatform(set(fromBuildVariant(buildVariant.get()))/*.andThen(lockProperty())*/));
 	}
 
 	//region Target platform

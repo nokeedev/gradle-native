@@ -21,7 +21,10 @@ import dev.nokee.model.capabilities.variants.CreateVariantsRule;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
 import dev.nokee.model.internal.DefaultModelObjectIdentifier;
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelMapAdapters;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.buffers.ModelBuffers;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -54,6 +57,7 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.TaskView;
@@ -107,10 +111,12 @@ import org.gradle.api.provider.Provider;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.ofInstance;
+import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
@@ -303,6 +309,15 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			entity.addComponent(new BaseNamePropertyComponent(baseNameProperty));
 		})));
 
+		artifacts(project).configureEach(artifact -> {
+			if (artifact instanceof HasBaseName) {
+				safeAsModelElement(artifact).map(ModelElement::getIdentifier).map(ModelObjectIdentifier::getParent).ifPresent(parentIdentifier -> {
+					((HasBaseName) artifact).getBaseName().convention(project.provider(() -> {
+						return Optional.ofNullable(variants(project).findByName(ModelObjectIdentifiers.asFullyQualifiedName(parentIdentifier).toString())).filter(HasBaseName.class::isInstance).map(HasBaseName.class::cast).map(HasBaseName::getBaseName).orElse(null);
+					}).flatMap(it -> it));
+				});
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), (entity, property) -> {
 			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(project.getProviders().provider(() -> {
 				return entity.find(ParentComponent.class)
