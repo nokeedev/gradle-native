@@ -22,14 +22,10 @@ import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.HasImportModules;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
@@ -179,6 +175,7 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Sync;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -245,11 +242,15 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 							if (LanguageSourceSet.isAssignableFrom(component.getProjectionType())) {
 								ModelStates.finalize(it);
 							}
-						} catch (
-							ClassNotFoundException e) {
+						} catch (ClassNotFoundException e) {
 							// ignores
 						}
 					});
+				});
+				model(project, mapOf(LanguageSourceSet.class)).whenElementKnow(it -> {
+					if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
+						it.get(); // force realize
+					}
 				});
 			};
 			return new TaskViewAdapter<>(new ViewAdapter<>(SourceCompile.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
@@ -354,29 +355,31 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		});
 
+		variants(project).configureEach(variant -> {
+			ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(variantIdentifier -> {
+				model(project, mapOf(Task.class)).configureEach(AbstractNativeCompileTask.class, task -> {
+					ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
+						if (ModelObjectIdentifiers.descendantOf(taskIdentifier, variantIdentifier)) {
+							NativePlatformFactory.create(variant.getBuildVariant()).ifPresent(task.getTargetPlatform()::set);
+						}
+					});
+				});
+				model(project, mapOf(Task.class)).configureEach(SwiftCompileTask.class, task -> {
+					ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
+						if (ModelObjectIdentifiers.descendantOf(taskIdentifier, variantIdentifier)) {
+							NativePlatformFactory.create(variant.getBuildVariant()).ifPresent(task.getTargetPlatform()::set);
+						}
+					});
+				});
+			});
+		});
+
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, buildVariantComponent, identifier, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val buildVariant = (BuildVariantInternal) buildVariantComponent.get();
 
 			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-				registry.instantiate(configureEach(descendantOf(entity.getId()), CSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
-				}));
-				registry.instantiate(configureEach(descendantOf(entity.getId()), CppSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
-				}));
-				registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
-				}));
-				registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCppSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
-				}));
 				registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
 					sourceSet.getCompileTask().configure(task -> {
 						ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(id -> {
 							task.getModuleName().set(project.provider(() -> {
@@ -388,7 +391,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 							}).flatMap(it -> it).map(TextCaseUtils::toCamelCase));
 						});
 					});
-					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
 				}));
 
 				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);

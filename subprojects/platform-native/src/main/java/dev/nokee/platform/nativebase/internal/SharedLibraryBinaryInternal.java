@@ -17,7 +17,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
+import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.platform.base.DependencyBucket;
@@ -46,9 +46,10 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class, NativeLanguageSourceSetAwareTag.class})
+@DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class})
 public /*final*/ abstract class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary
 	, Buildable
+	, NativeLanguageSourceSetAware
 	, LinkTaskMixIn<LinkSharedLibrary, LinkSharedLibraryTask>
 	, HasObjectFilesToBinaryTask
 	, HasLinkLibrariesDependencyBucket
@@ -82,11 +83,6 @@ public /*final*/ abstract class SharedLibraryBinaryInternal extends BaseNativeBi
 
 		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 		task.getInstallName().set(installName);
-	}
-
-	@Override
-	public TaskView<SourceCompile> getCompileTasks() {
-		return CompileTasksMixIn.super.getCompileTasks();
 	}
 
 	@Override

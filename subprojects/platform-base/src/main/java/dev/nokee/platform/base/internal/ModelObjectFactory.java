@@ -16,7 +16,6 @@
 
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.MoreCollectors;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;

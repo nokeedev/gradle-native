@@ -17,10 +17,9 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
+import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -28,7 +27,6 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.CreateTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
-import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.Task;
@@ -39,9 +37,10 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class, NativeLanguageSourceSetAwareTag.class})
+@DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class})
 public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
+	, NativeLanguageSourceSetAware
 	, CreateTaskMixIn
 	, HasObjectFilesToBinaryTask
 	, CompileTasksMixIn
@@ -51,11 +50,6 @@ public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBi
 		super(objects, providers);
 		getExtensions().add("createTask", taskRegistry.register(getIdentifier().child(TaskName.of("create")), CreateStaticLibraryTask.class).asProvider());
 		getExtensions().add("compileTasks", compileTasksFactory.create());
-	}
-
-	@Override
-	public TaskView<SourceCompile> getCompileTasks() {
-		return CompileTasksMixIn.super.getCompileTasks();
 	}
 
 	@Override

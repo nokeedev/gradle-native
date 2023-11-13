@@ -17,7 +17,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
+import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -57,12 +57,12 @@ public final class BundleBinaryRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponentTag(IsBinary.class)
 			.withComponentTag(ConfigurableTag.class)
-			.withComponentTag(NativeLanguageSourceSetAwareTag.class)
 			.withComponent(new MainProjectionComponent(ModelBackedBundleBinary.class))
 			.build();
 	}
 
 	public static /*final*/ abstract class ModelBackedBundleBinary extends ModelElementSupport implements BundleBinary
+		, NativeLanguageSourceSetAware
 		, HasHeaderSearchPaths
 		, HasLinkLibrariesDependencyBucket
 		, HasRuntimeLibrariesDependencyBucket

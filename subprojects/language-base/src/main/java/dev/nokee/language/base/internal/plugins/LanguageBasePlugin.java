@@ -52,6 +52,7 @@ import java.lang.reflect.ParameterizedType;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -68,7 +69,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 
 		project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "$sources", project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class));
-		model(project).getExtensions().create("sources", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, LanguageSourceSet.class, sources(project));
+		model(project, objects()).register(model(project).getExtensions().create("sources", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, LanguageSourceSet.class, sources(project)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<LanguageSourceSet>(IsLanguageSourceSet.class, model(project, registryOf(LanguageSourceSet.class))));
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
