@@ -15,17 +15,13 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.TaskDependencyUtils;
@@ -34,7 +30,6 @@ import org.gradle.api.tasks.TaskDependency;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag({SwiftSourceSetTag.class, SwiftSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
 public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet
 	, NativeCompileTaskMixIn<SwiftCompileTask>
 	, DependencyAwareComponentMixIn<DefaultSwiftComponentDependencies>
@@ -60,6 +55,4 @@ public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport i
 	public String toString() {
 		return "Swift sources '" + getName() + "'";
 	}
-
-	public interface Tag extends ModelTag {}
 }
