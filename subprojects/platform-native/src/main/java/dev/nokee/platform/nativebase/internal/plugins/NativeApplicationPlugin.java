@@ -19,7 +19,6 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -128,7 +127,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			;
 	}
 
-	@DomainObjectEntities.Tag({NativeSourcesAwareTag.class, IsComponent.class})
+	@DomainObjectEntities.Tag({IsComponent.class})
 	public static abstract class DefaultNativeApplicationExtension extends ModelElementSupport implements NativeApplicationExtension, ModelNodeAware
 		, NativeApplicationComponent
 		, ExtensionAwareMixIn

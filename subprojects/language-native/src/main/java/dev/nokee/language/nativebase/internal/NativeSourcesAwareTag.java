@@ -17,5 +17,6 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.model.internal.tags.ModelTag;
 
+@Deprecated
 public interface NativeSourcesAwareTag extends ModelTag {
 }

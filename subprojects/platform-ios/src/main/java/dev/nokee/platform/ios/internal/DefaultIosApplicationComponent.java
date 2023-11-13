@@ -20,7 +20,6 @@ import com.google.common.collect.MoreCollectors;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
-import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -102,7 +101,7 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 
-@DomainObjectEntities.Tag({NativeSourcesAwareTag.class, IsComponent.class})
+@DomainObjectEntities.Tag({IsComponent.class})
 public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements Component
 	, NativeSourcesAware
 	, ExtensionAwareMixIn

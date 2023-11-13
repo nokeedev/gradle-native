@@ -21,7 +21,6 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
-import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -79,7 +78,7 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
-@DomainObjectEntities.Tag({NativeSourcesAwareTag.class, IsComponent.class})
+@DomainObjectEntities.Tag({IsComponent.class})
 public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
