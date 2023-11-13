@@ -17,28 +17,18 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.View;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectCollection;
 
 public final class LinkLibrariesExtendsFromParentDependencyBucketAction<TargetType> implements Action<TargetType> {
-	private final NamedDomainObjectCollection<DependencyBucket> buckets;
-
-	public LinkLibrariesExtendsFromParentDependencyBucketAction(NamedDomainObjectCollection<DependencyBucket> buckets) {
-		this.buckets = buckets;
-	}
-
 	@Override
 	public void execute(TargetType target) {
 		if (target instanceof DependencyAwareComponent && target instanceof BinaryAwareComponent) {
@@ -47,7 +37,7 @@ public final class LinkLibrariesExtendsFromParentDependencyBucketAction<TargetTy
 				binaries.configureEach(binary -> {
 					if (binary instanceof HasLinkLibrariesDependencyBucket) {
 						ModelElementSupport.safeAsModelElement(binary).ifPresent(element -> {
-							buckets.withType(ResolvableDependencyBucketSpec.class).getByName(ModelObjectIdentifiers.asFullyQualifiedName(element.getIdentifier().child("linkLibraries")).toString()).extendsFrom(parentDependencies.getImplementation(), parentDependencies.getLinkOnly());
+							((HasLinkLibrariesDependencyBucket) binary).getLinkLibraries().extendsFrom(parentDependencies.getImplementation(), parentDependencies.getLinkOnly());
 						});
 					}
 				});

@@ -45,7 +45,6 @@ import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourc
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -70,7 +69,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
@@ -143,7 +141,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
@@ -227,10 +224,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				variant.getBinaries().configureEach(binary -> {
 					ModelElementSupport.safeAsModelElement(binary).ifPresent(element -> {
 						if (binary instanceof HasLinkLibrariesDependencyBucket) {
-							dependencyBuckets(project).withType(ResolvableDependencyBucketSpec.class).getByName(ModelObjectIdentifiers.asFullyQualifiedName(element.getIdentifier().child("linkLibraries")).toString()).extendsFrom(variant.getDependencies().getNativeImplementation(), variant.getDependencies().getNativeLinkOnly());
+							((HasLinkLibrariesDependencyBucket) binary).getLinkLibraries().extendsFrom(variant.getDependencies().getNativeImplementation(), variant.getDependencies().getNativeLinkOnly());
 						}
 						if (binary instanceof HasRuntimeLibrariesDependencyBucket) {
-							dependencyBuckets(project).withType(ResolvableDependencyBucketSpec.class).getByName(ModelObjectIdentifiers.asFullyQualifiedName(element.getIdentifier().child("runtimeLibraries")).toString()).extendsFrom(variant.getDependencies().getNativeImplementation(), variant.getDependencies().getNativeRuntimeOnly());
+							((HasRuntimeLibrariesDependencyBucket) binary).getRuntimeLibraries().extendsFrom(variant.getDependencies().getNativeImplementation(), variant.getDependencies().getNativeRuntimeOnly());
 						}
 					});
 				});

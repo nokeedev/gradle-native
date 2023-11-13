@@ -326,8 +326,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		components(project).configureEach(new ImplementationExtendsFromApiDependencyBucketAction<>());
 		components(project).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
 		variants(project).configureEach(new HeaderSearchPathsExtendsFromParentDependencyBucketAction<>());
-		variants(project).configureEach(new LinkLibrariesExtendsFromParentDependencyBucketAction<>(dependencyBuckets(project)));
-		variants(project).configureEach(new RuntimeLibrariesExtendsFromParentDependencyBucketAction<>(dependencyBuckets(project)));
+		variants(project).configureEach(new LinkLibrariesExtendsFromParentDependencyBucketAction<>());
+		variants(project).configureEach(new RuntimeLibrariesExtendsFromParentDependencyBucketAction<>());
 
 		variants(project).configureEach(variant -> {
 			if (variant instanceof SourceAwareComponent && ((SourceAwareComponent<?>) variant).getSources() instanceof View) {
