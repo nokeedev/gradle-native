@@ -37,7 +37,6 @@ import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
-import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
@@ -93,7 +92,6 @@ import dev.nokee.platform.jni.internal.JvmJarArtifactComponent;
 import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
 import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
 import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
-import dev.nokee.platform.jni.internal.actions.OnceAction;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
@@ -280,9 +278,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				}
 			}
 
-			project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(appliedPlugin -> {
-				// TODO: configure child headerSearchPaths to extends from nativeCompileOnly
-			}));
+//			project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(appliedPlugin -> {
+//				// TODO: configure child headerSearchPaths to extends from nativeCompileOnly
+//			}));
 
 			project.getPluginManager().withPlugin("java", appliedPlugin -> {
 				project.getConfigurations().getByName("implementation", configureExtendsFrom(dependencies.getJvmImplementation().getAsConfiguration()));

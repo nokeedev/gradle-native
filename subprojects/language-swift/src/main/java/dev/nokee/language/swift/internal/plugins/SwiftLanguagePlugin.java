@@ -15,24 +15,17 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
-import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.ModelLookup;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
-public class SwiftLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
+public class SwiftLanguagePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponentTag(SupportSwiftSourceSetTag.class);
-	}
-
-	@Override
-	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
-		return SwiftLanguageBasePlugin.DefaultSwiftSourceSetRegistrationFactory.class;
 	}
 }

@@ -21,7 +21,6 @@ import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
-import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesMixInRule;
 import dev.nokee.language.nativebase.internal.UseConventionalLayout;
@@ -29,19 +28,15 @@ import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.scripts.DefaultImporter;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -87,8 +82,6 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("objectiveCppSources"));
 		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("privateHeaders"));
 
-		val registrationFactory = new DefaultObjectiveCppSourceSetRegistrationFactory();
-		project.getExtensions().add("__nokee_defaultObjectiveCppFactory", registrationFactory);
 		model(project, objects()).configureEach((identifier, target) -> {
 			if (target instanceof NativeLanguageSourceSetAware) {
 				final Class<? extends ModelTag> sourceSetTag = SupportObjectiveCppSourceSetTag.class;
@@ -102,12 +95,5 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		});
 
 		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(ObjectiveCppSourceSetSpec.class, "objectiveCppSources"));
-	}
-
-	static final class DefaultObjectiveCppSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
-		@Override
-		public ModelRegistration create(ModelNode owner) {
-			return DomainObjectEntities.newEntity(owner.get(IdentifierComponent.class).get().child("objectiveCpp"), ObjectiveCppSourceSetSpec.class, it -> it.ownedBy(owner).displayName("Objective-C++ sources"));
-		}
 	}
 }

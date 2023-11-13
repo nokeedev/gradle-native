@@ -15,25 +15,18 @@
  */
 package dev.nokee.language.objectivec.internal.plugins;
 
-import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
-import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.ModelLookup;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-public class ObjectiveCLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
+public class ObjectiveCLanguagePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponentTag(SupportObjectiveCSourceSetTag.class);
-	}
-
-	@Override
-	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
-		return ObjectiveCLanguageBasePlugin.DefaultObjectiveCSourceSetRegistrationFactory.class;
 	}
 }

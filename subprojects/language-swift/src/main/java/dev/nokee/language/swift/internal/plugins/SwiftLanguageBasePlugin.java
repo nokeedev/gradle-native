@@ -19,26 +19,21 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
-import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesMixInRule;
 import dev.nokee.language.nativebase.internal.UseConventionalLayout;
 import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.scripts.DefaultImporter;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -85,8 +80,6 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new AttachImportModulesToCompileTaskRule());
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new SwiftCompileTaskDefaultConfigurationRule());
 
-		val registrationFactory = new DefaultSwiftSourceSetRegistrationFactory();
-		project.getExtensions().add("__nokee_defaultSwiftFactory", registrationFactory);
 		model(project, objects()).configureEach((identifier, target) -> {
 			if (target instanceof NativeLanguageSourceSetAware) {
 				final Class<? extends ModelTag> sourceSetTag = SupportSwiftSourceSetTag.class;
@@ -100,12 +93,5 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		});
 
 		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(SwiftSourceSetSpec.class, "swiftSources"));
-	}
-
-	static final class DefaultSwiftSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
-		@Override
-		public ModelRegistration create(ModelNode owner) {
-			return DomainObjectEntities.newEntity(owner.get(IdentifierComponent.class).get().child("swift"), SwiftSourceSetSpec.class, it -> it.ownedBy(owner).displayName("Swift sources"));
-		}
 	}
 }
