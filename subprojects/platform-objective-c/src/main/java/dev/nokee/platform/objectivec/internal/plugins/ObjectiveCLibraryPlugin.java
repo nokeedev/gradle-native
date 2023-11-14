@@ -58,6 +58,7 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareCompo
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivec.ObjectiveCLibrary;
@@ -134,6 +135,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		, ObjectiveCSourcesMixIn
 		, PrivateHeadersMixIn
 		, HasPublicHeadersMixIn
+		, ObjectsTaskMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
@@ -144,6 +146,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 			getExtensions().add("binaries", binariesFactory.create());
 			getExtensions().add("sources", sourcesFactory.create());
 			getExtensions().add("tasks", tasksFactory.create());
+			getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		}
 
 		@Override

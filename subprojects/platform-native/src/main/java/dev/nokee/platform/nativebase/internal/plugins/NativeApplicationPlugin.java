@@ -61,6 +61,7 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareCompo
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
+import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -145,6 +146,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, AssembleTaskMixIn
+		, ObjectsTaskMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
@@ -155,6 +157,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			getExtensions().add("binaries", binariesFactory.create());
 			getExtensions().add("sources", sourcesFactory.create());
 			getExtensions().add("tasks", tasksFactory.create());
+			getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		}
 
 		@Override

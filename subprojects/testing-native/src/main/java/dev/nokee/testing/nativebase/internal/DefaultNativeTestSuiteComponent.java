@@ -78,7 +78,6 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareCompo
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.testing.base.TestSuiteComponent;
@@ -183,8 +182,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	}
 
 	public void finalizeExtension(Project project) {
-		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
-
 		val checkTask = registry.register(newEntity(getIdentifier().child(TaskName.of("check")), Task.class, it -> it.ownedBy(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root())))).as(Task.class);
 
 		// HACK: This should really be solve using the variant whenElementKnown API

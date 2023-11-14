@@ -58,6 +58,7 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareCompo
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
@@ -132,6 +133,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		, AssembleTaskMixIn
 		, PrivateHeadersMixIn
 		, CppSourcesMixIn
+		, ObjectsTaskMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
@@ -142,6 +144,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 			getExtensions().add("binaries", binariesFactory.create());
 			getExtensions().add("sources", sourcesFactory.create());
 			getExtensions().add("tasks", tasksFactory.create());
+			getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		}
 
 		@Override

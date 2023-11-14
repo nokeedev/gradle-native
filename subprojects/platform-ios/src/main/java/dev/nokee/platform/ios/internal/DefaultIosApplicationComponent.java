@@ -66,7 +66,6 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import lombok.Getter;
 import lombok.val;
@@ -286,7 +285,6 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 
 	public void finalizeValue() {
 		whenElementKnown(this, this::onEachVariant);
-		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
 	}
 
 	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<IosApplication>> action) {

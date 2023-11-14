@@ -33,14 +33,12 @@ import dev.nokee.language.swift.internal.plugins.HasImportModules;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
@@ -49,7 +47,6 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
@@ -78,7 +75,6 @@ import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
-import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.ViewAdapter;
@@ -87,10 +83,8 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketS
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
@@ -107,6 +101,7 @@ import dev.nokee.platform.nativebase.internal.NativeApplicationTag;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryTag;
 import dev.nokee.platform.nativebase.internal.NativeVariant;
+import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
@@ -126,7 +121,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkActio
 import dev.nokee.platform.nativebase.internal.dependencies.SwiftLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
@@ -165,8 +159,6 @@ import java.util.function.BiFunction;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
-import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
-import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -600,6 +592,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(variant -> {
 			variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 		});
+
+		// TODO: Restrict this rule
+		components(project).configureEach(component -> {
+			if (component instanceof ObjectsTaskMixIn && component instanceof HasDevelopmentVariant) {
+				((ObjectsTaskMixIn) component).getObjectsTask().configure(configureDependsOn(((HasDevelopmentVariant<?>) component).getDevelopmentVariant().flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
+			}
+		});
 	}
 
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {
@@ -634,13 +633,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					return null;
 				}
 			}).forEach(it -> {});
-
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute((VariantAwareComponentInternal<?>) component);
-		}
-
-		private static void whenElementKnown(Object target, Action<? super KnownDomainObject<NativeApplication>> action) {
-			instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), NativeApplication.class, action));
 		}
 	}
 
@@ -656,8 +648,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			VariantAwareComponent<?> component = ModelNodeUtils.get(entity, of(ModelBackedVariantAwareComponentMixIn.class));
 
 			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), new BiFunction<BuildVariant, ModelNode, Void>() {
-				private final ModelLookup modelLookup = project.getExtensions().getByType(ModelLookup.class);
-
 				@Override
 				public Void apply(BuildVariant buildVariant, ModelNode variant) {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(((ModelElement) component).getIdentifier()).build();
@@ -667,13 +657,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					return null;
 				}
 			}).forEach(it -> {});
-
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute((VariantAwareComponentInternal<?>) component);
-		}
-
-		private static void whenElementKnown(Object target, Action<? super KnownDomainObject<NativeLibrary>> action) {
-			instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), NativeLibrary.class, action));
 		}
 	}
 }
