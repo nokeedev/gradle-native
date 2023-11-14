@@ -102,7 +102,7 @@ public final class ModelMapAdapters {
 		}
 
 		public void forEach(Action<? super ModelElementIdentity> configureAction) {
-			knownElements.configureEach(configureAction);
+			knownElements.all(configureAction);
 		}
 	}
 
