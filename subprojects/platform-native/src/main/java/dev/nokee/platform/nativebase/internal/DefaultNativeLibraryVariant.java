@@ -71,6 +71,7 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 		getExtensions().create("dependencies", DefaultNativeLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("api", bucketRegistry.register(getIdentifier().child("api"), DeclarableDependencyBucketSpec.class).get());
+		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
 	}
 
 	@Override
@@ -101,7 +102,7 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
-		return ModelElements.of(this).element("runtimeElements", ConsumableDependencyBucketSpec.class).get();
+		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
 	}
 
 	@Override

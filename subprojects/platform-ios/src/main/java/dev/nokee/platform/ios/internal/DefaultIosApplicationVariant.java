@@ -19,7 +19,6 @@ import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -62,6 +61,7 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 	public DefaultIosApplicationVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
+		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
 		this.productBundleIdentifier = objects.property(String.class);
 	}
 
@@ -78,7 +78,7 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
-		return ModelElements.of(this).element("runtimeElements", ConsumableDependencyBucketSpec.class).get();
+		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
 	}
 
 	@Override

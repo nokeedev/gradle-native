@@ -63,6 +63,7 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 	public DefaultNativeApplicationVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().create("dependencies", DefaultNativeApplicationComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
+		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
 	}
 
 	@Override
@@ -78,7 +79,7 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
-		return ModelElements.of(this).element("runtimeElements", ConsumableDependencyBucketSpec.class).get();
+		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
 	}
 
 	@Override
