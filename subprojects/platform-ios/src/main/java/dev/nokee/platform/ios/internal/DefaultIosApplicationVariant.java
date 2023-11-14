@@ -42,6 +42,7 @@ import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
@@ -65,6 +66,7 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
+		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		this.productBundleIdentifier = objects.property(String.class);
 	}
 
@@ -76,5 +78,10 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
+	}
+
+	@SuppressWarnings("unchecked")
+	public TaskProvider<Task> getObjectsTask() {
+		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
 }

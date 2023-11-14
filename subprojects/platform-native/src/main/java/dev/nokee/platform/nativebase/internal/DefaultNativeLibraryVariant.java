@@ -77,6 +77,7 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
+		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 
 		if (getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).isShared()) {
 			getExtensions().add("binaryLifecycleTask", taskRegistry.register(getIdentifier().child(TaskName.of("sharedLibrary")), Task.class).asProvider());
@@ -127,5 +128,10 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 	@SuppressWarnings("unchecked")
 	public TaskProvider<Task> getBinaryLifecycleTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("binaryLifecycleTask");
+	}
+
+	@SuppressWarnings("unchecked")
+	public TaskProvider<Task> getObjectsTask() {
+		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
 }

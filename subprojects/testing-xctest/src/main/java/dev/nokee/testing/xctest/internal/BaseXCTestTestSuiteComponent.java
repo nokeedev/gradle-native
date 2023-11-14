@@ -39,7 +39,6 @@ import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.utils.Cast;
 import dev.nokee.utils.TextCaseUtils;
@@ -148,7 +147,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 			});
 		});
 		whenElementKnown(this.getNode(), this::onEachVariant);
-		whenElementKnown(this.getNode(), new CreateVariantObjectsLifecycleTaskRule(registry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
 
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(registry).execute(this);

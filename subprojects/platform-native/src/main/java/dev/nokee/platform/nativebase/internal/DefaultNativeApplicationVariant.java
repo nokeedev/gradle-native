@@ -23,7 +23,6 @@ import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
@@ -67,6 +66,7 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
 		getExtensions().add("binaryLifecycleTask", taskRegistry.register(getIdentifier().child(TaskName.of("executable")), Task.class).asProvider());
+		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 	}
 
 	@Override
@@ -93,5 +93,10 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
+	}
+
+	@SuppressWarnings("unchecked")
+	public TaskProvider<Task> getObjectsTask() {
+		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
 }

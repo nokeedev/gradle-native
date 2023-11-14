@@ -64,11 +64,11 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
+import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
@@ -114,6 +114,9 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
 			variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
+		});
+		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
+			variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 		});
 
 		val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);

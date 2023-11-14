@@ -54,6 +54,7 @@ import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
@@ -106,6 +107,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		});
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
 			variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
+		});
+		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
+			variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 		});
 
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {

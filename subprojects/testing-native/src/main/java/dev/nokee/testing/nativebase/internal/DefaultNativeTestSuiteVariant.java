@@ -43,6 +43,7 @@ import dev.nokee.platform.nativebase.internal.NativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
@@ -65,6 +66,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
+		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 	}
 
 	@Override
@@ -75,5 +77,10 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
+	}
+
+	@SuppressWarnings("unchecked")
+	public TaskProvider<Task> getObjectsTask() {
+		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
 }

@@ -127,8 +127,8 @@ import dev.nokee.platform.nativebase.internal.dependencies.SwiftLibraryOutgoingD
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
+import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
@@ -590,8 +590,15 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(variant -> {
 			variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 		});
+		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(variant -> {
+			variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
+		});
+
 		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(variant -> {
 			variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
+		});
+		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(variant -> {
+			variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 		});
 	}
 
@@ -629,7 +636,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}).forEach(it -> {});
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			whenElementKnown(component, new CreateVariantObjectsLifecycleTaskRule(registry));
 			new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute((VariantAwareComponentInternal<?>) component);
 		}
 
@@ -663,7 +669,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}).forEach(it -> {});
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			whenElementKnown(component, new CreateVariantObjectsLifecycleTaskRule(registry));
 			new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute((VariantAwareComponentInternal<?>) component);
 		}
 
