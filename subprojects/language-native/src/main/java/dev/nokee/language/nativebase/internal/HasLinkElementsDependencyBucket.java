@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal.dependencybuckets;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+package dev.nokee.language.nativebase.internal;
 
-public final class RuntimeOnlyConfigurationComponent implements ModelComponent, LinkedConfiguration {
-	private final ModelNode value;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 
-	public RuntimeOnlyConfigurationComponent(ModelNode value) {
-		this.value = value;
-	}
-
-	@Override
-	public ModelNode get() {
-		return value;
-	}
+public interface HasLinkElementsDependencyBucket {
+	ConsumableDependencyBucketSpec getLinkElements();
 }

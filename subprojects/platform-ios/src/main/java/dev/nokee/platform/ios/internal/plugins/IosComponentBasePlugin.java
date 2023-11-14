@@ -42,11 +42,6 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
@@ -58,7 +53,6 @@ import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependenciesComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -108,16 +102,6 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			registry.register(newEntity(identifier.get().child("resources"), IosResourceSetSpec.class, it -> it.ownedBy(entity))).configure(IosResourceSet.class, sourceSet -> sourceSet.from("src/" + fullyQualifiedName.get() + "/resources"));
-
-			val implementation = registry.register(newEntity(identifier.get().child("implementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val compileOnly = registry.register(newEntity(identifier.get().child("compileOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val linkOnly = registry.register(newEntity(identifier.get().child("linkOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val runtimeOnly = registry.register(newEntity(identifier.get().child("runtimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			if (!parent.get().hasComponent(typeOf(IosApplicationComponentTag.class))) {
@@ -126,19 +110,8 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val implementation = registry.register(newEntity(identifier.get().child("implementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val compileOnly = registry.register(newEntity(identifier.get().child("compileOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val linkOnly = registry.register(newEntity(identifier.get().child("linkOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val runtimeOnly = registry.register(newEntity(identifier.get().child("runtimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
 			val runtimeElements = registry.register(newEntity(identifier.get().child("runtimeElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
 			runtimeElements.configure(bucket -> {
-				bucket.extendsFrom(implementation, runtimeOnly);
 				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))).execute(bucket.getAsConfiguration());
 				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
 			});

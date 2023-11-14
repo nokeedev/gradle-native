@@ -15,9 +15,11 @@
  */
 package dev.nokee.platform.ios.internal;
 
+import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -32,6 +34,7 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -50,6 +53,7 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, AssembleTaskMixIn
+	, HasRuntimeElementsDependencyBucket
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter private final Property<String> productBundleIdentifier;
@@ -70,6 +74,11 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
+	}
+
+	@Override
+	public ConsumableDependencyBucketSpec getRuntimeElements() {
+		return ModelElements.of(this).element("runtimeElements", ConsumableDependencyBucketSpec.class).get();
 	}
 
 	@Override

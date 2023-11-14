@@ -69,9 +69,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.jni.JniJarBinary;
@@ -93,7 +90,6 @@ import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
 import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkAction;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -505,14 +501,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, id, tag) -> {
 			val identifier = (VariantIdentifier) id.get();
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			val implementation = registry.register(newEntity(identifier.child("nativeImplementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val linkOnly = registry.register(newEntity(identifier.child("nativeLinkOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val runtimeOnly = registry.register(newEntity(identifier.child("nativeRuntimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
 			val sharedLibrary = registry.register(newEntity(identifier.child(ElementName.ofMain("sharedLibrary")), SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
 				.displayName("shared library binary")

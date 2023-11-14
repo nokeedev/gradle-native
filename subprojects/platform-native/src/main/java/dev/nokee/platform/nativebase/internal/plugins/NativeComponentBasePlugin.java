@@ -16,13 +16,15 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.nativebase.internal.HasApiElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
+import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
+import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
@@ -45,7 +47,6 @@ import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
@@ -68,6 +69,7 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.SourceAwareComponent;
@@ -90,14 +92,7 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
-import dev.nokee.platform.base.internal.dependencybuckets.ApiConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.LinkedConfiguration;
-import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -202,7 +197,6 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
@@ -442,6 +436,35 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		artifacts(project).configureEach(new RuntimeLibrariesConfigurationRegistrationRule(model(project, objects()), project.getObjects()));
 		variants(project).configureEach(new AttachAttributesToConfigurationRule(HasRuntimeLibrariesDependencyBucket.class, HasRuntimeLibrariesDependencyBucket::getRuntimeLibraries, project.getObjects(), model(project, mapOf(Artifact.class))));
 
+		variants(project).configureEach(variant -> {
+			if (variant instanceof DependencyAwareComponent && ((DependencyAwareComponent<?>) variant).getDependencies() instanceof NativeComponentDependencies) {
+				final NativeComponentDependencies dependencies = ((DependencyAwareComponent<NativeComponentDependencies>) variant).getDependencies();
+
+				if (variant instanceof HasRuntimeElementsDependencyBucket) {
+					final ConsumableDependencyBucketSpec runtimeElements = ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements();
+					runtimeElements.extendsFrom(dependencies.getImplementation(), dependencies.getRuntimeOnly());
+				}
+
+				if (variant instanceof HasLinkElementsDependencyBucket) {
+					final ConsumableDependencyBucketSpec runtimeElements = ((HasLinkElementsDependencyBucket) variant).getLinkElements();
+					// TODO: We should extends from LinkOnlyApi
+					runtimeElements.extendsFrom(dependencies.getImplementation());
+				}
+
+				if (variant instanceof HasApiElementsDependencyBucket) {
+					final ConsumableDependencyBucketSpec apiElements = ((HasApiElementsDependencyBucket) variant).getApiElements();
+
+					// TODO: We should extends from CompileOnlyApi
+					if (variant instanceof HasApiDependencyBucket) {
+						apiElements.extendsFrom(((HasApiDependencyBucket) variant).getApi());
+					}
+				}
+
+				if (variant instanceof HasApiDependencyBucket) {
+					((DependencyBucketInternal) dependencies.getImplementation()).extendsFrom(((HasApiDependencyBucket) variant).getApi());
+				}
+			}
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			if (!parent.get().hasComponent(typeOf(NativeApplicationTag.class))) {
 				return;
@@ -449,17 +472,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val implementation = registry.register(newEntity(identifier.get().child("implementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val compileOnly = registry.register(newEntity(identifier.get().child("compileOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val linkOnly = registry.register(newEntity(identifier.get().child("linkOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val runtimeOnly = registry.register(newEntity(identifier.get().child("runtimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
 			val runtimeElements = registry.register(newEntity(identifier.get().child("runtimeElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
-			runtimeElements.configure(bucket -> bucket.extendsFrom(implementation, runtimeOnly));
 			runtimeElements.configure(bucket -> {
 				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))).execute(bucket.getAsConfiguration());
 				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
@@ -475,24 +488,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val api = registry.register(newEntity(identifier.get().child("api"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val implementation = registry.register(newEntity(identifier.get().child("implementation"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val compileOnly = registry.register(newEntity(identifier.get().child("compileOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val linkOnly = registry.register(newEntity(identifier.get().child("linkOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			val runtimeOnly = registry.register(newEntity(identifier.get().child("runtimeOnly"), DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class))).as(DeclarableDependencyBucketSpec.class);
-			implementation.configure(bucket -> bucket.extendsFrom(api));
-
-			entity.addComponent(new ApiConfigurationComponent(ModelNodes.of(api)));
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
 			boolean hasSwift = Stream.concat(Stream.of(entity), ParentUtils.stream(parent)).anyMatch(it -> it.hasComponent(typeOf(SupportSwiftSourceSetTag.class)));
 			DomainObjectProvider<ConsumableDependencyBucketSpec> apiElements = null;
 			if (hasSwift) {
 				apiElements = registry.register(newEntity(identifier.get().child("apiElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
-				apiElements.configure(bucket -> bucket.extendsFrom(api));
 				apiElements.configure(bucket -> {
 					ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))).execute(bucket.getAsConfiguration());
 					ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
@@ -500,7 +499,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				});
 			} else {
 				apiElements = registry.register(newEntity(identifier.get().child("apiElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
-				apiElements.configure(bucket -> bucket.extendsFrom(api));
 				apiElements.configure(bucket -> {
 					ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))).execute(bucket.getAsConfiguration());
 					ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
@@ -508,13 +506,11 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				});
 			}
 			val linkElements = registry.register(newEntity(identifier.get().child("linkElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
-			linkElements.configure(bucket -> bucket.extendsFrom(implementation, linkOnly));
 			linkElements.configure(bucket -> {
 				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))).execute(bucket.getAsConfiguration());
 				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
 			});
 			val runtimeElements = registry.register(newEntity(identifier.get().child("runtimeElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
-			runtimeElements.configure(bucket -> bucket.extendsFrom(implementation, runtimeOnly));
 			runtimeElements.configure(bucket -> {
 				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))).execute(bucket.getAsConfiguration());
 				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
@@ -623,25 +619,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			((Property<NativeLibrary>) developmentVariant.get().get(GradlePropertyComponent.class).get())
 				.convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(VariantAwareComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
 		}));
-	}
-
-	private static <T extends ModelComponent & LinkedConfiguration> Callable<Iterable<Configuration>> firstParentConfigurationOf(ParentComponent parent, Class<T> type) {
-		return () -> {
-			return ParentUtils.stream(parent)
-				.flatMap(it -> {
-					if (it.has(type)) {
-						return Stream.of(it.get(type).get());
-					} else {
-						return Stream.empty();
-					}
-				})
-				.map(it -> {
-					ModelStates.realize(it);
-					return ImmutableList.of(ModelNodeUtils.get(it, Configuration.class));
-				})
-				.findFirst()
-				.orElse(ImmutableList.of());
-		};
 	}
 
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {

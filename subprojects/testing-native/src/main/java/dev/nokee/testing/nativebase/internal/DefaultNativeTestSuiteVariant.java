@@ -18,9 +18,11 @@ package dev.nokee.testing.nativebase.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
+import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -36,6 +38,7 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
@@ -52,6 +55,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedTaskAwareComponentMixIn
 	, AssembleTaskMixIn
+	, HasRuntimeElementsDependencyBucket
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
@@ -70,6 +74,11 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
+	}
+
+	@Override
+	public ConsumableDependencyBucketSpec getRuntimeElements() {
+		return ModelElements.of(this).element("runtimeElements", ConsumableDependencyBucketSpec.class).get();
 	}
 
 	@Override
