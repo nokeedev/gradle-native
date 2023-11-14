@@ -82,7 +82,6 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketS
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantCapability;
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareCapability;
@@ -235,7 +234,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 
-		project.getPluginManager().apply(DevelopmentVariantCapability.class);
 		project.getPluginManager().apply(ExtensionAwareCapability.class);
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();

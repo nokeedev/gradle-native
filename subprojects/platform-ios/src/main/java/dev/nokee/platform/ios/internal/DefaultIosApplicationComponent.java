@@ -37,6 +37,7 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
@@ -46,11 +47,10 @@ import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
@@ -110,7 +110,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	, ModelBackedVariantAwareComponentMixIn<IosApplication>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
-	, HasDevelopmentVariantMixIn<IosApplication>
+	, HasDevelopmentVariant<IosApplication>
 {
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;
@@ -146,9 +146,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	}
 
 	@Override
-	public Property<IosApplication> getDevelopmentVariant() {
-		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
-	}
+	public abstract Property<IosApplication> getDevelopmentVariant();
 
 	@Override
 	@SuppressWarnings("unchecked")

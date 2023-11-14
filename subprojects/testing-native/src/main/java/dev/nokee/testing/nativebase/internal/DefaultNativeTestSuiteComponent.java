@@ -50,6 +50,7 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
@@ -65,7 +66,6 @@ import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -125,7 +125,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedVariantAwareComponentMixIn<NativeTestSuiteVariant>
-	, HasDevelopmentVariantMixIn<NativeTestSuiteVariant>
+	, HasDevelopmentVariant<NativeTestSuiteVariant>
 	, BinaryAwareComponentMixIn
 	, AssembleTaskMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
@@ -164,9 +164,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	}
 
 	@Override
-	public Property<NativeTestSuiteVariant> getDevelopmentVariant() {
-		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
-	}
+	public abstract Property<NativeTestSuiteVariant> getDevelopmentVariant();
 
 	@Override
 	@SuppressWarnings("unchecked")

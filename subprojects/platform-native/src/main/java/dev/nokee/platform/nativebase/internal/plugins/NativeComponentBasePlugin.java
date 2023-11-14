@@ -41,7 +41,6 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
@@ -69,6 +68,7 @@ import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -85,7 +85,6 @@ import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
-import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -152,7 +151,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.Sync;
@@ -578,16 +576,18 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, developmentVariant, ignored1) -> {
-			((Property<NativeApplication>) developmentVariant.get().get(GradlePropertyComponent.class).get())
-				.convention((Provider<? extends DefaultNativeApplicationVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(VariantAwareComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, developmentVariant, ignored1) -> {
-			((Property<NativeLibrary>) developmentVariant.get().get(GradlePropertyComponent.class).get())
-				.convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(VariantAwareComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
-		}));
+		components(project).configureEach(component -> {
+			if (component instanceof NativeApplicationComponent && component instanceof HasDevelopmentVariant && component instanceof VariantAwareComponent) {
+				final VariantView<?> variants = ((VariantAwareComponent<?>) component).getVariants();
+				((HasDevelopmentVariant<DefaultNativeApplicationVariant>) component).getDevelopmentVariant().convention((Provider<? extends DefaultNativeApplicationVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) variants.map(VariantInternal.class::cast).get())));
+			}
+		});
+		components(project).configureEach(component -> {
+			if (component instanceof NativeLibraryComponent && component instanceof HasDevelopmentVariant && component instanceof VariantAwareComponent) {
+				final VariantView<?> variants = ((VariantAwareComponent<?>) component).getVariants();
+				((HasDevelopmentVariant<DefaultNativeLibraryVariant>) component).getDevelopmentVariant().convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) variants.map(VariantInternal.class::cast).get())));
+			}
+		});
 	}
 
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {
