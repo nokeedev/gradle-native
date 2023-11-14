@@ -17,12 +17,6 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
@@ -34,10 +28,7 @@ import org.gradle.api.tasks.bundling.Jar;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class})
-public /*final*/ abstract class ModelBackedJvmJarBinary extends ModelElementSupport implements JvmJarBinary, Buildable, ModelNodeAware {
-	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-
+public /*final*/ abstract class ModelBackedJvmJarBinary extends ModelElementSupport implements JvmJarBinary, Buildable {
 	@Inject
 	public ModelBackedJvmJarBinary(ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().add("jarTask", taskRegistry.register(getIdentifier().child(TaskName.of("jar")), Jar.class).asProvider());
@@ -52,11 +43,6 @@ public /*final*/ abstract class ModelBackedJvmJarBinary extends ModelElementSupp
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.of(getJarTask());
-	}
-
-	@Override
-	public ModelNode getNode() {
-		return node;
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
@@ -40,12 +41,15 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsVariant.class})
 public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVariant implements NativeApplication, VariantInternal
+	, NativeVariant
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
@@ -62,6 +66,7 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
+		getExtensions().add("binaryLifecycleTask", taskRegistry.register(getIdentifier().child(TaskName.of("executable")), Task.class).asProvider());
 	}
 
 	@Override
@@ -72,6 +77,17 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 	@Override
 	public BinaryView<Binary> getBinaries() {
 		return BinaryAwareComponentMixIn.super.getBinaries();
+	}
+
+	@SuppressWarnings("unchecked")
+	public NamedDomainObjectProvider<ExecutableBinaryInternal> getExecutable() {
+		return (NamedDomainObjectProvider<ExecutableBinaryInternal>) getExtensions().getByName("executable");
+	}
+
+	@SuppressWarnings("unchecked")
+	public TaskProvider<Task> getBinaryLifecycleTask() {
+		return (TaskProvider<Task>) getExtensions().getByName("binaryLifecycleTask");
+
 	}
 
 	@Override

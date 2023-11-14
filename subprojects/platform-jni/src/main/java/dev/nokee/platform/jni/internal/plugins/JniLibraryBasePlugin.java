@@ -42,7 +42,6 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
-import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -51,17 +50,14 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
@@ -78,18 +74,12 @@ import dev.nokee.platform.jni.internal.ConfigureJniHeaderDirectoryOnJavaCompileA
 import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
-import dev.nokee.platform.jni.internal.JniJarArtifactComponent;
-import dev.nokee.platform.jni.internal.JniJarArtifactTag;
-import dev.nokee.platform.jni.internal.JniJarBinaryRegistrationFactory;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
-import dev.nokee.platform.jni.internal.JvmJarArtifactComponent;
-import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
 import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
 import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkAction;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -193,8 +183,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().add("__nokee_jniJarBinaryFactory", new JniJarBinaryRegistrationFactory());
-		project.getExtensions().add("__nokee_jvmJarBinaryFactory", new JvmJarBinaryRegistrationFactory());
 		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory());
 		project.getExtensions().add("__nokee_jniLibraryVariantFactory", new JavaNativeInterfaceLibraryVariantRegistrationFactory());
 
@@ -444,16 +432,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		val registerJvmJarBinaryAction = new Action<AppliedPlugin>() {
 			@Override
 			public void execute(AppliedPlugin ignored) {
-				project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					val binaryIdentifier = identifier.get().child(ElementName.ofMain("jvmJar"));
-					val jvmJar = registry.instantiate(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(binaryIdentifier)
-						.withComponent(new ParentComponent(entity))
-						.withComponentTag(ExcludeFromQualifyingNameTag.class)
-						.build());
-					ModelStates.register(jvmJar);
-					entity.addComponent(new JvmJarArtifactComponent(jvmJar));
-				})));
+				components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+					model(project, registryOf(Artifact.class)).register(component.getIdentifier().child(ElementName.ofMain("jvmJar")), ModelBackedJvmJarBinary.class);
+				});
 			}
 		};
 		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), registerJvmJarBinaryAction).execute(project);
@@ -497,17 +478,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			variant.getObjectsTask().configure(configureBuildGroup());
 			variant.getObjectsTask().configure(configureDescription("Assembles the object files of %s.", variant));
 		});
-		// TODO: We should limit to JNILibrary variant
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, id, tag) -> {
-			val identifier = (VariantIdentifier) id.get();
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			val sharedLibrary = registry.register(newEntity(identifier.child(ElementName.ofMain("sharedLibrary")), SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
-				.displayName("shared library binary")
-				.withComponent(new BuildVariantComponent(identifier.getBuildVariant()))
-				.withTag(ExcludeFromQualifyingNameTag.class)
-			));
-		})));
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
 			variant.getNativeRuntimeFiles().from(variant.getSharedLibrary().getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile));
 			variant.getNativeRuntimeFiles().from((Callable<Object>) () -> variant.getSharedLibrary().getRuntimeLibraries().getAsConfiguration().getIncoming().getFiles());
@@ -521,17 +491,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					.set(variant.getBaseName().map(baseName -> baseName + variant.getIdentifier().getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse(""))));
 			});
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, projection, identifier, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val binaryIdentifier = identifier.get().child(ElementName.ofMain("jniJar"));
-			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
-				.withComponent(new ParentComponent(entity))
-				.withComponentTag(JniJarArtifactTag.class)
-				.withComponentTag(ExcludeFromQualifyingNameTag.class)
-				.build());
-			entity.addComponent(new JniJarArtifactComponent(jniJar));
-			ModelStates.register(jniJar);
-		})));
 
 		val unbuildableWarningService = (Provider<UnbuildableWarningService>) project.getGradle().getSharedServices().getRegistrations().getByName(UnbuildableWarningService.class.getSimpleName()).getService();
 

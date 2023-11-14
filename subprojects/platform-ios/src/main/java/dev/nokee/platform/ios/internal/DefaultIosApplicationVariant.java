@@ -36,6 +36,7 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketS
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.NativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import lombok.Getter;
 import org.gradle.api.Task;
@@ -46,6 +47,7 @@ import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsVariant.class})
 public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal
+	, NativeVariant
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn

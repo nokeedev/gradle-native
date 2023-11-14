@@ -22,7 +22,8 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
@@ -43,9 +44,11 @@ import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
 import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
@@ -67,7 +70,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	, HasDevelopmentBinary
 {
 	@Inject
-	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory) {
+	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
 		getExtensions().create("dependencies", DefaultJavaNativeInterfaceNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("baseName", objects.property(String.class));
@@ -77,6 +80,8 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
+		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), SharedLibraryBinaryInternal.class).asProvider());
+		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), ModelBackedJniJarBinary.class).asProvider());
 	}
 
 	@Override
@@ -107,16 +112,18 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public JniJarBinary getJavaNativeInterfaceJar() {
-		return ModelElements.of(this).element("jniJar", JniJarBinary.class).get();
+		return ((NamedDomainObjectProvider<ModelBackedJniJarBinary>) getExtensions().getByName("jniJar")).get();
 	}
 
 	public JniJarBinary getJar() {
-		return ModelElements.of(this).element("jniJar", JniJarBinary.class).get();
+		return getJavaNativeInterfaceJar();
 	}
 
+	@SuppressWarnings("unchecked")
 	public SharedLibraryBinaryInternal getSharedLibrary() {
-		return (SharedLibraryBinaryInternal) ModelElements.of(this).element("sharedLibrary", SharedLibraryBinary.class).get();
+		return ((NamedDomainObjectProvider<SharedLibraryBinaryInternal>) getExtensions().getByName("sharedLibrary")).get();
 	}
 
 	@Override
@@ -126,7 +133,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 
 	@Override
 	public void sharedLibrary(@SuppressWarnings("rawtypes") Closure closure) {
-		sharedLibrary(ConfigureUtils.configureUsing(closure));
+		sharedLibrary(new ClosureWrappedConfigureAction<>(closure));
 	}
 
 	@SuppressWarnings("unchecked")

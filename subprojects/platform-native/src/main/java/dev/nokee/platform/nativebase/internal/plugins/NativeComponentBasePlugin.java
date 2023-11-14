@@ -38,7 +38,6 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
-import dev.nokee.model.internal.IdentifierDisplayNameComponent;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ModelElementSupport;
@@ -51,14 +50,12 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -84,7 +81,6 @@ import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
@@ -99,14 +95,10 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
@@ -120,11 +112,9 @@ import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactor
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeApplicationTag;
-import dev.nokee.platform.nativebase.internal.NativeExecutableBinaryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryTag;
-import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinaryComponent;
-import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinaryComponent;
+import dev.nokee.platform.nativebase.internal.NativeVariant;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
@@ -170,6 +160,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
@@ -185,9 +176,8 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
-import static dev.nokee.model.internal.actions.ModelAction.configureEach;
-import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
@@ -198,7 +188,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
@@ -229,22 +218,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 		final Factory<TaskView<SourceCompile>> compileTasksFactory = () -> {
 			Task.Namer namer = new Task.Namer();
-			ModelNode entity = ModelNodeContext.getCurrentModelNode();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 			Runnable realizeNow = () -> {
-				ModelStates.finalize(entity);
-				project.getExtensions().getByType(ModelLookup.class).query(it -> it.find(IdentifierComponent.class).map(id -> ModelObjectIdentifiers.descendantOf(id.get(), identifier)).orElse(false)).forEach(it -> {
-					it.find(MainProjectionComponent.class).ifPresent(component -> {
-						try {
-							Class<?> LanguageSourceSet = Class.forName("dev.nokee.language.base.LanguageSourceSet");
-							if (LanguageSourceSet.isAssignableFrom(component.getProjectionType())) {
-								ModelStates.finalize(it);
-							}
-						} catch (ClassNotFoundException e) {
-							// ignores
-						}
-					});
-				});
 				model(project, mapOf(LanguageSourceSet.class)).whenElementKnow(it -> {
 					if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
 						it.get(); // force realize
@@ -320,6 +295,24 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 
+
+		project.afterEvaluate(__ -> {
+			// TODO: Should not force realize consumable bucket if Gradle can handle it.
+			variants(project).configureEach(variant -> {
+				if (variant instanceof HasApiElementsDependencyBucket) {
+					((HasApiElementsDependencyBucket) variant).getApiElements().getAsConfiguration().getOutgoing().getArtifacts().all(___ -> {});
+				}
+
+				if (variant instanceof HasLinkElementsDependencyBucket) {
+					((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration().getOutgoing().getArtifacts().all(___ -> {});
+				}
+
+				if (variant instanceof HasRuntimeElementsDependencyBucket) {
+					((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration().getOutgoing().getArtifacts().all(___ -> {});
+				}
+			});
+		});
+
 		components(project).configureEach(new ExtendsFromParentDependencyBucketAction<>());
 		components(project).configureEach(new ImplementationExtendsFromApiDependencyBucketAction<>());
 		components(project).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
@@ -372,70 +365,50 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, buildVariantComponent, identifier, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val buildVariant = (BuildVariantInternal) buildVariantComponent.get();
+		variants(project).withType(NativeVariant.class).configureEach(variant -> {
+			val buildVariant = (BuildVariantInternal) variant.getBuildVariant();
+			val identifier = ((ModelElement) variant).getIdentifier();
 
 			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-				registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftSourceSetSpec.class, sourceSet -> {
-					sourceSet.getCompileTask().configure(task -> {
-						ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(id -> {
-							task.getModuleName().set(project.provider(() -> {
-								return model(project, objects()).parentsOf(id)
-									.filter(it -> it.instanceOf(HasBaseName.class))
-									.map(it -> (Provider<String>) it.asModelObject(HasBaseName.class).get().getBaseName())
-									.findFirst()
-									.orElseGet(() -> project.provider(() -> null));
-							}).flatMap(it -> it).map(TextCaseUtils::toCamelCase));
+				sources(project).withType(SwiftSourceSetSpec.class).configureEach(sourceSet -> {
+					if (ModelObjectIdentifiers.descendantOf(sourceSet.getIdentifier(), identifier)) {
+						sourceSet.getCompileTask().configure(task -> {
+							ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(id -> {
+								task.getModuleName().set(project.provider(() -> {
+									return model(project, objects()).parentsOf(id)
+										.filter(it -> it.instanceOf(HasBaseName.class))
+										.map(it -> (Provider<String>) it.asModelObject(HasBaseName.class).get().getBaseName())
+										.findFirst()
+										.orElseGet(() -> project.provider(() -> null));
+								}).flatMap(it -> it).map(TextCaseUtils::toCamelCase));
+							});
 						});
-					});
-				}));
+					}
+				});
 
-				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+				final BinaryLinkage linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 				if (linkage.isExecutable()) {
-					val binaryIdentifier = identifier.get().child(ElementName.ofMain("executable"));
-
-					val executableBinary = registry.register(newEntity(binaryIdentifier, ExecutableBinaryInternal.class, it -> it.ownedBy(entity)
-						.displayName("executable binary")
-						.withComponent(new BuildVariantComponent(buildVariant))
-						.withTag(ExcludeFromQualifyingNameTag.class)
-					));
-					entity.addComponent(new NativeExecutableBinaryComponent(ModelNodes.of(executableBinary)));
+					((ExtensionAware) variant).getExtensions().add("executable", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("executable")), ExecutableBinaryInternal.class).asProvider());
 				} else if (linkage.isShared()) {
-					val binaryIdentifier = identifier.get().child(ElementName.ofMain("sharedLibrary"));
-
-					val sharedLibraryBinary = registry.register(newEntity(binaryIdentifier, SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
-						.displayName("shared library binary")
-						.withComponent(new BuildVariantComponent(buildVariant))
-						.withTag(ExcludeFromQualifyingNameTag.class)
-					));
-					entity.addComponent(new NativeSharedLibraryBinaryComponent(ModelNodes.of(sharedLibraryBinary)));
+					((ExtensionAware) variant).getExtensions().add("sharedLibrary", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("sharedLibrary")), SharedLibraryBinaryInternal.class).asProvider());
 				} else if (linkage.isBundle()) {
-					val binaryIdentifier = identifier.get().child(ElementName.ofMain("bundle"));
-
-					registry.register(newEntity(binaryIdentifier, BundleBinaryInternal.class, it -> it.ownedBy(entity)
-						.displayName("bundle binary")
-						.withComponent(new BuildVariantComponent(buildVariant))
-						.withTag(ExcludeFromQualifyingNameTag.class)
-					));
+					((ExtensionAware) variant).getExtensions().add("bundle", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("bundle")), BundleBinaryInternal.class).asProvider());
 				} else if (linkage.isStatic()) {
-					val binaryIdentifier = identifier.get().child(ElementName.ofMain("staticLibrary"));
-
-					val staticLibraryBinary = registry.register(newEntity(binaryIdentifier, StaticLibraryBinaryInternal.class, it -> it.ownedBy(entity)
-							.displayName("static library binary")
-							.withComponent(new BuildVariantComponent(buildVariant))
-							.withTag(ExcludeFromQualifyingNameTag.class)
-						));
-					entity.addComponent(new NativeStaticLibraryBinaryComponent(ModelNodes.of(staticLibraryBinary)));
+					((ExtensionAware) variant).getExtensions().add("staticLibrary", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("staticLibrary")), StaticLibraryBinaryInternal.class).asProvider());
 				}
 
 				if (linkage.isShared() || linkage.isStatic()) {
-					registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftCompileTask.class, task -> {
-						task.getCompilerArgs().add("-parse-as-library");
-					}));
+					project.getTasks().withType(SwiftCompileTask.class).configureEach(task -> {
+						ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
+							// TODO: Should check under the binary not the variant
+							if (ModelObjectIdentifiers.descendantOf(taskIdentifier, identifier)) {
+								task.getCompilerArgs().add("-parse-as-library");
+							}
+						});
+					});
 				}
 			}
-		})));
+		});
 
 		artifacts(project).configureEach(new RuntimeLibrariesConfigurationRegistrationRule(model(project, objects()), project.getObjects()));
 		variants(project).configureEach(new AttachAttributesToConfigurationRule(HasRuntimeLibrariesDependencyBucket.class, HasRuntimeLibrariesDependencyBucket::getRuntimeLibraries, project.getObjects(), model(project, mapOf(Artifact.class))));
@@ -573,39 +546,27 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 
 		// TODO: Should be part of native-application-base plugin
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeExecutableBinaryComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, ignored1, buildVariant, parent, binary, identifier) -> {
-			if (parent.get().hasComponent(ModelTags.typeOf(NativeApplicationTag.class))) {
-				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(identifier.get().child(TaskName.of("executable")), Task.class, it -> it.ownedBy(entity)));
-				lifecycleTask.configure(Task.class, configureBuildGroup());
-				lifecycleTask.configure(Task.class, task -> {
-					task.setDescription(String.format("Assembles a executable binary containing the objects files of %s.", binary.get().get(IdentifierDisplayNameComponent.class).get()));
-				});
-				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), ExecutableBinary.class)));
-			}
-		}));
+		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(variant -> {
+			variant.getBinaryLifecycleTask().configure(configureBuildGroup());
+			variant.getBinaryLifecycleTask().configure(task -> {
+				task.setDescription(String.format("Assembles a executable binary containing the objects files of %s.", "executable binary '" + variant.getExecutable().getName() + "'"));
+				task.dependsOn((Callable<Object>) variant.getExecutable()::get);
+			});
+		});
 
 		// TODO: Should be part of native-library-base plugin
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeSharedLibraryBinaryComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, ignored1, buildVariant, parent, binary, identifier) -> {
-			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
-				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(identifier.get().child(TaskName.of("sharedLibrary")), Task.class, it -> it.ownedBy(entity)));
-				lifecycleTask.configure(Task.class, configureBuildGroup());
-				lifecycleTask.configure(Task.class, task -> {
-					task.setDescription(String.format("Assembles a shared library binary containing the objects files of %s.", binary.get().get(IdentifierDisplayNameComponent.class).get()));
-				});
-				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), SharedLibraryBinary.class)));
-			}
-		}));
-		// TODO: Should be part of native-library-base plugin
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeStaticLibraryBinaryComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, ignored1, buildVariant, parent, binary, identifier) -> {
-			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
-				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(identifier.get().child(TaskName.of("staticLibrary")), Task.class, it -> it.ownedBy(entity)));
-				lifecycleTask.configure(Task.class, configureBuildGroup());
-				lifecycleTask.configure(Task.class, task -> {
-					task.setDescription(String.format("Assembles a static library binary containing the objects files of %s.", binary.get().get(IdentifierDisplayNameComponent.class).get()));
-				});
-				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), StaticLibraryBinary.class)));
-			}
-		}));
+		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(variant -> {
+			variant.getBinaryLifecycleTask().configure(configureBuildGroup());
+			variant.getBinaryLifecycleTask().configure(task -> {
+				if (variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).isShared()) {
+					task.setDescription(String.format("Assembles a shared library binary containing the objects files of %s.", "shared library binary '" + variant.getSharedOrStaticLibraryBinary().getName() + "'"));
+				} else {
+					task.setDescription(String.format("Assembles a static library binary containing the objects files of %s.", "static library binary '" + variant.getSharedOrStaticLibraryBinary().getName() + "'"));
+				}
+
+				task.dependsOn((Callable<Object>) variant.getSharedOrStaticLibraryBinary()::get);
+			});
+		});
 
 		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, developmentVariant, ignored1) -> {

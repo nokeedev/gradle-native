@@ -41,15 +41,20 @@ import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsVariant.class})
 public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant implements NativeLibrary, VariantInternal
+	, NativeVariant
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
@@ -72,6 +77,12 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
+
+		if (getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).isShared()) {
+			getExtensions().add("binaryLifecycleTask", taskRegistry.register(getIdentifier().child(TaskName.of("sharedLibrary")), Task.class).asProvider());
+		} else {
+			getExtensions().add("binaryLifecycleTask", taskRegistry.register(getIdentifier().child(TaskName.of("staticLibrary")), Task.class).asProvider());
+		}
 	}
 
 	@Override
@@ -102,5 +113,19 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
+	}
+
+	@SuppressWarnings("unchecked")
+	public NamedDomainObjectProvider<? extends NativeBinary> getSharedOrStaticLibraryBinary() {
+		NamedDomainObjectProvider<? extends NativeBinary> result = (NamedDomainObjectProvider<? extends NativeBinary>) getExtensions().findByName("sharedLibrary");
+		if (result == null) {
+			result = (NamedDomainObjectProvider<? extends NativeBinary>) getExtensions().findByName("staticLibrary");
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public TaskProvider<Task> getBinaryLifecycleTask() {
+		return (TaskProvider<Task>) getExtensions().getByName("binaryLifecycleTask");
 	}
 }

@@ -37,6 +37,7 @@ import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
@@ -154,7 +155,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
 			@Override
 			protected JniLibraryInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
+				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), model(project, registryOf(Artifact.class)));
 			}
 		});
 
