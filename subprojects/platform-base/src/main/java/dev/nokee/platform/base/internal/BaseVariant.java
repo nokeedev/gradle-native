@@ -16,19 +16,13 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import org.gradle.api.provider.Property;
 
-public abstract class BaseVariant extends ModelElementSupport implements ModelNodeAware {
-	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-
+public abstract class BaseVariant extends ModelElementSupport {
 	public VariantIdentifier getIdentifier() {
-		return (VariantIdentifier) entity.get(IdentifierComponent.class).get();
+		return (VariantIdentifier) super.getIdentifier();
 	}
 
 	public BuildVariantInternal getBuildVariant() {
@@ -38,9 +32,4 @@ public abstract class BaseVariant extends ModelElementSupport implements ModelNo
 	public abstract BinaryView<Binary> getBinaries();
 
 	public abstract Property<Binary> getDevelopmentBinary();
-
-	@Override
-	public ModelNode getNode() {
-		return entity;
-	}
 }

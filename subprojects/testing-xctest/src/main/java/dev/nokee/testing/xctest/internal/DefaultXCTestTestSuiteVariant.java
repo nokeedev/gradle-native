@@ -22,9 +22,6 @@ import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
@@ -46,7 +43,7 @@ import org.gradle.api.Task;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsVariant.class})
-public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
+public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVariant implements IosApplication, VariantInternal
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn
@@ -54,8 +51,6 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 	, AssembleTaskMixIn
 	, HasRuntimeElementsDependencyBucket
 {
-	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-
 	@Inject
 	public DefaultXCTestTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
@@ -79,10 +74,5 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
-	}
-
-	@Override
-	public ModelNode getNode() {
-		return node;
 	}
 }

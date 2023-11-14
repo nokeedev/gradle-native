@@ -20,9 +20,6 @@ import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentSources;
@@ -48,7 +45,7 @@ import org.gradle.api.provider.Property;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsVariant.class})
-public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
+public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn
@@ -56,7 +53,6 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 	, AssembleTaskMixIn
 	, HasRuntimeElementsDependencyBucket
 {
-	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
@@ -78,10 +74,5 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
-	}
-
-	@Override
-	public ModelNode getNode() {
-		return node;
 	}
 }

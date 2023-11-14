@@ -23,9 +23,6 @@ import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
@@ -34,8 +31,8 @@ import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -48,7 +45,7 @@ import org.gradle.api.Task;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsVariant.class})
-public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVariant implements NativeApplication, VariantInternal, ModelNodeAware
+public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVariant implements NativeApplication, VariantInternal
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
@@ -57,8 +54,6 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 	, AssembleTaskMixIn
 	, HasRuntimeElementsDependencyBucket
 {
-	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-
 	@Inject
 	public DefaultNativeApplicationVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory) {
 		getExtensions().create("dependencies", DefaultNativeApplicationComponentDependencies.class, getIdentifier(), bucketRegistry);
@@ -82,10 +77,5 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
-	}
-
-	@Override
-	public ModelNode getNode() {
-		return node;
 	}
 }
