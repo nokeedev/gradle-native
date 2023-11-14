@@ -55,7 +55,6 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
@@ -71,7 +70,6 @@ import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.IsTask;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
@@ -224,6 +222,17 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		};
 		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<BinaryView<Binary>>>() {}, "__nokee_binariesFactory", binariesFactory);
 
+		final Factory<TaskView<Task>> tasksFactory = () -> {
+			Task.Namer namer = new Task.Namer();
+			ModelNode entity = ModelNodeContext.getCurrentModelNode();
+			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+			Runnable realizeNow = () -> {
+				ModelStates.finalize(entity);
+			};
+			return new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+		};
+		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<TaskView<Task>>>() {}, "__nokee_tasksFactory", tasksFactory);
+
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 
 		project.getPluginManager().apply(DevelopmentVariantCapability.class);
@@ -256,14 +265,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			});
 			entity.addComponent(ModelBuffers.of(KnownVariantInformationElement.class, builder.build()));
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedTaskAwareComponentMixIn.class)), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-			modeRegistry.register(builder()
-				.withComponent(new ElementNameComponent("tasks"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(Task.class)).build())
-				.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
-				.build());
-		})));
 
 		// ComponentFromEntity<ParentComponent> read-only self
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {
@@ -287,9 +288,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		);
 		project.getExtensions().add(ComponentContainer.class, "components", components.as(ComponentContainer.class).get());
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(TaskAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "tasks"));
-		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(VariantAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
 			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "variants"));
 		}));

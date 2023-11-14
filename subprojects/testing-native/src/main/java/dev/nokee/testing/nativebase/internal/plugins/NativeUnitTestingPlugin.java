@@ -60,6 +60,7 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentBinary;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -222,7 +223,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponentTag(NativeVariantTag.class)
 			.mergeFrom(tagsOf(DefaultNativeTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteVariant.class), () -> {
-				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 			}))
 			.build()
 			;

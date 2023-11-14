@@ -304,7 +304,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, new ModelObjectFactory<DefaultNativeApplicationVariant>(project, IsVariant.class) {
 			@Override
 			protected DefaultNativeApplicationVariant doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 			}
 		});
 		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(result -> {
@@ -313,7 +313,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibraryVariant.class, new ModelObjectFactory<DefaultNativeLibraryVariant>(project, IsVariant.class) {
 			@Override
 			protected DefaultNativeLibraryVariant doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeLibraryVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+				return project.getObjects().newInstance(DefaultNativeLibraryVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 			}
 		});
 		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(result -> {

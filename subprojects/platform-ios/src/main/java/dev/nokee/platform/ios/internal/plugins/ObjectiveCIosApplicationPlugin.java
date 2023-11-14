@@ -37,12 +37,13 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
@@ -132,7 +133,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
 		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, BinaryAwareComponentMixIn
-		, ModelBackedTaskAwareComponentMixIn
+		, TaskAwareComponentMixIn
 		, AssembleTaskMixIn
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
@@ -143,11 +144,12 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
-		public DefaultObjectiveCIosApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
+		public DefaultObjectiveCIosApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory) {
 			getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 			getExtensions().add("binaries", binariesFactory.create());
 			getExtensions().add("sources", sourcesFactory.create());
+			getExtensions().add("tasks", tasksFactory.create());
 		}
 
 		@Override

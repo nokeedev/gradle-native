@@ -31,11 +31,12 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -61,7 +62,7 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 @DomainObjectEntities.Tag({IsVariant.class})
 public /*final*/ abstract class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware
 	, NativeSourcesAware
-	, ModelBackedTaskAwareComponentMixIn
+	, TaskAwareComponentMixIn
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponentMixIn
@@ -71,7 +72,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
+	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory) {
 		getExtensions().create("dependencies", DefaultJavaNativeInterfaceNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("baseName", objects.property(String.class));
@@ -80,6 +81,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
+		getExtensions().add("tasks", tasksFactory.create());
 	}
 
 	@Override

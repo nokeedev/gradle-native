@@ -29,11 +29,12 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
@@ -52,19 +53,20 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-	, ModelBackedTaskAwareComponentMixIn
+	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasRuntimeElementsDependencyBucket
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultNativeTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
+	public DefaultNativeTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
+		getExtensions().add("tasks", tasksFactory.create());
 	}
 
 	@Override

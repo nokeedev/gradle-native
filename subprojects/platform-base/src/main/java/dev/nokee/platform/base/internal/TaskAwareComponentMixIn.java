@@ -15,19 +15,19 @@
  */
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.plugins.ExtensionAware;
 
-public interface ModelBackedTaskAwareComponentMixIn extends TaskAwareComponent {
+public interface TaskAwareComponentMixIn extends TaskAwareComponent, ExtensionAware {
 	@Override
 	@SuppressWarnings("unchecked")
 	default TaskView<Task> getTasks() {
-		return ModelProperties.getProperty(this, "tasks").as(TaskView.class).get();
+		return (TaskView<Task>) getExtensions().getByName("tasks");
 	}
 
 	@Override

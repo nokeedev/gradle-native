@@ -32,11 +32,12 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasApiDependencyBucket;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
@@ -56,7 +57,7 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
-	, ModelBackedTaskAwareComponentMixIn
+	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasApiDependencyBucket
 	, HasApiElementsDependencyBucket
@@ -66,7 +67,7 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultNativeLibraryVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
+	public DefaultNativeLibraryVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory) {
 		getExtensions().create("dependencies", DefaultNativeLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("api", bucketRegistry.register(getIdentifier().child("api"), DeclarableDependencyBucketSpec.class).get());
@@ -75,6 +76,7 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 		getExtensions().add("apiElements", bucketRegistry.register(getIdentifier().child("apiElements"), ConsumableDependencyBucketSpec.class).get());
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
+		getExtensions().add("tasks", tasksFactory.create());
 	}
 
 	@Override

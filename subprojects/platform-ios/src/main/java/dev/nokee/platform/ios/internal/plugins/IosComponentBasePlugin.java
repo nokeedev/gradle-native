@@ -42,6 +42,7 @@ import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentBinary;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
@@ -160,7 +161,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			.withComponentTag(NativeVariantTag.class)
 			.mergeFrom(tagsOf(DefaultIosApplicationVariant.class))
 			.withComponent(createdUsing(of(DefaultIosApplicationVariant.class), () -> {
-				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class));
+				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 				variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
 				return variant;
 			}))

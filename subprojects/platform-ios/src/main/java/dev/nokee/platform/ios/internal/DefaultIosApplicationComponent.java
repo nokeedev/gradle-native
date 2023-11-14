@@ -37,6 +37,7 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
@@ -45,7 +46,7 @@ import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -108,7 +109,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	, SourceAwareComponentMixIn<ComponentSources, ComponentSources>
 	, ModelBackedVariantAwareComponentMixIn<IosApplication>
 	, BinaryAwareComponentMixIn
-	, ModelBackedTaskAwareComponentMixIn
+	, TaskAwareComponentMixIn
 	, HasDevelopmentVariantMixIn<IosApplication>
 {
 	@Getter private final Property<GroupId> groupId;
@@ -120,10 +121,11 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<ComponentSources> sourcesFactory) {
+	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<ComponentSources> sourcesFactory, Factory<TaskView<Task>> tasksFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
+		getExtensions().add("tasks", tasksFactory.create());
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;

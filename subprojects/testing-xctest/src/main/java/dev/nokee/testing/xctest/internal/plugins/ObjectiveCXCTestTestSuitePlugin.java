@@ -49,6 +49,7 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentBinary;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.GroupId;
@@ -199,7 +200,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(Project project) {
 		return identifier -> {
-			return project.getObjects().newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, project.getExtensions().getByType(ModelRegistry.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return project.getObjects().newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, project.getExtensions().getByType(ModelRegistry.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 		};
 	}
 
@@ -221,7 +222,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(Project project) {
 		return identifier -> {
-			return project.getObjects().newInstance(DefaultUiTestXCTestTestSuiteComponent.class, project.getExtensions().getByType(ModelRegistry.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return project.getObjects().newInstance(DefaultUiTestXCTestTestSuiteComponent.class, project.getExtensions().getByType(ModelRegistry.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 		};
 	}
 
@@ -232,7 +233,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponentTag(NativeVariantTag.class)
 			.mergeFrom(tagsOf(DefaultXCTestTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> {
-				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 			}))
 			.build()
 			;

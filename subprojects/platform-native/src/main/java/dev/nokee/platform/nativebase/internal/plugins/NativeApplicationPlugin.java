@@ -37,12 +37,13 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
@@ -100,7 +101,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeApplicationExtension.class, new ModelObjectFactory<DefaultNativeApplicationExtension>(project, IsComponent.class) {
 			@Override
 			protected DefaultNativeApplicationExtension doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeApplicationExtension.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+				return project.getObjects().newInstance(DefaultNativeApplicationExtension.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 			}
 		});
 
@@ -139,7 +140,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, BinaryAwareComponentMixIn
-		, ModelBackedTaskAwareComponentMixIn
+		, TaskAwareComponentMixIn
 		, HasDevelopmentVariantMixIn<NativeApplication>
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
@@ -148,11 +149,12 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
 		@Inject
-		public DefaultNativeApplicationExtension(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
+		public DefaultNativeApplicationExtension(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory) {
 			getExtensions().create("dependencies", DefaultNativeApplicationComponentDependencies.class, getIdentifier(), bucketRegistry);
 			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 			getExtensions().add("binaries", binariesFactory.create());
 			getExtensions().add("sources", sourcesFactory.create());
+			getExtensions().add("tasks", tasksFactory.create());
 		}
 
 		@Override

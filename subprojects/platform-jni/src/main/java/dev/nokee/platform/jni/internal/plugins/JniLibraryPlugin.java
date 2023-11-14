@@ -41,6 +41,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseVariant;
@@ -147,13 +148,13 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						ModelStates.finalize(entity);
 					};
 					return new JavaNativeInterfaceSourcesViewAdapter(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-				});
+				}, project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 			}
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
 			@Override
 			protected JniLibraryInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 			}
 		});
 
