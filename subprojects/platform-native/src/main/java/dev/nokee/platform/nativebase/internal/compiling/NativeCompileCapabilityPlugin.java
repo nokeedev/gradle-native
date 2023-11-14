@@ -64,7 +64,7 @@ public class NativeCompileCapabilityPlugin<T extends ExtensionAware & PluginAwar
 				ModelElementSupport.safeAsModelElement(artifact).map(ModelElement::getIdentifier).ifPresent(identifier -> {
 					final Provider<List<FileCollection>> objectFiles = objs.get(AbstractNativeCompileTask.class, it -> {
 						if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
-							it.get(); // realize to kickstart Task discover... we should be more smart about this
+							it.realizeNow(); // realize to kickstart Task discover... we should be more smart about this
 							return it.instanceOf(AbstractNativeCompileTask.class);
 						} else {
 							return false;

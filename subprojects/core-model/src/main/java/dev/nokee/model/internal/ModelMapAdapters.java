@@ -272,6 +272,7 @@ public final class ModelMapAdapters {
 		private final ModelObjectIdentifier identifier;
 		private final Class<?> implementationType;
 		private NamedDomainObjectProvider<?> elementProvider;
+		private boolean forcedRealize = false;
 
 		private ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType) {
 			this.identifier = identifier;
@@ -292,6 +293,9 @@ public final class ModelMapAdapters {
 
 		public void attachProvider(NamedDomainObjectProvider<?> elementProvider) {
 			this.elementProvider = elementProvider;
+			if (forcedRealize) {
+				elementProvider.get();
+			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -308,6 +312,13 @@ public final class ModelMapAdapters {
 		@Override
 		public Object get() {
 			return elementProvider.get();
+		}
+
+		public void realizeNow() {
+			forcedRealize = true;
+			if (elementProvider != null) {
+				elementProvider.get();
+			}
 		}
 
 		@Override

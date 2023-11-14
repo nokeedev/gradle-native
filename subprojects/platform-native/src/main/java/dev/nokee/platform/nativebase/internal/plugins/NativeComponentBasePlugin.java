@@ -222,7 +222,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			Runnable realizeNow = () -> {
 				model(project, mapOf(LanguageSourceSet.class)).whenElementKnow(it -> {
 					if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
-						it.get(); // force realize
+						it.realizeNow(); // force realize
 					}
 				});
 			};
