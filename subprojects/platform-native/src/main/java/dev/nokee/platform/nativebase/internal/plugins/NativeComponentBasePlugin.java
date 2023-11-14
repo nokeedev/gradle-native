@@ -477,6 +477,23 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))).execute(bucket.getAsConfiguration());
 				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
 			}
+
+			if (variant instanceof HasApiElementsDependencyBucket) {
+				final ConsumableDependencyBucketSpec bucket = ((HasApiElementsDependencyBucket) variant).getApiElements();
+				ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(identifier -> {
+					boolean hasSwift = model(project, objects()).parentsOf(identifier).anyMatch(it -> ModelNodes.of(it.get()).hasComponent(typeOf(SupportSwiftSourceSetTag.class)));
+					if (hasSwift) {
+						ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))).execute(bucket.getAsConfiguration());
+						ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
+						ConfigurationUtilsEx.configureAsGradleDebugCompatible(bucket.getAsConfiguration());
+					} else {
+						ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))).execute(bucket.getAsConfiguration());
+						ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
+						ConfigurationUtilsEx.configureAsGradleDebugCompatible(bucket.getAsConfiguration());
+					}
+				});
+
+			}
 		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			if (!parent.get().hasComponent(typeOf(NativeApplicationTag.class))) {
@@ -491,31 +508,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				return;
 			}
 
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
 			boolean hasSwift = Stream.concat(Stream.of(entity), ParentUtils.stream(parent)).anyMatch(it -> it.hasComponent(typeOf(SupportSwiftSourceSetTag.class)));
-			DomainObjectProvider<ConsumableDependencyBucketSpec> apiElements = null;
-			if (hasSwift) {
-				apiElements = registry.register(newEntity(identifier.get().child("apiElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
-				apiElements.configure(bucket -> {
-					ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))).execute(bucket.getAsConfiguration());
-					ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
-					ConfigurationUtilsEx.configureAsGradleDebugCompatible(bucket.getAsConfiguration());
-				});
-			} else {
-				apiElements = registry.register(newEntity(identifier.get().child("apiElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
-				apiElements.configure(bucket -> {
-					ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))).execute(bucket.getAsConfiguration());
-					ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
-					ConfigurationUtilsEx.configureAsGradleDebugCompatible(bucket.getAsConfiguration());
-				});
-			}
-			val linkElements = registry.register(newEntity(identifier.get().child("linkElements"), ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity))).as(ConsumableDependencyBucketSpec.class);
 			NativeOutgoingDependenciesComponent outgoing = null;
 			if (hasSwift) {
-				outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new SwiftLibraryOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(apiElements), Configuration.class), ModelNodeUtils.get(ModelNodes.of(linkElements), Configuration.class), ModelNodeUtils.get(ModelNodes.of(entity), HasRuntimeElementsDependencyBucket.class).getRuntimeElements().getAsConfiguration(), project.getObjects())));
+				outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new SwiftLibraryOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(entity), HasApiElementsDependencyBucket.class).getApiElements().getAsConfiguration(), ModelNodeUtils.get(ModelNodes.of(entity), HasLinkElementsDependencyBucket.class).getLinkElements().getAsConfiguration(), ModelNodeUtils.get(ModelNodes.of(entity), HasRuntimeElementsDependencyBucket.class).getRuntimeElements().getAsConfiguration(), project.getObjects())));
 			} else {
-				outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new NativeLibraryOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(apiElements), Configuration.class), ModelNodeUtils.get(ModelNodes.of(linkElements), Configuration.class), ModelNodeUtils.get(ModelNodes.of(entity), HasRuntimeElementsDependencyBucket.class).getRuntimeElements().getAsConfiguration(), project.getObjects())));
+				outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new NativeLibraryOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(entity), HasApiElementsDependencyBucket.class).getApiElements().getAsConfiguration(), ModelNodeUtils.get(ModelNodes.of(entity), HasLinkElementsDependencyBucket.class).getLinkElements().getAsConfiguration(), ModelNodeUtils.get(ModelNodes.of(entity), HasRuntimeElementsDependencyBucket.class).getRuntimeElements().getAsConfiguration(), project.getObjects())));
 			}
 			entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(() -> (NativeComponentDependencies) ModelNodeUtils.get(entity, DependencyAwareComponent.class).getDependencies(), outgoing.get()));
 		})));
