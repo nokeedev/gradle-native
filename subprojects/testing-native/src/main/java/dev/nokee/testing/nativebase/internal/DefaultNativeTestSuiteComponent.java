@@ -78,7 +78,6 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareCompo
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
@@ -187,7 +186,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	public void finalizeExtension(Project project) {
 		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(registry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
-		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(registry));
 
 		val checkTask = registry.register(newEntity(getIdentifier().child(TaskName.of("check")), Task.class, it -> it.ownedBy(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root())))).as(Task.class);
 

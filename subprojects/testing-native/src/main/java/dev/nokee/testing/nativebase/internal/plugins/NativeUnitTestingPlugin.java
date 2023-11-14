@@ -64,6 +64,7 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -89,6 +90,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 
 import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
@@ -98,6 +100,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class NativeUnitTestingPlugin implements Plugin<Project> {
 	@Override
@@ -108,6 +111,9 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+		});
+		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
+			variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 		});
 
 		val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);

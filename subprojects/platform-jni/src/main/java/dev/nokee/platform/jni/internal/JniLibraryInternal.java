@@ -37,6 +37,7 @@ import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
@@ -45,7 +46,6 @@ import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
-import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -68,6 +68,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	, BinaryAwareComponentMixIn
 	, HasBaseName
 	, HasDevelopmentBinary
+	, AssembleTaskMixIn
 {
 	@Inject
 	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
@@ -148,11 +149,6 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 
 	public TargetMachine getTargetMachine() {
 		return getBuildVariant().getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
-	}
-
-	@SuppressWarnings("unchecked")
-	public TaskProvider<Task> getAssembleTask() {
-		return (TaskProvider<Task>) getExtensions().getByName("assembleTask");
 	}
 
 	@Override

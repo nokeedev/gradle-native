@@ -76,6 +76,7 @@ import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -85,6 +86,7 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	private final ObjectFactory objects;
@@ -101,6 +103,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
+		});
+		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
+			variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 		});
 
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {

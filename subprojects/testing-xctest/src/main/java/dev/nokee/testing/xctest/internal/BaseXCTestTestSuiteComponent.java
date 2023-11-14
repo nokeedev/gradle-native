@@ -37,7 +37,6 @@ import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
@@ -152,7 +151,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		whenElementKnown(this.getNode(), new CreateVariantObjectsLifecycleTaskRule(registry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
 
-		whenElementKnown(this.getNode(), new CreateVariantAssembleLifecycleTaskRule(registry));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(registry).execute(this);
 	}
 

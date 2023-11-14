@@ -60,6 +60,7 @@ import org.gradle.api.Task;
 import org.gradle.api.reflect.TypeOf;
 
 import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
@@ -70,6 +71,7 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class IosComponentBasePlugin implements Plugin<Project> {
 	@Override
@@ -86,6 +88,9 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 
 		variants(project).withType(DefaultIosApplicationVariant.class).configureEach(variant -> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
+		});
+		variants(project).withType(DefaultIosApplicationVariant.class).configureEach(variant -> {
+			variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, identifier, tag, fullyQualifiedName) -> {

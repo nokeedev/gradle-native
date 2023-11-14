@@ -66,7 +66,6 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
@@ -290,7 +289,6 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 		whenElementKnown(this, this::onEachVariant);
 		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(registry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
-		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(registry));
 	}
 
 	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<IosApplication>> action) {
