@@ -35,9 +35,7 @@ public abstract class BaseVariant extends ModelElementSupport implements ModelNo
 		return (BuildVariantInternal) getIdentifier().getBuildVariant();
 	}
 
-	public BinaryView<Binary> getBinaries() {
-		throw new UnsupportedOperationException();
-	}
+	public abstract BinaryView<Binary> getBinaries();
 
 	public abstract Property<Binary> getDevelopmentBinary();
 

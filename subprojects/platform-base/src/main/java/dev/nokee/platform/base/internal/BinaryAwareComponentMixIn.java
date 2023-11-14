@@ -15,28 +15,28 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.reflect.TypeToken;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.SourceAwareComponent;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
+import org.gradle.api.plugins.ExtensionAware;
 
-public interface ModelBackedSourceAwareComponentMixIn<T extends ComponentSources, S extends T> extends SourceAwareComponent<T> {
+public interface BinaryAwareComponentMixIn extends BinaryAwareComponent, ExtensionAware {
 	@Override
 	@SuppressWarnings("unchecked")
-	default T getSources() {
-		return ModelProperties.getProperty(this, "sources").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).get();
+	default BinaryView<Binary> getBinaries() {
+		return (BinaryView<Binary>) getExtensions().getByName("binaries");
 	}
 
 	@Override
-	default void sources(Action<? super T> action) {
-		action.execute(getSources());
+	default void binaries(Action<? super BinaryView<Binary>> action) {
+		action.execute(getBinaries());
 	}
 
 	@Override
-	default void sources(@SuppressWarnings("rawtypes") Closure closure) {
-		sources(new ClosureWrappedConfigureAction<>(closure));
+	default void binaries(@SuppressWarnings("rawtypes") Closure closure) {
+		binaries(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

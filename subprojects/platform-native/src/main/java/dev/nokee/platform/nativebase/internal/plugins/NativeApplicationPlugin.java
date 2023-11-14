@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
@@ -32,17 +33,19 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
+import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
@@ -65,6 +68,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
 
@@ -96,7 +100,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeApplicationExtension.class, new ModelObjectFactory<DefaultNativeApplicationExtension>(project, IsComponent.class) {
 			@Override
 			protected DefaultNativeApplicationExtension doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeApplicationExtension.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
+				return project.getObjects().newInstance(DefaultNativeApplicationExtension.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 			}
 		});
 
@@ -133,8 +137,8 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
-		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-		, ModelBackedBinaryAwareComponentMixIn
+		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+		, BinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, HasDevelopmentVariantMixIn<NativeApplication>
 		, ModelBackedTargetMachineAwareComponentMixIn
@@ -144,9 +148,11 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
 		@Inject
-		public DefaultNativeApplicationExtension(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
+		public DefaultNativeApplicationExtension(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 			getExtensions().create("dependencies", DefaultNativeApplicationComponentDependencies.class, getIdentifier(), bucketRegistry);
 			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
+			getExtensions().add("binaries", binariesFactory.create());
+			getExtensions().add("sources", sourcesFactory.create());
 		}
 
 		@Override

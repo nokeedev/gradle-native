@@ -15,9 +15,9 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.internal.Factory;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -25,13 +25,13 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -56,8 +56,8 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<JniLibrary>
-	, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources, JavaNativeInterfaceSourcesViewAdapter>
-	, ModelBackedBinaryAwareComponentMixIn
+	, SourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources, JavaNativeInterfaceSourcesViewAdapter>
+	, BinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
@@ -66,17 +66,24 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, AssembleTaskMixIn
 {
 	@Inject
-	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects) {
+	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<BinaryView<Binary>> binariesFactory, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory) {
 		getExtensions().create("dependencies", DefaultJavaNativeInterfaceLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("developmentVariant", objects.property(JniLibrary.class));
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
+		getExtensions().add("binaries", binariesFactory.create());
+		getExtensions().add("sources", sourcesFactory.create());
 	}
 
 	@Override
 	public DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies() {
 		return (DefaultJavaNativeInterfaceLibraryComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
+	}
+
+	@Override
+	public BinaryView<Binary> getBinaries() {
+		return BinaryAwareComponentMixIn.super.getBinaries();
 	}
 
 	public VariantView<JniLibrary> getVariants() {
@@ -99,12 +106,6 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	@SuppressWarnings("unchecked")
 	public Property<JniLibrary> getDevelopmentVariant() {
 		return (Property<JniLibrary>) getExtensions().getByName("developmentVariant");
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public BinaryView<Binary> getBinaries() {
-		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override

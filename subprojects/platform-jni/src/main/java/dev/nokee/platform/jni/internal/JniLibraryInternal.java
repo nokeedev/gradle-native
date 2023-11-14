@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
@@ -25,18 +26,17 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
@@ -62,27 +62,34 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 public /*final*/ abstract class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware
 	, NativeSourcesAware
 	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies>
-	, ModelBackedBinaryAwareComponentMixIn
+	, BinaryAwareComponentMixIn
 	, HasBaseName
 	, HasDevelopmentBinary
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().create("dependencies", DefaultJavaNativeInterfaceNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sharedLibraryTask", taskRegistry.register(getIdentifier().child(TaskName.of("sharedLibrary")), Task.class).asProvider());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
+		getExtensions().add("binaries", binariesFactory.create());
+		getExtensions().add("sources", sourcesFactory.create());
 	}
 
 	@Override
 	public DefaultJavaNativeInterfaceNativeComponentDependencies getDependencies() {
 		return (DefaultJavaNativeInterfaceNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
+	}
+
+	@Override
+	public BinaryView<Binary> getBinaries() {
+		return BinaryAwareComponentMixIn.super.getBinaries();
 	}
 
 	@Override
@@ -142,12 +149,6 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	@SuppressWarnings("unchecked")
 	public TaskProvider<Task> getAssembleTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("assembleTask");
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public BinaryView<Binary> getBinaries() {
-		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override

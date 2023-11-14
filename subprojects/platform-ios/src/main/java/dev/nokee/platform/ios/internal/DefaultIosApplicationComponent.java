@@ -18,6 +18,7 @@ package dev.nokee.platform.ios.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.internal.Factory;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
@@ -38,15 +39,15 @@ import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
+import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -68,8 +69,6 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecyc
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Action;
@@ -106,9 +105,9 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
-	, ModelBackedSourceAwareComponentMixIn<ComponentSources, ComponentSources>
+	, SourceAwareComponentMixIn<ComponentSources, ComponentSources>
 	, ModelBackedVariantAwareComponentMixIn<IosApplication>
-	, ModelBackedBinaryAwareComponentMixIn
+	, BinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, HasDevelopmentVariantMixIn<IosApplication>
 {
@@ -121,8 +120,10 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<ComponentSources> sourcesFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
+		getExtensions().add("binaries", binariesFactory.create());
+		getExtensions().add("sources", sourcesFactory.create());
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;
@@ -138,16 +139,6 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	}
 
 	@Override
-	public void dependencies(Action<? super NativeComponentDependencies> action) {
-		action.execute(getDependencies());
-	}
-
-	@Override
-	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(ConfigureUtils.configureUsing(closure));
-	}
-
-	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
 	}
@@ -155,12 +146,6 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	@Override
 	public Property<IosApplication> getDevelopmentVariant() {
 		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public BinaryView<Binary> getBinaries() {
-		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override

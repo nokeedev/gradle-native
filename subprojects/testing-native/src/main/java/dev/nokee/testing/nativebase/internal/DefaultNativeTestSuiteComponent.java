@@ -16,6 +16,7 @@
 package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
@@ -53,14 +54,14 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
+import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
@@ -85,8 +86,6 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -124,10 +123,10 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
-	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedVariantAwareComponentMixIn<NativeTestSuiteVariant>
 	, HasDevelopmentVariantMixIn<NativeTestSuiteVariant>
-	, ModelBackedBinaryAwareComponentMixIn
+	, BinaryAwareComponentMixIn
 	, AssembleTaskMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
@@ -138,9 +137,11 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
+		getExtensions().add("binaries", binariesFactory.create());
+		getExtensions().add("sources", sourcesFactory.create());
 		this.objects = objects;
 		this.modelLookup = modelLookup;
 		this.registry = registry;
@@ -158,16 +159,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	}
 
 	@Override
-	public void dependencies(Action<? super NativeComponentDependencies> action) {
-		action.execute(getDependencies());
-	}
-
-	@Override
-	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(ConfigureUtils.configureUsing(closure));
-	}
-
-	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
 	}
@@ -175,12 +166,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	@Override
 	public Property<NativeTestSuiteVariant> getDevelopmentVariant() {
 		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public BinaryView<Binary> getBinaries() {
-		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override

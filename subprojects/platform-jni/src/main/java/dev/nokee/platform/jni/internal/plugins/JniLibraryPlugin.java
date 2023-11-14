@@ -17,6 +17,9 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.internal.Factory;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.c.internal.plugins.CLanguagePlugin;
 import dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
@@ -24,23 +27,33 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
 import dev.nokee.model.capabilities.variants.IsVariant;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
+import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
+import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.IncompatiblePluginUsage;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
+import dev.nokee.platform.jni.internal.JavaNativeInterfaceSourcesViewAdapter;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
@@ -48,6 +61,7 @@ import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -56,6 +70,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.plugins.NativeBasePlugin;
@@ -69,6 +84,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
@@ -123,13 +139,21 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, new ModelObjectFactory<JniLibraryComponentInternal>(project, IsComponent.class) {
 			@Override
 			protected JniLibraryComponentInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
+				return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<JavaNativeInterfaceLibrarySources>) () -> {
+					Named.Namer namer = new Named.Namer();
+					ModelNode entity = ModelNodeContext.getCurrentModelNode();
+					ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+					Runnable realizeNow = () -> {
+						ModelStates.finalize(entity);
+					};
+					return new JavaNativeInterfaceSourcesViewAdapter(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+				});
 			}
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
 			@Override
 			protected JniLibraryInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)));
+				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 			}
 		});
 

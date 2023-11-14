@@ -19,6 +19,7 @@ import dev.nokee.model.internal.type.ModelType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 // TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
@@ -112,7 +113,7 @@ public final class ModelNodeUtils {
 			return getProjections(node)
 				.filter(it -> it.canBeViewedAs(type))
 				.findFirst().map(it -> it.get(type))
-				.orElseThrow(() -> new IllegalStateException("no projection for " + type));
+				.orElseThrow(() -> new IllegalStateException("no projection for " + type + ": " + getProjections(node).map(it -> it.getType().getConcreteType().getSimpleName()).collect(Collectors.joining(", "))));
 		});
 	}
 

@@ -23,9 +23,7 @@ import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasBaseName;
@@ -94,12 +92,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public BinaryView<Binary> getBinaries() {
-		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
