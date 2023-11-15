@@ -41,7 +41,6 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.TaskView;
@@ -50,8 +49,6 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
-import dev.nokee.platform.base.internal.ComponentContainerAdapter;
-import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
@@ -70,8 +67,6 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketS
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
-import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareCapability;
 import dev.nokee.platform.base.internal.project.ProjectCapabilityPlugin;
 import dev.nokee.platform.base.internal.project.ProjectProjectionComponent;
@@ -95,14 +90,12 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.core.ModelPath.root;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.model.internal.type.ModelType.of;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>> COMPONENT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>>() {};
@@ -110,20 +103,20 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<DependencyBucket>> DEPENDENCY_BUCKET_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<DependencyBucket>>() {};
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Artifact>> ARTIFACT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Artifact>>() {};
 
-	public static ExtensiblePolymorphicDomainObjectContainer<Component> components(ExtensionAware project) {
-		return project.getExtensions().getByType(COMPONENT_CONTAINER_TYPE);
+	public static ExtensiblePolymorphicDomainObjectContainer<Component> components(ExtensionAware target) {
+		return target.getExtensions().getByType(COMPONENT_CONTAINER_TYPE);
 	}
 
-	public static ExtensiblePolymorphicDomainObjectContainer<Variant> variants(ExtensionAware project) {
-		return project.getExtensions().getByType(VARIANT_CONTAINER_TYPE);
+	public static ExtensiblePolymorphicDomainObjectContainer<Variant> variants(ExtensionAware target) {
+		return target.getExtensions().getByType(VARIANT_CONTAINER_TYPE);
 	}
 
 	public static ExtensiblePolymorphicDomainObjectContainer<DependencyBucket> dependencyBuckets(ExtensionAware target) {
 		return target.getExtensions().getByType(DEPENDENCY_BUCKET_CONTAINER_TYPE);
 	}
 
-	public static ExtensiblePolymorphicDomainObjectContainer<Artifact> artifacts(ExtensionAware project) {
-		return project.getExtensions().getByType(ARTIFACT_CONTAINER_TYPE);
+	public static ExtensiblePolymorphicDomainObjectContainer<Artifact> artifacts(ExtensionAware target) {
+		return target.getExtensions().getByType(ARTIFACT_CONTAINER_TYPE);
 	}
 
 	@Override
@@ -132,12 +125,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		project.getPluginManager().apply("lifecycle-base");
 
-		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
-		val modelLookup = project.getExtensions().getByType(ModelLookup.class);
-
 		project.getExtensions().getByType(ModelLookup.class).get(root()).addComponent(new ProjectProjectionComponent(project));
-
-		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory());
 
 		project.getExtensions().add(COMPONENT_CONTAINER_TYPE, "$components", project.getObjects().polymorphicDomainObjectContainer(Component.class));
 		project.getExtensions().add(VARIANT_CONTAINER_TYPE, "$variants", project.getObjects().polymorphicDomainObjectContainer(Variant.class));
@@ -250,21 +238,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			val bv = registry.register(builder().withComponent(new ElementNameComponent("buildVariants")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.buildVariants(buildVariants.get())).build());
 			entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
 		})));
-
-		project.getPluginManager().apply(ComponentElementsCapabilityPlugin.class);
-
-		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
-		val components = modeRegistry.register(builder()
-			.withComponent(new ElementNameComponent("components"))
-			.withComponent(new ParentComponent(modelLookup.get(root())))
-			.mergeFrom(elementsPropertyFactory.newProperty()
-				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(root()))
-				.elementType(of(Component.class))
-				.build())
-			.withComponent(createdUsing(of(ComponentContainer.class), () -> new ComponentContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<Component>>() {})), modeRegistry)))
-			.build()
-		);
-		project.getExtensions().add(ComponentContainer.class, "components", components.as(ComponentContainer.class).get());
 
 		model(project, objects()).configureEach(new BiConsumer<ModelObjectIdentifier, Object>() {
 			@Override

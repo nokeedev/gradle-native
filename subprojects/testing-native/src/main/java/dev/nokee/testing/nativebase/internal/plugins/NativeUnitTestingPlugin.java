@@ -36,13 +36,11 @@ import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -59,6 +57,7 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -74,11 +73,10 @@ import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import dev.nokee.testing.base.TestSuiteContainer;
+import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.internal.IsTestComponent;
 import dev.nokee.testing.base.internal.TestedComponentPropertyComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
-import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
 import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentTag;
@@ -93,15 +91,14 @@ import org.gradle.api.reflect.TypeOf;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuites;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class NativeUnitTestingPlugin implements Plugin<Project> {
@@ -132,9 +129,12 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			}
 		});
 
-		val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
-		val componentRegistry = ModelNodeUtils.get(ModelNodes.of(testSuites), NodeRegistrationFactoryRegistry.class);
-		componentRegistry.registerFactory(of(NativeTestSuite.class), name -> nativeTestSuite(name, project));
+		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class, new ModelObjectFactory<DefaultNativeTestSuiteComponent>(project, IsTestComponent.class) {
+			@Override
+			protected DefaultNativeTestSuiteComponent doCreate(String name) {
+				return project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(VariantViewFactory.class));
+			}
+		});
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeTestSuiteComponentTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -197,8 +197,8 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		project.afterEvaluate(proj -> {
 			// TODO: We delay as late as possible to "fake" a finalize action.
-			testSuites.configureEach(DefaultNativeTestSuiteComponent.class, it -> {
-				ModelStates.finalize(it.getNode());
+			testSuites(proj).withType(DefaultNativeTestSuiteComponent.class).configureEach(it -> {
+				ModelNodes.safeOf(it).ifPresent(ModelStates::finalize);
 			});
 		});
 	}
@@ -208,12 +208,12 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		val entityPath = ModelPath.path(identifier.getName().toString());
 		return builder()
 			.withComponent(new ModelPathComponent(entityPath))
-			.withComponent(createdUsing(of(DefaultNativeTestSuiteComponent.class), () -> project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(VariantViewFactory.class))))
 			.withComponentTag(IsTestComponent.class)
 			.withComponentTag(ConfigurableTag.class)
 			.withComponentTag(NativeTestSuiteComponentTag.class)
 			.withComponent(new IdentifierComponent(identifier))
 			.mergeFrom(tagsOf(DefaultNativeTestSuiteComponent.class))
+			.withComponent(new MainProjectionComponent(DefaultNativeTestSuiteComponent.class))
 			.build()
 			;
 	}

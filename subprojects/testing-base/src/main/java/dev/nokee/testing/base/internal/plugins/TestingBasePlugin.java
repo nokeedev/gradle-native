@@ -15,54 +15,36 @@
  */
 package dev.nokee.testing.base.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
-import dev.nokee.model.internal.core.NodeRegistrationFactories;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.TypeOf;
-import dev.nokee.platform.base.internal.ViewAdapter;
-import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.testing.base.TestSuiteComponent;
-import dev.nokee.testing.base.TestSuiteContainer;
-import dev.nokee.testing.base.internal.TestSuiteContainerAdapter;
-import lombok.val;
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.ExtensionAware;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public class TestingBasePlugin implements Plugin<Project> {
+	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent>> TEST_SUITE_COMPONENT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent>>() {};
+
+	public static ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent> testSuites(ExtensionAware target) {
+		return target.getExtensions().getByType(TEST_SUITE_COMPONENT_CONTAINER_TYPE);
+	}
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
-		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
-		val modelLookup = project.getExtensions().getByType(ModelLookup.class);
+		project.getExtensions().add(TEST_SUITE_COMPONENT_CONTAINER_TYPE, "$testSuites", project.getObjects().polymorphicDomainObjectContainer(TestSuiteComponent.class));
 
-		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
-		val testSuites = modeRegistry.register(ModelRegistration.builder()
-			.withComponent(new ElementNameComponent("testSuites"))
-			.withComponent(new ParentComponent(modelLookup.get(ModelPath.root())))
-			.mergeFrom(elementsPropertyFactory.newProperty()
-				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()))
-				.elementType(of(TestSuiteComponent.class))
-				.build())
-			.withComponent(createdUsing(of(TestSuiteContainer.class), () -> new TestSuiteContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<TestSuiteComponent>>() {})), modeRegistry)))
-			.withComponent(ofInstance(new NodeRegistrationFactories()))
-			.build()
-		);
-		project.getExtensions().add(TestSuiteContainer.class, "testSuites", testSuites.as(TestSuiteContainer.class).get());
+		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, testSuites(project)));
 
 		project.afterEvaluate(proj -> {
 			// Force realize all test suite... until we solve the differing problem.
