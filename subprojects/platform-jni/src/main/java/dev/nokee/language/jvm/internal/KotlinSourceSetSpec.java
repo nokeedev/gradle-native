@@ -15,14 +15,14 @@
  */
 package dev.nokee.language.jvm.internal;
 
+import com.google.common.collect.MoreCollectors;
+import com.google.common.collect.Streams;
 import dev.nokee.language.base.HasSource;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.type.ModelTypeUtils;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -30,8 +30,10 @@ import org.gradle.api.Task;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.compile.JavaCompile;
 
 import javax.inject.Inject;
 import java.lang.reflect.InvocationTargetException;
@@ -39,14 +41,17 @@ import java.lang.reflect.InvocationTargetException;
 import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedName;
 import static java.util.Objects.requireNonNull;
 
-@DomainObjectEntities.Tag({KotlinSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
 public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport implements KotlinSourceSet
 	, HasSource {
 	@Inject
-	public KotlinSourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets) {
-		NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());
+	public KotlinSourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets, ModelObjectRegistry<Task> taskRegistry, TaskContainer tasks) {
+		final NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());
 		getSource().from(sourceSetProvider.map(KotlinSourceSetSpec::asSourceDirectorySet));
 		getSource().disallowChanges();
+
+		@SuppressWarnings("unchecked")
+		final Class<Task> KotlinCompile  = (Class<Task>) ModelTypeUtils.toUndecoratedType(sourceSetProvider.map(it -> Streams.stream(tasks.getCollectionSchema().getElements()).filter(t -> t.getName().equals(it.getCompileTaskName("kotlin"))).map(t -> t.getPublicType().getConcreteClass()).collect(MoreCollectors.onlyElement())).get());
+		getExtensions().add("compileTask", taskRegistry.register(getIdentifier().child(TaskName.of("compile")), KotlinCompile).asProvider());
 	}
 
 	private static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
@@ -62,14 +67,13 @@ public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport 
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public TaskProvider<? extends Task> getCompileTask() {
-		return (TaskProvider<Task>) ModelElements.of(this).element("compile", Task.class).asProvider();
+		return (TaskProvider<Task>) getExtensions().getByName("compileTask");
 	}
 
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return getSource().getBuildDependencies();
 	}
-
-	public interface Tag extends ModelTag {}
 }

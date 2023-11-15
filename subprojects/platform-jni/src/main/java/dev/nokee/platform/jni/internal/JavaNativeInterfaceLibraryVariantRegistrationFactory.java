@@ -16,6 +16,7 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.base.Preconditions;
+import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -24,7 +25,6 @@ import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.val;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
@@ -35,8 +35,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponentTag(ConfigurableTag.class)
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponentTag(JniLibraryVariantTag.class)
-			.mergeFrom(tagsOf(JniLibraryInternal.class))
+			.withComponentTag(IsVariant.class)
 			.withComponent(new MainProjectionComponent(JniLibraryInternal.class))
 			.build();
 	}

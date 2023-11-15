@@ -20,19 +20,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.HasCompileTask;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
-import dev.nokee.language.jvm.internal.CompileTaskComponent;
-import dev.nokee.language.jvm.internal.GroovyLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.GroovySourceSetSpec;
-import dev.nokee.language.jvm.internal.JavaLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.JavaSourceSetSpec;
-import dev.nokee.language.jvm.internal.JvmSourceSetTag;
-import dev.nokee.language.jvm.internal.KotlinLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
-import dev.nokee.language.jvm.internal.SourceSetComponent;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
@@ -49,13 +42,11 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -64,8 +55,6 @@ import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
@@ -105,7 +94,6 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
@@ -124,7 +112,6 @@ import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
@@ -152,24 +139,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(GroovySourceSetSpec.class, new ModelObjectFactory<GroovySourceSetSpec>(project, IsLanguageSourceSet.class) {
-			@Override
-			protected GroovySourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(GroovySourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class));
-			}
-		});
-		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(JavaSourceSetSpec.class, new ModelObjectFactory<JavaSourceSetSpec>(project, IsLanguageSourceSet.class) {
-			@Override
-			protected JavaSourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(JavaSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class));
-			}
-		});
-		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(KotlinSourceSetSpec.class, new ModelObjectFactory<KotlinSourceSetSpec>(project, IsLanguageSourceSet.class) {
-			@Override
-			protected KotlinSourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(KotlinSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class));
-			}
-		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, new ModelObjectFactory<ModelBackedJniJarBinary>(project, IsBinary.class) {
 			@Override
 			protected ModelBackedJniJarBinary doCreate(String name) {
@@ -289,33 +258,32 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+		// TODO: This is an external dependency meaning we should go through the component dependencies.
+		//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
+		//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
+		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+			variant.getSources().configureEach(sourceSet -> {
+				if (sourceSet instanceof HasCompileTask) {
+					((HasCompileTask) sourceSet).getCompileTask().configure(includeRoots(from(jvmIncludes())));
+				}
+			});
+		});
 
-			// TODO: This is an external dependency meaning we should go through the component dependencies.
-			//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
-			//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
-			variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
-				variant.getSources().configureEach(sourceSet -> {
-					if (sourceSet instanceof HasCompileTask) {
-						((HasCompileTask) sourceSet).getCompileTask().configure(includeRoots(from(jvmIncludes())));
-					}
-				});
+		project.getPluginManager().withPlugin("groovy", ignored -> {
+			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("groovy"), GroovySourceSetSpec.class).get(); // force realize to avoid out-of-order
 			});
-
-			project.getPluginManager().withPlugin("groovy", ignored -> {
-				val sourceSet = registry.register(newEntity(identifier.get().child("groovy"), GroovySourceSetSpec.class, it -> it.ownedBy(entity)));
-				entity.addComponent(new GroovyLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
+		});
+		project.getPluginManager().withPlugin("java", ignored -> {
+			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("java"), JavaSourceSetSpec.class).get(); // force realize to avoid out-of-order
 			});
-			project.getPluginManager().withPlugin("java", ignored -> {
-				val sourceSet = registry.register(newEntity(identifier.get().child("java"), JavaSourceSetSpec.class, it -> it.ownedBy(entity)));
-				entity.addComponent(new JavaLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
+		});
+		project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
+			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("kotlin"), KotlinSourceSetSpec.class).get(); // force realize to avoid out-of-order
 			});
-			project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
-				val sourceSet = registry.register(newEntity(identifier.get().child("kotlin"), KotlinSourceSetSpec.class, it -> it.ownedBy(entity)));
-				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
-			});
-		})));
+		});
 		// TODO: When discovery will be a real feature, we shouldn't need this anymore
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			final ModelNode entity = component.getNode();
@@ -327,11 +295,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			component.getDevelopmentVariant().convention((Provider<? extends JniLibrary>) project.provider(new BuildableDevelopmentVariantConvention(() -> component.getVariants().getElements().get())));
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(JvmSourceSetTag.class), ModelComponentReference.of(SourceSetComponent.class), ModelComponentReference.of(CompileTaskComponent.class), (entity, ignored1, sourceSet, compileTask) -> {
-			sourceSet.get().configure(it -> {
-				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(compileTask.get().getId(), Task.class, configureDependsOn((Callable<?>) () -> DependencyBuckets.finalize(project.getConfigurations().getByName(it.getCompileClasspathConfigurationName())))));
-			});
-		}));
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			Provider<List<JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> v.getSharedLibrary().isBuildable());
 			component.getAssembleTask().configure(configureDependsOn(component.getDevelopmentVariant().map(JniLibrary::getJavaNativeInterfaceJar).map(Collections::singletonList).orElse(Collections.emptyList())));

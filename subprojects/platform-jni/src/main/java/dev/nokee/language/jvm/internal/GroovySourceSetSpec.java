@@ -16,16 +16,14 @@
 package dev.nokee.language.jvm.internal;
 
 import dev.nokee.language.base.HasSource;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Task;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.tasks.SourceSet;
@@ -39,29 +37,29 @@ import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedNa
 import static dev.nokee.utils.TaskDependencyUtils.of;
 import static java.util.Objects.requireNonNull;
 
-@DomainObjectEntities.Tag({GroovySourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
 public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport implements GroovySourceSet
 	, HasSource {
 	@Inject
-	public GroovySourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets) {
-		NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());
+	public GroovySourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets, ModelObjectRegistry<Task> taskRegistry) {
+		final NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());
 		getSource().setFrom(sourceSetProvider.map(GroovySourceSetSpec::asSourceDirectorySet));
 		getSource().disallowChanges();
 
+		getExtensions().add("compileTask", taskRegistry.register(getIdentifier().child(TaskName.of("compile")), GroovyCompile.class).asProvider());
 	}
 
 	private static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
 		return ((org.gradle.api.tasks.GroovySourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("groovy")).getGroovy();
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
 	public TaskProvider<GroovyCompile> getCompileTask() {
-		return (TaskProvider<GroovyCompile>) ModelElements.of(this).element("compile", GroovyCompile.class).asProvider();
+		return (TaskProvider<GroovyCompile>) getExtensions().getByName("compileTask");
 	}
 
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), of(getCompileTask()));
 	}
-
-	public interface Tag extends ModelTag {}
 }
