@@ -16,7 +16,6 @@
 package dev.nokee.testing.nativebase.internal.plugins;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Streams;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
@@ -30,7 +29,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBase
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
+import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -54,17 +53,18 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BuildVariantComponent;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
@@ -94,6 +94,7 @@ import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -108,6 +109,13 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(TestingBasePlugin.class);
+
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeTestSuiteVariant.class, new ModelObjectFactory<DefaultNativeTestSuiteVariant>(project, IsVariant.class) {
+			@Override
+			protected DefaultNativeTestSuiteVariant doCreate(String name) {
+				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
+			}
+		});
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
@@ -133,22 +141,18 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			final NativeApplicationOutgoingDependencies outgoing = new NativeApplicationOutgoingDependencies(variant.getRuntimeElements().getAsConfiguration(), project.getObjects());
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelTags.referenceOf(NativeTestSuiteComponentTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, path, tag, variants) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
+		project.afterEvaluate(__ -> {
+			components(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
+				for (BuildVariant it : component.getBuildVariants().get()) {
+					final BuildVariantInternal buildVariant = (BuildVariantInternal) it;
+					final VariantIdentifier variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).build();
+					model(project, registryOf(Variant.class)).register(variantIdentifier, DefaultNativeTestSuiteVariant.class);
+				}
 
-			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
-				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-
-				nativeTestSuiteVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
-				variant.addComponent(new BuildVariantComponent(buildVariant));
-				ModelStates.register(variant);
-				return null;
-			}).forEach(it -> {});
-
-			component.finalizeExtension(project);
-			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
-		}));
+				component.finalizeExtension(project);
+				component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
+			});
+		});
 		components(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
 		});
@@ -205,19 +209,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponentTag(NativeTestSuiteComponentTag.class)
 			.withComponent(new IdentifierComponent(identifier))
 			.mergeFrom(tagsOf(DefaultNativeTestSuiteComponent.class))
-			.build()
-			;
-	}
-
-	private static ModelRegistration nativeTestSuiteVariant(VariantIdentifier identifier, DefaultNativeTestSuiteComponent component, Project project) {
-		return builder()
-			.withComponentTag(ConfigurableTag.class)
-			.withComponent(new IdentifierComponent(identifier))
-			.withComponentTag(NativeVariantTag.class)
-			.mergeFrom(tagsOf(DefaultNativeTestSuiteVariant.class))
-			.withComponent(createdUsing(of(DefaultNativeTestSuiteVariant.class), () -> {
-				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
-			}))
 			.build()
 			;
 	}

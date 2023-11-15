@@ -15,46 +15,30 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import com.google.common.collect.Streams;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BuildVariantComponent;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationVariant;
-import dev.nokee.platform.ios.internal.IosApplicationComponentTag;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.ios.internal.IosResourceSetSpec;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
-import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -63,20 +47,15 @@ import org.gradle.api.reflect.TypeOf;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class IosComponentBasePlugin implements Plugin<Project> {
 	@Override
-	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 
@@ -85,6 +64,18 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			protected IosResourceSetSpec doCreate(String name) {
 				return project.getObjects().newInstance(IosResourceSetSpec.class);
 			}
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class, new ModelObjectFactory<DefaultIosApplicationVariant>(project, IsVariant.class) {
+			@Override
+			protected DefaultIosApplicationVariant doCreate(String name) {
+				return project.getObjects().newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
+			}
+		});
+
+		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {
+			component.getVariants().configureEach(DefaultIosApplicationVariant.class, variant -> {
+				variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
+			});
 		});
 
 		variants(project).withType(DefaultIosApplicationVariant.class).configureEach(variant -> {
@@ -97,25 +88,20 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, identifier, tag, fullyQualifiedName) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {
+			model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("resources"), IosResourceSetSpec.class).configure(sourceSet -> sourceSet.from("src/" + component.getName() + "/resources"));
+		});
+		project.afterEvaluate(__ -> {
+			components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {
+				for (BuildVariant it : component.getBuildVariants().get()) {
+					final BuildVariantInternal buildVariant = (BuildVariantInternal) it;
+					final VariantIdentifier variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).build();
+					model(project, registryOf(Variant.class)).register(variantIdentifier, DefaultIosApplicationVariant.class);
+				}
 
-			registry.register(newEntity(identifier.get().child("resources"), IosResourceSetSpec.class, it -> it.ownedBy(entity))).configure(IosResourceSet.class, sourceSet -> sourceSet.from("src/" + fullyQualifiedName.get() + "/resources"));
-		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, tag, variants) -> {
-			val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
-
-			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
-				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-
-				iosApplicationVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
-				variant.addComponent(new BuildVariantComponent(buildVariant));
-				ModelStates.register(variant);
-				return null;
-			}).forEach(it -> {});
-
-			component.finalizeValue();
-		}));
+				component.finalizeValue();
+			});
+		});
 
 		components(project).withType(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class).configureEach(component -> {
 			component.getTargetMachines().convention(Collections.singletonList(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
@@ -139,20 +125,5 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			final IosApplicationOutgoingDependencies outgoing = new IosApplicationOutgoingDependencies(variant.getRuntimeElements().getAsConfiguration(), project.getObjects());
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 		});
-	}
-
-	private static ModelRegistration iosApplicationVariant(VariantIdentifier identifier, DefaultIosApplicationComponent component, Project project) {
-		return ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
-			.withComponentTag(ConfigurableTag.class)
-			.withComponentTag(NativeVariantTag.class)
-			.mergeFrom(tagsOf(DefaultIosApplicationVariant.class))
-			.withComponent(createdUsing(of(DefaultIosApplicationVariant.class), () -> {
-				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
-				variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
-				return variant;
-			}))
-			.build()
-			;
 	}
 }
