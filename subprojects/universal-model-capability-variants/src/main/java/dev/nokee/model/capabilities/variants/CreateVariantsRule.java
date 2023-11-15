@@ -25,6 +25,7 @@ import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 
+@Deprecated
 public final class CreateVariantsRule extends ModelActionWithInputs.ModelAction1<ModelBufferComponent<KnownVariantInformationElement>> {
 	private final ModelRegistry registry;
 

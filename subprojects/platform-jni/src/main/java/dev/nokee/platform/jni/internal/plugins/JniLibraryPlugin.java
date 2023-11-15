@@ -32,8 +32,6 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
@@ -44,11 +42,11 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
+import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
@@ -149,7 +147,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						ModelStates.finalize(entity);
 					};
 					return new JavaNativeInterfaceSourcesViewAdapter(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-				}, project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
+				}, project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class));
 			}
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
@@ -173,20 +171,20 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			// Ensure the variants are resolved so all tasks are registered.
 			getTasks().named("tasks", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get().get();
+					extension.getVariants().get();
 					return emptyList();
 				});
 			});
 			// Ensure the variants are resolved so all configurations and dependencies are registered.
 			getTasks().named("dependencies", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get().get();
+					extension.getVariants().get();
 					return emptyList();
 				});
 			});
 			getTasks().named("outgoingVariants", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get().get();
+					extension.getVariants().get();
 					return emptyList();
 				});
 			});
@@ -195,7 +193,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// The previous trick doesn't work for dependencyInsight task and vice-versa.
 			project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
-				ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get().get();
+				extension.getVariants().get();
 			});
 		});
 		project.afterEvaluate(finalizeModelNodeOf(extension));

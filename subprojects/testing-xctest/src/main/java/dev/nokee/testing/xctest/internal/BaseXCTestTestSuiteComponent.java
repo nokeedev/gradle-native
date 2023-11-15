@@ -92,10 +92,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public VariantView<DefaultXCTestTestSuiteVariant> getVariants() {
-		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
-	}
+	public abstract VariantView<DefaultXCTestTestSuiteVariant> getVariants();
 
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		variant.configure(testSuite -> {

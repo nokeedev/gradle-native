@@ -26,6 +26,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 
 import java.util.Set;
@@ -33,11 +34,11 @@ import java.util.Set;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
-public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T>, VariantAwareComponentInternal<T> {
+public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T>, VariantAwareComponentInternal<T>, ExtensionAware {
 	@Override
 	@SuppressWarnings("unchecked")
 	default VariantView<T> getVariants() {
-		return ModelProperties.getProperty(this, "variants").as((Class<VariantView<T>>)new TypeToken<VariantView<T>>(getClass()) {}.getRawType()).get();
+		return (VariantView<T>) getExtensions().getByName("variants");
 	}
 
 	@Override

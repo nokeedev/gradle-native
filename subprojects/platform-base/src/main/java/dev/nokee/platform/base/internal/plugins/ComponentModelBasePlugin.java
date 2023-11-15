@@ -15,19 +15,11 @@
  */
 package dev.nokee.platform.base.internal.plugins;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
-import dev.nokee.model.capabilities.variants.CreateVariantsRule;
 import dev.nokee.model.capabilities.variants.IsVariant;
-import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
-import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.buffers.ModelBuffers;
-import dev.nokee.model.internal.core.DisplayNameComponent;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -35,7 +27,6 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
@@ -44,20 +35,17 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
@@ -68,7 +56,6 @@ import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.platform.base.internal.IsTask;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
@@ -76,6 +63,7 @@ import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
+import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskCapabilityPlugin;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -98,11 +86,9 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -237,11 +223,24 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		};
 		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<TaskView<Task>>>() {}, "__nokee_tasksFactory", tasksFactory);
 
+		final VariantViewFactory variantsFactory = new VariantViewFactory() {
+			@Override
+			public <T extends Variant> VariantView<T> create(Class<T> elementType) {
+				Named.Namer namer = new Named.Namer();
+				Optional<ModelNode> entity = ModelNodeContext.findCurrentModelNode();
+				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+				Runnable realizeNow = () -> {
+					entity.ifPresent(ModelStates::finalize);
+				};
+				return new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+			}
+		};
+		project.getExtensions().add(VariantViewFactory.class, "__nokee_variantsFactory", variantsFactory);
+
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 
 		project.getPluginManager().apply(ExtensionAwareCapability.class);
 
-		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, component, identifier, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
@@ -250,35 +249,11 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 			val bv = registry.register(builder().withComponent(new ElementNameComponent("buildVariants")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.buildVariants(buildVariants.get())).build());
 			entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
-
-			registry.register(builder()
-				.withComponent(new ElementNameComponent("variants"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(parent.get()).elementType(of(variantType((ModelType<VariantAwareComponent<? extends Variant>>) component.getType()))).build())
-				.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends Variant>>() {})))))
-				.build());
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new CreateVariantsRule(project.getExtensions().getByType(ModelRegistry.class)));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(BuildVariantsPropertyComponent.class), (entity, ignored, buildVariants) -> {
-			// TODO: Each plugins should just map the build variants into the variants.
-			//   Sort-of, each plugins should complete the configuration but not create the variant themselves
-			final ImmutableSet.Builder<KnownVariantInformationElement> builder = ImmutableSet.builder();
-			((Provider<Set<BuildVariant>>) buildVariants.get().get(GradlePropertyComponent.class).get()).get().forEach(it -> {
-				builder.add(new KnownVariantInformationElement(it.toString()));
-			});
-			entity.addComponent(ModelBuffers.of(KnownVariantInformationElement.class, builder.build()));
-		}));
-
-		// ComponentFromEntity<ParentComponent> read-only self
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {
-			if (!entity.has(IdentifierComponent.class)) {
-				val parentIdentifier = entity.find(ParentComponent.class).map(parent -> parent.get().get(IdentifierComponent.class).get()).orElse(null);
-				entity.addComponent(new IdentifierComponent(new DefaultModelObjectIdentifier(elementName.get(), parentIdentifier)));
-			}
-		}));
 
 		project.getPluginManager().apply(ComponentElementsCapabilityPlugin.class);
 
+		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 		val components = modeRegistry.register(builder()
 			.withComponent(new ElementNameComponent("components"))
 			.withComponent(new ParentComponent(modelLookup.get(root())))
@@ -290,10 +265,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			.build()
 		);
 		project.getExtensions().add(ComponentContainer.class, "components", components.as(ComponentContainer.class).get());
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(VariantAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "variants"));
-		}));
 
 		model(project, objects()).configureEach(new BiConsumer<ModelObjectIdentifier, Object>() {
 			@Override
@@ -334,14 +305,5 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				return mapper::apply;
 			}
 		});
-	}
-
-	@SuppressWarnings("unchecked")
-	private static Class<? extends Variant> variantType(ModelType<? extends VariantAwareComponent<? extends Variant>> type) {
-		try {
-			return (Class<? extends Variant>) ((ParameterizedType) TypeToken.of(type.getType()).resolveType(VariantAwareComponent.class.getMethod("getVariants").getGenericReturnType()).getType()).getActualTypeArguments()[0];
-		} catch (NoSuchMethodException e) {
-			throw new UnsupportedOperationException();
-		}
 	}
 }

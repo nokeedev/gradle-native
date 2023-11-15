@@ -30,6 +30,7 @@ import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import lombok.val;
 import org.gradle.api.Project;
@@ -72,7 +73,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 	@SuppressWarnings("unchecked")
 	private static DefaultIosApplicationComponent create(Project project) {
-		val result = project.getObjects().newInstance(DefaultIosApplicationComponent.class, model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<ComponentSources>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), model(project, registryOf(Task.class)), model(project, registryOf(Artifact.class)));
+		val result = project.getObjects().newInstance(DefaultIosApplicationComponent.class, model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<ComponentSources>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), model(project, registryOf(Task.class)), model(project, registryOf(Artifact.class)), project.getExtensions().getByType(VariantViewFactory.class));
 		result.getDevelopmentVariant().convention((Provider<? extends DefaultIosApplicationVariant>) project.getProviders().provider(new DevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) result.getVariants().map(VariantInternal.class::cast).get())));
 		return result;
 	}

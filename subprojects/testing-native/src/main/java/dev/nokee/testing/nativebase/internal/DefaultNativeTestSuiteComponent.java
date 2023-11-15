@@ -63,6 +63,7 @@ import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -129,11 +130,12 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, VariantViewFactory variantsFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
+		getExtensions().add("variants", variantsFactory.create(NativeTestSuiteVariant.class));
 		this.objects = objects;
 		this.modelLookup = modelLookup;
 		this.registry = registry;
@@ -159,9 +161,8 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	public abstract Property<NativeTestSuiteVariant> getDevelopmentVariant();
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public VariantView<NativeTestSuiteVariant> getVariants() {
-		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
+		return ModelBackedVariantAwareComponentMixIn.super.getVariants();
 	}
 
 	@Override
