@@ -15,9 +15,9 @@
  */
 package dev.nokee.platform.jni.internal.plugins;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
@@ -35,20 +35,12 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
-import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
@@ -62,7 +54,6 @@ import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.platform.jni.internal.ConfigureJniHeaderDirectoryOnJavaCompileAction;
 import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
@@ -108,7 +99,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
-import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
@@ -153,7 +143,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		});
 
 		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory());
-		project.getExtensions().add("__nokee_jniLibraryVariantFactory", new JavaNativeInterfaceLibraryVariantRegistrationFactory());
 
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies = component.getDependencies();
@@ -309,27 +298,28 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				});
 			});
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, identifier, elementName, projection, variants) -> {
-			val variantFactory = new JavaNativeInterfaceLibraryVariantRegistrationFactory();
-			val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
 
-			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
-				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-				variantFactory.create(variantIdentifier).getComponents().forEach(variant::addComponent);
-				ModelStates.register(variant);
+		// TODO: We should discover the variant instead of gating them
+		project.afterEvaluate(__ -> {
+			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+				for (BuildVariant it : component.getBuildVariants().get()) {
+					BuildVariantInternal buildVariant = (BuildVariantInternal) it;
+					Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
+
+					final VariantIdentifier variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).build();
+					model(project, registryOf(Variant.class)).register(variantIdentifier, JniLibraryInternal.class);
+				}
 
 				// See https://github.com/nokeedev/gradle-native/issues/543
 				if (component.getBuildVariants().get().size() > 1) {
-					project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(variant.getId(), JniLibrary.class, it -> {
+					component.getVariants().configureEach(JniLibraryInternal.class, it -> {
 						it.getJavaNativeInterfaceJar().getJarTask().configure(task -> {
-							task.getDestinationDirectory().set(project.getLayout().getBuildDirectory().dir("libs/" + elementName.get()));
+							task.getDestinationDirectory().set(project.getLayout().getBuildDirectory().dir("libs/" + component.getIdentifier().getName()));
 						});
-					}));
+					});
 				}
-
-				return null;
-			}).forEach(it -> {});
-		}));
+			});
+		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			component.getBinaries().configureEach(ModelBackedJvmJarBinary.class, binary -> {
 				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).map(it -> it.getCompileTask().get())::get));

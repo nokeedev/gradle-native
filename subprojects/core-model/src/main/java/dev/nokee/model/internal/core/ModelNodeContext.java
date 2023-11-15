@@ -18,6 +18,7 @@ package dev.nokee.model.internal.core;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -69,6 +70,10 @@ public final class ModelNodeContext {
 
 	public static ModelNode getCurrentModelNode() {
 		return requireNonNull(MODEL_NODE_INFO.get(), "no model node context");
+	}
+
+	public static Optional<ModelNode> findCurrentModelNode() {
+		return Optional.ofNullable(MODEL_NODE_INFO.get());
 	}
 
 	public static <T> T injectCurrentModelNodeIfAllowed(T target) {

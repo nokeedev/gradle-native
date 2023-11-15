@@ -25,6 +25,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.specs.Spec;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static dev.nokee.model.internal.state.ModelState.Realized;
@@ -111,19 +112,19 @@ public final class ModelNodes {
 	 * @return the model node for the specified instance if available
 	 */
 	public static ModelNode of(Object target) {
+		return safeOf(target).orElseThrow(() -> objectNotDecoratedWithModelNode(target));
+	}
+
+	public static Optional<ModelNode> safeOf(Object target) {
 		requireNonNull(target);
 		if (target instanceof ModelNodeAware) {
-			return ((ModelNodeAware) target).getNode();
+			return Optional.of(((ModelNodeAware) target).getNode());
 		} else if (target instanceof ExtensionAware) {
-			val node = ((ExtensionAware) target).getExtensions().findByType(ModelNode.class);
-			if (node == null) {
-				throw objectNotDecoratedWithModelNode(target);
-			}
-			return node;
+			return Optional.ofNullable(((ExtensionAware) target).getExtensions().findByType(ModelNode.class));
 		} else if (target instanceof ModelNode) {
-			return (ModelNode) target;
+			return Optional.of((ModelNode) target);
 		}
-		throw objectNotDecoratedWithModelNode(target);
+		return Optional.empty();
 	}
 
 	public static <T> T inject(T target, ModelNode node) {

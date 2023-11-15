@@ -27,7 +27,6 @@ import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
-import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.swift.internal.plugins.HasImportModules;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
@@ -44,7 +43,6 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -142,6 +140,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
@@ -156,6 +155,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
@@ -476,8 +476,18 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				}
 				val syncTask = project.getTasks().register("sync" + StringUtils.capitalize(variantIdentifier.getUnambiguousName()) + "PublicHeaders", Sync.class, task -> {
 					task.from((Callable<?>) () -> {
-						ModelStates.finalize(ModelNodes.of(variant));
-						return ModelNodes.of(variant).get(ParentComponent.class).get().get(PublicHeadersComponent.class).get();
+						return model(project, objects()).parentsOf(variantIdentifier)
+							.map(it -> it.get())
+							.peek(it -> ModelNodes.safeOf(it).ifPresent(ModelStates::finalize))
+							.flatMap(it -> {
+								final FileCollection publicHeaders = (FileCollection) ((ExtensionAware) it).getExtensions().findByName("publicHeaders");
+								if (publicHeaders == null) {
+									return Stream.empty();
+								} else {
+									return Stream.of(publicHeaders);
+								}
+							})
+							.findFirst().map(Object.class::cast).orElseGet(Collections::emptyList);
 					});
 					task.setDestinationDir(project.getLayout().getBuildDirectory().dir("tmp/" + task.getName()).get().getAsFile());
 				});

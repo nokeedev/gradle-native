@@ -37,6 +37,8 @@ import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+import java.util.Optional;
+
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
@@ -61,10 +63,10 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		final Factory<SourceView<LanguageSourceSet>> sourcesFactory = () -> {
 			Named.Namer namer = new Named.Namer();
-			ModelNode entity = ModelNodeContext.getCurrentModelNode();
+			Optional<ModelNode> entity = ModelNodeContext.findCurrentModelNode();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 			Runnable realizeNow = () -> {
-				ModelStates.finalize(entity);
+				entity.ifPresent(ModelStates::finalize);
 			};
 			return new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};

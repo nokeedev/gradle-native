@@ -101,6 +101,7 @@ import org.gradle.api.provider.Provider;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
@@ -111,6 +112,7 @@ import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
@@ -172,6 +174,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		// FIXME: This is temporary until we convert all entity
 		project.afterEvaluate(__ -> {
+			model(project, mapOf(Variant.class)).whenElementKnow(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
+		});
+		project.afterEvaluate(__ -> {
 			int previousCount = 0;
 			List<ModelNode> result = Collections.emptyList();
 			do
@@ -212,10 +217,10 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		final Factory<BinaryView<Binary>> binariesFactory = () -> {
 			Named.Namer namer = new Named.Namer();
-			ModelNode entity = ModelNodeContext.getCurrentModelNode();
+			Optional<ModelNode> entity = ModelNodeContext.findCurrentModelNode();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 			Runnable realizeNow = () -> {
-				ModelStates.finalize(entity);
+				entity.ifPresent(ModelStates::finalize);
 			};
 			return new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
@@ -223,10 +228,10 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		final Factory<TaskView<Task>> tasksFactory = () -> {
 			Task.Namer namer = new Task.Namer();
-			ModelNode entity = ModelNodeContext.getCurrentModelNode();
+			Optional<ModelNode> entity = ModelNodeContext.findCurrentModelNode();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 			Runnable realizeNow = () -> {
-				ModelStates.finalize(entity);
+				entity.ifPresent(ModelStates::finalize);
 			};
 			return new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};

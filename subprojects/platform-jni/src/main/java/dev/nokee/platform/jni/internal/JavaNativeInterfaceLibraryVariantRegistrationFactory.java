@@ -27,6 +27,7 @@ import lombok.val;
 
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
+@Deprecated
 public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 	public ModelRegistration create(VariantIdentifier identifier) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();

@@ -70,7 +70,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
-							ModelStates.finalize(ModelNodes.of(variant));
+							ModelNodes.safeOf(variant).ifPresent(ModelStates::finalize);
 							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName("privateHeaders")).orElse(Collections.emptyList());
 						});
 					}
@@ -105,7 +105,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
-							ModelStates.finalize(ModelNodes.of(variant));
+							ModelNodes.safeOf(variant).ifPresent(ModelStates::finalize);
 							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName("publicHeaders")).orElse(Collections.emptyList());
 						});
 					}
