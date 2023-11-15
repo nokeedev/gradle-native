@@ -44,7 +44,8 @@ import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantViewFactory;
@@ -56,9 +57,9 @@ import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
@@ -131,27 +132,28 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	public static /*final*/ abstract class DefaultObjectiveCIosApplication extends ModelElementSupport implements ObjectiveCIosApplication, ModelNodeAware
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies>
-		, ModelBackedVariantAwareComponentMixIn<IosApplication>
+		, VariantAwareComponentMixIn<IosApplication>
 		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, BinaryAwareComponentMixIn
 		, TaskAwareComponentMixIn
 		, AssembleTaskMixIn
-		, ModelBackedTargetMachineAwareComponentMixIn
-		, ModelBackedTargetLinkageAwareComponentMixIn
-		, ModelBackedTargetBuildTypeAwareComponentMixIn
+		, TargetMachineAwareComponentMixIn
+		, TargetLinkageAwareComponentMixIn
+		, TargetBuildTypeAwareComponentMixIn
 		, HasDevelopmentVariant<IosApplication>
 		, ObjectiveCSourcesMixIn
 		, PrivateHeadersMixIn
 	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
-		public DefaultObjectiveCIosApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory) {
+		public DefaultObjectiveCIosApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 			getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 			getExtensions().add("binaries", binariesFactory.create());
 			getExtensions().add("sources", sourcesFactory.create());
 			getExtensions().add("tasks", tasksFactory.create());
 			getExtensions().add("variants", variantsFactory.create(IosApplication.class));
+			getExtensions().add("dimensions", dimensionsFactory.create());
 		}
 
 		@Override

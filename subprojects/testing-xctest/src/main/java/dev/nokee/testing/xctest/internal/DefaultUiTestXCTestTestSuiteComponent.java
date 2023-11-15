@@ -38,7 +38,8 @@ import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -54,9 +55,9 @@ import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
@@ -82,15 +83,15 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
-	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
+	, VariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasDevelopmentVariant<DefaultXCTestTestSuiteVariant>
-	, ModelBackedTargetMachineAwareComponentMixIn
-	, ModelBackedTargetBuildTypeAwareComponentMixIn
-	, ModelBackedTargetLinkageAwareComponentMixIn
+	, TargetMachineAwareComponentMixIn
+	, TargetBuildTypeAwareComponentMixIn
+	, TargetLinkageAwareComponentMixIn
 {
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
@@ -98,7 +99,7 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	private final ModelObjectRegistry<Artifact> artifactRegistry;
 
 	@Inject
-	public DefaultUiTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, ModelObjectRegistry<Artifact> artifactRegistry, VariantViewFactory variantsFactory) {
+	public DefaultUiTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, ModelObjectRegistry<Artifact> artifactRegistry, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 		super(objects, providers, layout, registry);
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
@@ -106,6 +107,7 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
 		getExtensions().add("variants", variantsFactory.create(DefaultXCTestTestSuiteVariant.class));
+		getExtensions().add("dimensions", dimensionsFactory.create());
 		this.artifactRegistry = artifactRegistry;
 		this.taskRegistry = taskRegistry;
 		this.providers = providers;
@@ -233,7 +235,7 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 
 	@Override
 	public VariantView<DefaultXCTestTestSuiteVariant> getVariants() {
-		return ModelBackedVariantAwareComponentMixIn.super.getVariants();
+		return VariantAwareComponentMixIn.super.getVariants();
 	}
 
 	@Override

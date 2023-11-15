@@ -38,8 +38,6 @@ import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
@@ -58,7 +56,6 @@ import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
@@ -70,7 +67,6 @@ import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
@@ -480,19 +476,19 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeLinkCapabilityPlugin.class);
 		project.getPluginManager().apply(NativeArchiveCapabilityPlugin.class);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new TargetMachinesPropertyRegistrationRule(project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class), project.getObjects().newInstance(ToolChainSelectorInternal.class))));
+		components(project).configureEach(new TargetMachinesPropertyRegistrationRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
 		components(project).configureEach(component -> {
 			if (component instanceof TargetMachineAwareComponent) {
 				((TargetMachineAwareComponent) component).getTargetMachines().convention(singletonList(TargetMachines.host()));
 			}
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new TargetBuildTypesPropertyRegistrationRule(project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
+		components(project).configureEach(new TargetBuildTypesPropertyRegistrationRule());
 		components(project).configureEach(component -> {
 			if (component instanceof TargetBuildTypeAwareComponent) {
 				((TargetBuildTypeAwareComponent) component).getTargetBuildTypes().convention(singletonList(TargetBuildTypes.DEFAULT));
 			}
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new TargetLinkagesPropertyRegistrationRule(project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
+		components(project).configureEach(new TargetLinkagesPropertyRegistrationRule());
 		components(project).configureEach(component -> {
 			if (component instanceof NativeApplicationComponent && component instanceof TargetLinkageAwareComponent) {
 				((TargetLinkageAwareComponent) component).getTargetLinkages().convention(singletonList(TargetLinkages.EXECUTABLE));
@@ -502,6 +498,20 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			if (component instanceof NativeLibraryComponent && component instanceof TargetLinkageAwareComponent) {
 				((TargetLinkageAwareComponent) component).getTargetLinkages().convention(singletonList(TargetLinkages.SHARED));
 			}
+		});
+
+		project.afterEvaluate(__ -> {
+			components(project).configureEach(component -> {
+				if (component instanceof TargetMachineAwareComponent) {
+					((TargetMachineAwareComponent) component).getTargetMachines().disallowChanges();
+				}
+				if (component instanceof TargetLinkageAwareComponent) {
+					((TargetLinkageAwareComponent) component).getTargetLinkages().disallowChanges();
+				}
+				if (component instanceof TargetBuildTypeAwareComponent) {
+					((TargetBuildTypeAwareComponent) component).getTargetBuildTypes().disallowChanges();
+				}
+			});
 		});
 
 		val unbuildableWarningService = forUseAtConfigurationTime(registerBuildServiceIfAbsent(project, UnbuildableWarningService.class));

@@ -15,13 +15,9 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.reflect.TypeToken;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantDimensions;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
@@ -31,10 +27,7 @@ import org.gradle.api.provider.Provider;
 
 import java.util.Set;
 
-import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.model.internal.type.ModelTypes.set;
-
-public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T>, VariantAwareComponentInternal<T>, ExtensionAware {
+public interface VariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T>, VariantAwareComponentInternal<T>, ExtensionAware {
 	@Override
 	@SuppressWarnings("unchecked")
 	default VariantView<T> getVariants() {
@@ -52,12 +45,12 @@ public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extend
 	}
 
 	@Override
-	default VariantDimensions getDimensions() {
-		return ModelNodes.of(this).get(ModelBackedVariantDimensions.class);
+	default DefaultVariantDimensions getDimensions() {
+		return (DefaultVariantDimensions) getExtensions().getByName("dimensions");
 	}
 
 	@Override
 	default Provider<Set<BuildVariant>> getBuildVariants() {
-		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
+		return getDimensions().getBuildVariants();
 	}
 }

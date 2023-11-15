@@ -17,17 +17,13 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelPropertyTag;
-import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.utils.Cast;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.SetProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +33,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
-import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.model.internal.type.ModelTypes.set;
 import static java.util.stream.Collectors.joining;
 
 public final class DimensionPropertyRegistrationFactory {
@@ -48,15 +42,51 @@ public final class DimensionPropertyRegistrationFactory {
 		this.objectFactory = objectFactory;
 	}
 
-	public <T> ModelRegistration newAxisProperty(CoordinateAxis<T> axis) {
-		return newAxisProperty().axis(axis).build();
+	public <T> Builder<T> newAxisProperty(CoordinateAxis<T> axis) {
+		return new Builder<>().axis(axis);
 	}
 
-	public Builder newAxisProperty() {
-		return new Builder();
+	public static final class DimensionProperty<T> {
+		private final SetProperty<T> property;
+		private final CoordinateAxis<?> axis;
+		private final Predicate<BuildVariantInternal> axisFilter;
+		private final Consumer<Iterable<? extends Coordinate<Object>>> axisValidator;
+		private final boolean includeEmptyCoordinate;
+
+		public DimensionProperty(SetProperty<T> property, CoordinateAxis<?> axis, Predicate<BuildVariantInternal> axisFilter, Consumer<Iterable<? extends Coordinate<Object>>> axisValidator, boolean includeEmptyCoordinate) {
+			assert property != null;
+			assert axis != null;
+			assert axisFilter != null;
+			assert axisValidator != null;
+			this.property = property;
+			this.axis = axis;
+			this.axisFilter = axisFilter;
+			this.axisValidator = axisValidator;
+			this.includeEmptyCoordinate = includeEmptyCoordinate;
+		}
+
+		public SetProperty<T> getProperty() {
+			return property;
+		}
+
+		public CoordinateAxis<?> getAxis() {
+			return axis;
+		}
+
+		public Predicate<BuildVariantInternal> getFilter() {
+			return axisFilter;
+		}
+
+		public Consumer<Iterable<? extends Coordinate<Object>>> getValidator() {
+			return axisValidator;
+		}
+
+		public boolean isOptional() {
+			return includeEmptyCoordinate;
+		}
 	}
 
-	public final class Builder {
+	public final class Builder<T> {
 		private Class<Object> elementType;
 		private CoordinateAxis<Object> axis;
 		private Object defaultValues = ImmutableSet.of();
@@ -67,49 +97,49 @@ public final class DimensionPropertyRegistrationFactory {
 		private Builder() {}
 
 		@SuppressWarnings("unchecked")
-		public Builder axis(CoordinateAxis<?> axis) {
+		public <U> Builder<U> axis(CoordinateAxis<U> axis) {
 			this.axis = (CoordinateAxis<Object>) axis;
-			return this;
+			return (Builder<U>) this;
 		}
 
 		@SuppressWarnings("unchecked")
-		public Builder elementType(Class<?> elementType) {
+		public <U> Builder<U> elementType(Class<U> elementType) {
 			this.elementType = (Class<Object>) elementType;
-			return this;
+			return (Builder<U>) this;
 		}
 
-		public Builder validValues(Object... values) {
+		public Builder<T> validValues(Object... values) {
 			this.axisValidator = new AssertSupportedValuesConsumer<>(ImmutableSet.copyOf(values));
 			return this;
 		}
 
-		public <T> Builder validateUsing(Consumer<? super Iterable<Coordinate<T>>> axisValidator) {
+		public <S> Builder<T> validateUsing(Consumer<? super Iterable<Coordinate<S>>> axisValidator) {
 			this.axisValidator = values -> axisValidator.accept(Cast.uncheckedCast("cannot get the type to match", values));
 			return this;
 		}
 
-		public Builder includeEmptyCoordinate() {
+		public Builder<T> includeEmptyCoordinate() {
 			this.includeEmptyCoordinate = true;
 			return this;
 		}
 
-		public Builder filterVariant(Predicate<? super BuildVariantInternal> predicate) {
+		public Builder<T> filterVariant(Predicate<? super BuildVariantInternal> predicate) {
 			filters.add(predicate);
 			return this;
 		}
 
-		public Builder defaultValue(Object value) {
+		public Builder<T> defaultValue(Object value) {
 			this.defaultValues = ImmutableSet.of(value);
 			return this;
 		}
 
-		public Builder defaultValues(Provider<? extends Iterable<? extends Object>> value) {
+		public Builder<T> defaultValues(Provider<? extends Iterable<? extends Object>> value) {
 			this.defaultValues = value;
 			return this;
 		}
 
 		@SuppressWarnings("unchecked")
-		public ModelRegistration build() {
+		public DimensionProperty<T> build() {
 			checkState(axis != null);
 
 			if (elementType == null) {
@@ -124,41 +154,17 @@ public final class DimensionPropertyRegistrationFactory {
 				property.convention((Iterable<?>) defaultValues);
 			}
 
-			val result = ModelRegistration.builder();
-
-			result
-				.withComponentTag(ModelPropertyTag.class)
-				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
-				.withComponent(new GradlePropertyComponent(property))
-				.withComponentTag(VariantDimensionTag.class)
-				.withComponent(new VariantDimensionAxisComponent(axis));
-
+			Predicate<BuildVariantInternal> axisFilter = __ -> true;
 			if (filters != null && !filters.isEmpty()) {
-				result.withComponent(new VariantDimensionAxisFilterComponent(filters));
+				axisFilter = buildVariant -> filters.stream().anyMatch(it -> it.test(buildVariant));
 			}
 
-			if (axisValidator != null) {
-				result.withComponent(new VariantDimensionAxisValidatorComponent(axisValidator));
+			if (axisValidator == null) {
+				axisValidator = __ -> {};
 			}
 
-			if (includeEmptyCoordinate) {
-				result.withComponentTag(VariantDimensionAxisOptionalTag.class);
-			}
-
-			return result.build();
+			return new DimensionProperty<>((SetProperty<T>) property, axis, axisFilter, axisValidator, includeEmptyCoordinate);
 		}
-	}
-
-	// TODO: We register build variant
-	public ModelRegistration buildVariants(Provider<Set<BuildVariant>> buildVariantProvider) {
-		val property = objectFactory.setProperty(BuildVariant.class).convention(buildVariantProvider);
-		property.finalizeValueOnRead();
-		property.disallowChanges();
-		return ModelRegistration.builder()
-			.withComponentTag(ModelPropertyTag.class)
-			.withComponent(new ModelPropertyTypeComponent(set(of(BuildVariant.class))))
-			.withComponent(new GradlePropertyComponent(property))
-			.build();
 	}
 
 	private static final class AssertSupportedValuesConsumer<T> implements Consumer<Iterable<? extends Coordinate<T>>> {

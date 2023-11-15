@@ -17,42 +17,39 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.Streams;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.val;
+import org.gradle.api.Action;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 
-public final class TargetMachinesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
-	private final DimensionPropertyRegistrationFactory dimensions;
-	private final ModelRegistry registry;
+public final class TargetMachinesPropertyRegistrationRule implements Action<Component> {
 	private final ToolChainSelectorInternal toolChainSelector;
 
-	public TargetMachinesPropertyRegistrationRule(DimensionPropertyRegistrationFactory dimensions, ModelRegistry registry, ToolChainSelectorInternal toolChainSelector) {
-		super(ModelComponentReference.ofProjection(ModelBackedTargetMachineAwareComponentMixIn.class));
-		this.dimensions = dimensions;
-		this.registry = registry;
+	public TargetMachinesPropertyRegistrationRule(ToolChainSelectorInternal toolChainSelector) {
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection tag) {
-		val targetMachines = registry.register(ModelRegistration.builder().withComponent(new ElementNameComponent("targetMachines")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.newAxisProperty()
-			.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
-			.validateUsing((Iterable<Coordinate<TargetMachine>> it) -> assertTargetMachinesAreKnown(it, toolChainSelector))
-			.build()).build());
+	public void execute(Component component) {
+		if (component instanceof TargetMachineAwareComponent && component instanceof VariantAwareComponent) {
+			final DefaultVariantDimensions dimensions = (DefaultVariantDimensions) ((VariantAwareComponent<?>) component).getDimensions();
+			val targetMachines = dimensions.getDimensionFactory().newAxisProperty(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
+				.validateUsing((Iterable<Coordinate<TargetMachine>> it) -> assertTargetMachinesAreKnown(it, toolChainSelector))
+				.build();
+			dimensions.getElements().add(targetMachines);
+			targetMachines.getProperty().value(((TargetMachineAwareComponent) component).getTargetMachines()).disallowChanges();
+
+			((TargetMachineAwareComponent) component).getTargetMachines().finalizeValueOnRead();
+		}
 	}
 
 	private static void assertTargetMachinesAreKnown(Iterable<Coordinate<TargetMachine>> targetMachines, ToolChainSelectorInternal toolChainSelector) {

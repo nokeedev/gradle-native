@@ -30,7 +30,8 @@ import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantViewFactory;
@@ -41,8 +42,8 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -56,17 +57,17 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
-	, ModelBackedVariantAwareComponentMixIn<JniLibrary>
+	, VariantAwareComponentMixIn<JniLibrary>
 	, SourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources, JavaNativeInterfaceSourcesViewAdapter>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
-	, ModelBackedTargetMachineAwareComponentMixIn
-	, ModelBackedTargetLinkageAwareComponentMixIn
+	, TargetMachineAwareComponentMixIn
+	, TargetLinkageAwareComponentMixIn
 	, HasDevelopmentBinary
 	, AssembleTaskMixIn
 {
 	@Inject
-	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<BinaryView<Binary>> binariesFactory, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory) {
+	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<BinaryView<Binary>> binariesFactory, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 		getExtensions().create("dependencies", DefaultJavaNativeInterfaceLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
@@ -76,6 +77,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
 		getExtensions().add("variants", variantsFactory.create(JniLibrary.class));
+		getExtensions().add("dimensions", dimensionsFactory.create());
 	}
 
 	@Override
@@ -89,7 +91,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	}
 
 	public VariantView<JniLibrary> getVariants() {
-		return ModelBackedVariantAwareComponentMixIn.super.getVariants();
+		return VariantAwareComponentMixIn.super.getVariants();
 	}
 
 	@Override
@@ -112,7 +114,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
-		return ModelBackedVariantAwareComponentMixIn.super.getBuildVariants();
+		return VariantAwareComponentMixIn.super.getBuildVariants();
 	}
 
 	public String toString() {

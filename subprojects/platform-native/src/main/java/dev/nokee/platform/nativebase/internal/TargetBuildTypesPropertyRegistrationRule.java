@@ -15,34 +15,25 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
+import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import lombok.val;
+import org.gradle.api.Action;
 
-public final class TargetBuildTypesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
-	private final DimensionPropertyRegistrationFactory dimensions;
-	private final ModelRegistry registry;
-
-	public TargetBuildTypesPropertyRegistrationRule(DimensionPropertyRegistrationFactory dimensions, ModelRegistry registry) {
-		super(ModelComponentReference.ofProjection(ModelBackedTargetBuildTypeAwareComponentMixIn.class));
-		this.dimensions = dimensions;
-		this.registry = registry;
-	}
-
+public final class TargetBuildTypesPropertyRegistrationRule implements Action<Component> {
 	@Override
-	protected void execute(ModelNode entity, ModelProjection tag) {
-		val targetBuildTypes = registry.register(ModelRegistration.builder().withComponent(new ElementNameComponent("targetBuildTypes")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.newAxisProperty()
-			.elementType(TargetBuildType.class)
-			.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
-			.build()).build());
+	public void execute(Component component) {
+		if (component instanceof TargetBuildTypeAwareComponent && component instanceof VariantAwareComponent) {
+			final DefaultVariantDimensions dimensions = (DefaultVariantDimensions) ((VariantAwareComponent<?>) component).getDimensions();
+			val targetBuildTypes = dimensions.getDimensionFactory().newAxisProperty(BuildType.BUILD_TYPE_COORDINATE_AXIS).elementType(TargetBuildType.class).build();
+			dimensions.getElements().add(targetBuildTypes);
+			targetBuildTypes.getProperty().value(((TargetBuildTypeAwareComponent) component).getTargetBuildTypes()).disallowChanges();
+
+			((TargetBuildTypeAwareComponent) component).getTargetBuildTypes().finalizeValueOnRead();
+		}
 	}
 }

@@ -20,23 +20,16 @@ import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -47,15 +40,12 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
-import dev.nokee.platform.base.internal.BuildVariants;
-import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
@@ -71,7 +61,6 @@ import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareCapability;
 import dev.nokee.platform.base.internal.project.ProjectCapabilityPlugin;
 import dev.nokee.platform.base.internal.project.ProjectProjectionComponent;
 import dev.nokee.platform.base.internal.tasks.TaskCapabilityPlugin;
-import lombok.val;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
@@ -90,7 +79,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.core.ModelPath.root;
-import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -225,19 +213,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		};
 		project.getExtensions().add(VariantViewFactory.class, "__nokee_variantsFactory", variantsFactory);
 
-		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
+		DimensionPropertyRegistrationFactory dimensionPropertyFactory = new DimensionPropertyRegistrationFactory(project.getObjects());
+		final Factory<DefaultVariantDimensions> dimensionsFactory = () -> {
+			return project.getObjects().newInstance(DefaultVariantDimensions.class, dimensionPropertyFactory);
+		};
+		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<DefaultVariantDimensions>>() {}, "__nokee_dimensionsFactory", dimensionsFactory);
 
 		project.getPluginManager().apply(ExtensionAwareCapability.class);
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, component, identifier, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-			val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-			entity.addComponent(new ModelBackedVariantDimensions(entity, registry, dimensions));
-
-			val bv = registry.register(builder().withComponent(new ElementNameComponent("buildVariants")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.buildVariants(buildVariants.get())).build());
-			entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
-		})));
 
 		model(project, objects()).configureEach(new BiConsumer<ModelObjectIdentifier, Object>() {
 			@Override

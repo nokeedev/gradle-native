@@ -41,7 +41,8 @@ import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
@@ -52,9 +53,9 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
@@ -97,7 +98,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeLibraryExtension.class, new ModelObjectFactory<DefaultNativeLibraryExtension>(project, IsComponent.class) {
 			@Override
 			protected DefaultNativeLibraryExtension doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeLibraryExtension.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class));
+				return project.getObjects().newInstance(DefaultNativeLibraryExtension.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
 			}
 		});
 
@@ -121,13 +122,13 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		, NativeLibraryComponent
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
-		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
+		, VariantAwareComponentMixIn<NativeLibrary>
 		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, BinaryAwareComponentMixIn
 		, TaskAwareComponentMixIn
-		, ModelBackedTargetMachineAwareComponentMixIn
-		, ModelBackedTargetBuildTypeAwareComponentMixIn
-		, ModelBackedTargetLinkageAwareComponentMixIn
+		, TargetMachineAwareComponentMixIn
+		, TargetBuildTypeAwareComponentMixIn
+		, TargetLinkageAwareComponentMixIn
 		, AssembleTaskMixIn
 		, HasDevelopmentVariant<NativeLibrary>
 		, ObjectsTaskMixIn
@@ -135,7 +136,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
 		@Inject
-		public DefaultNativeLibraryExtension(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory) {
+		public DefaultNativeLibraryExtension(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 			getExtensions().create("dependencies", DefaultNativeLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
 			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 			getExtensions().add("binaries", binariesFactory.create());
@@ -143,6 +144,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 			getExtensions().add("tasks", tasksFactory.create());
 			getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 			getExtensions().add("variants", variantsFactory.create(NativeLibrary.class));
+			getExtensions().add("dimensions", dimensionsFactory.create());
 		}
 
 		@Override

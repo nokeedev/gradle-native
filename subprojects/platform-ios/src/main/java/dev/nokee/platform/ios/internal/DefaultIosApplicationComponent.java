@@ -43,7 +43,8 @@ import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -98,7 +99,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, SourceAwareComponentMixIn<ComponentSources, ComponentSources>
-	, ModelBackedVariantAwareComponentMixIn<IosApplication>
+	, VariantAwareComponentMixIn<IosApplication>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, HasDevelopmentVariant<IosApplication>
@@ -113,12 +114,13 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	private final ModelObjectRegistry<Artifact> artifactRegistry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<ComponentSources> sourcesFactory, Factory<TaskView<Task>> tasksFactory, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry, VariantViewFactory variantsFactory) {
+	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<ComponentSources> sourcesFactory, Factory<TaskView<Task>> tasksFactory, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("tasks", tasksFactory.create());
 		getExtensions().add("variants", variantsFactory.create(IosApplication.class));
+		getExtensions().add("dimensions", dimensionsFactory.create());
 		this.artifactRegistry = artifactRegistry;
 		this.taskRegistry = taskRegistry;
 		this.providers = providers;
@@ -144,7 +146,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 
 	@Override
 	public VariantView<IosApplication> getVariants() {
-		return ModelBackedVariantAwareComponentMixIn.super.getVariants();
+		return VariantAwareComponentMixIn.super.getVariants();
 	}
 
 	@SuppressWarnings("unchecked")

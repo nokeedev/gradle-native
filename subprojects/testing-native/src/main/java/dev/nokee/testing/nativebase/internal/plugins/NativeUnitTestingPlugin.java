@@ -57,6 +57,7 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -132,7 +133,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class, new ModelObjectFactory<DefaultNativeTestSuiteComponent>(project, IsTestComponent.class) {
 			@Override
 			protected DefaultNativeTestSuiteComponent doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(VariantViewFactory.class));
+				return project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
 			}
 		});
 

@@ -18,61 +18,62 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.core.DescendantNodes;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPathComponent;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.VariantDimensionBuilder;
+import dev.nokee.platform.base.VariantDimensions;
 import dev.nokee.runtime.core.Coordinate;
+import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.CoordinateSpace;
+import dev.nokee.utils.Cast;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
 import dev.nokee.utils.TransformerUtils;
+import groovy.lang.Closure;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.HasMultipleValues;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
-import java.util.List;
+import javax.inject.Inject;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
-import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.runtime.core.Coordinates.absentCoordinate;
 import static dev.nokee.utils.Cast.uncheckedCastBecauseOfTypeErasure;
 import static dev.nokee.utils.TransformerUtils.peek;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public final class BuildVariants implements ModelComponent {
+public /*final*/ abstract class DefaultVariantDimensions implements VariantDimensions {
+	private final DimensionPropertyRegistrationFactory factory;
 	private final Provider<Iterable<CoordinateSet<?>>> dimensions;
 	private final Provider<CoordinateSpace> finalSpace;
 	private final SetProperty<BuildVariant> buildVariants;
 
-	public BuildVariants(ModelNode entity, ProviderFactory providers, ObjectFactory objects) {
-		Provider<List<ModelNode>> dimensions = providers.provider(() -> {
-			val nodes = entity.getComponent(componentOf(DescendantNodes.class)).getDirectDescendants().stream();
-			val dimensionNodes = nodes.filter(it -> it.hasComponent(typeOf(VariantDimensionTag.class)));
-			return dimensionNodes.collect(Collectors.toList());
-		});
-		this.dimensions = dimensions
-			.map(transformEach(new ToCoordinateSet(entity.get(ModelPathComponent.class).get().getName())))
+	@Inject
+	public DefaultVariantDimensions(DimensionPropertyRegistrationFactory factory, ObjectFactory objects) {
+		this.factory = factory;
+		final ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+
+		this.dimensions = getElements()
+			.map(transformEach(new ToCoordinateSet(identifier.getName())))
 			.flatMap(new ToProviderOfIterableTransformer<>(() -> uncheckedCastBecauseOfTypeErasure(objects.listProperty(CoordinateSet.class))));
 		this.finalSpace = this.dimensions.map(CoordinateSpace::cartesianProduct);
 		this.buildVariants = objects.setProperty(BuildVariant.class);
 
 		buildVariants.convention(finalSpace.map(DefaultBuildVariant::fromSpace).map(buildVariants -> {
-			val allFilters = dimensions.get().stream()
-				.map(it -> it.findComponent(componentOf(VariantDimensionAxisFilterComponent.class)))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.map(VariantDimensionAxisFilterComponent::get)
+			val allFilters = getElements().get().stream()
+				.map(DimensionPropertyRegistrationFactory.DimensionProperty::getFilter)
 				.collect(Collectors.toList());
 			return buildVariants.stream().filter(buildVariant -> {
 				return allFilters.stream().allMatch(it -> it.test(buildVariant));
@@ -82,43 +83,74 @@ public final class BuildVariants implements ModelComponent {
 		buildVariants.disallowChanges();
 	}
 
-	public Provider<Iterable<CoordinateSet<?>>> dimensions() {
-		return dimensions;
+	public DimensionPropertyRegistrationFactory getDimensionFactory() {
+		return factory;
 	}
 
-	public Provider<Set<BuildVariant>> get() {
+	public abstract SetProperty<DimensionPropertyRegistrationFactory.DimensionProperty<?>> getElements();
+
+	public SetProperty<BuildVariant> getBuildVariants() {
 		return buildVariants;
 	}
 
-	private static final class ToCoordinateSet implements Transformer<Provider<CoordinateSet<?>>, ModelNode> {
+	@Override
+	public <T> SetProperty<T> newAxis(Class<T> axisType) {
+		DimensionPropertyRegistrationFactory.DimensionProperty<T> dimension = factory.newAxisProperty(CoordinateAxis.of(axisType)).build();
+		getElements().add(dimension);
+		return dimension.getProperty();
+	}
+
+	@Override
+	public <T> SetProperty<T> newAxis(Class<T> axisType, Action<? super VariantDimensionBuilder<T>> action) {
+		Objects.requireNonNull(axisType);
+		Objects.requireNonNull(action);
+		val axisBuilder = factory.newAxisProperty(CoordinateAxis.of(axisType));
+
+		action.execute(new VariantDimensionBuilderAdapter<>(new VariantDimensionBuilderAdapter.Callback<T>() {
+			@Override
+			public <S> void accept(Class<S> otherAxisType, BiPredicate<? super Optional<T>, ? super S> predicate) {
+				axisBuilder.includeEmptyCoordinate();
+				axisBuilder.filterVariant(new VariantDimensionAxisFilter<>(CoordinateAxis.of(axisType), otherAxisType, predicate));
+			}
+		}));
+
+		DimensionPropertyRegistrationFactory.DimensionProperty<T> dimension = axisBuilder.build();
+		getElements().add(dimension);
+		return dimension.getProperty();
+	}
+
+	@Override
+	public <T> SetProperty<T> newAxis(Class<T> axisType, @SuppressWarnings("rawtypes") Closure closure) {
+		Objects.requireNonNull(closure);
+		return newAxis(axisType, new ClosureWrappedConfigureAction<>(closure));
+	}
+
+	private static final class ToCoordinateSet implements Transformer<Provider<CoordinateSet<?>>, DimensionPropertyRegistrationFactory.DimensionProperty<?>> {
 		private final String componentName;
 
-		public ToCoordinateSet(String componentName) {
-			this.componentName = componentName;
+		public ToCoordinateSet(ElementName componentName) {
+			this.componentName = componentName.toString();
 		}
 
 		@Override
-		public Provider<CoordinateSet<?>> transform(ModelNode entity) {
-			@SuppressWarnings("unchecked")
-			val values = (Provider<Set<Object>>) entity.get(GradlePropertyComponent.class).get();
+		public Provider<CoordinateSet<?>> transform(DimensionPropertyRegistrationFactory.DimensionProperty<?> dimension) {
+			final Provider<? extends Set<Object>> values = Cast.uncheckedCastBecauseOfTypeErasure(dimension.getProperty());
 
-			return values.map(asCoordinateSet(entity, componentName));
+			return values.map(asCoordinateSet(dimension, componentName));
 		}
 
-		private Transformer<CoordinateSet<Object>, Iterable<Object>> asCoordinateSet(ModelNode entity, String componentName) {
-			val axis = entity.getComponent(componentOf(VariantDimensionAxisComponent.class)).get();
+		private Transformer<CoordinateSet<Object>, Iterable<Object>> asCoordinateSet(DimensionPropertyRegistrationFactory.DimensionProperty<?> dimension, String componentName) {
+			@SuppressWarnings("unchecked")
+			final CoordinateAxis<Object> axis = (CoordinateAxis<Object>) dimension.getAxis();
 
 			TransformerUtils.Transformer<Iterable<Object>, Iterable<Object>> axisValues = assertNonEmpty(axis.getDisplayName(), componentName);
 
 			TransformerUtils.Transformer<Iterable<Coordinate<Object>>, Iterable<Object>> axisCoordinates = axisValues.andThen(transformEach(axis::create));
 
-			val axisValidator = entity.findComponent(componentOf(VariantDimensionAxisValidatorComponent.class))
-				.map(VariantDimensionAxisValidatorComponent::get);
-			if (axisValidator.isPresent()) {
-				axisCoordinates = axisCoordinates.andThen(peek(it -> axisValidator.get().accept(it)));
-			}
+			val axisValidator = dimension.getValidator();
+			axisCoordinates = axisCoordinates.andThen(peek(it -> axisValidator.accept(it)));
 
-			if (entity.hasComponent(typeOf(VariantDimensionAxisOptionalTag.class))) {
+			if (dimension.isOptional()) {
 				axisCoordinates = axisCoordinates.andThen(prepended(absentCoordinate(axis)));
 			}
 
@@ -126,11 +158,11 @@ public final class BuildVariants implements ModelComponent {
 		}
 
 		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> prepended(T element) {
-			return new IterablePrependedAllTransformer<>(ImmutableList.of(element));
+			return new ToCoordinateSet.IterablePrependedAllTransformer<>(ImmutableList.of(element));
 		}
 
 		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> prependedAll(Iterable<T> prefix) {
-			return new IterablePrependedAllTransformer<>(prefix);
+			return new ToCoordinateSet.IterablePrependedAllTransformer<>(prefix);
 		}
 
 		public static final class IterablePrependedAllTransformer<T> implements TransformerUtils.Transformer<Iterable<T>, Iterable<T>> {
@@ -147,7 +179,7 @@ public final class BuildVariants implements ModelComponent {
 		}
 
 		public static <I extends Iterable<T>, T> TransformerUtils.Transformer<I, I> assertNonEmpty(String propertyName, String componentName) {
-			return peek(new AssertNonEmpty<>(propertyName, componentName));
+			return peek(new ToCoordinateSet.AssertNonEmpty<>(propertyName, componentName));
 		}
 
 		private static final class AssertNonEmpty<T> implements Consumer<Iterable<T>> {

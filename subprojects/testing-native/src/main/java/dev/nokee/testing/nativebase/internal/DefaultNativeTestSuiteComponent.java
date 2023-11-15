@@ -58,7 +58,8 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -72,9 +73,9 @@ import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
@@ -117,25 +118,26 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-	, ModelBackedVariantAwareComponentMixIn<NativeTestSuiteVariant>
+	, VariantAwareComponentMixIn<NativeTestSuiteVariant>
 	, HasDevelopmentVariant<NativeTestSuiteVariant>
 	, BinaryAwareComponentMixIn
 	, AssembleTaskMixIn
-	, ModelBackedTargetBuildTypeAwareComponentMixIn
-	, ModelBackedTargetLinkageAwareComponentMixIn
-	, ModelBackedTargetMachineAwareComponentMixIn
+	, TargetBuildTypeAwareComponentMixIn
+	, TargetLinkageAwareComponentMixIn
+	, TargetMachineAwareComponentMixIn
 {
 	private final ObjectFactory objects;
 	private final ModelLookup modelLookup;
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, VariantViewFactory variantsFactory) {
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("variants", variantsFactory.create(NativeTestSuiteVariant.class));
+		getExtensions().add("dimensions", dimensionsFactory.create());
 		this.objects = objects;
 		this.modelLookup = modelLookup;
 		this.registry = registry;
@@ -162,7 +164,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 
 	@Override
 	public VariantView<NativeTestSuiteVariant> getVariants() {
-		return ModelBackedVariantAwareComponentMixIn.super.getVariants();
+		return VariantAwareComponentMixIn.super.getVariants();
 	}
 
 	@Override

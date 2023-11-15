@@ -44,6 +44,7 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantViewFactory;
@@ -147,7 +148,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						ModelStates.finalize(entity);
 					};
 					return new JavaNativeInterfaceSourcesViewAdapter(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-				}, project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class));
+				}, project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
 			}
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {

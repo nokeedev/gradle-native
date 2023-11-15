@@ -15,34 +15,25 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
+import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import lombok.val;
+import org.gradle.api.Action;
 
-public final class TargetLinkagesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
-	private final DimensionPropertyRegistrationFactory dimensions;
-	private final ModelRegistry registry;
-
-	public TargetLinkagesPropertyRegistrationRule(DimensionPropertyRegistrationFactory dimensions, ModelRegistry registry) {
-		super(ModelComponentReference.ofProjection(ModelBackedTargetLinkageAwareComponentMixIn.class));
-		this.dimensions = dimensions;
-		this.registry = registry;
-	}
-
+public final class TargetLinkagesPropertyRegistrationRule implements Action<Component> {
 	@Override
-	protected void execute(ModelNode entity, ModelProjection tag) {
-		val targetLinkages = registry.register(ModelRegistration.builder().withComponent(new ElementNameComponent("targetLinkages")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.newAxisProperty()
-			.elementType(TargetLinkage.class)
-			.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
-			.build()).build());
+	public void execute(Component component) {
+		if (component instanceof TargetLinkageAwareComponent && component instanceof VariantAwareComponent) {
+			final DefaultVariantDimensions dimensions = (DefaultVariantDimensions) ((VariantAwareComponent<?>) component).getDimensions();
+			val targetLinkages = dimensions.getDimensionFactory().newAxisProperty(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).elementType(TargetLinkage.class).build();
+			dimensions.getElements().add(targetLinkages);
+			targetLinkages.getProperty().value(((TargetLinkageAwareComponent) component).getTargetLinkages()).disallowChanges();
+
+			((TargetLinkageAwareComponent) component).getTargetLinkages().finalizeValueOnRead();
+		}
 	}
 }

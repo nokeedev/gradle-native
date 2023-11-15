@@ -16,13 +16,12 @@
 package dev.nokee.platform.base;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import lombok.Value;
 import org.gradle.api.Named;
@@ -61,7 +60,7 @@ class VariantAwareComponentDimensionsValueOrderingIntegrationTest {
 			hasToString("macOS"), hasToString("linux"))));
 	}
 
-	public interface MyComponent extends ModelBackedVariantAwareComponentMixIn<Variant> {}
+	public interface MyComponent extends VariantAwareComponentMixIn<Variant> {}
 	@Value
 	private static class OSFamily implements Named {
 		String name;
