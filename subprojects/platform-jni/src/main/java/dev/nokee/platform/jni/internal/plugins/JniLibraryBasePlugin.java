@@ -397,7 +397,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			component.getAssembleTask().configure(configureDependsOn((Callable<Object>) component.getBinaries().filter(it -> it instanceof ModelBackedJvmJarBinary)::get));
 		});
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
-			variant.getAssembleTask().configure(configureDependsOn(variant.getJavaNativeInterfaceJar()));
+			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
+				variant.getAssembleTask().configure(configureDependsOn(variant.getJavaNativeInterfaceJar()));
+			}
 		});
 
 		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), ignored -> {

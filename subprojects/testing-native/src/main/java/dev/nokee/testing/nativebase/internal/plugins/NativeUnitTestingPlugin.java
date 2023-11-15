@@ -122,10 +122,14 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
-			variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
+			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
+				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
+			}
 		});
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
-			variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
+			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
+				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
+			}
 		});
 
 		val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);

@@ -109,10 +109,14 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 		});
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
-			variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
+			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
+				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
+			}
 		});
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
-			variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
+			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
+				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
+			}
 		});
 
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
