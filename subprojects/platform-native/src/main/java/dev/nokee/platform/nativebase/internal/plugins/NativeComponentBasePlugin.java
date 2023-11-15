@@ -17,7 +17,6 @@ package dev.nokee.platform.nativebase.internal.plugins;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Streams;
-import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
@@ -48,7 +47,6 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -111,11 +109,9 @@ import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyRegistration
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkAction;
 import dev.nokee.platform.nativebase.internal.dependencies.SwiftLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -134,7 +130,6 @@ import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -184,15 +179,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 		project.getPluginManager().apply(DarwinRuntimePlugin.class); // for now, later we will be more smart
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(FrameworkAwareDependencyBucketTag.class), ModelComponentReference.ofProjection(ModelType.of(new TypeToken<NamedDomainObjectProvider<? extends DependencyBucketInternal>>() {}.getType())), (entity, ignored, projection) -> {
-			((NamedDomainObjectProvider<? extends DependencyBucketInternal>) ModelNodeUtils.get(entity, ModelType.of(new TypeToken<NamedDomainObjectProvider<? extends DependencyBucketInternal>>() {}.getType()))).configure(it -> it.getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects())));
-		}));
-
-		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory());
-		project.getExtensions().add("__nokee_staticLibraryFactory", new StaticLibraryBinaryRegistrationFactory());
-		project.getExtensions().add("__nokee_executableFactory", new ExecutableBinaryRegistrationFactory());
-		project.getExtensions().add("__nokee_bundleFactory", new BundleBinaryRegistrationFactory());
 
 		final Factory<TaskView<SourceCompile>> compileTasksFactory = () -> {
 			Task.Namer namer = new Task.Namer();

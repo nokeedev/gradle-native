@@ -19,10 +19,7 @@ import dev.nokee.internal.Factory;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.CreateTaskMixIn;
@@ -37,7 +34,6 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class})
 public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
 	, NativeLanguageSourceSetAware

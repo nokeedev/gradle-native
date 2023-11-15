@@ -22,12 +22,8 @@ import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.CreateTaskMixIn;
@@ -49,12 +45,7 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class StaticLibraryBinaryRegistrationFactory {
 	public ModelRegistration create(ModelObjectIdentifier identifier) {
-		return ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
-			.withComponentTag(IsBinary.class)
-			.withComponentTag(ConfigurableTag.class)
-			.withComponent(new MainProjectionComponent(ModelBackedStaticLibraryBinary.class))
-			.build();
+		throw new UnsupportedOperationException();
 	}
 
 	public static /*final*/ abstract class ModelBackedStaticLibraryBinary extends ModelElementSupport implements StaticLibraryBinary
