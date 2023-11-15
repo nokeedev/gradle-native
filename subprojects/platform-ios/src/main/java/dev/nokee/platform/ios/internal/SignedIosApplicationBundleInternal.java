@@ -16,6 +16,7 @@
 package dev.nokee.platform.ios.internal;
 
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import org.gradle.api.Buildable;
@@ -30,7 +31,7 @@ import javax.inject.Inject;
 // TODO: Not sure about implementing NativeBinary...
 //  BaseNativeVariant#getDevelopmentBinary() assume a NativeBinary...
 //  There should probably be something high level in Variant or BaseNativeVariant shouldn't be used for iOS variant.
-public /*final*/ class SignedIosApplicationBundleInternal implements SignedIosApplicationBundle, Binary, Buildable {
+public /*final*/ abstract class SignedIosApplicationBundleInternal extends ModelElementSupport implements SignedIosApplicationBundle, Binary, Buildable {
 	private final TaskProvider<SignIosApplicationBundleTask> bundleTask;
 
 	@Inject
@@ -54,10 +55,5 @@ public /*final*/ class SignedIosApplicationBundleInternal implements SignedIosAp
 
 	public Provider<FileSystemLocation> getApplicationBundleLocation() {
 		return bundleTask.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle);
-	}
-
-	@Override
-	public String getName() {
-		throw new UnsupportedOperationException();
 	}
 }

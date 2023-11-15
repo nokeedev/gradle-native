@@ -31,11 +31,9 @@ import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourc
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
@@ -85,7 +83,6 @@ import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -103,8 +100,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
-import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
@@ -308,10 +303,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 				});
 			});
 		}
-	}
-
-	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<NativeTestSuiteVariant>> action) {
-		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), NativeTestSuiteVariant.class, action));
 	}
 
 	@Override

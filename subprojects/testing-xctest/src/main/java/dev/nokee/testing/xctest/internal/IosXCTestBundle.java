@@ -15,6 +15,7 @@
  */
 package dev.nokee.testing.xctest.internal;
 
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
@@ -23,10 +24,13 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
 
-public final class IosXCTestBundle implements Binary, HasOutputFile {
+import javax.inject.Inject;
+
+public /*final*/ abstract class IosXCTestBundle extends ModelElementSupport implements Binary, HasOutputFile {
 	private final TaskProvider<CreateIosXCTestBundleTask> createTask;
 
-	IosXCTestBundle(TaskProvider<CreateIosXCTestBundleTask> createTask) {
+	@Inject
+	public IosXCTestBundle(TaskProvider<CreateIosXCTestBundleTask> createTask) {
 		this.createTask = createTask;
 	}
 
@@ -38,10 +42,5 @@ public final class IosXCTestBundle implements Binary, HasOutputFile {
 	public Provider<RegularFile> getOutputFile() {
 		return createTask.flatMap(task ->
 			task.getProject().getObjects().fileProperty().fileProvider(task.getXCTestBundle().map(it -> it.getAsFile())));
-	}
-
-	@Override
-	public String getName() {
-		throw new UnsupportedOperationException();
 	}
 }
