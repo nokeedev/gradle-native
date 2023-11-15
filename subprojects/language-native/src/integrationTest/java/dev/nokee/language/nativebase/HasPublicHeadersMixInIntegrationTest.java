@@ -17,7 +17,7 @@ package dev.nokee.language.nativebase;
 
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
-import dev.nokee.language.nativebase.internal.HasPublicHeadersMixIn;
+import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
 import dev.nokee.language.nativebase.internal.PublicHeadersPropertyComponent;
@@ -62,13 +62,13 @@ class HasPublicHeadersMixInIntegrationTest {
 	@BeforeEach
 	void createSubject(Project project) {
 		entity = project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelRegistration.builder()
-			.mergeFrom(entityOf(HasPublicHeadersMixIn.class))
+			.mergeFrom(entityOf(PublicHeadersMixIn.class))
 			.build());
 	}
 
 	@Test
 	void hasPublicHeadersTag() {
-		assertTrue(entity.hasComponent(typeOf(HasPublicHeadersMixIn.Tag.class)));
+		assertTrue(entity.hasComponent(typeOf(PublicHeadersMixIn.Tag.class)));
 	}
 
 	@Test
@@ -107,15 +107,15 @@ class HasPublicHeadersMixInIntegrationTest {
 
 	@Nested
 	class HasPublicHeadersProjectionTest implements HasPublicHeadersTester {
-		HasPublicHeadersMixIn subject;
+		PublicHeadersMixIn subject;
 
 		@BeforeEach
 		void realizeProjection() {
-			subject = ModelNodeUtils.get(ModelStates.realize(entity), HasPublicHeadersMixIn.class);
+			subject = ModelNodeUtils.get(ModelStates.realize(entity), PublicHeadersMixIn.class);
 		}
 
 		@Override
-		public HasPublicHeadersMixIn subject() {
+		public PublicHeadersMixIn subject() {
 			return subject;
 		}
 	}

@@ -37,8 +37,10 @@ public final class UseConventionalLayout<TargetType extends Named> implements Ac
 	@Override
 	public void execute(TargetType target) {
 		if (!target.getName().isEmpty()) {
-			((ConfigurableFileCollection) ((ExtensionAware) target).getExtensions().getByName(extensionName))
-				.from(sourceLayoutFormats.stream().map(it -> String.format(it, target.getName())).collect(Collectors.toList()));
+			final ConfigurableFileCollection extension = ((ConfigurableFileCollection) ((ExtensionAware) target).getExtensions().findByName(extensionName));
+			if (extension != null) {
+				extension.from(sourceLayoutFormats.stream().map(it -> String.format(it, target.getName())).collect(Collectors.toList()));
+			}
 		}
 	}
 }

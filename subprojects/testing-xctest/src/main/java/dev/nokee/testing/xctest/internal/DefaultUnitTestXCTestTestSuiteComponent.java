@@ -22,6 +22,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -106,6 +107,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 		getExtensions().add("tasks", tasksFactory.create());
 		getExtensions().add("variants", variantsFactory.create(DefaultXCTestTestSuiteVariant.class));
 		getExtensions().add("dimensions", dimensionsFactory.create());
+		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		this.taskRegistry = taskRegistry;
 		this.artifactRegistry = artifactRegistry;
 		this.providers = providers;

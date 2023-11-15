@@ -18,14 +18,11 @@ package dev.nokee.language.nativebase;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
-import dev.nokee.language.nativebase.internal.HasPublicHeadersMixIn;
+import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
-import dev.nokee.language.nativebase.internal.PrivateHeadersPropertyComponent;
 import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
 import dev.nokee.language.nativebase.internal.PublicHeadersPropertyComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -56,7 +53,7 @@ class PublicHeadersSourceLayoutIntegrationTest {
 	void createSubject(Project project) {
 		entity = ModelStates.discover(project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
 			.withComponent(new FullyQualifiedNameComponent("wudoFelu"))
-			.mergeFrom(entityOf(HasPublicHeadersMixIn.class))
+			.mergeFrom(entityOf(PublicHeadersMixIn.class))
 			.build()));
 	}
 

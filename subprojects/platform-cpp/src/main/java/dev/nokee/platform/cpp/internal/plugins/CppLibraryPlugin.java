@@ -22,8 +22,8 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.cpp.internal.CppSourcesMixIn;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
-import dev.nokee.language.nativebase.internal.HasPublicHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
+import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -41,14 +41,14 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -56,12 +56,12 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.cpp.CppLibrary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
@@ -118,7 +118,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 
 	public static ModelRegistration cppLibrary(String name, Project project) {
 		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ElementName.ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return new NativeLibraryComponentModelRegistrationFactory(DefaultCppLibrary.class, project).create(identifier).withComponentTag(SupportCppSourceSetTag.class).build();
+		return new NativeLibraryComponentModelRegistrationFactory(DefaultCppLibrary.class, project).create(identifier).build();
 	}
 
 	@DomainObjectEntities.Tag(IsComponent.class)
@@ -135,7 +135,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		, TargetLinkageAwareComponentMixIn
 		, AssembleTaskMixIn
 		, PrivateHeadersMixIn
-		, HasPublicHeadersMixIn
+		, PublicHeadersMixIn
 		, CppSourcesMixIn
 		, ObjectsTaskMixIn
 	{
@@ -151,6 +151,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 			getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 			getExtensions().add("variants", variantsFactory.create(NativeLibrary.class));
 			getExtensions().add("dimensions", dimensionsFactory.create());
+			getExtensions().create("$cppSupport", SupportCppSourceSetTag.class);
 		}
 
 		@Override

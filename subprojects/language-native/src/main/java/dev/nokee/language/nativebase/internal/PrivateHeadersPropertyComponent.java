@@ -19,6 +19,7 @@ import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 
+@Deprecated
 public final class PrivateHeadersPropertyComponent implements ModelComponent, LinkedEntity {
 	private final ModelNode value;
 

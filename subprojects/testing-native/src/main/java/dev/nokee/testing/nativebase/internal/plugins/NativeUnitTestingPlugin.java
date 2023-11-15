@@ -34,25 +34,17 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
@@ -63,7 +55,6 @@ import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.VariantViewFactory;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
@@ -76,7 +67,6 @@ import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.internal.IsTestComponent;
-import dev.nokee.testing.base.internal.TestedComponentPropertyComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
@@ -137,12 +127,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeTestSuiteComponentTag.class), (entity, identifier, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			val testedComponentProperty = registry.register(builder().withComponent(new ElementNameComponent("testedComponent")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(Component.class)).build());
-			entity.addComponent(new TestedComponentPropertyComponent(ModelNodes.of(testedComponentProperty)));
-		})));
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
 			final NativeApplicationOutgoingDependencies outgoing = new NativeApplicationOutgoingDependencies(variant.getRuntimeElements().getAsConfiguration(), project.getObjects());
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
@@ -182,19 +166,19 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					}
 				}).orElse(ImmutableSet.of(TargetMachines.host())));
 		});
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), (entity, ignored1) -> {
+		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(testSuite -> {
 			if (project.getPlugins().hasPlugin(CLanguageBasePlugin.class)) {
-				entity.addComponentTag(SupportCSourceSetTag.class);
+				testSuite.getExtensions().create("$cSupport", SupportCSourceSetTag.class);
 			} else if (project.getPlugins().hasPlugin(CppLanguageBasePlugin.class)) {
-				entity.addComponentTag(SupportCppSourceSetTag.class);
+				testSuite.getExtensions().create("$cppSupport", SupportCppSourceSetTag.class);
 			} else if (project.getPlugins().hasPlugin(ObjectiveCLanguageBasePlugin.class)) {
-				entity.addComponentTag(SupportObjectiveCSourceSetTag.class);
+				testSuite.getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 			} else if (project.getPlugins().hasPlugin(ObjectiveCppLanguageBasePlugin.class)) {
-				entity.addComponentTag(SupportObjectiveCppSourceSetTag.class);
+				testSuite.getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
 			} else if (project.getPlugins().hasPlugin(SwiftLanguageBasePlugin.class)) {
-				entity.addComponentTag(SupportSwiftSourceSetTag.class);
+				testSuite.getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
 			}
-		}));
+		});
 
 		project.afterEvaluate(proj -> {
 			// TODO: We delay as late as possible to "fake" a finalize action.

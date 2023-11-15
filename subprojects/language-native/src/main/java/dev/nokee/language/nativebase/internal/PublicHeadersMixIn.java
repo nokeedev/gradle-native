@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.testing.base.internal;
+package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.language.nativebase.HasPublicHeaders;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
+import groovy.lang.Closure;
+import org.gradle.api.Action;
+import org.gradle.api.file.ConfigurableFileCollection;
 
-public final class TestedComponentPropertyComponent implements ModelComponent, LinkedEntity {
-	private final ModelNode value;
-
-	public TestedComponentPropertyComponent(ModelNode value) {
-		this.value = value;
+public interface PublicHeadersMixIn extends HasPublicHeaders {
+	@Override
+	default void publicHeaders(Action<? super ConfigurableFileCollection> action) {
+		action.execute(getPublicHeaders());
 	}
 
 	@Override
-	public ModelNode get() {
-		return value;
+	default void publicHeaders(@SuppressWarnings("rawtypes") Closure closure) {
+		publicHeaders(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

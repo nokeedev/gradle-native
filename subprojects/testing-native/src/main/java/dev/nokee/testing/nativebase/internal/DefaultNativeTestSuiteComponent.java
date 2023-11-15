@@ -42,7 +42,6 @@ import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -52,16 +51,15 @@ import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
-import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.VariantViewFactory;
@@ -73,10 +71,10 @@ import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -104,7 +102,6 @@ import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
@@ -129,6 +126,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	private final ObjectFactory objects;
 	private final ModelLookup modelLookup;
 	private final ModelRegistry registry;
+	private final ModelObjectRegistry<Task> taskRegistry;
 
 	@Inject
 	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
@@ -138,6 +136,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("variants", variantsFactory.create(NativeTestSuiteVariant.class));
 		getExtensions().add("dimensions", dimensionsFactory.create());
+		this.taskRegistry = taskRegistry;
 		this.objects = objects;
 		this.modelLookup = modelLookup;
 		this.registry = registry;
@@ -145,9 +144,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 		this.getBaseName().convention(BaseNameUtils.from(getIdentifier()).getAsString());
 	}
 
-	public Property<Component> getTestedComponent() {
-		return ModelProperties.getProperty(this, "testedComponent").asProperty(property(of(Component.class)));
-	}
+	public abstract Property<Component> getTestedComponent();
 
 	@Override
 	public DefaultNativeComponentDependencies getDependencies() {
@@ -221,16 +218,16 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 			}));
 
 			// TODO: We won't need this once testSuites container will be maintained on component themselves
-			if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportCSourceSetTag.class))) {
-				ModelNodes.of(this).addComponentTag(SupportCSourceSetTag.class);
-			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportCppSourceSetTag.class))) {
-				ModelNodes.of(this).addComponentTag(SupportCppSourceSetTag.class);
-			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportObjectiveCSourceSetTag.class))) {
-				ModelNodes.of(this).addComponentTag(SupportObjectiveCSourceSetTag.class);
-			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportObjectiveCppSourceSetTag.class))) {
-				ModelNodes.of(this).addComponentTag(SupportObjectiveCppSourceSetTag.class);
-			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportSwiftSourceSetTag.class))) {
-				ModelNodes.of(this).addComponentTag(SupportSwiftSourceSetTag.class);
+			if (component.getExtensions().findByType(SupportCSourceSetTag.class) != null) {
+				getExtensions().create("$cSupport", SupportCSourceSetTag.class);
+			} else if (component.getExtensions().findByType(SupportCppSourceSetTag.class) != null) {
+				getExtensions().create("$cppSupport", SupportCppSourceSetTag.class);
+			} else if (component.getExtensions().findByType(SupportObjectiveCSourceSetTag.class) != null) {
+				getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
+			} else if (component.getExtensions().findByType(SupportObjectiveCppSourceSetTag.class) != null) {
+				getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
+			} else if (component.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null) {
+				getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
 			}
 			if (component instanceof BaseNativeComponent) {
 				val testedComponentDependencies = ((BaseNativeComponent<?>) component).getDependencies();
@@ -277,7 +274,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 					ConfigurableFileCollection objects = this.objects.fileCollection();
 					objects.from(componentObjects);
 					if (component instanceof NativeApplicationComponent) {
-						val relocateTask = registry.register(newEntity(((ModelElement) variant).getIdentifier().child(TaskName.of("relocateMainSymbolFor")), UnexportMainSymbol.class, it -> it.ownedBy(((BaseVariant) variant).getNode()))).as(UnexportMainSymbol.class).configure(task -> {
+						val relocateTask = taskRegistry.register(((ModelElement) variant).getIdentifier().child(TaskName.of("relocateMainSymbolFor")), UnexportMainSymbol.class).configure(task -> {
 							task.getObjects().from(componentObjects);
 							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(OutputDirectoryPath.forIdentifier(binary.getIdentifier()) + "/objs/for-test"));
 						}).asProvider();

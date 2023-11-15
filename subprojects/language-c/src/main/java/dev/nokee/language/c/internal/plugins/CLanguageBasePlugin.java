@@ -28,12 +28,8 @@ import dev.nokee.language.nativebase.internal.NativeSourcesMixInRule;
 import dev.nokee.language.nativebase.internal.UseConventionalLayout;
 import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.scripts.DefaultImporter;
@@ -88,7 +84,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 				final ElementName name = ElementName.of("c");
 				final Class<? extends LanguageSourceSet> sourceSetType = CSourceSetSpec.class;
 
-				if (model(project, objects()).parentsOf(identifier).anyMatch(it -> Optional.ofNullable(((ExtensionAware) it.get()).getExtensions().findByType(ModelNode.class)).map(t -> t.hasComponent(ModelTags.typeOf(sourceSetTag))).orElseGet(() -> project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).hasComponent(ModelTags.typeOf(sourceSetTag))))) {
+				if (model(project, objects()).parentsOf(identifier).anyMatch(it -> ((ExtensionAware) it.get()).getExtensions().findByType(sourceSetTag) != null) || project.getExtensions().findByType(sourceSetTag) != null) {
 					model(project, registryOf(LanguageSourceSet.class)).register(identifier.child(name), sourceSetType);
 				}
 			}

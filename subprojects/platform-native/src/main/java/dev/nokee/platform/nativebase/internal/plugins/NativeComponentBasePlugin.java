@@ -404,7 +404,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			if (variant instanceof HasApiElementsDependencyBucket) {
 				final ConsumableDependencyBucketSpec bucket = ((HasApiElementsDependencyBucket) variant).getApiElements();
 				ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-					boolean hasSwift = model(project, objects()).parentsOf(identifier).anyMatch(it -> ModelNodes.safeOf(it.get()).map(e -> e.hasComponent(typeOf(SupportSwiftSourceSetTag.class))).orElse(false));
+					final boolean hasSwift = model(project, objects()).parentsOf(identifier).anyMatch(it -> ((ExtensionAware) it.get()).getExtensions().findByType(SupportSwiftSourceSetTag.class) != null) || project.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null;
 					if (hasSwift) {
 						ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))).execute(bucket.getAsConfiguration());
 						ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
@@ -425,7 +425,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			@Override
 			public void execute(DefaultNativeLibraryVariant variant) {
 				final VariantIdentifier variantIdentifier = variant.getIdentifier();
-				final boolean hasSwift = model(project, objects()).parentsOf(variantIdentifier).anyMatch(it -> ModelNodes.of(it.get()).hasComponent(typeOf(SupportSwiftSourceSetTag.class)));
+				final boolean hasSwift = model(project, objects()).parentsOf(variantIdentifier).anyMatch(it -> ((ExtensionAware) it.get()).getExtensions().findByType(SupportSwiftSourceSetTag.class) != null) || project.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null;
 				NativeOutgoingDependencies outgoing = null;
 				if (hasSwift) {
 					outgoing = new SwiftLibraryOutgoingDependencies(variant.getApiElements().getAsConfiguration(), variant.getLinkElements().getAsConfiguration(), variant.getRuntimeElements().getAsConfiguration(), project.getObjects());

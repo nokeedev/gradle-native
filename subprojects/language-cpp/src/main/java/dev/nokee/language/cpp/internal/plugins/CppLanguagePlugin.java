@@ -16,8 +16,6 @@
 package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.registry.ModelLookup;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -27,6 +25,6 @@ public class CppLanguagePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponentTag(SupportCppSourceSetTag.class);
+		project.getExtensions().create("$cppSupport", SupportCppSourceSetTag.class);
 	}
 }

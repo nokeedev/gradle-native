@@ -18,26 +18,11 @@ package dev.nokee.language.nativebase.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.core.ParentUtils;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -50,8 +35,6 @@ import java.util.concurrent.Callable;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
-import static dev.nokee.utils.Optionals.stream;
-import static dev.nokee.utils.ProviderUtils.disallowChanges;
 
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -78,25 +61,19 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, publicHeaders, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/public");
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, publicHeaders, parent) -> {
-			((ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(PublicHeadersComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasPublicHeadersMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("publicHeaders"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new PublicHeadersPropertyComponent(property));
-		})));
+		components(project).configureEach(target -> {
+			ConfigurableFileCollection sources = null;
+			// TODO: mixin on native library
+			if (target instanceof HasPublicHeaders) {
+				sources = ((HasPublicHeaders) target).getPublicHeaders();
+			}
+
+			if (sources != null) {
+				((ExtensionAware) target).getExtensions().add(ConfigurableFileCollection.class, "publicHeaders", sources);
+			}
+		});
+		components(project).configureEach(new UseConventionalLayout<>("publicHeaders", "src/%s/public"));
+		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("publicHeaders"));
 		components(project).configureEach(variant -> {
 			// TODO: check if it's a native variant?
 			if (variant instanceof SourceAwareComponent && ((SourceAwareComponent<?>) variant).getSources() instanceof View) {
@@ -112,16 +89,5 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				});
 			}
 		});
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, publicHeaders, ignored1) -> {
-			ModelStates.finalize(publicHeaders.get());
-			val sources = (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new PublicHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), (entity, publicHeaders) -> {
-			ModelNodeUtils.get(entity, ExtensionAware.class).getExtensions().add(ConfigurableFileCollection.class, "publicHeaders", (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get());
-		}));
 	}
 }

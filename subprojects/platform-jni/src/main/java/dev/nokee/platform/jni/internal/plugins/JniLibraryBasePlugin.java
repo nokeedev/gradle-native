@@ -276,10 +276,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		// TODO: When discovery will be a real feature, we shouldn't need this anymore
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			final ModelNode entity = component.getNode();
-			project.getPluginManager().withPlugin("dev.nokee.c-language", __ -> entity.addComponentTag(SupportCSourceSetTag.class));
-			project.getPluginManager().withPlugin("dev.nokee.cpp-language", __ -> entity.addComponentTag(SupportCppSourceSetTag.class));
-			project.getPluginManager().withPlugin("dev.nokee.objective-c-language", __ -> entity.addComponentTag(SupportObjectiveCSourceSetTag.class));
-			project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", __ -> entity.addComponentTag(SupportObjectiveCppSourceSetTag.class));
+			project.getPluginManager().withPlugin("dev.nokee.c-language", __ -> component.getExtensions().create("$cSupport", SupportCSourceSetTag.class));
+			project.getPluginManager().withPlugin("dev.nokee.cpp-language", __ -> component.getExtensions().create("$cppSupport", SupportCppSourceSetTag.class));
+			project.getPluginManager().withPlugin("dev.nokee.objective-c-language", __ -> component.getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class));
+			project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", __ -> component.getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class));
 		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			component.getDevelopmentVariant().convention((Provider<? extends JniLibrary>) project.provider(new BuildableDevelopmentVariantConvention(() -> component.getVariants().getElements().get())));

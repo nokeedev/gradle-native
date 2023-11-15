@@ -18,6 +18,7 @@ package dev.nokee.language.nativebase.internal;
 import dev.nokee.model.internal.core.ModelComponent;
 import org.gradle.api.file.FileCollection;
 
+// Essentially deprecated
 public final class PublicHeadersComponent implements ModelComponent {
 	private final FileCollection value;
 

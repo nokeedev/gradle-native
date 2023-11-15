@@ -25,12 +25,8 @@ import dev.nokee.language.nativebase.internal.UseConventionalLayout;
 import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.scripts.DefaultImporter;
@@ -39,8 +35,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
-
-import java.util.Optional;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
@@ -86,7 +80,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 				final ElementName name = ElementName.of("swift");
 				final Class<? extends LanguageSourceSet> sourceSetType = SwiftSourceSetSpec.class;
 
-				if (model(project, objects()).parentsOf(identifier).anyMatch(it -> Optional.ofNullable(((ExtensionAware) it.get()).getExtensions().findByType(ModelNode.class)).map(t -> t.hasComponent(ModelTags.typeOf(sourceSetTag))).orElseGet(() -> project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).hasComponent(ModelTags.typeOf(sourceSetTag))))) {
+				if (model(project, objects()).parentsOf(identifier).anyMatch(it -> ((ExtensionAware) it.get()).getExtensions().findByType(sourceSetTag) != null) || project.getExtensions().findByType(sourceSetTag) != null) {
 					model(project, registryOf(LanguageSourceSet.class)).register(identifier.child(name), sourceSetType);
 				}
 			}

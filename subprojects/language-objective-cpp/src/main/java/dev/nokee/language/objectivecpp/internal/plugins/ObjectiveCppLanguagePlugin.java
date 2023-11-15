@@ -16,8 +16,6 @@
 package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.registry.ModelLookup;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -27,6 +25,6 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponentTag(SupportObjectiveCppSourceSetTag.class);
+		project.getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
 	}
 }

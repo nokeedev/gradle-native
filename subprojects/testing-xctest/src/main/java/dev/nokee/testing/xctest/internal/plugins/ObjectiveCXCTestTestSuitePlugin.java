@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -38,9 +37,9 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantViewFactory;
@@ -192,7 +191,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponentTag(ConfigurableTag.class)
 			.withComponentTag(IsTestComponent.class)
 			.withComponentTag(XCTestTestSuiteComponentTag.class)
-			.withComponentTag(SupportObjectiveCSourceSetTag.class)
 			.mergeFrom(tagsOf(DefaultUnitTestXCTestTestSuiteComponent.class))
 			.withComponent(new MainProjectionComponent(DefaultUnitTestXCTestTestSuiteComponent.class))
 			.build()
@@ -206,7 +204,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponentTag(ConfigurableTag.class)
 			.withComponentTag(IsTestComponent.class)
 			.withComponentTag(XCTestTestSuiteComponentTag.class)
-			.withComponentTag(SupportObjectiveCSourceSetTag.class)
 			.mergeFrom(tagsOf(DefaultUiTestXCTestTestSuiteComponent.class))
 			.withComponent(new MainProjectionComponent(DefaultUiTestXCTestTestSuiteComponent.class))
 			.build()

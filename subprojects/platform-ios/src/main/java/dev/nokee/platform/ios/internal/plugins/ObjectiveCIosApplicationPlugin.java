@@ -40,14 +40,14 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -125,7 +125,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration objectiveCIosApplication(String name, Project project) {
 		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ElementName.ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).withComponentTag(SupportObjectiveCSourceSetTag.class).build();
+		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).build();
 	}
 
 	@DomainObjectEntities.Tag(IsComponent.class)
@@ -154,6 +154,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 			getExtensions().add("tasks", tasksFactory.create());
 			getExtensions().add("variants", variantsFactory.create(IosApplication.class));
 			getExtensions().add("dimensions", dimensionsFactory.create());
+			getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		}
 
 		@Override
