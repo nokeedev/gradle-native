@@ -422,7 +422,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			if (variant instanceof HasApiElementsDependencyBucket) {
 				final ConsumableDependencyBucketSpec bucket = ((HasApiElementsDependencyBucket) variant).getApiElements();
 				ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-					boolean hasSwift = model(project, objects()).parentsOf(identifier).anyMatch(it -> ModelNodes.of(it.get()).hasComponent(typeOf(SupportSwiftSourceSetTag.class)));
+					boolean hasSwift = model(project, objects()).parentsOf(identifier).anyMatch(it -> ModelNodes.safeOf(it.get()).map(e -> e.hasComponent(typeOf(SupportSwiftSourceSetTag.class))).orElse(false));
 					if (hasSwift) {
 						ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))).execute(bucket.getAsConfiguration());
 						ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
