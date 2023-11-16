@@ -15,13 +15,11 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.util.internal.LazyPublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.provider.Provider;
 
 import javax.inject.Inject;
@@ -30,13 +28,9 @@ import java.util.Set;
 public /*final*/ abstract class ConsumableDependencyBucketSpec extends ModelElementSupport implements ConsumableDependencyBucket
 	, DependencyBucketMixIn
 {
-	private final DependencyFactory factory;
-
 	@Inject
-	public ConsumableDependencyBucketSpec(DependencyHandler handler, ModelObjectRegistry<Configuration> configurationRegistry) {
+	public ConsumableDependencyBucketSpec(ModelObjectRegistry<Configuration> configurationRegistry) {
 		getExtensions().add("$configuration", configurationRegistry.register(getIdentifier(), Configuration.class).get());
-
-		this.factory = DependencyFactory.forHandler(handler);
 	}
 
 	@Override
@@ -48,11 +42,6 @@ public /*final*/ abstract class ConsumableDependencyBucketSpec extends ModelElem
 	@Override
 	public Provider<Set<PublishArtifact>> getArtifacts() {
 		return getProviders().provider(() -> getAsConfiguration().getOutgoing().getArtifacts());
-	}
-
-	@Override
-	public DependencyFactory getDependencyFactory() {
-		return factory;
 	}
 
 	@Override

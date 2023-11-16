@@ -15,15 +15,10 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.DependencyFactory;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.provider.ProviderConvertible;
-import dev.nokee.utils.ActionUtils;
-import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -31,14 +26,9 @@ import org.gradle.api.provider.ProviderFactory;
 import javax.inject.Inject;
 import java.util.Set;
 
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.assertConfigurableNotation;
-import static dev.nokee.utils.ProviderUtils.finalizeValue;
-
 interface DependencyBucketMixIn extends DependencyBucketInternal, ExtensionAware {
 	@Inject
 	ProviderFactory getProviders();
-
-	DependencyFactory getDependencyFactory();
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -61,49 +51,6 @@ interface DependencyBucketMixIn extends DependencyBucketInternal, ExtensionAware
 			}
 		}
 		return this;
-	}
-
-	// We can't realistically delay until realize because Kotlin plugin suck big time and Gradle removed important APIs... Too bad, blame Gradle or Kotlin.
-	default void addDependency(Object notation) {
-		getAsConfiguration().getDependencies().addLater(create(new DependencyElement(notation)));
-	}
-
-	default void addDependency(Object notation, Action<? super ModuleDependency> action) {
-		getAsConfiguration().getDependencies().addLater(create(new DependencyElement(assertConfigurableNotation(notation), action)));
-	}
-
-	default Provider<Dependency> create(DependencyElement element) {
-		return getProviders().provider(() -> {
-			return element.resolve(new DependencyFactory() {
-				private final Action<Dependency> action = defaultAction();
-
-				@Override
-				public Dependency create(Object notation) {
-					val result = toDependency(notation);
-					action.execute(result);
-					return result;
-				}
-
-				private Dependency toDependency(Object notation) {
-					if (notation instanceof Provider) {
-						return getDependencyFactory().create(((Provider<?>) notation).get());
-					} else {
-						return getDependencyFactory().create(notation);
-					}
-				}
-			});
-		});
-	}
-
-	default ActionUtils.Action<Dependency> defaultAction() {
-		final Action<ModuleDependency> action = finalizeValue(getDefaultDependencyAction()).map(ActionUtils.Action::of).getOrElse(ActionUtils.doNothing());
-		return dependency -> {
-			if (dependency instanceof ModuleDependency) {
-				action.execute((ModuleDependency) dependency);
-			} else {
-				// ignores
-			}
-		};
 	}
 
 	default Provider<Set<Dependency>> getDependencies() {

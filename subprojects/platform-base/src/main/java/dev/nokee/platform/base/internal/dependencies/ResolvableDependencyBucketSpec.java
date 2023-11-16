@@ -15,11 +15,9 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
 
 import javax.inject.Inject;
@@ -28,13 +26,11 @@ public /*final*/ abstract class ResolvableDependencyBucketSpec extends ModelElem
 	, DependencyBucketMixIn
 {
 	private final IncomingArtifacts incoming;
-	private final DependencyFactory factory;
 
 	@Inject
-	public ResolvableDependencyBucketSpec(DependencyHandler handler, ModelObjectRegistry<Configuration> configurationRegistry) {
+	public ResolvableDependencyBucketSpec(ModelObjectRegistry<Configuration> configurationRegistry) {
 		getExtensions().add("$configuration", configurationRegistry.register(getIdentifier(), Configuration.class).get());
 
-		this.factory = DependencyFactory.forHandler(handler);
 		this.incoming = new IncomingArtifacts(getAsConfiguration());
 	}
 
@@ -46,11 +42,6 @@ public /*final*/ abstract class ResolvableDependencyBucketSpec extends ModelElem
 	@Override
 	public FileCollection getAsFileCollection() {
 		return incoming.get();
-	}
-
-	@Override
-	public DependencyFactory getDependencyFactory() {
-		return factory;
 	}
 
 	@Override

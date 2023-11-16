@@ -15,7 +15,8 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.platform.base.DependencyBucket;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.ModuleDependency;
 
 /**
  * Represent a bucket of declarable dependencies.
@@ -23,4 +24,8 @@ import dev.nokee.platform.base.DependencyBucket;
  *
  * @since 0.5
  */
-public interface DeclarableDependencyBucket extends DependencyBucket {}
+public interface DeclarableDependencyBucket extends DependencyBucket {
+	void addDependency(Object notation);
+
+	void addDependency(Object notation, Action<? super ModuleDependency> action);
+}
