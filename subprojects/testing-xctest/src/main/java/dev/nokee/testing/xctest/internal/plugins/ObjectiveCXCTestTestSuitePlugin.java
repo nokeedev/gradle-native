@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -95,11 +94,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultXCTestTestSuiteVariant.class, new ModelObjectFactory<DefaultXCTestTestSuiteVariant>(project, IsVariant.class) {
-			@Override
-			protected DefaultXCTestTestSuiteVariant doCreate(String name) {
-				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
-			}
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultXCTestTestSuiteVariant.class, name -> {
+			return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 		});
 
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {

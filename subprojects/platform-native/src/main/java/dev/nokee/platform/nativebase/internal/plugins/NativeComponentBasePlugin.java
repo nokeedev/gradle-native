@@ -30,7 +30,6 @@ import dev.nokee.language.swift.internal.plugins.HasImportModules;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -56,9 +55,7 @@ import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
-import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -144,7 +141,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
@@ -174,68 +170,38 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			};
 			return new TaskViewAdapter<>(new ViewAdapter<>(SourceCompile.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class, new ModelObjectFactory<SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary>(project, IsBinary.class) {
-			@Override
-			protected SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary doCreate(String name) {
-				return project.getObjects().newInstance(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class, name -> {
+			return project.getObjects().newInstance(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class, new ModelObjectFactory<StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary>(project, IsBinary.class) {
-			@Override
-			protected StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary doCreate(String name) {
-				return project.getObjects().newInstance(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class, model(project, registryOf(Task.class)), compileTasksFactory);
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class, name -> {
+			return project.getObjects().newInstance(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class, model(project, registryOf(Task.class)), compileTasksFactory);
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class, new ModelObjectFactory<ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary>(project, IsBinary.class) {
-			@Override
-			protected ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary doCreate(String name) {
-				return project.getObjects().newInstance(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class, name -> {
+			return project.getObjects().newInstance(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(BundleBinaryRegistrationFactory.ModelBackedBundleBinary.class, new ModelObjectFactory<BundleBinaryRegistrationFactory.ModelBackedBundleBinary>(project, IsBinary.class) {
-			@Override
-			protected BundleBinaryRegistrationFactory.ModelBackedBundleBinary doCreate(String name) {
-				return project.getObjects().newInstance(BundleBinaryRegistrationFactory.ModelBackedBundleBinary.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(BundleBinaryRegistrationFactory.ModelBackedBundleBinary.class, name -> {
+			return project.getObjects().newInstance(BundleBinaryRegistrationFactory.ModelBackedBundleBinary.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryInternal.class, new ModelObjectFactory<SharedLibraryBinaryInternal>(project, IsBinary.class) {
-			@Override
-			protected SharedLibraryBinaryInternal doCreate(String name) {
-				return project.getObjects().newInstance(SharedLibraryBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryInternal.class, name -> {
+			return project.getObjects().newInstance(SharedLibraryBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(BundleBinaryInternal.class, new ModelObjectFactory<BundleBinaryInternal>(project, IsBinary.class) {
-			@Override
-			protected BundleBinaryInternal doCreate(String name) {
-				return project.getObjects().newInstance(BundleBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(BundleBinaryInternal.class, name -> {
+			return project.getObjects().newInstance(BundleBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ExecutableBinaryInternal.class, new ModelObjectFactory<ExecutableBinaryInternal>(project, IsBinary.class) {
-			@Override
-			protected ExecutableBinaryInternal doCreate(String name) {
-				return project.getObjects().newInstance(ExecutableBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ExecutableBinaryInternal.class, name -> {
+			return project.getObjects().newInstance(ExecutableBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(StaticLibraryBinaryInternal.class, new ModelObjectFactory<StaticLibraryBinaryInternal>(project, IsBinary.class) {
-			@Override
-			protected StaticLibraryBinaryInternal doCreate(String name) {
-				return project.getObjects().newInstance(StaticLibraryBinaryInternal.class, model(project, registryOf(Task.class)), compileTasksFactory);
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(StaticLibraryBinaryInternal.class, name -> {
+			return project.getObjects().newInstance(StaticLibraryBinaryInternal.class, model(project, registryOf(Task.class)), compileTasksFactory);
 		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, new ModelObjectFactory<DefaultNativeApplicationVariant>(project, IsVariant.class) {
-			@Override
-			protected DefaultNativeApplicationVariant doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
-			}
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, name -> {
+			return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 		});
 		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(result -> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibraryVariant.class, new ModelObjectFactory<DefaultNativeLibraryVariant>(project, IsVariant.class) {
-			@Override
-			protected DefaultNativeLibraryVariant doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeLibraryVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
-			}
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibraryVariant.class, name -> {
+			return project.getObjects().newInstance(DefaultNativeLibraryVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 		});
 		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(result -> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));

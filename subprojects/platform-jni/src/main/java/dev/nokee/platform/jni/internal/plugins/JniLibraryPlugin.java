@@ -26,7 +26,6 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
-import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -43,8 +42,8 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseVariant;
-import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
+import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantViewFactory;
@@ -151,11 +150,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				}, project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
 			}
 		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, new ModelObjectFactory<JniLibraryInternal>(project, IsVariant.class) {
-			@Override
-			protected JniLibraryInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), model(project, registryOf(Artifact.class)));
-			}
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, name -> {
+			return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), model(project, registryOf(Artifact.class)));
 		});
 
 		val extension = registerExtension(project);

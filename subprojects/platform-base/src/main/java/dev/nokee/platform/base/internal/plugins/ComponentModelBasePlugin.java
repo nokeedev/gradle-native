@@ -16,7 +16,6 @@
 package dev.nokee.platform.base.internal.plugins;
 
 import dev.nokee.internal.Factory;
-import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -42,7 +41,6 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
@@ -122,8 +120,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Component>(IsComponent.class, model(project, registryOf(Component.class))));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Binary>(IsBinary.class, model(project, registryOf(Artifact.class))));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Variant>(IsVariant.class, model(project, registryOf(Variant.class))));
 
 		// FIXME: This is temporary until we convert all entity
 		project.afterEvaluate(__ -> {

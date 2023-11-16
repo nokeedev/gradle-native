@@ -42,8 +42,6 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
@@ -129,17 +127,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, new ModelObjectFactory<ModelBackedJniJarBinary>(project, IsBinary.class) {
-			@Override
-			protected ModelBackedJniJarBinary doCreate(String name) {
-				return project.getObjects().newInstance(ModelBackedJniJarBinary.class, model(project, registryOf(Task.class)));
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, name -> {
+			return project.getObjects().newInstance(ModelBackedJniJarBinary.class, model(project, registryOf(Task.class)));
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJvmJarBinary.class, new ModelObjectFactory<ModelBackedJvmJarBinary>(project, IsBinary.class) {
-			@Override
-			protected ModelBackedJvmJarBinary doCreate(String name) {
-				return project.getObjects().newInstance(ModelBackedJvmJarBinary.class, model(project, registryOf(Task.class)));
-			}
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJvmJarBinary.class, name -> {
+			return project.getObjects().newInstance(ModelBackedJvmJarBinary.class, model(project, registryOf(Task.class)));
 		});
 
 		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory());

@@ -18,7 +18,6 @@ package dev.nokee.platform.ios.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.model.capabilities.variants.IsVariant;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -65,11 +64,8 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 				return project.getObjects().newInstance(IosResourceSetSpec.class);
 			}
 		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class, new ModelObjectFactory<DefaultIosApplicationVariant>(project, IsVariant.class) {
-			@Override
-			protected DefaultIosApplicationVariant doCreate(String name) {
-				return project.getObjects().newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
-			}
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class, name -> {
+			return project.getObjects().newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
 		});
 
 		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {
