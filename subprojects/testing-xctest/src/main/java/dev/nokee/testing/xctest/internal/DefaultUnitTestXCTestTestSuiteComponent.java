@@ -99,7 +99,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 
 	@Inject
 	public DefaultUnitTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, ModelObjectRegistry<Artifact> artifactRegistry, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
-		super(objects, providers, layout, registry);
+		super(objects, providers, layout, taskRegistry);
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("binaries", binariesFactory.create());

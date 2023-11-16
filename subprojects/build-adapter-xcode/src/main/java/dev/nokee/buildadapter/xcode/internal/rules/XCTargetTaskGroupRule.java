@@ -18,11 +18,12 @@ package dev.nokee.buildadapter.xcode.internal.rules;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetTaskComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.platform.base.internal.tasks.TaskGroupComponent;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import org.gradle.api.Task;
 
 public final class XCTargetTaskGroupRule extends ModelActionWithInputs.ModelAction1<XCTargetTaskComponent> {
 	@Override
 	protected void execute(ModelNode entity, XCTargetTaskComponent task) {
-		task.get().addComponent(new TaskGroupComponent("Xcode Target"));
+		ModelNodeUtils.get(task.get(), Task.class).setGroup("Xcode Target");
 	}
 }

@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.DefaultModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelComponent;
@@ -28,7 +27,6 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
 import lombok.val;
 import org.gradle.api.Task;
 
@@ -107,12 +105,7 @@ public final class DomainObjectEntities {
 		}
 
 		if (Task.class.isAssignableFrom(type)) {
-			builder.withComponentTag(IsTask.class);
-			builder.withComponentTag(ConfigurableTag.class);
-
-			@SuppressWarnings("unchecked")
-			val taskType = (Class<Task>) type;
-			builder.withComponent(new TaskTypeComponent(taskType));
+			throw new UnsupportedOperationException("no longer supported");
 		} else {
 			// It's important to add the projection at the end because there is a tiny bug with ModelProjection specifically.
 			//   The issue is the projection should really be ModelBufferElement but instead are "multi-component".

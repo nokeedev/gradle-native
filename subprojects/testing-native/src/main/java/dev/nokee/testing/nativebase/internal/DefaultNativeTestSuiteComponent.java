@@ -31,12 +31,11 @@ import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourc
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -104,7 +103,6 @@ import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static java.util.stream.Collectors.toList;
@@ -177,14 +175,14 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	}
 
 	public void finalizeExtension(Project project) {
-		val checkTask = registry.register(newEntity(getIdentifier().child(TaskName.of("check")), Task.class, it -> it.ownedBy(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root())))).as(Task.class);
+		val checkTask = taskRegistry.register(ProjectIdentifier.of(project).child(TaskName.of("check")), Task.class).asProvider();
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
 			val variantIdentifier = VariantIdentifier.builder().withComponentIdentifier(getIdentifier()).withBuildVariant((BuildVariantInternal) buildVariant).build();
 
 			// TODO: The variant should have give access to the testTask
-			val runTask = registry.register(newEntity(getIdentifier().child(TaskName.of("run")), RunTestExecutable.class, it -> it.ownedBy(modelLookup.get(DomainObjectIdentifierUtils.toPath(variantIdentifier))))).as(RunTestExecutable.class).configure(task -> {
+			val runTask = taskRegistry.register(getIdentifier().child(TaskName.of("run")), RunTestExecutable.class).configure(task -> {
 				// TODO: Use a provider of the variant here
 				task.dependsOn((Callable) () -> getVariants().filter(it -> it.getBuildVariant().equals(buildVariant)).flatMap(it -> it.get(0).getDevelopmentBinary()));
 				task.setOutputDir(task.getTemporaryDir());
@@ -197,7 +195,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 				});
 			}).asProvider();
 			// TODO: The following is a gap is how we declare task, it should be possible to register a lifecycle task for a entity
-			val testTask = registry.register(newEntity(getIdentifier().child(TaskName.lifecycle()), Task.class, it -> it.ownedBy(modelLookup.get(DomainObjectIdentifierUtils.toPath(variantIdentifier))))).as(Task.class).configure(task -> {
+			val testTask = taskRegistry.register(getIdentifier().child(TaskName.lifecycle()), Task.class).configure(task -> {
 				task.dependsOn(runTask);
 			}).asProvider();
 			checkTask.configure(configureDependsOn(testTask));

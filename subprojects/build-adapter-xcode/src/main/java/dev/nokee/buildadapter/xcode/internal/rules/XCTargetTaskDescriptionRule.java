@@ -19,11 +19,12 @@ import dev.nokee.buildadapter.xcode.internal.components.XCTargetTaskComponent;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import org.gradle.api.Task;
 
 public final class XCTargetTaskDescriptionRule extends ModelActionWithInputs.ModelAction2<XCTargetTaskComponent, DisplayNameComponent> {
 	@Override
 	protected void execute(ModelNode entity, XCTargetTaskComponent task, DisplayNameComponent displayName) {
-		task.get().addComponent(new TaskDescriptionComponent(String.format("Builds %s.", displayName.get())));
+		ModelNodeUtils.get(task.get(), Task.class).setDescription(String.format("Builds %s.", displayName.get()));
 	}
 }

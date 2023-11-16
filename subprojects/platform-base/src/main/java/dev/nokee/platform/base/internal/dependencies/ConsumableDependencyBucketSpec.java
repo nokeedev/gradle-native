@@ -18,9 +18,6 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.util.internal.LazyPublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.PublishArtifact;
@@ -30,7 +27,6 @@ import org.gradle.api.provider.Provider;
 import javax.inject.Inject;
 import java.util.Set;
 
-@DomainObjectEntities.Tag({IsDependencyBucket.class, ConsumableDependencyBucketTag.class, ConfigurableTag.class})
 public /*final*/ abstract class ConsumableDependencyBucketSpec extends ModelElementSupport implements ConsumableDependencyBucket
 	, DependencyBucketMixIn
 {

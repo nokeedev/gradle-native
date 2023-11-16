@@ -44,6 +44,7 @@ import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
 import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.capabilities.variants.VariantInformationComponent;
 import dev.nokee.model.internal.core.DisplayNameComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
@@ -55,7 +56,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
@@ -74,8 +75,8 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.Transformer;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.attributes.Attribute;
@@ -108,6 +109,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.util.internal.OutOfDateReasonSpec.because;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
@@ -185,15 +188,14 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetTaskDescriptionRule());
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetTaskGroupRule());
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCProjectDescriptionRule(new DefaultXCProjectReferenceToStringer(project.getRootDir().toPath())));
+			project.setDescription(new DefaultXCProjectReferenceToStringer(project.getRootDir().toPath()).toString(reference));
 
 			@SuppressWarnings("unchecked")
 			final Provider<XcodeDependenciesService> service = (Provider<XcodeDependenciesService>) project.getGradle().getSharedServices().getRegistrations().getByName(XcodeDependenciesService.class.getSimpleName()).getService();
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetComponentDiscoveryRule(project.getExtensions().getByType(ModelRegistry.class), buildInputs.capture("loads all targets from " + project, (Transformer<Iterable<XCTargetReference>, XCProjectReference> & Serializable) XCLoaders.allTargetsLoader()::load)::transform));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
-				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("inspect"), InspectXcodeTask.class, it -> it.ownedBy(entity)))
-					.as(InspectXcodeTask.class)
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, xcProject, identifier) -> {
+				model(project, registryOf(Task.class)).register(identifier.get().child(TaskName.of("inspect")), InspectXcodeTask.class)
 					.configure(task -> {
 						task.getXcodeProject().set(reference);
 						task.getXCLoaderService().set(service);
@@ -209,9 +211,8 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				entity.addComponent(new DisplayNameComponent(String.format("target variant '%s:%s' of %s", target.get().getName(), variantInfo.getName(), project)));
 			}));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), ModelTags.referenceOf(IsComponent.class), (entity, target, ignored1) -> {
-				val targetLifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetLifecycleTask.class, it -> it.ownedBy(entity)))
-					.as(XcodeTargetLifecycleTask.class)
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, target, ignored1, identifier) -> {
+				val targetLifecycleTask = model(project, registryOf(Task.class)).register(identifier.get().child(TaskName.lifecycle()), XcodeTargetLifecycleTask.class)
 					.configure(task -> {
 						final XCTargetReference targetReference = target.get();
 						task.getConfigurationFlag().convention(project.getProviders().systemProperty("configuration").orElse(project.getProviders().gradleProperty("configuration")).orElse(new DefaultProviderFactory(project.getProviders()).provider(ofSerializableCallable(() -> targetReference.load(XCLoaders.defaultTargetConfigurationLoader())))));
@@ -222,75 +223,73 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetLifecycleTask)));
 			})));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), ModelComponentReference.of(VariantInformationComponent.class), (entity, xcTarget, variantInfo) -> {
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), ModelComponentReference.of(VariantInformationComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, xcTarget, variantInfo, identifier) -> {
 				val target = xcTarget.get();
 
-				val derivedData = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("derivedData", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.as(Configuration.class)
-					.configure(configuration -> {
-						configuration.attributes(attributes -> {
+				val derivedData = model(project, registryOf(DependencyBucket.class)).register(identifier.get().child("derivedData"), ResolvableDependencyBucketSpec.class)
+					.configure(bucket -> {
+						bucket.getAsConfiguration().attributes(attributes -> {
 							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
 							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
 						});
 					})
-					.configure(configuration -> {
-						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+					.configure(bucket -> {
+						bucket.getAsConfiguration().getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
 								return it.load(target).getDependencies().stream().filter(XCDependenciesLoader.CoordinateDependency.class::isInstance).map(dep -> ((XCDependenciesLoader.CoordinateDependency) dep).getCoordinate()).collect(Collectors.toList());
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
-					});
+					})
+					.asProvider();
 
-				val remoteSwiftPackages = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("remoteSwiftPackages", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.as(Configuration.class)
-					.configure(configuration -> {
-						configuration.attributes(attributes -> {
+				val remoteSwiftPackages = model(project, registryOf(DependencyBucket.class)).register(identifier.get().child("remoteSwiftPackages"), ResolvableDependencyBucketSpec.class)
+					.configure(bucket -> {
+						bucket.getAsConfiguration().attributes(attributes -> {
 							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-swift-packages"));
 							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
 						});
 					})
-					.configure(configuration -> {
-						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+					.configure(bucket -> {
+						bucket.getAsConfiguration().getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
 								return it.load(target).getDependencies().stream().filter(XCDependenciesLoader.CoordinateDependency.class::isInstance).map(dep -> ((XCDependenciesLoader.CoordinateDependency) dep).getCoordinate()).collect(Collectors.toList());
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
-					});
+					})
+					.asProvider();
 
-				val derivedDataTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("assemble", "derivedDataDir"), AssembleDerivedDataDirectoryTask.class, it -> it.ownedBy(entity)))
-					.as(AssembleDerivedDataDirectoryTask.class)
+				val derivedDataTask = model(project, registryOf(Task.class)).register(identifier.get().child(TaskName.of("assemble", "derivedDataDir")), AssembleDerivedDataDirectoryTask.class)
 					.configure(task -> {
 						task.parameters(parameters -> {
 							parameters.getIncomingDerivedDataPaths().from(derivedData);
 							parameters.getXcodeDerivedDataPath().set(project.getLayout().getBuildDirectory().dir("tmp-derived-data/" + target.getName() + "-" + variantInfo.getName()));
 						});
-					});
+					})
+					.asProvider();
 
-				val overlays = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("virtualFileSystemOverlays", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.as(Configuration.class)
-					.configure(configuration -> {
-						configuration.attributes(attributes -> {
+				val overlays = model(project, registryOf(DependencyBucket.class)).register(identifier.get().child("virtualFileSystemOverlays"), ResolvableDependencyBucketSpec.class)
+					.configure(bucket -> {
+						bucket.getAsConfiguration().attributes(attributes -> {
 							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-overlays"));
 							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
 						});
 					})
-					.configure(configuration -> {
-						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+					.configure(bucket -> {
+						bucket.getAsConfiguration().getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
 								return it.load(target).getDependencies().stream().filter(XCDependenciesLoader.CoordinateDependency.class::isInstance).map(dep -> ((XCDependenciesLoader.CoordinateDependency) dep).getCoordinate()).collect(Collectors.toList());
 							}).map(transformEach(asDependency(project)))
 						)).orElse(Collections.emptyList()));
-					});
+					})
+					.asProvider();
 
-				val mergeTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("merge", "virtualFileSystemOverlays"), MergeVirtualFileSystemOverlaysTask.class, it -> it.ownedBy(entity)))
-					.as(MergeVirtualFileSystemOverlaysTask.class)
+				val mergeTask = model(project, registryOf(Task.class)).register(identifier.get().child(TaskName.of("merge", "virtualFileSystemOverlays")), MergeVirtualFileSystemOverlaysTask.class)
 					.configure(task -> {
 						task.parameters(parameters -> {
 							parameters.getSources().from(overlays);
 							parameters.getDerivedDataPath().set(derivedDataTask.flatMap(it -> it.getParameters().getXcodeDerivedDataPath()));
 							parameters.getOutputFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/all-products-headers.yaml"));
 						});
-					});
+					}).asProvider();
 
-				val isolateTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("isolate", "target"), XCTargetIsolationTask.class, it -> it.ownedBy(entity)))
-					.as(XCTargetIsolationTask.class)
+				val isolateTask = model(project, registryOf(Task.class)).register(identifier.get().child(TaskName.of("isolate", "target")), XCTargetIsolationTask.class)
 					.configure(task -> {
 						task.parameters(parameters -> {
 							parameters.getOriginalProject().from(reference);
@@ -300,7 +299,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 							});
 							parameters.getIsolations().create(XCTargetIsolationTask.AddPackageProductDependenciesSpec.class, it -> {
 								it.getTargetNameToIsolate().set(target.getName());
-								it.getPackageProductDependencies().addAll(remoteSwiftPackages.flatMap(t -> t.getElements()).map(t -> {
+								it.getPackageProductDependencies().addAll(remoteSwiftPackages.flatMap(t -> t.getAsConfiguration().getElements()).map(t -> {
 									return t.stream().map(FileSystemLocationUtils::asPath).flatMap(a -> {
 										try (val inStream = Files.newInputStream(a)) {
 											return SerializationUtils.<List<XCSwiftPackageProductDependency>>deserialize(inStream).stream();
@@ -311,10 +310,10 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 								}));
 							});
 						});
-					});
+					})
+					.asProvider();
 
-				val targetTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetExecTask.class, it -> it.ownedBy(entity)))
-					.as(XcodeTargetExecTask.class)
+				val targetTask = model(project, registryOf(Task.class)).register(identifier.get().child(TaskName.lifecycle()), XcodeTargetExecTask.class)
 					.configure(task -> {
 						task.dependsOn(derivedDataTask, isolateTask);
 						task.getXcodeProject().set(isolateTask.flatMap(it -> it.getParameters().getIsolatedProjectLocation()).map(it -> XCProjectReference.of(it.getAsFile().toPath())));
@@ -341,69 +340,67 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 							}
 						});
 						action.execute(task);
-					});
+					})
+					.asProvider();
 				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetTask)));
 
-				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("DerivedDataElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.as(Configuration.class)
-					.configure(configuration -> {
-						configuration.attributes(attributes -> {
+				model(project, registryOf(DependencyBucket.class)).register(identifier.get().child("DerivedDataElements"), ConsumableDependencyBucketSpec.class)
+					.configure(bucket -> {
+						bucket.getAsConfiguration().attributes(attributes -> {
 							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
 							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
 						});
 					})
-					.configure(configuration -> {
-						configuration.outgoing(outgoing -> {
+					.configure(bucket -> {
+						bucket.getAsConfiguration().outgoing(outgoing -> {
 							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
 							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
 						});
 					});
 
-				val generateVirtualSystemOverlaysTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("generate", "virtualFileSystemOverlays"), GenerateVirtualFileSystemOverlaysTask.class, it -> it.ownedBy(entity)))
-					.as(GenerateVirtualFileSystemOverlaysTask.class)
+				val generateVirtualSystemOverlaysTask = model(project, registryOf(Task.class)).register(identifier.get().child(TaskName.of("generate", "virtualFileSystemOverlays")), GenerateVirtualFileSystemOverlaysTask.class)
 					.configure(task -> {
 						task.dependsOn(targetTask);
 						task.parameters(parameters -> {
 							parameters.overlays(new VFSOverlayAction(project.getObjects(), project.provider(() -> target), targetTask.flatMap(it -> it.getBuildSettings().asProvider()), targetTask.flatMap(it -> it.getDerivedDataPath().getLocationOnly().map(FileSystemLocationUtils::asPath))));
 							parameters.getOutputFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/" + xcTarget.get().getName() + ".yaml"));
 						});
-					});
+					})
+					.asProvider();
 
-				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("VirtualFileSystemOverlaysElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.as(Configuration.class)
-					.configure(configuration -> {
-						configuration.attributes(attributes -> {
+				model(project, registryOf(DependencyBucket.class)).register(identifier.get().child("VirtualFileSystemOverlaysElements"), ConsumableDependencyBucketSpec.class)
+					.configure(bucket -> {
+						bucket.getAsConfiguration().attributes(attributes -> {
 							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-overlays"));
 							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
 						});
 					})
-					.configure(configuration -> {
-						configuration.outgoing(outgoing -> {
+					.configure(bucket -> {
+						bucket.getAsConfiguration().outgoing(outgoing -> {
 							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
 							outgoing.artifact(generateVirtualSystemOverlaysTask.flatMap(it -> it.getParameters().getOutputFile()));
 						});
 					});
 
-				val generateRemoteSwiftPackagesTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("generate", "remoteSwiftPackages"), GenerateSwiftPackageManifestTask.class, it -> it.ownedBy(entity)))
-					.as(GenerateSwiftPackageManifestTask.class)
+				val generateRemoteSwiftPackagesTask = model(project, registryOf(Task.class)).register(identifier.get().child(TaskName.of("generate", "remoteSwiftPackages")), GenerateSwiftPackageManifestTask.class)
 					.configure(task -> {
 						task.parameters(parameters -> {
 							parameters.getProject().from(reference);
 							parameters.getTargetName().set(target.getName());
 							parameters.getManifestFile().set(project.getLayout().getBuildDirectory().file(temporaryDirectoryPath(task) + "/remote-swift-packages.manifest"));
 						});
-					});
+					})
+					.asProvider();
 
-				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("RemoteSwiftPackagesElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.as(Configuration.class)
-					.configure(configuration -> {
-						configuration.attributes(attributes -> {
+				model(project, registryOf(DependencyBucket.class)).register(identifier.get().child("RemoteSwiftPackagesElements"), ConsumableDependencyBucketSpec.class)
+					.configure(bucket -> {
+						bucket.getAsConfiguration().attributes(attributes -> {
 							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-swift-packages"));
 							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
 						});
 					})
-					.configure(configuration -> {
-						configuration.outgoing(outgoing -> {
+					.configure(bucket -> {
+						bucket.getAsConfiguration().outgoing(outgoing -> {
 							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
 							outgoing.artifact(generateRemoteSwiftPackagesTask.flatMap(it -> it.getParameters().getManifestFile()));
 						});

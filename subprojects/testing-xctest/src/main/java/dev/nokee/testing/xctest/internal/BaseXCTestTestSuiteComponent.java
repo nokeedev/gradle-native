@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -44,6 +45,7 @@ import dev.nokee.utils.TextCaseUtils;
 import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -74,16 +76,16 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	private final ProjectLayout layout;
 	@Getter private final Property<String> moduleName;
 	@Getter private final Property<String> productBundleIdentifier;
-	private final ModelRegistry registry;
+	private final ModelObjectRegistry<Task> taskRegistry;
 
-	public BaseXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelRegistry registry) {
+	public BaseXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelObjectRegistry<Task> taskRegistry) {
 		this.providers = providers;
 		this.layout = layout;
 		this.groupId = objects.property(GroupId.class);
 		this.testedComponent = Cast.uncheckedCastBecauseOfTypeErasure(objects.property(BaseNativeComponent.class));
 		this.moduleName = configureDisplayName(objects.property(String.class), "moduleName");
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
-		this.registry = registry;
+		this.taskRegistry = taskRegistry;
 	}
 
 	@Override
@@ -144,7 +146,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		});
 		whenElementKnown(this.getNode(), this::onEachVariant);
 
-		new CreateVariantAwareComponentAssembleLifecycleTaskRule(registry).execute(this);
+		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 	}
 
 	private static void whenElementKnown(ModelNode target, Action<? super KnownDomainObject<DefaultXCTestTestSuiteVariant>> action) {

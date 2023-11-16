@@ -40,14 +40,12 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.MainProjectionComponent;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
-import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewFactory;
@@ -58,9 +56,6 @@ import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketS
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareCapability;
-import dev.nokee.platform.base.internal.project.ProjectCapabilityPlugin;
-import dev.nokee.platform.base.internal.project.ProjectProjectionComponent;
-import dev.nokee.platform.base.internal.tasks.TaskCapabilityPlugin;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
@@ -78,7 +73,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -113,8 +107,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		project.getPluginManager().apply("lifecycle-base");
 
-		project.getExtensions().getByType(ModelLookup.class).get(root()).addComponent(new ProjectProjectionComponent(project));
-
 		project.getExtensions().add(COMPONENT_CONTAINER_TYPE, "$components", project.getObjects().polymorphicDomainObjectContainer(Component.class));
 		project.getExtensions().add(VARIANT_CONTAINER_TYPE, "$variants", project.getObjects().polymorphicDomainObjectContainer(Variant.class));
 		project.getExtensions().add(DEPENDENCY_BUCKET_CONTAINER_TYPE, "$dependencyBuckets", project.getObjects().polymorphicDomainObjectContainer(DependencyBucket.class));
@@ -132,7 +124,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Component>(IsComponent.class, model(project, registryOf(Component.class))));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Binary>(IsBinary.class, model(project, registryOf(Artifact.class))));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<Variant>(IsVariant.class, model(project, registryOf(Variant.class))));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<DependencyBucket>(IsDependencyBucket.class, model(project, registryOf(DependencyBucket.class))));
 
 		// FIXME: This is temporary until we convert all entity
 		project.afterEvaluate(__ -> {
@@ -153,28 +144,17 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			} while (previousCount != result.size());
 		});
 
-		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class, new ModelObjectFactory<ConsumableDependencyBucketSpec>(project, IsDependencyBucket.class) {
-			@Override
-			protected ConsumableDependencyBucketSpec doCreate(String name) {
-				return project.getObjects().newInstance(ConsumableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
-			}
+		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class, name -> {
+			return project.getObjects().newInstance(ConsumableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 		});
-		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class, new ModelObjectFactory<ResolvableDependencyBucketSpec>(project, IsDependencyBucket.class) {
-			@Override
-			protected ResolvableDependencyBucketSpec doCreate(String name) {
-				return project.getObjects().newInstance(ResolvableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
-			}
+		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class, name -> {
+			return project.getObjects().newInstance(ResolvableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 		});
-		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class, new ModelObjectFactory<DeclarableDependencyBucketSpec>(project, IsDependencyBucket.class) {
-			@Override
-			protected DeclarableDependencyBucketSpec doCreate(String name) {
-				return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
-			}
+		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class, name -> {
+			return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 		});
 
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
-		project.getPluginManager().apply(TaskCapabilityPlugin.class);
-		project.getPluginManager().apply(ProjectCapabilityPlugin.class);
 		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
 
 		final Factory<BinaryView<Binary>> binariesFactory = () -> {

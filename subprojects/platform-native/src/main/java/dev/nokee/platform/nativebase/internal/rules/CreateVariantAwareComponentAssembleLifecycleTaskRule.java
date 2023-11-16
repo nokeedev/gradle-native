@@ -15,8 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.rules;
 
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.DeferUtils;
@@ -26,7 +25,6 @@ import org.gradle.api.Task;
 
 import java.util.Arrays;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
@@ -35,10 +33,10 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.BUILD_GROUP;
 
 public class CreateVariantAwareComponentAssembleLifecycleTaskRule implements Action<VariantAwareComponentInternal<?>> {
-	private final ModelRegistry registry;
+	private final ModelObjectRegistry<Task> taskRegistry;
 
-	public CreateVariantAwareComponentAssembleLifecycleTaskRule(ModelRegistry registry) {
-		this.registry = registry;
+	public CreateVariantAwareComponentAssembleLifecycleTaskRule(ModelObjectRegistry<Task> taskRegistry) {
+		this.taskRegistry = taskRegistry;
 	}
 
 	@Override
@@ -47,7 +45,7 @@ public class CreateVariantAwareComponentAssembleLifecycleTaskRule implements Act
 		//   then we configure the dependency.
 		//   Note that the dependency may already exists for single variant component but it's not a big deal.
 		val logger = new WarnUnbuildableLogger(component.getIdentifier());
-		registry.register(newEntity(component.getIdentifier().child(TaskName.of(ASSEMBLE_TASK_NAME)), Task.class, it -> it.ownedBy(ModelNodes.of(component)))).as(Task.class)
+		taskRegistry.register(component.getIdentifier().child(TaskName.of(ASSEMBLE_TASK_NAME)), Task.class)
 			.configure(configureGroup(BUILD_GROUP))
 			.configure(configureDependsOn(component.getDevelopmentVariant().flatMap(TO_DEVELOPMENT_BINARY).map(Arrays::asList).orElse(DeferUtils.executes(onlyOnce(logger::warn)))));
 	}
