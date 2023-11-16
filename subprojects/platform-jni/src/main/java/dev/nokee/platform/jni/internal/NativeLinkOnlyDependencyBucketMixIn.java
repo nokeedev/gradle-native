@@ -30,8 +30,7 @@ public interface NativeLinkOnlyDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void nativeLinkOnly(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getNativeLinkOnly().addDependency(dependency, configureAction);
+		getNativeLinkOnly().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void nativeLinkOnly(Provider<DependencyType> dependencyProvider) {
@@ -39,8 +38,7 @@ public interface NativeLinkOnlyDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void nativeLinkOnly(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getNativeLinkOnly().addDependency(dependencyProvider, configureAction);
+		getNativeLinkOnly().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void nativeLinkOnly(FileCollection fileCollection) {

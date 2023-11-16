@@ -30,8 +30,7 @@ public interface NativeImplementationDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void nativeImplementation(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getNativeImplementation().addDependency(dependency, configureAction);
+		getNativeImplementation().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void nativeImplementation(Provider<DependencyType> dependencyProvider) {
@@ -39,8 +38,7 @@ public interface NativeImplementationDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void nativeImplementation(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getNativeImplementation().addDependency(dependencyProvider, configureAction);
+		getNativeImplementation().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void nativeImplementation(FileCollection fileCollection) {

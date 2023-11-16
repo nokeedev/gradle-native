@@ -36,8 +36,7 @@ public interface LinkOnlyDependencyBucketMixIn extends ModelMixIn, HasLinkOnlyDe
 	}
 
 	default <DependencyType extends Dependency> void linkOnly(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getLinkOnly().addDependency(dependency, configureAction);
+		getLinkOnly().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void linkOnly(Provider<DependencyType> dependencyProvider) {
@@ -45,8 +44,7 @@ public interface LinkOnlyDependencyBucketMixIn extends ModelMixIn, HasLinkOnlyDe
 	}
 
 	default <DependencyType extends Dependency> void linkOnly(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getLinkOnly().addDependency(dependencyProvider, configureAction);
+		getLinkOnly().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void linkOnly(FileCollection fileCollection) {

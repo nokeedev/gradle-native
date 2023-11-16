@@ -20,64 +20,84 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DeclarableDependencyBucket;
 import dev.nokee.utils.ActionUtils;
-import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.DomainObjectCollection;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 
 import javax.inject.Inject;
+import java.util.Collection;
+import java.util.function.BiConsumer;
 
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.assertConfigurableNotation;
 import static dev.nokee.utils.ProviderUtils.finalizeValue;
+import static dev.nokee.utils.TransformerUtils.peek;
 
+// Note 1: We can't realistically delay until realize because Kotlin plugin suck big time and Gradle removed important APIs... Too bad, blame Gradle or Kotlin.
 public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElementSupport implements DeclarableDependencyBucket
 	, DependencyBucketMixIn
 {
+	private final NamedDomainObjectProvider<Configuration> delegate;
 	private final DependencyFactory dependencyFactory;
 
 	@Inject
 	public DeclarableDependencyBucketSpec(DependencyHandler handler, ModelObjectRegistry<Configuration> configurationRegistry) {
-		getExtensions().add("$configuration", configurationRegistry.register(getIdentifier(), Configuration.class).get());
+		this.delegate = configurationRegistry.register(getIdentifier(), Configuration.class).asProvider();
+		getExtensions().add("$configuration", delegate.get());
 
 		this.dependencyFactory = DependencyFactory.forHandler(handler);
 	}
 
-	// We can't realistically delay until realize because Kotlin plugin suck big time and Gradle removed important APIs... Too bad, blame Gradle or Kotlin.
 	@Override
-	public void addDependency(Object notation) {
-		getAsConfiguration().getDependencies().addLater(create(new DependencyElement(notation)));
+	public void addDependency(Dependency dependency) {
+		defaultAction().execute(dependency);
+		delegate.configure(dependencies(add(dependency)));
 	}
 
 	@Override
-	public void addDependency(Object notation, Action<? super ExternalModuleDependency> action) {
-		getAsConfiguration().getDependencies().addLater(create(new DependencyElement(assertConfigurableNotation(notation), action)));
+	public <DependencyType extends Dependency> void addDependency(DependencyType dependency, Action<? super DependencyType> configureAction) {
+		defaultAction().execute(dependency);
+		configureAction.execute(dependency);
+		delegate.configure(dependencies(add(dependency)));
 	}
 
-	private Provider<Dependency> create(DependencyElement element) {
-		return getProviders().provider(() -> {
-			return element.resolve(new DependencyFactory() {
-				private final Action<Dependency> action = defaultAction();
+	@Override
+	public <DependencyType extends Dependency> void addDependency(Provider<DependencyType> dependencyProvider) {
+		// See Note 1.
+		delegate.configure(dependencies(add(dependencyProvider.map(peek(defaultAction()::execute)))));
+	}
 
-				@Override
-				public Dependency create(Object notation) {
-					val result = toDependency(notation);
-					action.execute(result);
-					return result;
-				}
+	@Override
+	public <DependencyType extends Dependency> void addDependency(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
+		// See Note 1.
+		delegate.configure(dependencies(add(dependencyProvider.map(peek(defaultAction()::execute)).map(peek(configureAction::execute)))));
+	}
 
-				private Dependency toDependency(Object notation) {
-					if (notation instanceof Provider) {
-						return dependencyFactory.create(((Provider<?>) notation).get());
-					} else {
-						return dependencyFactory.create(notation);
-					}
-				}
-			});
-		});
+	@Override
+	public void addDependency(FileCollection fileCollection) {
+		addDependency(dependencyFactory.create(fileCollection));
+	}
+
+	@Override
+	public void addDependency(Project project) {
+		addDependency(dependencyFactory.create(project));
+	}
+
+	@Override
+	public void addDependency(CharSequence dependencyNotation) {
+		addDependency(dependencyFactory.create(dependencyNotation));
+	}
+
+	@Override
+	public void addDependency(CharSequence dependencyNotation, Action<? super ExternalModuleDependency> configureAction) {
+		addDependency(dependencyFactory.create(dependencyNotation), configureAction);
 	}
 
 	private ActionUtils.Action<Dependency> defaultAction() {
@@ -89,6 +109,18 @@ public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElem
 				// ignores
 			}
 		};
+	}
+
+	private static Action<Configuration> dependencies(BiConsumer<? super Configuration, ? super DependencySet> configureAction) {
+		return configuration -> configureAction.accept(configuration, configuration.getDependencies());
+	}
+
+	private static <SELF, ElementType> BiConsumer<SELF, Collection<ElementType>> add(ElementType element) {
+		return (self, collection) -> collection.add(element);
+	}
+
+	private static <SELF, ElementType> BiConsumer<SELF, DomainObjectCollection<ElementType>> add(Provider<ElementType> elementProvider) {
+		return (self, collection) -> collection.addLater(elementProvider);
 	}
 
 	@Override

@@ -30,8 +30,7 @@ public interface JvmImplementationDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void jvmImplementation(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getJvmImplementation().addDependency(dependency, configureAction);
+		getJvmImplementation().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void jvmImplementation(Provider<DependencyType> dependencyProvider) {
@@ -39,8 +38,7 @@ public interface JvmImplementationDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void jvmImplementation(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getJvmImplementation().addDependency(dependencyProvider, configureAction);
+		getJvmImplementation().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void jvmImplementation(FileCollection fileCollection) {

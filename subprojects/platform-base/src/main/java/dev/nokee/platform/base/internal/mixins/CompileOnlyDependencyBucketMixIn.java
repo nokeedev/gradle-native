@@ -36,8 +36,7 @@ public interface CompileOnlyDependencyBucketMixIn extends ModelMixIn, HasCompile
 	}
 
 	default <DependencyType extends Dependency> void compileOnly(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getCompileOnly().addDependency(dependency, configureAction);
+		getCompileOnly().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void compileOnly(Provider<DependencyType> dependencyProvider) {
@@ -45,8 +44,7 @@ public interface CompileOnlyDependencyBucketMixIn extends ModelMixIn, HasCompile
 	}
 
 	default <DependencyType extends Dependency> void compileOnly(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getCompileOnly().addDependency(dependencyProvider, configureAction);
+		getCompileOnly().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void compileOnly(FileCollection fileCollection) {

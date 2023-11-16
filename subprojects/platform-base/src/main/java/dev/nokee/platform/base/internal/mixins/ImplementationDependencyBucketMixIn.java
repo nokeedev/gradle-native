@@ -36,8 +36,7 @@ public interface ImplementationDependencyBucketMixIn extends ModelMixIn, HasImpl
 	}
 
 	default <DependencyType extends Dependency> void implementation(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getImplementation().addDependency(dependency, configureAction);
+		getImplementation().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void implementation(Provider<DependencyType> dependencyProvider) {
@@ -45,8 +44,7 @@ public interface ImplementationDependencyBucketMixIn extends ModelMixIn, HasImpl
 	}
 
 	default <DependencyType extends Dependency> void implementation(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getImplementation().addDependency(dependencyProvider, configureAction);
+		getImplementation().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void implementation(FileCollection fileCollection) {

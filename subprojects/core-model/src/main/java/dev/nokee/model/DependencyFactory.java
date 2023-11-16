@@ -17,7 +17,11 @@ package dev.nokee.model;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.FileCollectionDependency;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.file.FileCollection;
 
 /**
  * A factory to create {@link Dependency} instance.
@@ -52,4 +56,10 @@ public interface DependencyFactory {
 	 * @return the new dependency, never null
 	 */
 	Dependency create(Object notation);
+
+	FileCollectionDependency create(FileCollection fileCollection);
+
+	ExternalModuleDependency create(CharSequence notation);
+
+	ProjectDependency create(Project project);
 }

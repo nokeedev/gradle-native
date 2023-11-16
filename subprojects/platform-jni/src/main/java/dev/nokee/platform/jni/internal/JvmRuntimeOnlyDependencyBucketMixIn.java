@@ -30,8 +30,7 @@ public interface JvmRuntimeOnlyDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void jvmRuntimeOnly(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getJvmRuntimeOnly().addDependency(dependency, configureAction);
+		getJvmRuntimeOnly().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void jvmRuntimeOnly(Provider<DependencyType> dependencyProvider) {
@@ -39,8 +38,7 @@ public interface JvmRuntimeOnlyDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void jvmRuntimeOnly(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getJvmRuntimeOnly().addDependency(dependencyProvider, configureAction);
+		getJvmRuntimeOnly().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void jvmRuntimeOnly(FileCollection fileCollection) {

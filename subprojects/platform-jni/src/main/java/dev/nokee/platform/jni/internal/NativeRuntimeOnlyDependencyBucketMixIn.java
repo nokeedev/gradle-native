@@ -30,8 +30,7 @@ public interface NativeRuntimeOnlyDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void nativeRuntimeOnly(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getNativeRuntimeOnly().addDependency(dependency, configureAction);
+		getNativeRuntimeOnly().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void nativeRuntimeOnly(Provider<DependencyType> dependencyProvider) {
@@ -39,8 +38,7 @@ public interface NativeRuntimeOnlyDependencyBucketMixIn {
 	}
 
 	default <DependencyType extends Dependency> void nativeRuntimeOnly(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getNativeRuntimeOnly().addDependency(dependencyProvider, configureAction);
+		getNativeRuntimeOnly().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void nativeRuntimeOnly(FileCollection fileCollection) {

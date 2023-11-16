@@ -36,8 +36,7 @@ public interface RuntimeOnlyDependencyBucketMixIn extends ModelMixIn, HasRuntime
 	}
 
 	default <DependencyType extends Dependency> void runtimeOnly(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getRuntimeOnly().addDependency(dependency, configureAction);
+		getRuntimeOnly().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void runtimeOnly(Provider<DependencyType> dependencyProvider) {
@@ -45,8 +44,7 @@ public interface RuntimeOnlyDependencyBucketMixIn extends ModelMixIn, HasRuntime
 	}
 
 	default <DependencyType extends Dependency> void runtimeOnly(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getRuntimeOnly().addDependency(dependencyProvider, configureAction);
+		getRuntimeOnly().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void runtimeOnly(FileCollection fileCollection) {

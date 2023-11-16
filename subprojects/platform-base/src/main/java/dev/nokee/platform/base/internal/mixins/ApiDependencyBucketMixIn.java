@@ -36,8 +36,7 @@ public interface ApiDependencyBucketMixIn extends ModelMixIn, HasApiDependencyBu
 	}
 
 	default <DependencyType extends Dependency> void api(DependencyType dependency, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getApi().addDependency(dependency, configureAction);
+		getApi().addDependency(dependency, configureAction);
 	}
 
 	default <DependencyType extends Dependency> void api(Provider<DependencyType> dependencyProvider) {
@@ -45,8 +44,7 @@ public interface ApiDependencyBucketMixIn extends ModelMixIn, HasApiDependencyBu
 	}
 
 	default <DependencyType extends Dependency> void api(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
-		throw new UnsupportedOperationException();
-//		getApi().addDependency(dependencyProvider, configureAction);
+		getApi().addDependency(dependencyProvider, configureAction);
 	}
 
 	default void api(FileCollection fileCollection) {
