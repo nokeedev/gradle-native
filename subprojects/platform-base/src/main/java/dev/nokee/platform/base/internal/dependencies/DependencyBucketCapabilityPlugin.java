@@ -20,6 +20,7 @@ import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayName;
+import dev.nokee.platform.base.DeclarableDependencyBucket;
 import dev.nokee.platform.base.DependencyBucket;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;

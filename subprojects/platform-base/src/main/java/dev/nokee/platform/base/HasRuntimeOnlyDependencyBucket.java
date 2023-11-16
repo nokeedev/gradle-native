@@ -61,5 +61,5 @@ public interface HasRuntimeOnlyDependencyBucket {
 	 *
 	 * @return a {@link DependencyBucket} representing the runtime only bucket of dependencies, never null.
 	 */
-	DependencyBucket getRuntimeOnly();
+	DeclarableDependencyBucket getRuntimeOnly();
 }

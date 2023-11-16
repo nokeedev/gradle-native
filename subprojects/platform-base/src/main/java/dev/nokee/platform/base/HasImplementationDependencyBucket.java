@@ -61,5 +61,5 @@ public interface HasImplementationDependencyBucket {
 	 *
 	 * @return a {@link DependencyBucket} representing the implementation bucket of dependencies, never null.
 	 */
-	DependencyBucket getImplementation();
+	DeclarableDependencyBucket getImplementation();
 }

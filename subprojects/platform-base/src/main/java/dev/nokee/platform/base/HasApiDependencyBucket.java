@@ -59,5 +59,5 @@ public interface HasApiDependencyBucket {
 	 *
 	 * @return a {@link DependencyBucket} representing the api bucket of dependencies, never null.
 	 */
-	DependencyBucket getApi();
+	DeclarableDependencyBucket getApi();
 }

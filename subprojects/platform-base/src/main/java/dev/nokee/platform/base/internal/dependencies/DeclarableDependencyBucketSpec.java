@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.platform.base.DeclarableDependencyBucket;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 

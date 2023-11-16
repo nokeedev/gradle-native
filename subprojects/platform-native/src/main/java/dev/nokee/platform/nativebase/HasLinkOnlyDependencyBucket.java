@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.platform.base.DeclarableDependencyBucket;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
@@ -62,5 +63,5 @@ public interface HasLinkOnlyDependencyBucket {
 	 *
 	 * @return a {@link DependencyBucket} representing the link only bucket of dependencies, never null.
 	 */
-	DependencyBucket getLinkOnly();
+	DeclarableDependencyBucket getLinkOnly();
 }

@@ -61,5 +61,5 @@ public interface HasCompileOnlyDependencyBucket {
 	 *
 	 * @return a {@link DependencyBucket} representing the compile only bucket of dependencies, never null.
 	 */
-	DependencyBucket getCompileOnly();
+	DeclarableDependencyBucket getCompileOnly();
 }
