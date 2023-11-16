@@ -39,14 +39,12 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
+import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -93,7 +91,6 @@ import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 
-@DomainObjectEntities.Tag({IsComponent.class})
 public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements Component
 	, NativeSourcesAware
 	, ExtensionAwareMixIn

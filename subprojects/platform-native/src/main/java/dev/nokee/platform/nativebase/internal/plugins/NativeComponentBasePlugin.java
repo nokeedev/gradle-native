@@ -584,11 +584,4 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {
 		return t -> action.accept(t, ModelNodeUtils.get(ModelNodes.of(t), type));
 	}
-
-	public static Action<Project> finalizeModelNodeOf(Object target) {
-		return project -> {
-			ModelNodeUtils.finalizeProjections(ModelNodes.of(target));
-			ModelStates.finalize(ModelNodes.of(target));
-		};
-	}
 }

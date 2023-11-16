@@ -36,7 +36,6 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
@@ -267,7 +266,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		});
 		// TODO: When discovery will be a real feature, we shouldn't need this anymore
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			final ModelNode entity = component.getNode();
 			project.getPluginManager().withPlugin("dev.nokee.c-language", __ -> component.getExtensions().create("$cSupport", SupportCSourceSetTag.class));
 			project.getPluginManager().withPlugin("dev.nokee.cpp-language", __ -> component.getExtensions().create("$cppSupport", SupportCppSourceSetTag.class));
 			project.getPluginManager().withPlugin("dev.nokee.objective-c-language", __ -> component.getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class));

@@ -116,11 +116,8 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			}
 		});
 
-		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class, new ModelObjectFactory<DefaultNativeTestSuiteComponent>(project, IsTestComponent.class) {
-			@Override
-			protected DefaultNativeTestSuiteComponent doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
-			}
+		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class, name -> {
+			return project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
 		});
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
@@ -128,7 +125,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 		});
 		project.afterEvaluate(__ -> {
-			components(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
+			testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 				for (BuildVariant it : component.getBuildVariants().get()) {
 					final BuildVariantInternal buildVariant = (BuildVariantInternal) it;
 					final VariantIdentifier variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).build();
@@ -139,10 +136,10 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 			});
 		});
-		components(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
+		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
 		});
-		components(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
+		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 			component.getTargetBuildTypes().convention(component.getTestedComponent()
 				.flatMap(it -> {
 					if (it instanceof TargetBuildTypeAwareComponent) {
@@ -152,7 +149,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					}
 				}).orElse(ImmutableSet.of(TargetBuildTypes.DEFAULT)));
 		});
-		components(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
+		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 			component.getTargetMachines().convention(component.getTestedComponent()
 				.flatMap(it -> {
 					if (it instanceof TargetMachineAwareComponent) {

@@ -54,8 +54,6 @@ import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
@@ -107,7 +105,6 @@ import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINA
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static java.util.stream.Collectors.toList;
 
-@DomainObjectEntities.Tag({IsComponent.class})
 public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
@@ -123,11 +120,10 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 {
 	private final ObjectFactory objects;
 	private final ModelLookup modelLookup;
-	private final ModelRegistry registry;
 	private final ModelObjectRegistry<Task> taskRegistry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("binaries", binariesFactory.create());
@@ -137,7 +133,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 		this.taskRegistry = taskRegistry;
 		this.objects = objects;
 		this.modelLookup = modelLookup;
-		this.registry = registry;
 
 		this.getBaseName().convention(BaseNameUtils.from(getIdentifier()).getAsString());
 	}

@@ -27,7 +27,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
@@ -37,9 +36,6 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
@@ -59,6 +55,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicat
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -67,12 +64,12 @@ import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.names.ElementName.ofMain;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
 public class NativeApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -91,30 +88,23 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeApplicationExtension.class, new ModelObjectFactory<DefaultNativeApplicationExtension>(project, IsComponent.class) {
-			@Override
-			protected DefaultNativeApplicationExtension doCreate(String name) {
-				return project.getObjects().newInstance(DefaultNativeApplicationExtension.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
-			}
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeApplicationExtension.class, name -> {
+			return project.getObjects().newInstance(DefaultNativeApplicationExtension.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
 		});
 
-		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(nativeApplication("main", project)).as(NativeApplicationExtension.class);
+		final NamedDomainObjectProvider<DefaultNativeApplicationExtension> componentProvider = model(project, registryOf(DefaultNativeApplicationExtension.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultNativeApplicationExtension.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
-
-		// Other configurations
-		project.afterEvaluate(finalizeModelNodeOf(componentProvider));
 
 		project.getExtensions().add(NativeApplicationExtension.class, EXTENSION_NAME, extension);
 	}
 
 	public static ModelRegistration nativeApplication(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ElementName.ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
 		return new NativeApplicationComponentModelRegistrationFactory(DefaultNativeApplicationExtension.class, project).create(identifier).build();
 	}
 
 
-	@DomainObjectEntities.Tag({IsComponent.class})
 	public static abstract class DefaultNativeApplicationExtension extends ModelElementSupport implements NativeApplicationExtension
 		, NativeApplicationComponent
 		, ExtensionAwareMixIn

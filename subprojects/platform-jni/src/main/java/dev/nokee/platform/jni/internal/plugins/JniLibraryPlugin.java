@@ -29,11 +29,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlug
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -43,16 +39,13 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
-import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
-import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.IncompatiblePluginUsage;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceSourcesViewAdapter;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
@@ -62,6 +55,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Named;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -94,7 +88,6 @@ import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.Incompati
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.SOFTWARE_MODEL_PLUGIN_IDS;
 import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.preferHostMachineArchitecture;
 import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.preferHostOperatingSystemFamily;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 
@@ -136,19 +129,13 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, new ModelObjectFactory<JniLibraryComponentInternal>(project, IsComponent.class) {
-			@Override
-			protected JniLibraryComponentInternal doCreate(String name) {
-				return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<JavaNativeInterfaceLibrarySources>) () -> {
+		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, name -> {
+			return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<JavaNativeInterfaceLibrarySources>) () -> {
 					Named.Namer namer = new Named.Namer();
-					ModelNode entity = ModelNodeContext.getCurrentModelNode();
 					ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-					Runnable realizeNow = () -> {
-						ModelStates.finalize(entity);
-					};
+					Runnable realizeNow = () -> {};
 					return new JavaNativeInterfaceSourcesViewAdapter(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 				}, project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
-			}
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, name -> {
 			return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), model(project, registryOf(Artifact.class)));
@@ -193,7 +180,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				extension.getVariants().get();
 			});
 		});
-		project.afterEvaluate(finalizeModelNodeOf(extension));
 	}
 
 	private static boolean isNativeLanguagePlugin(Plugin<Project> appliedPlugin) {
@@ -201,11 +187,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JavaNativeInterfaceLibrary registerExtension(Project project) {
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val identifier = ModelObjectIdentifier.builder().name(ElementName.ofMain()).withParent(ProjectIdentifier.of(project)).build();
 
-		val component = registry.register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class);
+		final NamedDomainObjectProvider<JniLibraryComponentInternal> component = model(project, registryOf(Component.class)).register(identifier,  JniLibraryComponentInternal.class).asProvider();
 		component.configure(it -> it.getBaseName().convention(project.getName()));
 		component.configure(it -> {
 			it.getVariants().configureEach(variant -> {
