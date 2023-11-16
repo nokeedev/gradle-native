@@ -19,7 +19,6 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import dev.nokee.model.internal.core.ModelNode;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectCollection;
@@ -38,7 +37,6 @@ import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	private final NamedDomainObjectCollection<?> collection;
 	private final Runnable realize;
-	private final ModelNode entity;
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objects;
 	private final Namer<? super Object> namer;
@@ -50,7 +48,6 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 		this.providerFactory = providerFactory;
 		this.objects = objects;
 		this.realize = new RunOnceRunnable(realize);
-		this.entity = null;
 		this.baseIdentifierSupplier = () -> baseIdentifier;
 	}
 
