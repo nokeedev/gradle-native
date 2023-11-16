@@ -17,47 +17,15 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.platform.base.DeclarableDependencyBucket;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ExternalModuleDependency;
-import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.artifacts.ProjectDependency;
 
 /**
  * Represents something that carries a link only dependency bucket represented by a {@link Configuration}.
+ * A link only dependency is not visible to consumers that are compiled or linked against this component.
  *
  * @since 0.5
  */
 public interface HasLinkOnlyDependencyBucket {
-	/**
-	 * Adds an native link only dependency to this component.
-	 * An link only dependency is not visible to consumers that are compiled or linked against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 */
-	default void linkOnly(Object notation) {
-		getLinkOnly().addDependency(notation);
-	}
-
-	/**
-	 * Adds an native link only dependency to this component.
-	 * An link only dependency is not visible to consumers that are compiled or linked against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
-	 */
-	default void linkOnly(Object notation, Action<? super ModuleDependency> action) {
-		getLinkOnly().addDependency(notation, action);
-	}
-	default void linkOnly(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		linkOnly(notation, ConfigureUtils.configureUsing(closure));
-	}
-
 	/**
 	 * Returns the link only bucket of dependencies for this component.
 	 *

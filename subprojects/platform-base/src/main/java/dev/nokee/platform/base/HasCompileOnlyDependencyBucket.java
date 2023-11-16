@@ -15,47 +15,15 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ExternalModuleDependency;
-import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.artifacts.ProjectDependency;
 
 /**
  * Represents something that carries a compile only dependency bucket represented by a {@link Configuration}.
+ * A compile only dependency is not visible to consumers that are compiled or linked against this component.
  *
  * @since 0.5
  */
 public interface HasCompileOnlyDependencyBucket {
-	/**
-	 * Adds a compile only dependency to this component.
-	 * An compile only dependency is not visible to consumers that are compiled or linked against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 */
-	default void compileOnly(Object notation) {
-		getCompileOnly().addDependency(notation);
-	}
-
-	/**
-	 * Adds a compile only dependency to this component.
-	 * An compile only dependency is not visible to consumers that are compiled or linked against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
-	 */
-	default void compileOnly(Object notation, Action<? super ModuleDependency> action) {
-		getCompileOnly().addDependency(notation, action);
-	}
-	default void compileOnly(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		compileOnly(notation, ConfigureUtils.configureUsing(closure));
-	}
-
 	/**
 	 * Returns the compile only bucket of dependencies for this component.
 	 *

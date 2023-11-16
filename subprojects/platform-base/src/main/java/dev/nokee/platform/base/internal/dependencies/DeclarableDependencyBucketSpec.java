@@ -24,6 +24,7 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.provider.Provider;
@@ -52,7 +53,7 @@ public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElem
 	}
 
 	@Override
-	public void addDependency(Object notation, Action<? super ModuleDependency> action) {
+	public void addDependency(Object notation, Action<? super ExternalModuleDependency> action) {
 		getAsConfiguration().getDependencies().addLater(create(new DependencyElement(assertConfigurableNotation(notation), action)));
 	}
 

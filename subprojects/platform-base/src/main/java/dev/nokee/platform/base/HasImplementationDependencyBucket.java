@@ -15,47 +15,15 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ExternalModuleDependency;
-import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.artifacts.ProjectDependency;
 
 /**
  * Represents something that carries an implementation dependency bucket represented by a {@link Configuration}.
+ * An implementation dependency is not visible to consumers that are compiled against this component.
  *
  * @since 0.5
  */
 public interface HasImplementationDependencyBucket {
-	/**
-	 * Adds an implementation dependency to this component.
-	 * An implementation dependency is not visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 */
-	default void implementation(Object notation) {
-		getImplementation().addDependency(notation);
-	}
-
-	/**
-	 * Adds an implementation dependency to this component.
-	 * An implementation dependency is not visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
-	 */
-	default void implementation(Object notation, Action<? super ModuleDependency> action) {
-		getImplementation().addDependency(notation, action);
-	}
-	default void implementation(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		implementation(notation, ConfigureUtils.configureUsing(closure));
-	}
-
 	/**
 	 * Returns the implementation bucket of dependencies for this component.
 	 *

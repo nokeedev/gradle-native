@@ -15,45 +15,15 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ExternalModuleDependency;
-import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.artifacts.ProjectDependency;
 
 /**
  * Represents something that carries an API dependency bucket represented by a {@link Configuration}.
+ * An API dependency is made visible to consumers that are compiled against this component.
  *
  * @since 0.5
  */
 public interface HasApiDependencyBucket {
-	/**
-	 * Adds an API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 */
-	default void api(Object notation) {
-		getApi().addDependency(notation);
-	}
-
-	/**
-	 * Adds an API dependency to this library. An API dependency is made visible to consumers that are compiled against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
-	 */
-	default void api(Object notation, Action<? super ModuleDependency> action) {
-		getApi().addDependency(notation, action);
-	}
-	default void api(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		api(notation, ConfigureUtils.configureUsing(closure));
-	}
-
 	/**
 	 * Returns the api bucket of dependencies for this component.
 	 *

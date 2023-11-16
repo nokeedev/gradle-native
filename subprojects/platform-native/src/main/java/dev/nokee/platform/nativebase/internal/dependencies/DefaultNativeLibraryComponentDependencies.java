@@ -19,12 +19,24 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
+import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
+import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
+import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.internal.mixins.LinkOnlyDependencyBucketMixIn;
 import org.gradle.api.plugins.ExtensionAware;
 
 import javax.inject.Inject;
 
-public /*final*/ abstract class DefaultNativeLibraryComponentDependencies implements NativeLibraryComponentDependencies, ExtensionAware {
+public /*final*/ abstract class DefaultNativeLibraryComponentDependencies implements NativeLibraryComponentDependencies
+	, ApiDependencyBucketMixIn
+	, CompileOnlyDependencyBucketMixIn
+	, ImplementationDependencyBucketMixIn
+	, RuntimeOnlyDependencyBucketMixIn
+	, LinkOnlyDependencyBucketMixIn
+	, ExtensionAware
+{
 	@Inject
 	public DefaultNativeLibraryComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
 		getExtensions().add("api", bucketRegistry.register(identifier.child("api"), DeclarableDependencyBucketSpec.class).get());
@@ -32,30 +44,5 @@ public /*final*/ abstract class DefaultNativeLibraryComponentDependencies implem
 		getExtensions().add("implementation", bucketRegistry.register(identifier.child("implementation"), DeclarableDependencyBucketSpec.class).get());
 		getExtensions().add("runtimeOnly", bucketRegistry.register(identifier.child("runtimeOnly"), DeclarableDependencyBucketSpec.class).get());
 		getExtensions().add("linkOnly", bucketRegistry.register(identifier.child("linkOnly"), DeclarableDependencyBucketSpec.class).get());
-	}
-
-	@Override
-	public DeclarableDependencyBucketSpec getApi() {
-		return (DeclarableDependencyBucketSpec) getExtensions().getByName("api");
-	}
-
-	@Override
-	public DeclarableDependencyBucketSpec getCompileOnly() {
-		return (DeclarableDependencyBucketSpec) getExtensions().getByName("compileOnly");
-	}
-
-	@Override
-	public DeclarableDependencyBucketSpec getImplementation() {
-		return (DeclarableDependencyBucketSpec) getExtensions().getByName("implementation");
-	}
-
-	@Override
-	public DeclarableDependencyBucketSpec getRuntimeOnly() {
-		return (DeclarableDependencyBucketSpec) getExtensions().getByName("runtimeOnly");
-	}
-
-	@Override
-	public DeclarableDependencyBucketSpec getLinkOnly() {
-		return (DeclarableDependencyBucketSpec) getExtensions().getByName("linkOnly");
 	}
 }

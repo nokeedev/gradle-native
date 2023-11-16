@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base;
+package dev.nokee.model.internal;
 
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.plugins.ExtensionAware;
 
-/**
- * Represent a bucket of declarable dependencies.
- * These dependencies are neither incoming or outgoing dependencies.
- *
- * @since 0.5
- */
-public interface DeclarableDependencyBucket extends DependencyBucket {
-	void addDependency(Object notation);
-
-	void addDependency(Object notation, Action<? super ExternalModuleDependency> action);
+public interface ModelMixIn extends ExtensionAware {
+	@SuppressWarnings("unchecked")
+	default <T> T mixedIn(String propertyName) {
+		return (T) getExtensions().getByName(propertyName);
+	}
 }

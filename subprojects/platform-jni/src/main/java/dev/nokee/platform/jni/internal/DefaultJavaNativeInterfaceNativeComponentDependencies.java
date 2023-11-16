@@ -21,15 +21,16 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.plugins.ExtensionAware;
 
 import javax.inject.Inject;
 
-public abstract class DefaultJavaNativeInterfaceNativeComponentDependencies implements JavaNativeInterfaceNativeComponentDependencies, ExtensionAware {
+public abstract class DefaultJavaNativeInterfaceNativeComponentDependencies implements JavaNativeInterfaceNativeComponentDependencies
+	, NativeImplementationDependencyBucketMixIn
+	, NativeLinkOnlyDependencyBucketMixIn
+	, NativeRuntimeOnlyDependencyBucketMixIn
+	, ExtensionAware
+{
 	@Inject
 	public DefaultJavaNativeInterfaceNativeComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
 		getExtensions().create("native", DefaultNativeComponentDependencies.class, identifier.child("native"), bucketRegistry);
@@ -40,58 +41,13 @@ public abstract class DefaultJavaNativeInterfaceNativeComponentDependencies impl
 	}
 
 	@Override
-	public void nativeImplementation(Object notation) {
-		getNativeImplementation().addDependency(notation);
-	}
-
-	@Override
-	public void nativeImplementation(Object notation, Action<? super ModuleDependency> action) {
-		getNativeImplementation().addDependency(notation, action);
-	}
-
-	@Override
-	public void nativeImplementation(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getNativeImplementation().addDependency(notation, ConfigureUtils.configureUsing(closure));
-	}
-
-	@Override
 	public DeclarableDependencyBucketSpec getNativeImplementation() {
 		return getNative().getImplementation();
 	}
 
 	@Override
-	public void nativeLinkOnly(Object notation) {
-		getNativeLinkOnly().addDependency(notation);
-	}
-
-	@Override
-	public void nativeLinkOnly(Object notation, Action<? super ModuleDependency> action) {
-		getNativeLinkOnly().addDependency(notation, action);
-	}
-
-	@Override
-	public void nativeLinkOnly(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getNativeLinkOnly().addDependency(notation, ConfigureUtils.configureUsing(closure));
-	}
-
-	@Override
 	public DeclarableDependencyBucketSpec getNativeLinkOnly() {
 		return getNative().getLinkOnly();
-	}
-
-	@Override
-	public void nativeRuntimeOnly(Object notation) {
-		getNativeRuntimeOnly().addDependency(notation);
-	}
-
-	@Override
-	public void nativeRuntimeOnly(Object notation, Action<? super ModuleDependency> action) {
-		getNativeRuntimeOnly().addDependency(notation, action);
-	}
-
-	@Override
-	public void nativeRuntimeOnly(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getNativeRuntimeOnly().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override

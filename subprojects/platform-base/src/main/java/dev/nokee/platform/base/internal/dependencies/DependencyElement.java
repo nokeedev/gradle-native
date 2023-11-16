@@ -20,7 +20,7 @@ import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.ExternalModuleDependency;
 
 public final class DependencyElement {
 	private final Object notation;
@@ -31,11 +31,11 @@ public final class DependencyElement {
 		this.mutator = ActionUtils.doNothing();
 	}
 
-	public DependencyElement(Object notation, Action<? super ModuleDependency> mutator) {
+	public DependencyElement(Object notation, Action<? super ExternalModuleDependency> mutator) {
 		this.notation = notation;
 		this.mutator = dependency -> {
-			assert dependency instanceof ModuleDependency;
-			mutator.execute((ModuleDependency) dependency);
+			assert dependency instanceof ExternalModuleDependency;
+			mutator.execute((ExternalModuleDependency) dependency);
 		};
 	}
 
