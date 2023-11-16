@@ -21,6 +21,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.specs.Spec;
 
 import javax.annotation.Nullable;
@@ -70,6 +71,21 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 				configureAction.accept(identifier, target);
 			});
 		}));
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T> void configureEach(Class<T> type, BiConsumer<? super ModelObjectIdentifier, ? super T> configureAction) {
+		collections.all(it -> it.configureEach(type, target -> {
+			ModelElementSupport.safeAsModelElement(target).map(ModelElement::getIdentifier).ifPresent(identifier -> {
+				configureAction.accept(identifier, type.cast(target));
+			});
+		}));
+	}
+
+	@Override
+	public <T> void configureEach(TypeOf<T> type, BiConsumer<? super ModelObjectIdentifier, ? super T> configureAction) {
+		configureEach(type.getConcreteClass(), configureAction);
 	}
 
 	@Override

@@ -38,7 +38,7 @@ public final class HeaderSearchPathsExtendsFromParentDependencyBucketAction<Targ
 					if (sourceSet instanceof DependencyAwareComponent && ((DependencyAwareComponent<?>) sourceSet).getDependencies() instanceof DefaultCompilableNativeComponentDependencies) {
 						@SuppressWarnings("unchecked")
 						final DefaultCompilableNativeComponentDependencies dependencies = ((DependencyAwareComponent<DefaultCompilableNativeComponentDependencies>) sourceSet).getDependencies();
-						dependencies.getHeaderSearchPaths().extendsFrom(parentDependencies.getImplementation(), parentDependencies.getCompileOnly());
+						dependencies.getHeaderSearchPaths().extendsFrom(parentDependencies.getCompileOnly());
 					}
 				});
 			});

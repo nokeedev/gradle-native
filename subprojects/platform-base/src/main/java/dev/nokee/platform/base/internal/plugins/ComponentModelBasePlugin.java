@@ -33,6 +33,7 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.TaskView;
@@ -53,6 +54,9 @@ import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketS
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareCapability;
+import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
+import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
+import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
@@ -61,6 +65,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.reflect.TypeOf;
 
 import java.util.Collections;
 import java.util.List;
@@ -145,6 +150,19 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		});
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class, name -> {
 			return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
+		});
+
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<CompileOnlyDependencyBucketMixIn>() {
+			@Override
+			protected DeclarableDependencyBucketSpec bucketOf(CompileOnlyDependencyBucketMixIn dependencies) {
+				return dependencies.getCompileOnly();
+			}
+		});
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<RuntimeOnlyDependencyBucketMixIn>() {
+			@Override
+			protected DeclarableDependencyBucketSpec bucketOf(RuntimeOnlyDependencyBucketMixIn dependencies) {
+				return dependencies.getRuntimeOnly();
+			}
 		});
 
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);

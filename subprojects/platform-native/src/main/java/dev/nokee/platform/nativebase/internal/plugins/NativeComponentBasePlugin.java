@@ -62,8 +62,10 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
@@ -97,6 +99,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.NativeLibraryOutgoing
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.SwiftLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
+import dev.nokee.platform.nativebase.internal.mixins.LinkOnlyDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
@@ -157,6 +160,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 		project.getPluginManager().apply(DarwinRuntimePlugin.class); // for now, later we will be more smart
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
+
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<LinkOnlyDependencyBucketMixIn>() {
+			@Override
+			protected DeclarableDependencyBucketSpec bucketOf(LinkOnlyDependencyBucketMixIn dependencies) {
+				return dependencies.getLinkOnly();
+			}
+		});
 
 		final Factory<TaskView<SourceCompile>> compileTasksFactory = () -> {
 			Task.Namer namer = new Task.Namer();

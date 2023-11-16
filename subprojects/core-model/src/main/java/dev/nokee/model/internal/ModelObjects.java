@@ -17,6 +17,7 @@
 package dev.nokee.model.internal;
 
 import org.gradle.api.provider.Provider;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.specs.Spec;
 
 import java.util.Set;
@@ -27,6 +28,8 @@ public interface ModelObjects {
 	<T> void register(ModelMap<T> repository);
 
 	void configureEach(BiConsumer<? super ModelObjectIdentifier, ? super Object> configureAction);
+	<T> void configureEach(Class<T> type, BiConsumer<? super ModelObjectIdentifier, ? super T> configureAction);
+	<T> void configureEach(TypeOf<T> type, BiConsumer<? super ModelObjectIdentifier, ? super T> configureAction);
 
 	Stream<ModelMapAdapters.ModelElementIdentity> parentsOf(ModelObjectIdentifier identifier);
 
