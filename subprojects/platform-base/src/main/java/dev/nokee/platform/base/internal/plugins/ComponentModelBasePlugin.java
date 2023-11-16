@@ -54,9 +54,12 @@ import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketS
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareCapability;
+import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
+import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
+import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
@@ -152,6 +155,30 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 		});
 
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ApiDependencyBucketMixIn>(model(project, objects())) {
+			@Override
+			protected DeclarableDependencyBucketSpec bucketOf(ApiDependencyBucketMixIn dependencies) {
+				return dependencies.getApi();
+			}
+		});
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ImplementationDependencyBucketMixIn>(model(project, objects())) {
+			@Override
+			protected DeclarableDependencyBucketSpec bucketOf(ImplementationDependencyBucketMixIn dependencies) {
+				return dependencies.getImplementation();
+			}
+		});
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<CompileOnlyDependencyBucketMixIn>(model(project, objects())) {
+			@Override
+			protected DeclarableDependencyBucketSpec bucketOf(CompileOnlyDependencyBucketMixIn dependencies) {
+				return dependencies.getCompileOnly();
+			}
+		});
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<RuntimeOnlyDependencyBucketMixIn>(model(project, objects())) {
+			@Override
+			protected DeclarableDependencyBucketSpec bucketOf(RuntimeOnlyDependencyBucketMixIn dependencies) {
+				return dependencies.getRuntimeOnly();
+			}
+		});
 		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<CompileOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(CompileOnlyDependencyBucketMixIn dependencies) {
