@@ -63,11 +63,8 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		final Factory<SourceView<LanguageSourceSet>> sourcesFactory = () -> {
 			Named.Namer namer = new Named.Namer();
-			Optional<ModelNode> entity = ModelNodeContext.findCurrentModelNode();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-			Runnable realizeNow = () -> {
-				entity.ifPresent(ModelStates::finalize);
-			};
+			Runnable realizeNow = () -> {};
 			return new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
 		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}, "__nokee_sourcesFactory", sourcesFactory);
