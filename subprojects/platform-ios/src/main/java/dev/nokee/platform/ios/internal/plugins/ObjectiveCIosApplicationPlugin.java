@@ -28,9 +28,6 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -129,7 +126,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	@DomainObjectEntities.Tag(IsComponent.class)
-	public static /*final*/ abstract class DefaultObjectiveCIosApplication extends ModelElementSupport implements ObjectiveCIosApplication, ModelNodeAware
+	public static /*final*/ abstract class DefaultObjectiveCIosApplication extends ModelElementSupport implements ObjectiveCIosApplication
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies>
 		, VariantAwareComponentMixIn<IosApplication>
@@ -144,8 +141,6 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ObjectiveCSourcesMixIn
 		, PrivateHeadersMixIn
 	{
-		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-
 		public DefaultObjectiveCIosApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 			getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
@@ -160,11 +155,6 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		@Override
 		public DefaultNativeComponentDependencies getDependencies() {
 			return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
-		}
-
-		@Override
-		public ModelNode getNode() {
-			return entity;
 		}
 
 		@Override

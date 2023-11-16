@@ -109,7 +109,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	@DomainObjectEntities.Tag(IsComponent.class)
-	public static /*final*/ abstract class DefaultSwiftIosApplication extends ModelElementSupport implements SwiftIosApplication, ModelNodeAware
+	public static /*final*/ abstract class DefaultSwiftIosApplication extends ModelElementSupport implements SwiftIosApplication
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies>
 		, VariantAwareComponentMixIn<IosApplication>
@@ -123,8 +123,6 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, HasDevelopmentVariant<IosApplication>
 		, SwiftSourcesMixIn
 	{
-		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-
 		@Inject
 		public DefaultSwiftIosApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 			getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
@@ -135,11 +133,6 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 			getExtensions().add("variants", variantsFactory.create(IosApplication.class));
 			getExtensions().add("dimensions", dimensionsFactory.create());
 			getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
-		}
-
-		@Override
-		public ModelNode getNode() {
-			return entity;
 		}
 
 		@Override

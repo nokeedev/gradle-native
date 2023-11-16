@@ -16,12 +16,6 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -33,19 +27,8 @@ import org.gradle.api.provider.Provider;
 
 import java.util.Set;
 
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
-import static dev.nokee.model.internal.type.ModelType.of;
-
-public abstract class BaseComponent<T extends Variant> extends ModelElementSupport implements Component, ModelNodeAware {
-	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-
-	public Property<String> getBaseName() {
-		return ModelProperties.getProperty(this, "baseName").asProperty(property(of(String.class)));
-	}
-
-	public ModelObjectIdentifier getIdentifier() {
-		return node.get(IdentifierComponent.class).get();
-	}
+public abstract class BaseComponent<T extends Variant> extends ModelElementSupport implements Component {
+	public abstract Property<String> getBaseName();
 
 	public abstract Provider<T> getDevelopmentVariant();
 
@@ -55,9 +38,4 @@ public abstract class BaseComponent<T extends Variant> extends ModelElementSuppo
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
 	public abstract Provider<Set<BuildVariant>> getBuildVariants();
-
-	@Override
-	public ModelNode getNode() {
-		return node;
-	}
 }

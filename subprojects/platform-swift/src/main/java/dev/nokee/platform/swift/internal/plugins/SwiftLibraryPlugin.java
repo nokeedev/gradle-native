@@ -26,9 +26,6 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -121,7 +118,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 	}
 
 	@DomainObjectEntities.Tag(IsComponent.class)
-	public static /*final*/ abstract class DefaultSwiftLibrary extends ModelElementSupport implements SwiftLibrary, ModelNodeAware
+	public static /*final*/ abstract class DefaultSwiftLibrary extends ModelElementSupport implements SwiftLibrary
 		, NativeLibraryComponent
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
@@ -136,8 +133,6 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		, SwiftSourcesMixIn
 		, ObjectsTaskMixIn
 	{
-		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-
 		@Inject
 		public DefaultSwiftLibrary(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 			getExtensions().create("dependencies", DefaultNativeLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
@@ -154,11 +149,6 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		@Override
 		public DefaultNativeLibraryComponentDependencies getDependencies() {
 			return (DefaultNativeLibraryComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
-		}
-
-		@Override
-		public ModelNode getNode() {
-			return entity;
 		}
 
 		@Override
