@@ -30,8 +30,8 @@ import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.base.testers.TaskAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
+import dev.nokee.platform.nativebase.internal.NativeLibrarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
@@ -67,7 +67,7 @@ class NativeLibraryComponentTest implements ComponentTester<NativeLibraryExtensi
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		val component = components(project).register(componentName, NativeLibraryPlugin.DefaultNativeLibraryExtension.class).get();
+		val component = components(project).register(componentName, NativeLibrarySpec.class).get();
 		return component;
 	}
 

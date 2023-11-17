@@ -30,7 +30,7 @@ import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.base.testers.TaskAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
-import dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin;
+import dev.nokee.platform.nativebase.internal.NativeApplicationSpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -67,7 +67,7 @@ class NativeApplicationComponentTest  implements ComponentTester<NativeApplicati
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		val component = components(project).register(componentName, NativeApplicationPlugin.DefaultNativeApplicationExtension.class).get();
+		val component = components(project).register(componentName, NativeApplicationSpec.class).get();
 		return component;
 	}
 
