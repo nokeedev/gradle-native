@@ -16,7 +16,6 @@
 package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
@@ -31,7 +30,6 @@ import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.ModelObjectFactory;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -52,11 +50,8 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(ObjectiveCppSourceSetSpec.class, new ModelObjectFactory<ObjectiveCppSourceSetSpec>(project, IsLanguageSourceSet.class) {
-			@Override
-			protected ObjectiveCppSourceSetSpec doCreate(String name) {
-				return project.getObjects().newInstance(ObjectiveCppSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
-			}
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(ObjectiveCppSourceSetSpec.class, name -> {
+			return project.getObjects().newInstance(ObjectiveCppSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
 		});
 
 		DefaultImporter.forProject(project)

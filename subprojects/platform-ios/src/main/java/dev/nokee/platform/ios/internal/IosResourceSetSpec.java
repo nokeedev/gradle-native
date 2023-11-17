@@ -16,14 +16,10 @@
 package dev.nokee.platform.ios.internal;
 
 import dev.nokee.language.base.HasSource;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.ios.IosResourceSet;
 import org.gradle.api.tasks.TaskDependency;
 
-@DomainObjectEntities.Tag({ConfigurableTag.class, IsLanguageSourceSet.class})
 public /*final*/ abstract class IosResourceSetSpec extends ModelElementSupport implements IosResourceSet
 	, HasSource {
 	@Override

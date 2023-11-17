@@ -18,16 +18,13 @@ package dev.nokee.language.base.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
-import dev.nokee.platform.base.internal.plugins.DomainObjectRegistration;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
@@ -36,7 +33,6 @@ import org.gradle.api.Project;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 
 public class LanguageBasePlugin implements Plugin<Project> {
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>> LANGUAGE_SOURCE_SET_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>>() {};
@@ -52,7 +48,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "$sources", project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class));
 		model(project, objects()).register(model(project).getExtensions().create("sources", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, LanguageSourceSet.class, sources(project)));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new DomainObjectRegistration<LanguageSourceSet>(IsLanguageSourceSet.class, model(project, registryOf(LanguageSourceSet.class))));
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 
