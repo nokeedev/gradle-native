@@ -24,8 +24,6 @@ import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
@@ -65,7 +63,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponen
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -84,8 +81,6 @@ import java.util.List;
 import java.util.Set;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
-import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
@@ -267,10 +262,6 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	}
 
 	public void finalizeValue() {
-		whenElementKnown(this, this::onEachVariant);
-	}
-
-	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<IosApplication>> action) {
-		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), IosApplication.class, action));
+		//TODO: whenElementKnown(this, this::onEachVariant);
 	}
 }

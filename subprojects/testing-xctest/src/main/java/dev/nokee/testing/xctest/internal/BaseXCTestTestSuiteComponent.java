@@ -20,10 +20,7 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
@@ -43,7 +40,6 @@ import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.utils.Cast;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.Getter;
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
@@ -55,8 +51,6 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 
 import java.util.Set;
 
-import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
-import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
@@ -97,42 +91,44 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	public abstract VariantView<DefaultXCTestTestSuiteVariant> getVariants();
 
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
-		variant.configure(testSuite -> {
-			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-				Provider<String> moduleName = getTestedComponent().flatMap(BaseComponent::getBaseName);
-				binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
-					task.getCompilerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks", "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks")));
-					task.getCompilerArgs().addAll(task.getToolChain().map(toolChain -> {
-						if (toolChain instanceof Swiftc) {
-							return ImmutableList.of("-sdk", getSdkPath());
-						}
-						return ImmutableList.of("-isysroot", getSdkPath());
-					}));
-					if (task instanceof ObjectiveCCompile) {
-						task.getCompilerArgs().addAll("-fobjc-arc");
-					}
-				});
+		throw new UnsupportedOperationException("readd support for whenElementKnown");
+	}
 
-				binary.getLinkTask().configure(task -> {
-					task.getLinkerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator")));
-					task.getLinkerArgs().addAll(task.getToolChain().map(toolChain -> {
-						if (toolChain instanceof Swiftc) {
-							return ImmutableList.of("-sdk", getSdkPath());
-						}
-						return ImmutableList.of("-isysroot", getSdkPath());
-					}));
-					task.getLinkerArgs().addAll(providers.provider(() -> ImmutableList.of(
-						"-Xlinker", "-rpath", "-Xlinker", "@executable_path/Frameworks",
-						"-Xlinker", "-rpath", "-Xlinker", "@loader_path/Frameworks",
-						"-Xlinker", "-export_dynamic",
-						"-Xlinker", "-no_deduplicate",
-						"-Xlinker", "-objc_abi_version", "-Xlinker", "2",
+	private void onEachVariant(DefaultXCTestTestSuiteVariant testSuite) {
+		testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
+			Provider<String> moduleName = getTestedComponent().flatMap(BaseComponent::getBaseName);
+			binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
+				task.getCompilerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks", "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks")));
+				task.getCompilerArgs().addAll(task.getToolChain().map(toolChain -> {
+					if (toolChain instanceof Swiftc) {
+						return ImmutableList.of("-sdk", getSdkPath());
+					}
+					return ImmutableList.of("-isysroot", getSdkPath());
+				}));
+				if (task instanceof ObjectiveCCompile) {
+					task.getCompilerArgs().addAll("-fobjc-arc");
+				}
+			});
+
+			binary.getLinkTask().configure(task -> {
+				task.getLinkerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator")));
+				task.getLinkerArgs().addAll(task.getToolChain().map(toolChain -> {
+					if (toolChain instanceof Swiftc) {
+						return ImmutableList.of("-sdk", getSdkPath());
+					}
+					return ImmutableList.of("-isysroot", getSdkPath());
+				}));
+				task.getLinkerArgs().addAll(providers.provider(() -> ImmutableList.of(
+					"-Xlinker", "-rpath", "-Xlinker", "@executable_path/Frameworks",
+					"-Xlinker", "-rpath", "-Xlinker", "@loader_path/Frameworks",
+					"-Xlinker", "-export_dynamic",
+					"-Xlinker", "-no_deduplicate",
+					"-Xlinker", "-objc_abi_version", "-Xlinker", "2",
 //					"-Xlinker", "-sectcreate", "-Xlinker", "__TEXT", "-Xlinker", "__entitlements", "-Xlinker", createEntitlementTask.get().outputFile.get().asFile.absolutePath
-						"-fobjc-arc", "-fobjc-link-runtime",
-						"-bundle_loader", layout.getBuildDirectory().file("exes/main/" + moduleName.get()).get().getAsFile().getAbsolutePath(),
-						"-L" + getSdkPlatformPath() + "/Developer/usr/lib", "-F" + getSdkPlatformPath() + "/Developer/Library/Frameworks", "-framework", "XCTest")));
-					// TODO: -lobjc should probably only be present for binary compiling/linking objc binaries
-				});
+					"-fobjc-arc", "-fobjc-link-runtime",
+					"-bundle_loader", layout.getBuildDirectory().file("exes/main/" + moduleName.get()).get().getAsFile().getAbsolutePath(),
+					"-L" + getSdkPlatformPath() + "/Developer/usr/lib", "-F" + getSdkPlatformPath() + "/Developer/Library/Frameworks", "-framework", "XCTest")));
+				// TODO: -lobjc should probably only be present for binary compiling/linking objc binaries
 			});
 		});
 	}
@@ -144,13 +140,9 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 				((HasBaseName) binary).getBaseName().convention(TextCaseUtils.toCamelCase(project.getName()));
 			});
 		});
-		whenElementKnown(this.getNode(), this::onEachVariant);
+		getVariants().configureEach(this::onEachVariant);
 
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
-	}
-
-	private static void whenElementKnown(ModelNode target, Action<? super KnownDomainObject<DefaultXCTestTestSuiteVariant>> action) {
-		instantiate(target, ModelAction.whenElementKnown(ownedBy(target.getId()), DefaultXCTestTestSuiteVariant.class, action));
 	}
 
 	@Override
