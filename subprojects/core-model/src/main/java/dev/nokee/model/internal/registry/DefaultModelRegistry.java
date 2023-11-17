@@ -42,7 +42,6 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpec;
 import dev.nokee.model.internal.core.ObservableComponentRegistry;
 import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.core.RelativeRegistrationService;
 import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 
@@ -80,7 +79,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 						throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path.get()));
 					}
 
-					node.addComponent(new RelativeRegistrationService(DefaultModelRegistry.this));
 					node.addComponent(new BindManagedProjectionService(instantiator));
 					path.get().getParent().ifPresent(parentPath -> {
 						if (!node.has(ParentComponent.class)) { // We are migrating away from implicit parents

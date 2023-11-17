@@ -103,10 +103,6 @@ public final class ModelNodeUtils {
 			.forEach(it -> it.get(ModelType.of(Finalizable.class)).finalizeValue());
 	}
 
-	public static ModelNode instantiate(ModelNode self, ModelRegistration registration) {
-		return self.get(RelativeRegistrationService.class).instantiate(registration);
-	}
-
 	/**
 	 * Returns the path of this model node.
 	 *
