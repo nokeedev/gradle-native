@@ -141,6 +141,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			public void execute(JniLibraryComponentInternal component) {
 				final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies = component.getDependencies();
 				configureFrameworkAwareness(dependencies.getNative());
+				extendsFromImplementation(dependencies.getNative());
 
 				// Propagate to variants
 				component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
@@ -230,6 +231,12 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				variantDependencies.getCompileOnly().extendsFrom(parentDependencies.getCompileOnly());
 				variantDependencies.getLinkOnly().extendsFrom(parentDependencies.getLinkOnly());
 				variantDependencies.getRuntimeOnly().extendsFrom(parentDependencies.getRuntimeOnly());
+			}
+
+			private void extendsFromImplementation(DefaultNativeComponentDependencies dependencies) {
+				dependencies.getCompileOnly().extendsFrom(dependencies.getImplementation());
+				dependencies.getLinkOnly().extendsFrom(dependencies.getImplementation());
+				dependencies.getRuntimeOnly().extendsFrom(dependencies.getImplementation());
 			}
 		});
 
