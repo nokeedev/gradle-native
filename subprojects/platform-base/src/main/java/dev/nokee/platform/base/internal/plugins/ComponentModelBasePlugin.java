@@ -60,6 +60,7 @@ import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMix
 import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
+import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDependencyBucketAction;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
@@ -179,6 +180,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				return dependencies.getRuntimeOnly();
 			}
 		});
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ImplementationExtendsFromApiDependencyBucketAction());
 		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<CompileOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(CompileOnlyDependencyBucketMixIn dependencies) {

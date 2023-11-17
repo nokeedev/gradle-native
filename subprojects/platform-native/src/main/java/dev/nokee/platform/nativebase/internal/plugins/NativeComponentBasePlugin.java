@@ -241,7 +241,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		components(project).configureEach(new ImplementationExtendsFromApiDependencyBucketAction<>());
 		components(project).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
 		variants(project).configureEach(new HeaderSearchPathsExtendsFromParentDependencyBucketAction<>());
 		variants(project).configureEach(new LinkLibrariesExtendsFromParentDependencyBucketAction<>());
