@@ -27,10 +27,6 @@ import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
@@ -46,14 +42,13 @@ import dev.nokee.platform.base.testers.HasDevelopmentVariantTester;
 import dev.nokee.platform.base.testers.TaskAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import groovy.lang.Closure;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -85,6 +80,7 @@ import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.host;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static java.util.stream.Collectors.toList;
@@ -117,9 +113,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of("quzu")).withParent(ProjectIdentifier.of(project)).build();
-		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
+		this.subject = components(project).register("quzu", JniLibraryComponentInternal.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(host()));
 	}
 

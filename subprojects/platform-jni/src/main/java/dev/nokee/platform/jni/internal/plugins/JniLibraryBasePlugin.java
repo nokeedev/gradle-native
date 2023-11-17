@@ -18,8 +18,8 @@ package dev.nokee.platform.jni.internal.plugins;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.HasCompileTask;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
@@ -54,7 +54,6 @@ import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.platform.jni.internal.ConfigureJniHeaderDirectoryOnJavaCompileAction;
 import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceNativeComponentDependencies;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
@@ -137,8 +136,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJvmJarBinary.class, name -> {
 			return project.getObjects().newInstance(ModelBackedJvmJarBinary.class, model(project, registryOf(Task.class)));
 		});
-
-		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory());
 
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(new Action<JniLibraryComponentInternal>() {
 			@Override

@@ -28,11 +28,8 @@ import dev.nokee.language.jvm.HasJavaSourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import groovy.lang.Closure;
 import lombok.val;
@@ -55,6 +52,7 @@ import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -70,10 +68,7 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 
 	@BeforeEach
 	void createSubject() {
-		val identifier = ComponentIdentifier.of("qezu", ProjectIdentifier.ofRootProject());
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		this.subject = registry.register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
+		this.subject = components(project).register("qezu", JniLibraryComponentInternal.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.host()));
 	}
 

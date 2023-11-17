@@ -19,16 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
-import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import lombok.val;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,9 +27,11 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasItem;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 class JavaNativeInterfaceLibraryComponentJvmHeadersIntegrationTest extends AbstractPluginTest {
@@ -46,10 +39,7 @@ class JavaNativeInterfaceLibraryComponentJvmHeadersIntegrationTest extends Abstr
 
 	@BeforeEach
 	void createSubject() {
-		val identifier = ComponentIdentifier.of("sine", ProjectIdentifier.ofRootProject());
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		this.subject = registry.register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
+		this.subject = components(project).register("sine", JniLibraryComponentInternal.class).get();
 	}
 
 	abstract class JvmHeadersTester {

@@ -21,11 +21,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
-import lombok.val;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +34,7 @@ import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentIntegrationTest.realize;
 import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -53,13 +50,11 @@ class JavaNativeInterfaceLibraryVariantCLanguagePluginIntegrationTest extends Ab
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val componentIdentifier = ComponentIdentifier.of("liho", ProjectIdentifier.of(project));
-		subject = registry.register(factory.create(componentIdentifier))
-			.as(JavaNativeInterfaceLibrary.class)
-			.configure(it -> it.getTargetMachines().set(ImmutableSet.of(it.getMachines().getFreeBSD().getX86(), it.getMachines().getLinux().getX86_64())))
-			.map(it -> it.getVariants().get().iterator().next())
+		subject = components(project).register("liho", JniLibraryComponentInternal.class)
+			.map(it -> {
+				it.getTargetMachines().set(ImmutableSet.of(it.getMachines().getFreeBSD().getX86(), it.getMachines().getLinux().getX86_64()));
+				return it.getVariants().get().iterator().next();
+			})
 			.get();
 	}
 

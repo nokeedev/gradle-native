@@ -22,13 +22,9 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.testers.SourceTester;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.HasGroovySourceSet;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import groovy.lang.Closure;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,8 +32,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 @PluginRequirement.Require(id = "groovy")
@@ -46,10 +45,7 @@ class JavaNativeInterfaceLibraryComponentGroovyPluginIntegrationTest extends Abs
 
 	@BeforeEach
 	void createSubject() {
-		val identifier = ComponentIdentifier.of("kefi", ProjectIdentifier.ofRootProject());
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		this.subject = registry.register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
+		this.subject = components(project).register("kefi", JniLibraryComponentInternal.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.host()));
 	}
 
