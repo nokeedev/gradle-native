@@ -50,6 +50,7 @@ import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.platform.jni.internal.ConfigureJniHeaderDirectoryOnJavaCompileAction;
 import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceLibraryComponentDependencies;
+import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
@@ -57,6 +58,7 @@ import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
 import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkAction;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -135,87 +137,96 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory());
 
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies = component.getDependencies();
-			dependencies.getNative().getCompileOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
-			dependencies.getNativeImplementation().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
-			dependencies.getNativeLinkOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
-			dependencies.getNativeRuntimeOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+		components(project).withType(JniLibraryComponentInternal.class).configureEach(new Action<JniLibraryComponentInternal>() {
+			@Override
+			public void execute(JniLibraryComponentInternal component) {
+				final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies = component.getDependencies();
+				configureFrameworkAwareness(dependencies.getNative());
 
-			// Propagate to variants
-			component.getVariants().configureEach(variant -> {
-				((DeclarableDependencyBucketSpec) variant.getDependencies().getNativeImplementation()).extendsFrom(dependencies.getNativeImplementation());
-				((DeclarableDependencyBucketSpec) variant.getDependencies().getNativeLinkOnly()).extendsFrom(dependencies.getNativeLinkOnly());
-				((DeclarableDependencyBucketSpec) variant.getDependencies().getNativeRuntimeOnly()).extendsFrom(dependencies.getNativeRuntimeOnly());
+				// Propagate to variants
+				component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
+					final DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = variant.getDependencies();
 
-				variant.getSources().configureEach(sourceSet -> {
-					if (sourceSet instanceof HasHeaderSearchPaths) {
-						((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().extendsFrom(variant.getDependencies().getNativeImplementation());
-					}
-				});
+					variantDependencies.getNativeImplementation().extendsFrom(dependencies.getNativeImplementation());
+					variantDependencies.getNativeLinkOnly().extendsFrom(dependencies.getNativeLinkOnly());
+					variantDependencies.getNativeRuntimeOnly().extendsFrom(dependencies.getNativeRuntimeOnly());
 
-				variant.getBinaries().configureEach(binary -> {
-					ModelElementSupport.safeAsModelElement(binary).ifPresent(element -> {
-						if (binary instanceof HasLinkLibrariesDependencyBucket) {
-							((HasLinkLibrariesDependencyBucket) binary).getLinkLibraries().extendsFrom(variant.getDependencies().getNativeImplementation(), variant.getDependencies().getNativeLinkOnly());
-						}
-						if (binary instanceof HasRuntimeLibrariesDependencyBucket) {
-							((HasRuntimeLibrariesDependencyBucket) binary).getRuntimeLibraries().extendsFrom(variant.getDependencies().getNativeImplementation(), variant.getDependencies().getNativeRuntimeOnly());
+					variant.getSources().configureEach(sourceSet -> {
+						if (sourceSet instanceof HasHeaderSearchPaths) {
+							((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().extendsFrom(variantDependencies.getNativeImplementation());
 						}
 					});
-				});
-			});
 
-			dependencies.getJvmImplementation().extendsFrom(dependencies.getApi());
-
-			dependencies.getApiElements().extendsFrom(dependencies.getApi());
-			{
-				final ConsumableDependencyBucketSpec bucket = dependencies.getApiElements();
-				ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(bucket.getAsConfiguration());
-
-				component.getBinaries().configureEach(JvmJarBinary.class, binary -> {
-					bucket.getAsConfiguration().getOutgoing().artifact(binary.getJarTask());
-				});
-			}
-
-			dependencies.getRuntimeElements().extendsFrom(dependencies.getApi());
-			{
-				final ConsumableDependencyBucketSpec bucket = dependencies.getRuntimeElements();
-				ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(bucket.getAsConfiguration());
-
-				// Attach JvmJarBinary
-				component.getBinaries().configureEach(JvmJarBinary.class, binary -> {
-					bucket.getAsConfiguration().getOutgoing().artifact(binary.getJarTask());
+					variant.getBinaries().configureEach(binary -> {
+						ModelElementSupport.safeAsModelElement(binary).ifPresent(element -> {
+							if (binary instanceof HasLinkLibrariesDependencyBucket) {
+								((HasLinkLibrariesDependencyBucket) binary).getLinkLibraries().extendsFrom(variantDependencies.getNativeImplementation(), variantDependencies.getNativeLinkOnly());
+							}
+							if (binary instanceof HasRuntimeLibrariesDependencyBucket) {
+								((HasRuntimeLibrariesDependencyBucket) binary).getRuntimeLibraries().extendsFrom(variantDependencies.getNativeImplementation(), variantDependencies.getNativeRuntimeOnly());
+							}
+						});
+					});
 				});
 
-				// Attach buildable JniJarBinary
+				dependencies.getJvmImplementation().extendsFrom(dependencies.getApi());
+
+				dependencies.getApiElements().extendsFrom(dependencies.getApi());
 				{
-					val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
-					val values = project.getObjects().listProperty(PublishArtifact.class);
-					Provider<List<JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine()));
-					Provider<Iterable<JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
-					val allArtifacts = project.getObjects().listProperty(PublishArtifact.class);
-					allArtifacts.set(allJniJars.flatMap(binaries -> {
-						val result = project.getObjects().listProperty(PublishArtifact.class);
-						for (JniJarBinary binary : binaries) {
-							result.add(new LazyPublishArtifact(binary.getJarTask()));
-						}
-						return result;
-					}));
-					allArtifacts.finalizeValueOnRead();
-					values.addAll(allArtifacts);
-					bucket.getAsConfiguration().getOutgoing().getArtifacts().addAllLater(values);
+					final ConsumableDependencyBucketSpec bucket = dependencies.getApiElements();
+					ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(bucket.getAsConfiguration());
+
+					component.getBinaries().configureEach(JvmJarBinary.class, binary -> {
+						bucket.getAsConfiguration().getOutgoing().artifact(binary.getJarTask());
+					});
 				}
-			}
+
+				dependencies.getRuntimeElements().extendsFrom(dependencies.getApi());
+				{
+					final ConsumableDependencyBucketSpec bucket = dependencies.getRuntimeElements();
+					ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(bucket.getAsConfiguration());
+
+					// Attach JvmJarBinary
+					component.getBinaries().configureEach(JvmJarBinary.class, binary -> {
+						bucket.getAsConfiguration().getOutgoing().artifact(binary.getJarTask());
+					});
+
+					// Attach buildable JniJarBinary
+					{
+						val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
+						val values = project.getObjects().listProperty(PublishArtifact.class);
+						Provider<List<JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine()));
+						Provider<Iterable<JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
+						val allArtifacts = project.getObjects().listProperty(PublishArtifact.class);
+						allArtifacts.set(allJniJars.flatMap(binaries -> {
+							val result = project.getObjects().listProperty(PublishArtifact.class);
+							for (JniJarBinary binary : binaries) {
+								result.add(new LazyPublishArtifact(binary.getJarTask()));
+							}
+							return result;
+						}));
+						allArtifacts.finalizeValueOnRead();
+						values.addAll(allArtifacts);
+						bucket.getAsConfiguration().getOutgoing().getArtifacts().addAllLater(values);
+					}
+				}
 
 //			project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(appliedPlugin -> {
 //				// TODO: configure child headerSearchPaths to extends from nativeCompileOnly
 //			}));
 
-			project.getPluginManager().withPlugin("java", appliedPlugin -> {
-				project.getConfigurations().getByName("implementation", configureExtendsFrom(dependencies.getJvmImplementation().getAsConfiguration()));
-				project.getConfigurations().getByName("runtimeOnly", configureExtendsFrom(dependencies.getJvmRuntimeOnly().getAsConfiguration()));
-			});
+				project.getPluginManager().withPlugin("java", appliedPlugin -> {
+					project.getConfigurations().getByName("implementation", configureExtendsFrom(dependencies.getJvmImplementation().getAsConfiguration()));
+					project.getConfigurations().getByName("runtimeOnly", configureExtendsFrom(dependencies.getJvmRuntimeOnly().getAsConfiguration()));
+				});
+			}
+
+			private void configureFrameworkAwareness(DefaultNativeComponentDependencies dependencies) {
+				dependencies.getCompileOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+				dependencies.getImplementation().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+				dependencies.getLinkOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+				dependencies.getRuntimeOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+			}
 		});
 
 		// Component rules
