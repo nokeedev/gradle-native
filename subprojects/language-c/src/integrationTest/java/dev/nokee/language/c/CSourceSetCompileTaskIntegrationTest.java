@@ -23,13 +23,12 @@ import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -47,7 +46,8 @@ class CSourceSetCompileTaskIntegrationTest extends AbstractPluginTest implements
 	}
 
 	CCompileTask createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("mufa", CSourceSetSpec.class)).element("compile", CCompileTask.class).get();
+		return sources(project).register("mufa", CSourceSetSpec.class)
+			.flatMap(CSourceSetSpec::getCompileTask).get();
 	}
 
 	@BeforeEach

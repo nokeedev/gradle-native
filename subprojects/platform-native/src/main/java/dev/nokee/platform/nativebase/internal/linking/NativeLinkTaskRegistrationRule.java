@@ -21,7 +21,6 @@ import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.platform.base.Artifact;
@@ -31,7 +30,6 @@ import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.HasLinkTask;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
-import dev.nokee.utils.TextCaseUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
@@ -138,20 +136,6 @@ final class NativeLinkTaskRegistrationRule implements Action<Artifact> {
 				return ImmutableList.of();
 			}
 		}).orElse(ImmutableList.of());
-	}
-
-	private static Function<ObjectLink, Object> forSwiftModuleName(DomainObjectProvider<String> baseName) {
-		return task -> ((AbstractLinkTask) task).getToolChain().map(it -> {
-			if (it instanceof Swiftc) {
-				return ImmutableList.of("-module-name", baseName.map(toModuleName()).get());
-			} else {
-				return ImmutableList.of();
-			}
-		});
-	}
-
-	private static Transformer<String, String> toModuleName() {
-		return TextCaseUtils::toCamelCase;
 	}
 	//endregion
 

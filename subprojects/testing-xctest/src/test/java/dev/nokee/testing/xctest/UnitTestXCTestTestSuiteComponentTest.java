@@ -19,7 +19,6 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.testers.ComponentTester;
@@ -32,7 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.testing.xctest.internal.plugins.ObjectiveCXCTestTestSuitePlugin.unitTestXCTestTestSuite;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
@@ -44,7 +43,7 @@ class UnitTestXCTestTestSuiteComponentTest extends AbstractPluginTest implements
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(unitTestXCTestTestSuite("vodo", project)).as(DefaultUnitTestXCTestTestSuiteComponent.class).get();
+		subject = components(project).register("vodo", DefaultUnitTestXCTestTestSuiteComponent.class).get();
 	}
 
 	@Override

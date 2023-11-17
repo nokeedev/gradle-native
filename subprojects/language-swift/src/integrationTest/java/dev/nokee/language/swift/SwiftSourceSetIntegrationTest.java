@@ -28,10 +28,9 @@ import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrati
 import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrationTester;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.SwiftCompile;
-import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
 import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
@@ -47,8 +46,8 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
@@ -69,10 +68,10 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<SwiftSourceSetSpec>
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<SwiftSourceSetSpec>
 {
-	@Subject DomainObjectProvider<SwiftSourceSetSpec> subject;
+	@Subject NamedDomainObjectProvider<SwiftSourceSetSpec> subject;
 
-	DomainObjectProvider<SwiftSourceSetSpec> createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("riku", SwiftSourceSetSpec.class)).as(SwiftSourceSetSpec.class);
+	NamedDomainObjectProvider<SwiftSourceSetSpec> createSubject() {
+		return sources(project).register("riku", SwiftSourceSetSpec.class);
 	}
 
 	@BeforeEach
@@ -86,7 +85,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	}
 
 	private Configuration importModules() {
-		return subject.element("importModules", Configuration.class).get();
+		return subject.map(it -> it.getImportModules().getAsConfiguration()).get();
 	}
 
 	@Test

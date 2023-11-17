@@ -206,11 +206,6 @@ public final class ModelTestUtils {
 				return childNode;
 			}
 
-			@Override
-			public ModelElement register(ModelRegistration registration) {
-				throw new UnsupportedOperationException();
-			}
-
 			private Stream<ModelPath> findModelPath(Object component) {
 				if (component instanceof ModelPathComponent) {
 					return of(((ModelPathComponent) component).get());

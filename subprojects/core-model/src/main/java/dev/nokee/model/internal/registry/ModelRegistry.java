@@ -15,11 +15,9 @@
  */
 package dev.nokee.model.internal.registry;
 
-import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
 
 public interface ModelRegistry {
 	ModelNode instantiate(ModelRegistration registration);
-	ModelElement register(ModelRegistration registration);
 }

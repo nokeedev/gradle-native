@@ -15,13 +15,9 @@
  */
 package dev.nokee.platform.nativebase.internal.archiving;
 
-import com.google.common.collect.ImmutableList;
-import dev.nokee.core.exec.CommandLine;
-import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
@@ -29,7 +25,6 @@ import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.HasCreateTask;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
-import dev.nokee.utils.TextCaseUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
@@ -38,12 +33,10 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
-import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 
@@ -51,7 +44,6 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.CollectionProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
@@ -97,41 +89,6 @@ final class NativeArchiveTaskRegistrationRule implements Action<Artifact> {
 		} else {
 			throw new IllegalArgumentException();
 		}
-	}
-	//endregion
-
-	//region Linker arguments
-	private static Action<ObjectLink> configureLinkerArgs(BiConsumer<? super ObjectLink, ? super CollectionProperty<String>> action) {
-		return task -> action.accept(task, wrap(task.getLinkerArgs()));
-	}
-
-	private static Function<ObjectLink, Object> forMacOsSdkIfAvailable() {
-		return task -> ((AbstractLinkTask) task).getTargetPlatform().map(it -> {
-			if (((AbstractLinkTask) task).getToolChain().isPresent()) {
-				if (((AbstractLinkTask) task).getToolChain().get() instanceof Swiftc && it.getOperatingSystem().isMacOsX() && OperatingSystem.current().isMacOsX()) {
-					// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
-					return ImmutableList.of("-sdk", CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim());
-				} else {
-					return ImmutableList.of();
-				}
-			} else {
-				return ImmutableList.of();
-			}
-		}).orElse(ImmutableList.of());
-	}
-
-	private static Function<ObjectLink, Object> forSwiftModuleName(DomainObjectProvider<String> baseName) {
-		return task -> ((AbstractLinkTask) task).getToolChain().map(it -> {
-			if (it instanceof Swiftc) {
-				return ImmutableList.of("-module-name", baseName.map(toModuleName()).get());
-			} else {
-				return ImmutableList.of();
-			}
-		});
-	}
-
-	private static Transformer<String, String> toModuleName() {
-		return TextCaseUtils::toCamelCase;
 	}
 	//endregion
 

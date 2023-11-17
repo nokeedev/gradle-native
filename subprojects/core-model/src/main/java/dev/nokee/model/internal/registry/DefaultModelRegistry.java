@@ -33,7 +33,6 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
-import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
@@ -126,11 +125,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		idToEntities.put(node.getId(), node);
 		entities.add(node);
 		return newNode(node, registration);
-	}
-
-	@Override
-	public ModelElement register(ModelRegistration registration) {
-		throw new UnsupportedOperationException();
 	}
 
 	private ModelNode newNode(ModelNode entity, ModelRegistration registration) {

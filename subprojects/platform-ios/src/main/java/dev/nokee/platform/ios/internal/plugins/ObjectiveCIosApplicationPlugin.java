@@ -25,11 +25,8 @@ import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
@@ -50,7 +47,6 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
-import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
@@ -60,7 +56,6 @@ import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.utils.TextCaseUtils;
-import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -122,11 +117,6 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 				});
 			});
 		}
-	}
-
-	public static ModelRegistration objectiveCIosApplication(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).build();
 	}
 
 	public static /*final*/ abstract class DefaultObjectiveCIosApplication extends ModelElementSupport implements ObjectiveCIosApplication

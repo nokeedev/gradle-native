@@ -29,15 +29,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBase
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
@@ -48,7 +40,6 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
-import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.VariantViewFactory;
@@ -63,13 +54,10 @@ import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.testing.base.TestSuiteComponent;
-import dev.nokee.testing.base.internal.IsTestComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
-import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentTag;
 import dev.nokee.utils.ProviderUtils;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -79,11 +67,9 @@ import org.gradle.api.reflect.TypeOf;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuites;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
@@ -176,20 +162,5 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				ModelNodes.safeOf(it).ifPresent(ModelStates::finalize);
 			});
 		});
-	}
-
-	public static ModelRegistration nativeTestSuite(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		val entityPath = ModelPath.path(identifier.getName().toString());
-		return builder()
-			.withComponent(new ModelPathComponent(entityPath))
-			.withComponentTag(IsTestComponent.class)
-			.withComponentTag(ConfigurableTag.class)
-			.withComponentTag(NativeTestSuiteComponentTag.class)
-			.withComponent(new IdentifierComponent(identifier))
-			.mergeFrom(tagsOf(DefaultNativeTestSuiteComponent.class))
-			.withComponent(new MainProjectionComponent(DefaultNativeTestSuiteComponent.class))
-			.build()
-			;
 	}
 }

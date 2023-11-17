@@ -16,7 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
-import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.never;
 
 class ModelNodeCallbackTest {
 	private final DefaultModelRegistry registry = new DefaultModelRegistry(objectFactory()::newInstance);
-	private final ModelNode subject = ModelNodes.of(registry.register(ModelRegistration.of("foo", MyProjection.class)));
+	private final ModelNode subject = ModelStates.register(registry.instantiate(ModelRegistration.of("foo", MyProjection.class)));
 	private final ModelActionWithInputs.A1<MyComponent> action = Mockito.mock(ModelActionWithInputs.A1.class);
 
 	@BeforeEach
@@ -66,7 +66,7 @@ class ModelNodeCallbackTest {
 			@BeforeEach
 			void newEntity() {
 				Mockito.reset(action);
-				newEntity = ModelNodes.of(registry.register(ModelRegistration.of("bar", MyProjection.class)));
+				newEntity = ModelStates.register(registry.instantiate(ModelRegistration.of("bar", MyProjection.class)));
 			}
 
 			@Test

@@ -22,7 +22,6 @@ import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
@@ -57,7 +56,7 @@ import java.io.File;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin.objectiveCIosApplication;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.isA;
@@ -87,7 +86,7 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 		project.getPluginManager().apply(IosComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
-		val component = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication(componentName, project)).as(ObjectiveCIosApplication.class).get();
+		val component = components(project).register(componentName, ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class).get();
 		return component;
 	}
 

@@ -20,7 +20,6 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
@@ -37,6 +36,7 @@ import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundle;
 import dev.nokee.platform.ios.internal.plugins.IosComponentBasePlugin;
 import dev.nokee.platform.ios.internal.plugins.IosResourcePlugin;
+import dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -54,7 +54,7 @@ import java.io.File;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin.swiftIosApplication;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.isA;
@@ -81,7 +81,7 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 		project.getPluginManager().apply(IosComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
-		val component = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication(componentName, project)).as(SwiftIosApplication.class).get();
+		val component = components(project).register(componentName, SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class).get();
 		return component;
 	}
 

@@ -19,17 +19,17 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import org.gradle.api.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.testing.nativebase.internal.plugins.NativeUnitTestingPlugin.nativeTestSuite;
+import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuites;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
@@ -41,7 +41,7 @@ class NativeTestSuiteTest extends AbstractPluginTest implements ComponentTester<
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(nativeTestSuite("feme", project)).as(NativeTestSuite.class).get();
+		subject = testSuites(project).register("feme", DefaultNativeTestSuiteComponent.class).get();
 	}
 
 	@Override

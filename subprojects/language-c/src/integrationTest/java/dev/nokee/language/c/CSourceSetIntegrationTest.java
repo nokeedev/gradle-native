@@ -31,16 +31,15 @@ import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledHeaderSearchPat
 import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledHeadersIntegrationTester;
 import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
 import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrationTester;
-import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
@@ -58,10 +57,10 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<CSourceSetSpec>
 	, LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<CSourceSetSpec>
 {
-	@Subject DomainObjectProvider<CSourceSetSpec> subject;
+	@Subject NamedDomainObjectProvider<CSourceSetSpec> subject;
 
-	DomainObjectProvider<CSourceSetSpec> createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("nopu", CSourceSetSpec.class)).as(CSourceSetSpec.class);
+	NamedDomainObjectProvider<CSourceSetSpec> createSubject() {
+		return sources(project).register("nopu", CSourceSetSpec.class);
 	}
 
 	@Override
@@ -71,7 +70,7 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 
 	@Override
 	public Configuration headerSearchPaths() {
-		return subject.element("headerSearchPaths", Configuration.class).get();
+		return subject.map(it -> it.getHeaderSearchPaths().getAsConfiguration()).get();
 	}
 
 	@Test

@@ -19,14 +19,8 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -37,7 +31,6 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
@@ -50,13 +43,11 @@ import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.testing.base.TestSuiteComponent;
-import dev.nokee.testing.base.internal.IsTestComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.xctest.internal.BaseXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultXCTestTestSuiteVariant;
-import dev.nokee.testing.xctest.internal.XCTestTestSuiteComponentTag;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -73,7 +64,6 @@ import java.util.concurrent.Callable;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuites;
@@ -167,31 +157,5 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			});
 			val uiTestComponent = uiTestComponentProvider.get();
 		});
-	}
-
-	public static ModelRegistration unitTestXCTestTestSuite(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
-			.withComponentTag(ConfigurableTag.class)
-			.withComponentTag(IsTestComponent.class)
-			.withComponentTag(XCTestTestSuiteComponentTag.class)
-			.mergeFrom(tagsOf(DefaultUnitTestXCTestTestSuiteComponent.class))
-			.withComponent(new MainProjectionComponent(DefaultUnitTestXCTestTestSuiteComponent.class))
-			.build()
-			;
-	}
-
-	public static ModelRegistration uiTestXCTestTestSuite(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
-			.withComponentTag(ConfigurableTag.class)
-			.withComponentTag(IsTestComponent.class)
-			.withComponentTag(XCTestTestSuiteComponentTag.class)
-			.mergeFrom(tagsOf(DefaultUiTestXCTestTestSuiteComponent.class))
-			.withComponent(new MainProjectionComponent(DefaultUiTestXCTestTestSuiteComponent.class))
-			.build()
-			;
 	}
 }

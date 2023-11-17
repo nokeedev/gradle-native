@@ -23,11 +23,8 @@ import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
@@ -48,7 +45,6 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.SwiftIosApplication;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
-import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
@@ -57,7 +53,6 @@ import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.utils.TextCaseUtils;
-import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -101,11 +96,6 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getTasks().withType(CreateIosApplicationBundleTask.class).configureEach(task -> {
 			task.getSwiftSupportRequired().set(true);
 		});
-	}
-
-	public static ModelRegistration swiftIosApplication(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return new IosApplicationComponentModelRegistrationFactory(DefaultSwiftIosApplication.class, project).create(identifier).build();
 	}
 
 	public static /*final*/ abstract class DefaultSwiftIosApplication extends ModelElementSupport implements SwiftIosApplication

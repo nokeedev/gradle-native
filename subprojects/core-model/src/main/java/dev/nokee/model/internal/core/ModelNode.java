@@ -249,11 +249,6 @@ public final class ModelNode implements Entity, ComponentTagAwareFactory {
 				public ModelNode instantiate(ModelRegistration registration) {
 					throw new UnsupportedOperationException("This instance always fails.");
 				}
-
-				@Override
-				public ModelElement register(ModelRegistration registration) {
-					throw new UnsupportedOperationException("This instance always fails.");
-				}
 			};
 		}
 	}
