@@ -98,11 +98,6 @@ public final class ModelNodeUtils {
 		});
 	}
 
-	public static void finalizeProjections(ModelNode self) {
-		getProjections(self).filter(it -> it.canBeViewedAs(ModelType.of(Finalizable.class)))
-			.forEach(it -> it.get(ModelType.of(Finalizable.class)).finalizeValue());
-	}
-
 	/**
 	 * Returns the path of this model node.
 	 *
