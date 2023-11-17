@@ -17,4 +17,5 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.tags.ModelTag;
 
+@Deprecated
 public interface NativeApplicationTag extends ModelTag {}

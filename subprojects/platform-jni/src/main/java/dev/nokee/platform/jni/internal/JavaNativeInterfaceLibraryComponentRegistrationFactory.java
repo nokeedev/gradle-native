@@ -16,30 +16,11 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
-import dev.nokee.model.internal.names.MainName;
-import dev.nokee.platform.base.internal.MainProjectionComponent;
-import lombok.val;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
-
+@Deprecated
 public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 	public ModelRegistration create(ModelObjectIdentifier identifier) {
-		val builder = ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
-			.withComponentTag(ConfigurableTag.class)
-			.withComponentTag(JniLibraryComponentTag.class)
-			.mergeFrom(tagsOf(JniLibraryComponentInternal.class))
-			.withComponent(new MainProjectionComponent(JniLibraryComponentInternal.class))
-			;
-
-		if (identifier.getName() instanceof MainName) {
-			builder.withComponentTag(ExcludeFromQualifyingNameTag.class);
-		}
-
-		return builder.build();
+		throw new UnsupportedOperationException();
 	}
 }

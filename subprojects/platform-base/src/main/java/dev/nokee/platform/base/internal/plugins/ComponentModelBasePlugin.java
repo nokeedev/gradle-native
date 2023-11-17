@@ -53,7 +53,6 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketS
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareCapability;
 import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
@@ -238,8 +237,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			return project.getObjects().newInstance(DefaultVariantDimensions.class, dimensionPropertyFactory);
 		};
 		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<DefaultVariantDimensions>>() {}, "__nokee_dimensionsFactory", dimensionsFactory);
-
-		project.getPluginManager().apply(ExtensionAwareCapability.class);
 
 		model(project, objects()).configureEach(new BiConsumer<ModelObjectIdentifier, Object>() {
 			@Override
