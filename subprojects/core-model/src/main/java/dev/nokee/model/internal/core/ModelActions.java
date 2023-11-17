@@ -28,24 +28,6 @@ import static java.util.Objects.requireNonNull;
 public final class ModelActions {
 	private ModelActions() {}
 
-	public static ModelAction doNothing() {
-		return ModelNodeAction.DO_NOTHING;
-	}
-
-	private enum ModelNodeAction implements ModelAction {
-		DO_NOTHING {
-			@Override
-			public void execute(ModelNode node) {
-				// do nothing.
-			}
-
-			@Override
-			public String toString() {
-				return "ModelActions.doNothing()";
-			}
-		}
-	}
-
 	/**
 	 * Returns an action that will only be executed once regardless of the node.
 	 *
@@ -95,64 +77,6 @@ public final class ModelActions {
 		@Override
 		public String toString() {
 			return "ModelActions.once(" + action + ")";
-		}
-	}
-
-	/**
-	 * Returns an action that will execute only if the specified predicate matches.
-	 *
-	 * @param spec  the predicate to match
-	 * @param action  the action to execute
-	 * @return an action that will execute the specified action only for the matching predicate, never null.
-	 */
-	public static ModelAction matching(ModelSpec spec, ModelAction action) {
-		return new MatchingModelAction(spec, action);
-	}
-
-	@EqualsAndHashCode
-	private static final class MatchingModelAction implements ModelAction, HasInputs {
-		private final ModelSpec spec;
-		private final ModelAction action;
-		private final List<ModelComponentReference<?>> inputs;
-		private final Bits inputBits;
-
-		public MatchingModelAction(ModelSpec spec, ModelAction action) {
-			this.spec = requireNonNull(spec);
-			this.action = requireNonNull(action);
-
-			val builder = ImmutableList.<ModelComponentReference<?>>builder();
-			if (spec instanceof HasInputs) {
-				builder.addAll(((HasInputs) spec).getInputs());
-			}
-			if (action instanceof HasInputs) {
-				builder.addAll(((HasInputs) action).getInputs());
-			}
-			this.inputs = builder.build();
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public void execute(ModelNode node) {
-			if (node.getComponentBits().containsAll(inputBits)) {
-				if (spec.isSatisfiedBy(node)) {
-					action.execute(node);
-				}
-			}
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-
-		@Override
-		public String toString() {
-			return "ModelActions.matching(" + spec + ", " + action + ")";
 		}
 	}
 }

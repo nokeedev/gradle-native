@@ -22,7 +22,6 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -72,7 +71,6 @@ import org.gradle.api.reflect.TypeOf;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -198,22 +196,16 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		final Factory<BinaryView<Binary>> binariesFactory = () -> {
 			Named.Namer namer = new Named.Namer();
-			Optional<ModelNode> entity = ModelNodeContext.findCurrentModelNode();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-			Runnable realizeNow = () -> {
-				entity.ifPresent(ModelStates::finalize);
-			};
+			Runnable realizeNow = () -> {};
 			return new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
 		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<BinaryView<Binary>>>() {}, "__nokee_binariesFactory", binariesFactory);
 
 		final Factory<TaskView<Task>> tasksFactory = () -> {
 			Task.Namer namer = new Task.Namer();
-			Optional<ModelNode> entity = ModelNodeContext.findCurrentModelNode();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-			Runnable realizeNow = () -> {
-				entity.ifPresent(ModelStates::finalize);
-			};
+			Runnable realizeNow = () -> {};
 			return new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
 		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<TaskView<Task>>>() {}, "__nokee_tasksFactory", tasksFactory);
@@ -222,11 +214,8 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			@Override
 			public <T extends Variant> VariantView<T> create(Class<T> elementType) {
 				Named.Namer namer = new Named.Namer();
-				Optional<ModelNode> entity = ModelNodeContext.findCurrentModelNode();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-				Runnable realizeNow = () -> {
-					entity.ifPresent(ModelStates::finalize);
-				};
+				Runnable realizeNow = () -> {};
 				return new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 			}
 		};

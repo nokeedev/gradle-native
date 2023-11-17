@@ -15,71 +15,18 @@
  */
 package dev.nokee.model.internal;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.names.MainName;
-import lombok.EqualsAndHashCode;
-import lombok.val;
 import org.gradle.util.Path;
 
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class DomainObjectIdentifierUtils {
 	private DomainObjectIdentifierUtils() {}
-
-	public static boolean isDescendent(DomainObjectIdentifier self, DomainObjectIdentifier other) {
-		val childCandidate = ImmutableList.copyOf(self);
-		val parentCandidate = ImmutableList.copyOf(other);
-		if (parentCandidate.size() < childCandidate.size()) {
-			for (int i = 0; i < parentCandidate.size(); ++i) {
-				if (!parentCandidate.get(i).equals(childCandidate.get(i))) {
-					return false;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-
-	public static Predicate<DomainObjectIdentifier> descendentOf(DomainObjectIdentifier owner) {
-		return new DescendentIdentifierPredicate(owner);
-	}
-
-	@EqualsAndHashCode
-	private static final class DescendentIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
-		private final DomainObjectIdentifier owner;
-
-		DescendentIdentifierPredicate(DomainObjectIdentifier owner) {
-			this.owner = owner;
-		}
-
-		@Override
-		public boolean test(DomainObjectIdentifier identifier) {
-			return isDescendent(identifier, owner);
-		}
-
-		@Override
-		public String toString() {
-			return "DomainObjectIdentifierUtils.descendentOf(" + owner + ")";
-		}
-	}
-
-	public static ModelPath toPath(DomainObjectIdentifier identifier) {
-		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
-			if (it instanceof ProjectIdentifier) {
-				return Stream.empty();
-			} else if (it instanceof HasName) {
-				return Stream.of(((HasName) it).getName().toString());
-			} else {
-				throw new UnsupportedOperationException();
-			}
-		}).collect(Collectors.toList()));
-	}
 
 	public static Path toGradlePath(DomainObjectIdentifier identifier) {
 		return Path.path(Path.SEPARATOR + Streams.stream(identifier).flatMap(it -> {
