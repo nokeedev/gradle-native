@@ -19,7 +19,6 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
@@ -38,6 +37,7 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.testers.TargetLinkageAwareComponentTester;
 import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
+import dev.nokee.platform.swift.internal.SwiftLibrarySpec;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
@@ -50,7 +50,7 @@ import java.io.File;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin.swiftLibrary;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
@@ -77,7 +77,7 @@ public class SwiftLibraryTest implements ComponentTester<SwiftLibrary>
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
-		val component = project.getExtensions().getByType(ModelRegistry.class).register(swiftLibrary(componentName, project)).as(SwiftLibrary.class).get();
+		val component = components(project).register(componentName, SwiftLibrarySpec.class).get();
 		return component;
 	}
 

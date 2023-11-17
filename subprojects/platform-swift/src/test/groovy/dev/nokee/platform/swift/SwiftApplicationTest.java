@@ -19,7 +19,6 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
@@ -38,6 +37,7 @@ import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.testers.TargetBuildTypeAwareComponentTester;
 import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
+import dev.nokee.platform.swift.internal.SwiftApplicationSpec;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
@@ -50,7 +50,7 @@ import java.io.File;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.platform.swift.internal.plugins.SwiftApplicationPlugin.swiftApplication;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
@@ -77,7 +77,7 @@ public class SwiftApplicationTest implements ComponentTester<SwiftApplication>
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
-		val component = project.getExtensions().getByType(ModelRegistry.class).register(swiftApplication(componentName, project)).as(SwiftApplication.class).get();
+		val component = components(project).register(componentName, SwiftApplicationSpec.class).get();
 		return component;
 	}
 

@@ -20,7 +20,6 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.c.HasCSourcesTester;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
@@ -34,6 +33,7 @@ import dev.nokee.platform.base.testers.HasDevelopmentVariantTester;
 import dev.nokee.platform.base.testers.TaskAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
+import dev.nokee.platform.c.internal.CApplicationSpec;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -51,7 +51,7 @@ import java.io.File;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.platform.c.internal.plugins.CApplicationPlugin.cApplication;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
@@ -79,7 +79,7 @@ class CApplicationTest implements ComponentTester<CApplication>
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		val component = project.getExtensions().getByType(ModelRegistry.class).register(cApplication(componentName, project)).as(CApplication.class).get();
+		val component = components(project).register(componentName, CApplicationSpec.class).get();
 		return component;
 	}
 

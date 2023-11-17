@@ -20,10 +20,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
@@ -33,7 +30,6 @@ import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.cpp.CppLibrary;
 import dev.nokee.platform.cpp.internal.CppLibrarySpec;
-import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -80,10 +76,5 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		val extension = componentProvider.get();
 
 		project.getExtensions().add(CppLibrary.class, EXTENSION_NAME, extension);
-	}
-
-	public static ModelRegistration cppLibrary(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return new NativeLibraryComponentModelRegistrationFactory(CppLibrarySpec.class, project).create(identifier).build();
 	}
 }
