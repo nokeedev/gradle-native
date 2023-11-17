@@ -20,12 +20,10 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import lombok.val;
@@ -44,6 +42,7 @@ import java.io.UncheckedIOException;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -59,10 +58,7 @@ class ExecutableBinarySpecLinkTaskObjectFilesIntegrationTest {
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(ExecutableBinaryRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val projectIdentifier = ProjectIdentifier.of(project);
-		binary = registry.register(factory.create(projectIdentifier.child("liku"))).as(ExecutableBinary.class).get();
+		binary = artifacts(project).register("liku", ExecutableBinaryInternal.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkExecutableTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkExecutableTask) binary.getLinkTask().get();

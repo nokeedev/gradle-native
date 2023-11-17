@@ -16,18 +16,14 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import lombok.val;
+
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
-class StaticLibraryBinarySpecBuildabilityIntegrationTest extends NativeBinaryBuildabilityIntegrationTester<StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary> {
-	public StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary createSubject() {
-		val factory = project.getExtensions().getByType(StaticLibraryBinaryRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val projectIdentifier = ProjectIdentifier.of(project);
-		return registry.register(factory.create(projectIdentifier.child("liku"))).as(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class).get();
+class StaticLibraryBinarySpecBuildabilityIntegrationTest extends NativeBinaryBuildabilityIntegrationTester<StaticLibraryBinaryInternal> {
+	public StaticLibraryBinaryInternal createSubject() {
+		return artifacts(project).register("liku", StaticLibraryBinaryInternal.class).get();
 	}
 }

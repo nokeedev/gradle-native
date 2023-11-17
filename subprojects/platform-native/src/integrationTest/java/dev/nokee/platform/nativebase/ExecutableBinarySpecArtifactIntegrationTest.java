@@ -18,16 +18,14 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ArtifactTester;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import lombok.val;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.nativebase.NativePlatformTestUtils.macosPlatform;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
@@ -38,10 +36,7 @@ class ExecutableBinarySpecArtifactIntegrationTest implements ArtifactTester<Exec
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(ExecutableBinaryRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(projectIdentifier.child("naqo"))).as(ExecutableBinary.class).get();
+		subject = artifacts(project).register("naqo", ExecutableBinaryInternal.class).get();
 		subject.getLinkTask().configure(task -> ((LinkSharedLibraryTask) task).getTargetPlatform().set(macosPlatform()));
 	}
 

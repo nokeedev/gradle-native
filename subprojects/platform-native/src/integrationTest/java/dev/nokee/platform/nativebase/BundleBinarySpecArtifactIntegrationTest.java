@@ -18,16 +18,14 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ArtifactTester;
-import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
-import lombok.val;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.nativebase.NativePlatformTestUtils.macosPlatform;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
@@ -38,10 +36,7 @@ class BundleBinarySpecArtifactIntegrationTest implements ArtifactTester<BundleBi
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(BundleBinaryRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(projectIdentifier.child("kiqa"))).as(BundleBinary.class).get();
+		subject = artifacts(project).register("kiqa", BundleBinaryInternal.class).get();
 		subject.getLinkTask().configure(task -> ((LinkBundleTask) task).getTargetPlatform().set(macosPlatform()));
 	}
 

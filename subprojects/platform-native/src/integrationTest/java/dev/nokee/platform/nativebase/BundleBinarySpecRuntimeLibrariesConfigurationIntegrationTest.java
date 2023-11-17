@@ -16,18 +16,14 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import lombok.val;
+
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 class BundleBinarySpecRuntimeLibrariesConfigurationIntegrationTest extends NativeLinkLibrariesConfigurationIntegrationTester<BundleBinary> {
 	public BundleBinary createSubject(String name) {
-		val factory = project.getExtensions().getByType(BundleBinaryRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val projectIdentifier = ProjectIdentifier.of(project);
-		return registry.register(factory.create(projectIdentifier.child(name))).as(BundleBinary.class).get();
+		return artifacts(project).register(name, BundleBinaryInternal.class).get();
 	}
 }

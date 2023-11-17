@@ -73,11 +73,9 @@ import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
-import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
@@ -85,9 +83,7 @@ import dev.nokee.platform.nativebase.internal.NativeVariant;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyRegistrationRule;
 import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyRegistrationRule;
 import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyRegistrationRule;
@@ -186,18 +182,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			};
 			return new TaskViewAdapter<>(new ViewAdapter<>(SourceCompile.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class, name -> {
-			return project.getObjects().newInstance(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
-		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class, name -> {
-			return project.getObjects().newInstance(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class, model(project, registryOf(Task.class)), compileTasksFactory);
-		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class, name -> {
-			return project.getObjects().newInstance(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
-		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(BundleBinaryRegistrationFactory.ModelBackedBundleBinary.class, name -> {
-			return project.getObjects().newInstance(BundleBinaryRegistrationFactory.ModelBackedBundleBinary.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
-		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryInternal.class, name -> {
 			return project.getObjects().newInstance(SharedLibraryBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});

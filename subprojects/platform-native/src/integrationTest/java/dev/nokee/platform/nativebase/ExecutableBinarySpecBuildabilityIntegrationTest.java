@@ -16,18 +16,14 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import lombok.val;
+
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
-class ExecutableBinarySpecBuildabilityIntegrationTest extends NativeBinaryBuildabilityIntegrationTester<ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary> {
-	public ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary createSubject() {
-		val factory = project.getExtensions().getByType(ExecutableBinaryRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val projectIdentifier = ProjectIdentifier.of(project);
-		return registry.register(factory.create(projectIdentifier.child("dexe"))).as(ExecutableBinaryRegistrationFactory.ModelBackedExecutableBinary.class).get();
+class ExecutableBinarySpecBuildabilityIntegrationTest extends NativeBinaryBuildabilityIntegrationTester<ExecutableBinaryInternal> {
+	public ExecutableBinaryInternal createSubject() {
+		return artifacts(project).register("dexe", ExecutableBinaryInternal.class).get();;
 	}
 }

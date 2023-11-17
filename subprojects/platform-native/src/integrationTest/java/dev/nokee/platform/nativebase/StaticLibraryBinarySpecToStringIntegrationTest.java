@@ -18,15 +18,13 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import lombok.val;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
@@ -38,10 +36,7 @@ class StaticLibraryBinarySpecToStringIntegrationTest {
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(StaticLibraryBinaryRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(projectIdentifier.child("wuca"))).as(StaticLibraryBinary.class).get();
+		subject = artifacts(project).register("wuca", StaticLibraryBinaryInternal.class).get();
 	}
 
 	@Test
