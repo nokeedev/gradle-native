@@ -24,6 +24,6 @@ import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 class ExecutableBinarySpecBuildabilityIntegrationTest extends NativeBinaryBuildabilityIntegrationTester<ExecutableBinaryInternal> {
 	public ExecutableBinaryInternal createSubject() {
-		return artifacts(project).register("dexe", ExecutableBinaryInternal.class).get();;
+		return artifacts(project).register("dexe", ExecutableBinaryInternal.class).get();
 	}
 }

@@ -237,7 +237,7 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	}
 
 	@Override
-	public String toString() {
-		return "XCTest test suite '" + getName() + "'";
+	protected String getTypeName() {
+		return "XCTest test suite";
 	}
 }
