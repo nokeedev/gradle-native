@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -39,7 +38,6 @@ public final class ModelTestUtils {
 	private static final Consumer<ModelNode.Builder> DO_NOTHING = builder -> {};
 	private static final String DEFAULT_NODE_NAME = "test";
 	private static final ModelNode ROOT = rootNode();
-	private static final ModelElementFactory FACTORY = new ModelElementFactory(objectFactory()::newInstance);
 	private ModelTestUtils() {}
 
 	public static ModelProjection projectionOf(Class<?> projectionType) {
@@ -210,7 +208,7 @@ public final class ModelTestUtils {
 
 			@Override
 			public ModelElement register(ModelRegistration registration) {
-				return FACTORY.createElement(instantiate(registration));
+				throw new UnsupportedOperationException();
 			}
 
 			private Stream<ModelPath> findModelPath(Object component) {

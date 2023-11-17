@@ -16,18 +16,13 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DefaultKnownDomainObject;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.gradle.api.Action;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static dev.nokee.model.internal.core.ModelComponentReference.ofProjection;
 import static java.util.Objects.requireNonNull;
 
 public final class ModelActions {
@@ -158,56 +153,6 @@ public final class ModelActions {
 		@Override
 		public String toString() {
 			return "ModelActions.matching(" + spec + ", " + action + ")";
-		}
-	}
-
-	/**
-	 * Returns an action that will execute the specified action using as a known projection type.
-	 *
-	 * @param type  the projection type
-	 * @param action  the action to execute
-	 * @param <T>  the projection type
-	 * @return an action that will execute for known domain object, never null.
-	 */
-	public static <T> ModelAction executeAsKnownProjection(ModelType<T> type, Action<? super KnownDomainObject<T>> action) {
-		return new ExecuteAsKnownProjectionModelAction<>(type, action);
-	}
-
-	// TODO: Should we also ensure the node is at least registered (or discovered)?
-	@EqualsAndHashCode
-	private static class ExecuteAsKnownProjectionModelAction<T> implements ModelAction, HasInputs {
-		private final ModelType<T> type;
-		private final Action<? super KnownDomainObject<T>> action;
-		private final List<ModelComponentReference<?>> inputs;
-		private final Bits inputBits;
-
-		public ExecuteAsKnownProjectionModelAction(ModelType<T> type, Action<? super KnownDomainObject<T>> action) {
-			this.type = requireNonNull(type);
-			this.action = requireNonNull(action);
-			this.inputs = ImmutableList.of(ofProjection(type.getConcreteType()));
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public void execute(ModelNode node) {
-			if (node.getComponentBits().containsAll(inputBits)) {
-				action.execute(DefaultKnownDomainObject.of(type, node));
-			}
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-
-		@Override
-		public String toString() {
-			return "ModelActions.executeAsKnownProjection(" + type + ", " + action + ")";
 		}
 	}
 }

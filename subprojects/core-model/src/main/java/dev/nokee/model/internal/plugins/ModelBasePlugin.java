@@ -30,9 +30,7 @@ import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.names.NamesCapabilityPlugin;
-import dev.nokee.model.internal.properties.ModelPropertiesCapabilityPlugin;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -81,10 +79,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		target.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
 		target.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
 		target.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
-		target.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory());
-
-		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
-		target.getPluginManager().apply(ModelPropertiesCapabilityPlugin.class);
 
 		target.getPluginManager().apply(NamesCapabilityPlugin.class);
 

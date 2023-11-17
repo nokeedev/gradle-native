@@ -20,7 +20,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import dev.nokee.internal.reflect.Instantiator;
-import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.BindManagedProjectionService;
 import dev.nokee.model.internal.core.Bits;
 import dev.nokee.model.internal.core.Component;
@@ -48,7 +47,6 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.RelativeRegistrationService;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 
 import java.util.ArrayList;
@@ -69,13 +67,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
 	private final BindManagedProjectionService bindingService;
 	private final ModelNode rootNode;
-	private final ModelElementFactory elementFactory;
 	private final Multimap<ModelComponentType<?>, ModelAction> config = ArrayListMultimap.create();
 	private final ComponentRegistry components = new ObservableComponentRegistry(new DefaultComponentRegistry(), nodeStateListener);
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
-		this.elementFactory = new ModelElementFactory(instantiator);
 		this.bindingService = new BindManagedProjectionService(instantiator);
 		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
 			private final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
@@ -134,11 +130,10 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public ModelElement register(ModelRegistration registration) {
-		return elementFactory.createElement(ModelStates.register(instantiate(registration)));
+		throw new UnsupportedOperationException();
 	}
 
 	private ModelNode newNode(ModelNode entity, ModelRegistration registration) {
-		entity.addComponent(elementFactory);
 		for (Object component : registration.getComponents()) {
 			if (component instanceof ModelProjection) {
 				entity.addComponent(bindingService.bindManagedProjectionWithInstantiator((ModelProjection) component));
