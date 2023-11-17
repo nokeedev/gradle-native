@@ -43,7 +43,6 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
@@ -147,9 +146,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
 					final DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = variant.getDependencies();
 
-					variantDependencies.getNativeImplementation().extendsFrom(dependencies.getNativeImplementation());
-					variantDependencies.getNativeLinkOnly().extendsFrom(dependencies.getNativeLinkOnly());
-					variantDependencies.getNativeRuntimeOnly().extendsFrom(dependencies.getNativeRuntimeOnly());
+					extendsFromParent(variantDependencies.getNative(), dependencies.getNative());
 
 					variant.getSources().configureEach(sourceSet -> {
 						if (sourceSet instanceof HasHeaderSearchPaths) {
@@ -226,6 +223,13 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				dependencies.getImplementation().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
 				dependencies.getLinkOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
 				dependencies.getRuntimeOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+			}
+
+			private void extendsFromParent(DefaultNativeComponentDependencies variantDependencies, DefaultNativeComponentDependencies parentDependencies) {
+				variantDependencies.getImplementation().extendsFrom(parentDependencies.getImplementation());
+				variantDependencies.getCompileOnly().extendsFrom(parentDependencies.getCompileOnly());
+				variantDependencies.getLinkOnly().extendsFrom(parentDependencies.getLinkOnly());
+				variantDependencies.getRuntimeOnly().extendsFrom(parentDependencies.getRuntimeOnly());
 			}
 		});
 
