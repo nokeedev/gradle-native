@@ -28,6 +28,7 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
@@ -74,6 +75,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
@@ -234,6 +236,11 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	@Override
 	public VariantView<DefaultXCTestTestSuiteVariant> getVariants() {
 		return VariantAwareComponentMixIn.super.getVariants();
+	}
+
+	@Override
+	public Provider<Set<BuildVariant>> getBuildVariants() {
+		return VariantAwareComponentMixIn.super.getBuildVariants();
 	}
 
 	@Override
