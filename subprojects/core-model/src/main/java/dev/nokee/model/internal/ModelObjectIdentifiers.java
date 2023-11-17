@@ -16,11 +16,14 @@
 
 package dev.nokee.model.internal;
 
+import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.model.internal.names.MainName;
 import dev.nokee.model.internal.names.QualifyingName;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public final class ModelObjectIdentifiers {
@@ -42,6 +45,18 @@ public final class ModelObjectIdentifiers {
 		} else {
 			return QualifyingName.of(identifier.getName().toQualifiedName(asQualifyingName(identifier.getParent())));
 		}
+	}
+
+	public static ModelPath asPath(ModelObjectIdentifier identifier) {
+		final List<String> result = new ArrayList<>();
+
+		do {
+			if (!(identifier instanceof ProjectIdentifier)) {
+				result.add(0, identifier.getName().toString());
+			}
+		} while ((identifier = identifier.getParent()) != null);
+
+		return ModelPath.path(result);
 	}
 
 	public static boolean descendantOf(ModelObjectIdentifier thiz, ModelObjectIdentifier parentCandidate) {
