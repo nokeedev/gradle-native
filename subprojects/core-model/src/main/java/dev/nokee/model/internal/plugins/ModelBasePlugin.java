@@ -27,7 +27,6 @@ import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelActionSystem;
-import dev.nokee.model.internal.ancestors.AncestryCapabilityPlugin;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
@@ -91,7 +90,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		modelRegistry.configure(new GenerateModelPathFromParents());
 		modelRegistry.configure(new GenerateModelPathFromIdentifier());
 
-		target.getPluginManager().apply(AncestryCapabilityPlugin.class);
 		target.getPluginManager().apply(NamesCapabilityPlugin.class);
 
 		modelRegistry.get(ModelPath.root()).addComponent(new DisplayNameComponent(target.toString()));
