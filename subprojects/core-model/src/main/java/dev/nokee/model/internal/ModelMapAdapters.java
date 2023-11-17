@@ -326,5 +326,10 @@ public final class ModelMapAdapters {
 			elementProvider.configure(configureAction);
 			return this;
 		}
+
+		@Override
+		public String toString() {
+			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identifier) + "' (" + implementationType.getSimpleName() + ")";
+		}
 	}
 }

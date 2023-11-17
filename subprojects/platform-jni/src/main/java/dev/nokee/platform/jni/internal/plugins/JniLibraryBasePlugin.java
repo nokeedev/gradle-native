@@ -29,6 +29,7 @@ import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
+import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
@@ -39,10 +40,13 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
@@ -148,12 +152,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					final DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = variant.getDependencies();
 
 					extendsFromParent(variantDependencies.getNative(), dependencies.getNative());
+					extendsFromImplementation(variantDependencies.getNative());
 
-					variant.getSources().configureEach(sourceSet -> {
-						if (sourceSet instanceof HasHeaderSearchPaths) {
-							((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().extendsFrom(variantDependencies.getNativeImplementation());
-						}
-					});
+					variant.getSources().configureEach(extendsFromParentCompileOnly(variantDependencies.getNative().getCompileOnly()));
 
 					variant.getBinaries().configureEach(binary -> {
 						ModelElementSupport.safeAsModelElement(binary).ifPresent(element -> {
@@ -237,6 +238,14 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				dependencies.getCompileOnly().extendsFrom(dependencies.getImplementation());
 				dependencies.getLinkOnly().extendsFrom(dependencies.getImplementation());
 				dependencies.getRuntimeOnly().extendsFrom(dependencies.getImplementation());
+			}
+
+			private Action<LanguageSourceSet> extendsFromParentCompileOnly(DependencyBucket parentCompileOnly) {
+				return sourceSet -> {
+					if (sourceSet instanceof HasHeaderSearchPaths) {
+						((DependencyBucketInternal) ((DependencyAwareComponent<NativeSourceSetComponentDependencies>) sourceSet).getDependencies().getCompileOnly()).extendsFrom(parentCompileOnly);
+					}
+				};
 			}
 		});
 
