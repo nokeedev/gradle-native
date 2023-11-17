@@ -85,8 +85,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
 		target.getPluginManager().apply(ModelPropertiesCapabilityPlugin.class);
-		modelRegistry.configure(new GenerateModelPathFromParents());
-		modelRegistry.configure(new GenerateModelPathFromIdentifier());
 
 		target.getPluginManager().apply(NamesCapabilityPlugin.class);
 
