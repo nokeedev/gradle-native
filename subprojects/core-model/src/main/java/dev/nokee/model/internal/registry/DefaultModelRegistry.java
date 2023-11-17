@@ -44,7 +44,6 @@ import dev.nokee.model.internal.core.ModelSpec;
 import dev.nokee.model.internal.core.ObservableComponentRegistry;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.RelativeRegistrationService;
-import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 
@@ -85,9 +84,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					node.addComponent(new DescendantNodes(DefaultModelRegistry.this, path.get()));
 					node.addComponent(new RelativeRegistrationService(DefaultModelRegistry.this));
 					node.addComponent(new BindManagedProjectionService(instantiator));
-					if (!node.has(ElementNameComponent.class)) {
-						node.addComponent(new ElementNameComponent(path.get().getName()));
-					}
 					path.get().getParent().ifPresent(parentPath -> {
 						if (!node.has(ParentComponent.class)) { // We are migrating away from implicit parents
 							node.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));

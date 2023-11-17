@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.reflect.Instantiator;
-import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -236,7 +235,6 @@ public final class ModelNode implements Entity, ComponentTagAwareFactory {
 			path.getParent().ifPresent(parentPath -> {
 				entity.addComponent(new ParentComponent(lookup.get(parentPath)));
 			});
-			entity.addComponent(new ElementNameComponent(path.getName()));
 			entity.addComponent(new DisplayNameComponent(path.toString()));
 			ModelStates.create(entity);
 			ModelStates.initialize(entity);

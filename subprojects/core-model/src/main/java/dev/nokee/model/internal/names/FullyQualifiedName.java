@@ -15,17 +15,7 @@
  */
 package dev.nokee.model.internal.names;
 
-import dev.nokee.model.internal.core.ModelNode;
 import lombok.EqualsAndHashCode;
-import org.gradle.api.Namer;
-
-import java.util.Collections;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 
 /**
  * A fully qualified name represent a unique name of a domain object which include the name of the domain object as well as all of its owners.
@@ -54,34 +44,5 @@ public final class FullyQualifiedName {
 
 	public static FullyQualifiedName of(String name) {
 		return new FullyQualifiedName(name);
-	}
-
-	public static Collector<ModelNode, ?, FullyQualifiedName> toFullyQualifiedName(ElementName elementName) {
-		return new Collector<ModelNode, QualifyingName.Builder, FullyQualifiedName>() {
-			@Override
-			public Supplier<QualifyingName.Builder> supplier() {
-				return QualifyingName.Builder::new;
-			}
-
-			@Override
-			public BiConsumer<QualifyingName.Builder, ModelNode> accumulator() {
-				return new QualifyingNameAccumulator();
-			}
-
-			@Override
-			public BinaryOperator<QualifyingName.Builder> combiner() {
-				return (a, b) -> b.prepend(a.build().toString());
-			}
-
-			@Override
-			public Function<QualifyingName.Builder, FullyQualifiedName> finisher() {
-				return builder -> of(elementName.toQualifiedName(builder.build()));
-			}
-
-			@Override
-			public Set<Characteristics> characteristics() {
-				return Collections.emptySet();
-			}
-		};
 	}
 }

@@ -22,10 +22,7 @@ import dev.nokee.language.c.internal.CSourcesPropertyComponent;
 import dev.nokee.language.c.internal.HasCSourcesMixIn;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
@@ -42,7 +39,6 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelProperties.valueOf;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasItem;
 

@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * A qualifying name represent a subset of the parents' element names.
  * Although the name typically represent the domain object's ownership hierarchy, users should not use it as such.
- * Typically, the qualifying name will be use as a prefix or suffix to the element name to create {@link FullyQualifiedName} or {@link RelativeName}.
+ * Typically, the qualifying name will be use as a prefix or suffix to the element name to create {@link FullyQualifiedName}.
  */
 @EqualsAndHashCode
 public final class QualifyingName {

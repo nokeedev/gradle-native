@@ -20,9 +20,6 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec
-import dev.nokee.platform.base.internal.DomainObjectEntities
-import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.model.internal.registry.ModelRegistry
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterApp
 import dev.nokee.runtime.nativebase.internal.TargetMachines
 import spock.lang.Requires
@@ -40,16 +37,11 @@ class ObjectiveCppSourceSetFunctionalTest extends AbstractInstalledToolChainInte
 				id 'dev.nokee.native-runtime-base'
 			}
 
-			import ${DomainObjectEntities.canonicalName}
-			import ${ProjectIdentifier.canonicalName}
 			import ${NativePlatformFactory.canonicalName}
 			import ${TargetMachines.canonicalName}
-			import ${ObjectiveCppSourceSet.canonicalName}
 			import ${ObjectiveCppSourceSetSpec.canonicalName}
-			import ${ModelRegistry.canonicalName}
 
-			def registry = extensions.getByType(ModelRegistry)
-			def sourceSet = registry.register(DomainObjectEntities.newEntity("kupa", ObjectiveCppSourceSetSpec)).as(ObjectiveCppSourceSet).get()
+			def sourceSet = sources.register("kupa", ObjectiveCppSourceSetSpec).get()
 			tasks.compileKupa.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

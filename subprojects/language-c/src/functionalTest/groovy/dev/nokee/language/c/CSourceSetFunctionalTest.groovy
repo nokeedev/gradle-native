@@ -18,9 +18,6 @@ package dev.nokee.language.c
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
-import dev.nokee.platform.base.internal.DomainObjectEntities
-import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.model.internal.registry.ModelRegistry
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 import dev.nokee.runtime.nativebase.internal.TargetMachines
 
@@ -34,16 +31,11 @@ class CSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 				id 'dev.nokee.native-runtime-base'
 			}
 
-			import ${DomainObjectEntities.canonicalName}
-			import ${ProjectIdentifier.canonicalName}
 			import ${NativePlatformFactory.canonicalName}
 			import ${TargetMachines.canonicalName}
-			import ${CSourceSet.canonicalName}
 			import ${CSourceSetSpec.canonicalName}
-			import ${ModelRegistry.canonicalName}
 
-			def registry = extensions.getByType(ModelRegistry)
-			def sourceSet = registry.register(DomainObjectEntities.newEntity('jixa', CSourceSetSpec)).as(CSourceSet).get()
+			def sourceSet = sources.register('jixa', CSourceSetSpec).get()
 			tasks.compileJixa.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}
