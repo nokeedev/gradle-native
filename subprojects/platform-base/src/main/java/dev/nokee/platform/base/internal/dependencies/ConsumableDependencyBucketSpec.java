@@ -45,7 +45,7 @@ public /*final*/ abstract class ConsumableDependencyBucketSpec extends ModelElem
 	}
 
 	@Override
-	public String toString() {
-		return "consumable dependency bucket '" + getName() + "'";
+	protected String getTypeName() {
+		return "consumable dependency bucket";
 	}
 }

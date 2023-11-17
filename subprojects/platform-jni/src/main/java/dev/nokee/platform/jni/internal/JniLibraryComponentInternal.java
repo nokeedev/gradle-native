@@ -114,7 +114,8 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 		return VariantAwareComponentMixIn.super.getBuildVariants();
 	}
 
-	public String toString() {
-		return "JNI library '" + getName() + "'";
+	@Override
+	protected String getTypeName() {
+		return "JNI library";
 	}
 }

@@ -96,4 +96,9 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 	public TaskProvider<Task> getObjectsTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "native application";
+	}
 }

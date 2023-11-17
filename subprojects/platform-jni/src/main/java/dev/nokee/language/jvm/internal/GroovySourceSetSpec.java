@@ -62,4 +62,9 @@ public /*final*/ abstract class GroovySourceSetSpec extends ModelElementSupport 
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), of(getCompileTask()));
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "Groovy sources";
+	}
 }

@@ -106,7 +106,7 @@ public /*final*/ abstract class SharedLibraryBinaryInternal extends BaseNativeBi
 	}
 
 	@Override
-	public String toString() {
-		return "shared library binary '" + getName() + "'";
+	protected String getTypeName() {
+		return "shared library binary";
 	}
 }

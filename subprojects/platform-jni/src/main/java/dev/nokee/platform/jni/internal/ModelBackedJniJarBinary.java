@@ -45,7 +45,7 @@ public /*final*/ abstract class ModelBackedJniJarBinary extends ModelElementSupp
 	}
 
 	@Override
-	public String toString() {
-		return "JNI JAR binary '" + getName() + "'";
+	protected String getTypeName() {
+		return "JNI JAR binary";
 	}
 }

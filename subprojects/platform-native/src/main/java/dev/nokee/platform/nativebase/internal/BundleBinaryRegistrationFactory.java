@@ -96,8 +96,8 @@ public final class BundleBinaryRegistrationFactory {
 		}
 
 		@Override
-		public String toString() {
-			return "bundle binary '" + getName() + "'";
+		protected String getTypeName() {
+			return "bundle binary";
 		}
 	}
 }

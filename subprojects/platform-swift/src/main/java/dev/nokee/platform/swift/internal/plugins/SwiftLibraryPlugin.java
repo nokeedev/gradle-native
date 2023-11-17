@@ -142,8 +142,8 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		}
 
 		@Override
-		public String toString() {
-			return "Swift library '" + getName() + "'";
+		protected String getTypeName() {
+			return "Swift library";
 		}
 	}
 }

@@ -76,4 +76,9 @@ public /*final*/ abstract class KotlinSourceSetSpec extends ModelElementSupport 
 	public TaskDependency getBuildDependencies() {
 		return getSource().getBuildDependencies();
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "Kotlin sources";
+	}
 }

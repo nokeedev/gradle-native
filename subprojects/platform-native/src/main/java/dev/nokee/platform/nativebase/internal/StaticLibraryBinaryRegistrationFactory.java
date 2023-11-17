@@ -88,8 +88,8 @@ public final class StaticLibraryBinaryRegistrationFactory {
 		}
 
 		@Override
-		public String toString() {
-			return "static library binary '" + getName() + "'";
+		protected String getTypeName() {
+			return "static library binary";
 		}
 	}
 }

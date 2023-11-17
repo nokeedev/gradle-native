@@ -81,4 +81,9 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 	public TaskProvider<Task> getObjectsTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "iOS application";
+	}
 }

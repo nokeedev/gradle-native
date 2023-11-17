@@ -131,4 +131,9 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 	public TaskProvider<Task> getObjectsTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "native library";
+	}
 }

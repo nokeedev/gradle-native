@@ -124,7 +124,7 @@ public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElem
 	}
 
 	@Override
-	public String toString() {
-		return "declarable dependency bucket '" + getName() + "'";
+	protected String getTypeName() {
+		return "declarable dependency bucket";
 	}
 }

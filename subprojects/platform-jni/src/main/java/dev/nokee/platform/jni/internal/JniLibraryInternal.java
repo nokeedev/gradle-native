@@ -149,7 +149,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	}
 
 	@Override
-	public String toString() {
-		return "JNI library '" + getName() + "'";
+	protected String getTypeName() {
+		return "JNI library";
 	}
 }

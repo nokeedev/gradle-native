@@ -56,4 +56,9 @@ public /*final*/ abstract class SignedIosApplicationBundleInternal extends Model
 	public Provider<FileSystemLocation> getApplicationBundleLocation() {
 		return bundleTask.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle);
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "signed iOS application bundle";
+	}
 }

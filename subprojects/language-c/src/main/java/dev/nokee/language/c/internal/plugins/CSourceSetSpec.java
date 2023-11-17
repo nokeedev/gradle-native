@@ -58,7 +58,7 @@ public /*final*/ abstract class CSourceSetSpec extends ModelElementSupport imple
 	}
 
 	@Override
-	public String toString() {
-		return "C sources '" + getName() + "'";
+	protected String getTypeName() {
+		return "C sources";
 	}
 }

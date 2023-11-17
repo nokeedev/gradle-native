@@ -58,7 +58,7 @@ public /*final*/ abstract class ObjectiveCppSourceSetSpec extends ModelElementSu
 	}
 
 	@Override
-	public String toString() {
-		return "Objective-C++ sources '" + getName() + "'";
+	protected String getTypeName() {
+		return "Objective-C++ sources";
 	}
 }

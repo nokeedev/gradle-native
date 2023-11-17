@@ -137,8 +137,8 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		}
 
 		@Override
-		public String toString() {
-			return "native application '" + getName() + "'";
+		protected String getTypeName() {
+			return "native application";
 		}
 	}
 }

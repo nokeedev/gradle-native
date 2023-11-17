@@ -145,8 +145,8 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		}
 
 		@Override
-		public String toString() {
-			return "Objective-C++ library '" + getName() + "'";
+		protected String getTypeName() {
+			return "Objective-C++ library";
 		}
 	}
 }

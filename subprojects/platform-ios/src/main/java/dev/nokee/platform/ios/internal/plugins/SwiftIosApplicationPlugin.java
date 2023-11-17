@@ -135,8 +135,8 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		}
 
 		@Override
-		public String toString() {
-			return "Swift iOS application '" + getName() + "'";
+		protected String getTypeName() {
+			return "Swift iOS application";
 		}
 	}
 }

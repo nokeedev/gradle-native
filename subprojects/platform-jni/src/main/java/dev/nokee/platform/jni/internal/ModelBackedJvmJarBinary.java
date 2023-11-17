@@ -46,7 +46,7 @@ public /*final*/ abstract class ModelBackedJvmJarBinary extends ModelElementSupp
 	}
 
 	@Override
-	public String toString() {
-		return "JVM JAR binary '" + getName() + "'";
+	protected String getTypeName() {
+		return "JVM JAR binary";
 	}
 }

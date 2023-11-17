@@ -43,4 +43,9 @@ public /*final*/ abstract class IosXCTestBundle extends ModelElementSupport impl
 		return createTask.flatMap(task ->
 			task.getProject().getObjects().fileProperty().fileProvider(task.getXCTestBundle().map(it -> it.getAsFile())));
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "iOS XCTest bundle";
+	}
 }

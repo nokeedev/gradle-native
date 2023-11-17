@@ -30,4 +30,9 @@ public /*final*/ abstract class IosResourceSetSpec extends ModelElementSupport i
 	public TaskDependency getBuildDependencies() {
 		return getSource().getBuildDependencies();
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "iOS resources";
+	}
 }

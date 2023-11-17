@@ -79,4 +79,9 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	public TaskProvider<Task> getObjectsTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "native test suite";
+	}
 }

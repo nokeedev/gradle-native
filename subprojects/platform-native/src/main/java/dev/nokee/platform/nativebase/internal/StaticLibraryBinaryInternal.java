@@ -59,7 +59,7 @@ public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBi
 	}
 
 	@Override
-	public String toString() {
-		return "static library binary '" + getName() + "'";
+	protected String getTypeName() {
+		return "static library binary";
 	}
 }

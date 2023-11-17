@@ -78,4 +78,12 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 	public static ModelObjectIdentifier nextIdentifier() {
 		return nextIdentity.get().getIdentifier();
 	}
+
+	protected abstract String getTypeName();
+
+	@Override
+	public final String toString() {
+		// TODO: Add support to include project path in the name
+		return getTypeName() + " ':" + getName() + "'";
+	}
 }

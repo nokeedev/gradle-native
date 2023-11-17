@@ -145,8 +145,8 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		}
 
 		@Override
-		public String toString() {
-			return "C++ library '" + getName() + "'";
+		protected String getTypeName() {
+			return "C++ library";
 		}
 	}
 }

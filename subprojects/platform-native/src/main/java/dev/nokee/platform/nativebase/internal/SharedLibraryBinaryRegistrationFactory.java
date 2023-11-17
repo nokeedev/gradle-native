@@ -96,8 +96,8 @@ public final class SharedLibraryBinaryRegistrationFactory {
 		}
 
 		@Override
-		public String toString() {
-			return "shared library binary '" + getName() + "'";
+		protected String getTypeName() {
+			return "shared library binary";
 		}
 	}
 }

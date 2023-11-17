@@ -81,4 +81,9 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 	public TaskProvider<Task> getObjectsTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "XCTest test suite";
+	}
 }

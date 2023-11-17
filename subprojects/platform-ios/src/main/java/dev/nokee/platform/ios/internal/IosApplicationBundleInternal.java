@@ -55,4 +55,9 @@ public /*final*/ abstract class IosApplicationBundleInternal extends ModelElemen
 	public Provider<FileSystemLocation> getApplicationBundleLocation() {
 		return bundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle);
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "iOS application bundle";
+	}
 }

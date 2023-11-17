@@ -138,8 +138,8 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		}
 
 		@Override
-		public String toString() {
-			return "native library '" + getName() + "'";
+		protected String getTypeName() {
+			return "native library";
 		}
 	}
 }

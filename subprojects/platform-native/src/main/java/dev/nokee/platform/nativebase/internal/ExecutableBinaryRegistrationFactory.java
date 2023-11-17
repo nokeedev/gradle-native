@@ -95,8 +95,8 @@ public final class ExecutableBinaryRegistrationFactory {
 		}
 
 		@Override
-		public String toString() {
-			return "executable binary '" + getName() + "'";
+		protected String getTypeName() {
+			return "executable binary";
 		}
 	}
 }

@@ -143,8 +143,8 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		}
 
 		@Override
-		public String toString() {
-			return "C++ application '" + getName() + "'";
+		protected String getTypeName() {
+			return "C++ application";
 		}
 	}
 }

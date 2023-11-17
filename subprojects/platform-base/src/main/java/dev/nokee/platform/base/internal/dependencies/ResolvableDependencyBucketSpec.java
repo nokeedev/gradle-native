@@ -45,7 +45,7 @@ public /*final*/ abstract class ResolvableDependencyBucketSpec extends ModelElem
 	}
 
 	@Override
-	public String toString() {
-		return "resolvable dependency bucket '" + getName() + "'";
+	protected String getTypeName() {
+		return "resolvable dependency bucket";
 	}
 }

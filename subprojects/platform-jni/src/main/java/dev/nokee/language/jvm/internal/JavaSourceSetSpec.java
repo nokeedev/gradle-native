@@ -60,4 +60,9 @@ public /*final*/ abstract class JavaSourceSetSpec extends ModelElementSupport im
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
 	}
+
+	@Override
+	protected String getTypeName() {
+		return "Java sources";
+	}
 }

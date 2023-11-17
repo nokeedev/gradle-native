@@ -161,8 +161,8 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		}
 
 		@Override
-		public String toString() {
-			return "Objective-C iOS application '" + getName() + "'";
+		protected String getTypeName() {
+			return "Objective-C iOS application";
 		}
 	}
 }

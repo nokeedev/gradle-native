@@ -57,7 +57,7 @@ public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport i
 	}
 
 	@Override
-	public String toString() {
-		return "Swift sources '" + getName() + "'";
+	protected String getTypeName() {
+		return "Swift sources";
 	}
 }
