@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.names;
 
-import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
@@ -35,9 +34,6 @@ public abstract class NamesCapabilityPlugin<T extends ExtensionAware & PluginAwa
 	public void apply(T target) {
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), NamesCapabilityPlugin::computeRelativelyQualifiedName));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), NamesCapabilityPlugin::computeFullyQualifiedName));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(RelativeNamesComponent.class));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(FullyQualifiedNameComponent.class));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(ElementNameComponent.class));
 	}
 
 	// ComponentFromEntity<MainComponentTag> read-only ancestors

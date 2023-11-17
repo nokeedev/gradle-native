@@ -26,7 +26,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
@@ -86,7 +85,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
 		target.getPluginManager().apply(ModelPropertiesCapabilityPlugin.class);
-		target.getPluginManager().apply(ModelActionSystem.class);
 		modelRegistry.configure(new GenerateModelPathFromParents());
 		modelRegistry.configure(new GenerateModelPathFromIdentifier());
 
