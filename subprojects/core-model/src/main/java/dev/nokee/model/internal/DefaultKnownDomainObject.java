@@ -21,7 +21,6 @@ import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.internal.provider.ProviderConvertibleInternal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -70,7 +69,7 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 			@Override
 			public <S> void configure(ModelType<S> t, Action<? super S> action) {
 				assert fullType.equals(t);
-				ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), t.getConcreteType(), action));
+				throw new UnsupportedOperationException();
 			}
 		};
 		val factory = new NamedDomainObjectProviderFactory();

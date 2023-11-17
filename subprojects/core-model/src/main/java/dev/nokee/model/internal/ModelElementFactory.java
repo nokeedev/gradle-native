@@ -24,7 +24,6 @@ import dev.nokee.gradle.TaskProviderFactory;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.DefaultModelElement;
 import dev.nokee.model.internal.core.DefaultModelProperty;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -170,8 +169,7 @@ public final class ModelElementFactory implements ModelComponent {
 						action.execute(ModelNodeUtils.get(entity, type));
 					});
 				} else {
-					// Most likely not required anymore
-					ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
+					throw new UnsupportedOperationException();
 				}
 			}
 		};
@@ -280,7 +278,7 @@ public final class ModelElementFactory implements ModelComponent {
 					action.execute(ModelNodeUtils.get(entity, type));
 					return;
 				}
-				ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
+				throw new UnsupportedOperationException();
 			}
 		};
 		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
