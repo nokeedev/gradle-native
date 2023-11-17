@@ -18,15 +18,9 @@ package dev.nokee.platform.c.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.language.c.internal.CSourcesMixIn;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
-import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementName;
@@ -35,26 +29,11 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
-import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
-import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantViewFactory;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.c.CApplication;
-import dev.nokee.platform.nativebase.NativeApplication;
-import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
-import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
+import dev.nokee.platform.c.internal.CApplicationSpec;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
-import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -92,11 +71,11 @@ public class CApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultCApplication.class, name -> {
-			return project.getObjects().newInstance(DefaultCApplication.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
+		model(project, factoryRegistryOf(Component.class)).registerFactory(CApplicationSpec.class, name -> {
+			return project.getObjects().newInstance(CApplicationSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
 		});
 
-		final NamedDomainObjectProvider<DefaultCApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultCApplication.class).asProvider();
+		final NamedDomainObjectProvider<CApplicationSpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), CApplicationSpec.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
 
@@ -105,46 +84,6 @@ public class CApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration cApplication(String name, Project project) {
 		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return new NativeApplicationComponentModelRegistrationFactory(DefaultCApplication.class, project).create(identifier).build();
-	}
-
-	public static /*final*/ abstract class DefaultCApplication extends ModelElementSupport implements CApplication
-		, NativeApplicationComponent
-		, ExtensionAwareMixIn
-		, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
-		, VariantAwareComponentMixIn<NativeApplication>
-		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-		, BinaryAwareComponentMixIn
-		, TaskAwareComponentMixIn
-		, TargetMachineAwareComponentMixIn
-		, TargetBuildTypeAwareComponentMixIn
-		, TargetLinkageAwareComponentMixIn
-		, AssembleTaskMixIn
-		, PrivateHeadersMixIn
-		, CSourcesMixIn
-		, ObjectsTaskMixIn
-	{
-		@Inject
-		public DefaultCApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
-			getExtensions().create("dependencies", DefaultNativeApplicationComponentDependencies.class, getIdentifier(), bucketRegistry);
-			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
-			getExtensions().add("binaries", binariesFactory.create());
-			getExtensions().add("sources", sourcesFactory.create());
-			getExtensions().add("tasks", tasksFactory.create());
-			getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
-			getExtensions().add("variants", variantsFactory.create(NativeApplication.class));
-			getExtensions().add("dimensions", dimensionsFactory.create());
-			getExtensions().create("$cSupport", SupportCSourceSetTag.class);
-		}
-
-		@Override
-		public DefaultNativeApplicationComponentDependencies getDependencies() {
-			return (DefaultNativeApplicationComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
-		}
-
-		@Override
-		protected String getTypeName() {
-			return "C application";
-		}
+		return new NativeApplicationComponentModelRegistrationFactory(CApplicationSpec.class, project).create(identifier).build();
 	}
 }
