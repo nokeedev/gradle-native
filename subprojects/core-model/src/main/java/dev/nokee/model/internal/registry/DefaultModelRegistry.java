@@ -25,7 +25,6 @@ import dev.nokee.model.internal.core.Bits;
 import dev.nokee.model.internal.core.Component;
 import dev.nokee.model.internal.core.ComponentRegistry;
 import dev.nokee.model.internal.core.DefaultComponentRegistry;
-import dev.nokee.model.internal.core.DescendantNodes;
 import dev.nokee.model.internal.core.Entity;
 import dev.nokee.model.internal.core.HasInputs;
 import dev.nokee.model.internal.core.ModelAction;
@@ -81,7 +80,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 						throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path.get()));
 					}
 
-					node.addComponent(new DescendantNodes(DefaultModelRegistry.this, path.get()));
 					node.addComponent(new RelativeRegistrationService(DefaultModelRegistry.this));
 					node.addComponent(new BindManagedProjectionService(instantiator));
 					path.get().getParent().ifPresent(parentPath -> {

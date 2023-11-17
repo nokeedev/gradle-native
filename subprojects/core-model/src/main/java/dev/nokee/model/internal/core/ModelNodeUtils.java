@@ -17,7 +17,6 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,24 +38,6 @@ public final class ModelNodeUtils {
 
 	public static void setParent(ModelNode self, ModelNode parent) {
 		self.addComponent(new ParentComponent(parent));
-	}
-
-	/**
-	 * Returns the direct descending nodes.
-	 *
-	 * @param self  the node to query direct descendants, must not be null
-	 * @return a list of directly descending nodes, never null.
-	 */
-	public static List<ModelNode> getDirectDescendants(ModelNode self) {
-		return self.get(DescendantNodes.class).getDirectDescendants();
-	}
-
-	public static ModelNode getDescendant(ModelNode self, String name) {
-		return self.get(DescendantNodes.class).getDescendant(name);
-	}
-
-	public static boolean hasDescendant(ModelNode self, String name) {
-		return self.get(DescendantNodes.class).hasDescendant(name);
 	}
 
 	/**

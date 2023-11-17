@@ -19,8 +19,6 @@ import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
 import groovy.lang.Closure;
@@ -48,11 +46,6 @@ public class SourceAwareComponentUtils {
 			}
 		} else if (target instanceof FunctionalSourceSet) {
 			return (FunctionalSourceSet) target;
-		} else {
-			val node = ModelNodes.of(target);
-			if (ModelNodeUtils.hasDescendant(node, "sources")) {
-				return ModelNodeUtils.get(ModelNodeUtils.getDescendant(node, "sources"), FunctionalSourceSet.class);
-			}
 		}
 		throw new UnsupportedOperationException("Target '" + target + "' is not source aware or a language source set view itself.");
 	}

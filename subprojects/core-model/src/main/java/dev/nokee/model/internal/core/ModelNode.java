@@ -228,7 +228,6 @@ public final class ModelNode implements Entity, ComponentTagAwareFactory {
 				}
 			}));
 			self.setValue(entity);
-			entity.addComponent(new DescendantNodes(lookup, path));
 			entity.addComponent(new RelativeRegistrationService(registry));
 			entity.addComponent(new BindManagedProjectionService(instantiator));
 			entity.addComponent(new ModelPathComponent(path));

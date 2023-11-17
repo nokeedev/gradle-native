@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -34,7 +33,6 @@ import static dev.nokee.model.internal.core.ModelTestUtils.childNode;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.core.ModelTestUtils.projectionOf;
 import static dev.nokee.model.internal.core.ModelTestUtils.rootNode;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -45,7 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -138,31 +135,6 @@ class ModelNodeTest {
 		assertThat(rootNode(), hasToString("<root>"));
 		assertThat(parentNode, hasToString("foo"));
 		assertThat(childNode, hasToString("foo.bar"));
-	}
-
-	@Test
-	void canQueryAllDirectDescendantsOfNode() {
-		val modelLookup = mock(ModelLookup.class);
-		val parentNode = childNode(rootNode(), "parent", builder -> builder.withLookup(modelLookup));
-		when(modelLookup.query(any())).thenReturn(ModelLookup.Result.empty());
-		ModelNodeUtils.getDirectDescendants(parentNode);
-		verify(modelLookup, times(1)).query(allDirectDescendants().scope(path("parent")));
-	}
-
-	@Test
-	void canGetDescendantNode() {
-		val modelLookup = mock(ModelLookup.class);
-		val node = node("foo", builder -> builder.withLookup(modelLookup));
-		ModelNodeUtils.getDescendant(node, "bar");
-		verify(modelLookup, times(1)).get(path("foo.bar"));
-	}
-
-	@Test
-	void canHasDescendantNode() {
-		val modelLookup = mock(ModelLookup.class);
-		val node = node("foo", builder -> builder.withLookup(modelLookup));
-		ModelNodeUtils.hasDescendant(node, "bar");
-		verify(modelLookup, times(1)).has(path("foo.bar"));
 	}
 
 	@Test

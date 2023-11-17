@@ -32,9 +32,7 @@ import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.tasks.ModelReportTask;
 import dev.nokee.utils.ActionUtils;
-import dev.nokee.utils.TaskUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -85,8 +83,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		project.getConfigurations().all(ActionUtils.doNothing()); // Because... don't get me started with this... :'(
 
 		applyToAllTarget(project);
-
-		project.getTasks().register("nokeeModel", ModelReportTask.class, TaskUtils.configureDescription("Displays the configuration model of %s.", project));
 
 		if (false) {
 			project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new IdentifierComponent(ProjectIdentifier.of(project)));
