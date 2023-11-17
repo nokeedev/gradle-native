@@ -17,6 +17,7 @@ package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
+import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
@@ -36,7 +37,7 @@ import javax.inject.Inject;
 
 public /*final*/ abstract class CppSourceSetSpec extends ModelElementSupport implements CppSourceSet
 	, ModelMixIn
-	, NativeCompileTaskMixIn<CppCompileTask>
+	, NativeCompileTaskMixIn<CppCompile, CppCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
 {

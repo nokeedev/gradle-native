@@ -21,6 +21,7 @@ import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -36,7 +37,7 @@ import javax.inject.Inject;
 
 public /*final*/ abstract class ObjectiveCSourceSetSpec extends ModelElementSupport implements ObjectiveCSourceSet
 	, ModelMixIn
-	, NativeCompileTaskMixIn<ObjectiveCCompileTask>
+	, NativeCompileTaskMixIn<ObjectiveCCompile, ObjectiveCCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
 {

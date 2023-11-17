@@ -15,9 +15,11 @@
  */
 package dev.nokee.language.swift;
 
+import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.platform.base.DependencyAwareComponent;
 
 /**
@@ -28,5 +30,6 @@ import dev.nokee.platform.base.DependencyAwareComponent;
  */
 public interface SwiftSourceSet extends LanguageSourceSet
 	, HasSource
+	, HasCompileTask<SwiftCompile>
 	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
 {}

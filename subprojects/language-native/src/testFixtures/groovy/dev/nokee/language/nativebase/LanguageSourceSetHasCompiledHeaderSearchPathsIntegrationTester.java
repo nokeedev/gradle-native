@@ -16,7 +16,7 @@
 package dev.nokee.language.nativebase;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.HasCompileTask;
+import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import lombok.val;
 import org.gradle.api.Project;
@@ -36,7 +36,7 @@ import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public interface LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<T extends LanguageSourceSet & HasCompileTask> {
+public interface LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<T extends LanguageSourceSet & HasCompileTask<?>> {
 	T subject();
 
 	Configuration headerSearchPaths();

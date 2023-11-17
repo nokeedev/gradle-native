@@ -19,7 +19,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.HasCompileTask;
+import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;

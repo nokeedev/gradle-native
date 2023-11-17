@@ -15,8 +15,10 @@
  */
 package dev.nokee.language.c;
 
+import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
@@ -30,5 +32,6 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 public interface CSourceSet extends LanguageSourceSet
 	, HasSource
 	, HasHeaders
+	, HasCompileTask<CCompile>
 	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
 {}

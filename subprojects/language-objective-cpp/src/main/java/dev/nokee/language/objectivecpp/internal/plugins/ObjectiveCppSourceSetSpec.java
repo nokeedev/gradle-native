@@ -21,6 +21,7 @@ import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
+import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -36,7 +37,7 @@ import javax.inject.Inject;
 
 public /*final*/ abstract class ObjectiveCppSourceSetSpec extends ModelElementSupport implements ObjectiveCppSourceSet
 	, ModelMixIn
-	, NativeCompileTaskMixIn<ObjectiveCppCompileTask>
+	, NativeCompileTaskMixIn<ObjectiveCppCompile, ObjectiveCppCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
 {

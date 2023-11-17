@@ -15,14 +15,14 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.HasCompileTask;
+import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.tasks.SourceCompile;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface NativeCompileTaskMixIn<T extends SourceCompile> extends HasCompileTask, ExtensionAware {
+public interface NativeCompileTaskMixIn<T extends SourceCompile, U extends T> extends HasCompileTask<T>, ExtensionAware {
 	@SuppressWarnings("unchecked") // IntelliJ is incompetent
-	default TaskProvider<T> getCompileTask() {
-		return (TaskProvider<T>) getExtensions().getByName("compileTask");
+	default TaskProvider<U> getCompileTask() {
+		return (TaskProvider<U>) getExtensions().getByName("compileTask");
 	}
 }

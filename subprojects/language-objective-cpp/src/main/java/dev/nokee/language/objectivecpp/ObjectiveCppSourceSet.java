@@ -15,10 +15,12 @@
  */
 package dev.nokee.language.objectivecpp;
 
+import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.platform.base.DependencyAwareComponent;
 
 /**
@@ -30,5 +32,6 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 public interface ObjectiveCppSourceSet extends LanguageSourceSet
 	, HasSource
 	, HasHeaders
+	, HasCompileTask<ObjectiveCppCompile>
 	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
 {}

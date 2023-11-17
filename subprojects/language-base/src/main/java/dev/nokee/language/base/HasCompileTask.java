@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.base.internal;
+package dev.nokee.language.base;
 
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface HasCompileTask {
-	TaskProvider<? extends Task> getCompileTask();
+/**
+ * Represents an element that involve a compile task to process inputs.
+ *
+ * @param <T>  the compile task type
+ * @since 1.0
+ */
+public interface HasCompileTask<T extends Task> {
+	TaskProvider<? extends T> getCompileTask();
 }

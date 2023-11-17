@@ -19,6 +19,7 @@ import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMixIn;
@@ -35,7 +36,7 @@ import javax.inject.Inject;
 
 public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet
 	, ModelMixIn
-	, NativeCompileTaskMixIn<SwiftCompileTask>
+	, NativeCompileTaskMixIn<SwiftCompile, SwiftCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasImportModules
 {
