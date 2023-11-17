@@ -22,7 +22,7 @@ runs:
         -   uses: actions/setup-java@v3
             with:
                 distribution: temurin
-                java-version: 8
+                java-version: 11
         -   uses: gradle/gradle-build-action@v2
             with:
                 arguments: ${{ inputs.arguments }} --no-daemon --continue "-Dgradle.enterprise.url=https://ge.nokee.dev/" "-Dgradle.cache.remote.username=${{ inputs.build-cache-username }}" "-Dgradle.cache.remote.password=${{ inputs.build-cache-password }}" "-Dgradle.cache.remote.push=true"
