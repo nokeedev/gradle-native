@@ -62,6 +62,10 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
+		sources(project).withType(SwiftSourceSetSpec.class).configureEach(sourceSet -> {
+			sourceSet.getImportModules().extendsFrom(sourceSet.getDependencies().getCompileOnly());
+		});
+
 		components(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("swiftSources", HasSwiftSources.class, HasSwiftSources::getSwiftSources, project.getObjects())));
 		variants(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("swiftSources", HasSwiftSources.class, HasSwiftSources::getSwiftSources, project.getObjects())));
 

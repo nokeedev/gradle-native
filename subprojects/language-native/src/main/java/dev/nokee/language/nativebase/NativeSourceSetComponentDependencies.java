@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.swift;
 
-import dev.nokee.language.base.HasSource;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
-import dev.nokee.platform.base.DependencyAwareComponent;
+package dev.nokee.language.nativebase;
 
-/**
- * A set of Swift source files.
- *
- * @see LanguageSourceSet
- * @since 0.5
- */
-public interface SwiftSourceSet extends LanguageSourceSet
-	, HasSource
-	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
-{}
+import dev.nokee.platform.base.ComponentDependencies;
+import dev.nokee.platform.base.HasCompileOnlyDependencyBucket;
+
+public interface NativeSourceSetComponentDependencies extends ComponentDependencies, HasCompileOnlyDependencyBucket {
+}

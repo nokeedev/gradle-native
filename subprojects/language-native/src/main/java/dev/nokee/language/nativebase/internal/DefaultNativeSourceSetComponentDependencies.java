@@ -16,22 +16,17 @@
 
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import org.gradle.api.plugins.ExtensionAware;
+import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 
-import javax.inject.Inject;
-
-public /*final*/ abstract class DefaultCompilableNativeComponentDependencies implements ComponentDependencies, ExtensionAware {
-	@Inject
-	public DefaultCompilableNativeComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
-		getExtensions().add("headerSearchPaths", bucketRegistry.register(identifier.child("headerSearchPaths"), ResolvableDependencyBucketSpec.class).get());
-	}
-
-	public ResolvableDependencyBucketSpec getHeaderSearchPaths() {
-		return (ResolvableDependencyBucketSpec) getExtensions().getByName("headerSearchPaths");
+public /*final*/ abstract class DefaultNativeSourceSetComponentDependencies implements NativeSourceSetComponentDependencies
+	, CompileOnlyDependencyBucketMixIn
+{
+	public DefaultNativeSourceSetComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
+		getExtensions().add("compileOnly", bucketRegistry.register(identifier.child("compileOnly"), DeclarableDependencyBucketSpec.class).get());
 	}
 }

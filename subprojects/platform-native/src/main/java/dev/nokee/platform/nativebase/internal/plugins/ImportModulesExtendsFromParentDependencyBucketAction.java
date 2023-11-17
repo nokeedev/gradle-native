@@ -17,7 +17,7 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.swift.internal.plugins.DefaultSwiftComponentDependencies;
+import dev.nokee.language.swift.internal.plugins.HasImportModules;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
@@ -35,10 +35,8 @@ public final class ImportModulesExtendsFromParentDependencyBucketAction<TargetTy
 				@SuppressWarnings("unchecked")
 				final View<LanguageSourceSet> sources = (View<LanguageSourceSet>) ((SourceAwareComponent<?>) target).getSources();
 				sources.configureEach(sourceSet -> {
-					if (sourceSet instanceof DependencyAwareComponent && ((DependencyAwareComponent<?>) sourceSet).getDependencies() instanceof DefaultSwiftComponentDependencies) {
-						@SuppressWarnings("unchecked")
-						final DefaultSwiftComponentDependencies dependencies = ((DependencyAwareComponent<DefaultSwiftComponentDependencies>) sourceSet).getDependencies();
-						dependencies.getImportModules().extendsFrom(parentDependencies.getImplementation(), parentDependencies.getCompileOnly());
+					if (sourceSet instanceof HasImportModules) {
+						((HasImportModules) sourceSet).getImportModules().extendsFrom(parentDependencies.getImplementation(), parentDependencies.getCompileOnly());
 					}
 				});
 			});

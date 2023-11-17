@@ -17,7 +17,7 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.nativebase.internal.DefaultCompilableNativeComponentDependencies;
+import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
@@ -35,10 +35,8 @@ public final class HeaderSearchPathsExtendsFromParentDependencyBucketAction<Targ
 				@SuppressWarnings("unchecked")
 				final View<LanguageSourceSet> sources = (View<LanguageSourceSet>) ((SourceAwareComponent<?>) target).getSources();
 				sources.configureEach(sourceSet -> {
-					if (sourceSet instanceof DependencyAwareComponent && ((DependencyAwareComponent<?>) sourceSet).getDependencies() instanceof DefaultCompilableNativeComponentDependencies) {
-						@SuppressWarnings("unchecked")
-						final DefaultCompilableNativeComponentDependencies dependencies = ((DependencyAwareComponent<DefaultCompilableNativeComponentDependencies>) sourceSet).getDependencies();
-						dependencies.getHeaderSearchPaths().extendsFrom(parentDependencies.getCompileOnly());
+					if (sourceSet instanceof HasHeaderSearchPaths) {
+						((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().extendsFrom(parentDependencies.getCompileOnly());
 					}
 				});
 			});

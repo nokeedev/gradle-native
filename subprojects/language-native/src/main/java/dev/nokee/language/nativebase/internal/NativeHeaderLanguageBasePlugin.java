@@ -19,8 +19,10 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
+import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
 import org.gradle.api.Plugin;
@@ -44,6 +46,11 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 		sources(project).configureEach(new HeaderSearchPathsConfigurationRegistrationAction<>(project.getObjects()));
 		sources(project).configureEach(new AttachHeaderSearchPathsToCompileTaskRule<>());
 		sources(project).configureEach(new NativeCompileTaskDefaultConfigurationRule<>());
+		sources(project).configureEach(sourceSet -> {
+			if (sourceSet instanceof HasHeaderSearchPaths && sourceSet instanceof DependencyAwareComponent && ((DependencyAwareComponent<?>) sourceSet).getDependencies() instanceof NativeSourceSetComponentDependencies) {
+				((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().extendsFrom(((NativeSourceSetComponentDependencies) ((DependencyAwareComponent<?>) sourceSet).getDependencies()).getCompileOnly());
+			}
+		});
 
 		variants(project).configureEach(variant -> {
 			// TODO: check if it's a native variant?

@@ -15,12 +15,14 @@
  */
 package dev.nokee.language.objectivecpp.internal.plugins;
 
-import dev.nokee.language.nativebase.internal.DefaultCompilableNativeComponentDependencies;
+import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
@@ -33,13 +35,15 @@ import org.gradle.api.tasks.TaskDependency;
 import javax.inject.Inject;
 
 public /*final*/ abstract class ObjectiveCppSourceSetSpec extends ModelElementSupport implements ObjectiveCppSourceSet
+	, ModelMixIn
 	, NativeCompileTaskMixIn<ObjectiveCppCompileTask>
-	, DependencyAwareComponentMixIn<DefaultCompilableNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
 {
 	@Inject
 	public ObjectiveCppSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
-		getExtensions().create("dependencies", DefaultCompilableNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
+		getExtensions().add("headerSearchPaths", bucketRegistry.register(getIdentifier().child("headerSearchPaths"), ResolvableDependencyBucketSpec.class).get());
+		getExtensions().create("dependencies", DefaultNativeSourceSetComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("compileTask", taskRegistry.register(getIdentifier().child(TaskName.of("compile")), ObjectiveCppCompileTask.class).asProvider());
 	}
 
@@ -50,7 +54,7 @@ public /*final*/ abstract class ObjectiveCppSourceSetSpec extends ModelElementSu
 
 	@Override
 	public ResolvableDependencyBucketSpec getHeaderSearchPaths() {
-		return getDependencies().getHeaderSearchPaths();
+		return mixedIn("headerSearchPaths");
 	}
 
 	@Override

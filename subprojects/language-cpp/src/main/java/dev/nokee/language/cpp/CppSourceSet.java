@@ -18,6 +18,8 @@ package dev.nokee.language.cpp;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
+import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.platform.base.DependencyAwareComponent;
 
 /**
  * A set of C++ source files.
@@ -25,4 +27,8 @@ import dev.nokee.language.nativebase.HasHeaders;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface CppSourceSet extends LanguageSourceSet, HasSource, HasHeaders {}
+public interface CppSourceSet extends LanguageSourceSet
+	, HasSource
+	, HasHeaders
+	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
+{}
