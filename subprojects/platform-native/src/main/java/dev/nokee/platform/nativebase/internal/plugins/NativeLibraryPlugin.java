@@ -22,11 +22,8 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
@@ -47,7 +44,6 @@ import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
@@ -98,11 +94,6 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		val extension = componentProvider.get();
 
 		project.getExtensions().add(NativeLibraryExtension.class, EXTENSION_NAME, extension);
-	}
-
-	public static ModelRegistration nativeLibrary(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return new NativeLibraryComponentModelRegistrationFactory(DefaultNativeLibraryExtension.class, project).create(identifier).build();
 	}
 
 	public static /*final*/ abstract class DefaultNativeLibraryExtension extends ModelElementSupport implements NativeLibraryExtension

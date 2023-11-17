@@ -22,11 +22,8 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
@@ -47,7 +44,6 @@ import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
@@ -98,12 +94,6 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(NativeApplicationExtension.class, EXTENSION_NAME, extension);
 	}
-
-	public static ModelRegistration nativeApplication(String name, Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(name.equals("main") ? ofMain() : ElementName.of(name)).withParent(ProjectIdentifier.of(project)).build();
-		return new NativeApplicationComponentModelRegistrationFactory(DefaultNativeApplicationExtension.class, project).create(identifier).build();
-	}
-
 
 	public static abstract class DefaultNativeApplicationExtension extends ModelElementSupport implements NativeApplicationExtension
 		, NativeApplicationComponent
