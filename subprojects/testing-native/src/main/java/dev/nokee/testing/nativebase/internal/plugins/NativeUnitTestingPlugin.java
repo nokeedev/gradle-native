@@ -29,8 +29,6 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBase
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -158,7 +156,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// TODO: We delay as late as possible to "fake" a finalize action.
 			testSuites(proj).withType(DefaultNativeTestSuiteComponent.class).configureEach(it -> {
-				ModelNodes.safeOf(it).ifPresent(ModelStates::finalize);
+				it.finalizeExtension(proj);
 			});
 		});
 	}

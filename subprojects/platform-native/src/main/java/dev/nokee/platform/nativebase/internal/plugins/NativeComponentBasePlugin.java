@@ -34,9 +34,7 @@ import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -406,7 +404,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					task.from((Callable<?>) () -> {
 						return model(project, objects()).parentsOf(variantIdentifier)
 							.map(it -> it.get())
-							.peek(it -> ModelNodes.safeOf(it).ifPresent(ModelStates::finalize))
 							.flatMap(it -> {
 								final FileCollection publicHeaders = (FileCollection) ((ExtensionAware) it).getExtensions().findByName("publicHeaders");
 								if (publicHeaders == null) {

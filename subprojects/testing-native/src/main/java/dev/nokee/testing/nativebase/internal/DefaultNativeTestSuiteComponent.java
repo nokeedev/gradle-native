@@ -23,8 +23,6 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
-import dev.nokee.language.nativebase.internal.PrivateHeadersComponent;
-import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
@@ -35,8 +33,6 @@ import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -90,6 +86,7 @@ import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -276,11 +273,9 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 				});
 				binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
 					((AbstractNativeSourceCompileTask)task).getIncludes().from((Callable<?>) () -> {
-						ModelStates.finalize(ModelNodes.of(component));
-
 						val builder = ImmutableList.builder();
-						ModelNodes.of(component).find(PrivateHeadersComponent.class).ifPresent(it -> builder.add(it.get()));
-						ModelNodes.of(component).find(PublicHeadersComponent.class).ifPresent(it -> builder.add(it.get()));
+						Optional.ofNullable(component.getExtensions().findByName("privateHeaders")).ifPresent(builder::add);
+						Optional.ofNullable(component.getExtensions().findByName("publicHeaders")).ifPresent(builder::add);
 						return builder.build();
 					});
 				});

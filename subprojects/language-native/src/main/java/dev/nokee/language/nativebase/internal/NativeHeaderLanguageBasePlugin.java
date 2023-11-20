@@ -20,8 +20,6 @@ import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
@@ -60,7 +58,6 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
-							ModelNodes.safeOf(variant).ifPresent(ModelStates::finalize);
 							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName("privateHeaders")).orElse(Collections.emptyList());
 						});
 					}
@@ -89,7 +86,6 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
-							ModelNodes.safeOf(variant).ifPresent(ModelStates::finalize);
 							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName("publicHeaders")).orElse(Collections.emptyList());
 						});
 					}
