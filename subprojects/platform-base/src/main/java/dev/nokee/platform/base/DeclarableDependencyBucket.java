@@ -19,8 +19,10 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.FileCollectionDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderConvertible;
 
 /**
  * Represent a bucket of declarable dependencies.
@@ -29,7 +31,15 @@ import org.gradle.api.provider.Provider;
  * @since 0.5
  */
 public interface DeclarableDependencyBucket extends DependencyBucket {
+	void addDependency(CharSequence dependencyNotation);
+
+	void addDependency(CharSequence dependencyNotation, Action<? super ExternalModuleDependency> configureAction);
+
 	void addDependency(Dependency dependency);
+
+	void addDependency(FileCollection fileCollection);
+
+	void addDependency(FileCollection fileCollection, Action<? super FileCollectionDependency> configureAction);
 
 	<DependencyType extends Dependency> void addDependency(DependencyType dependency, Action<? super DependencyType> configureAction);
 
@@ -37,11 +47,9 @@ public interface DeclarableDependencyBucket extends DependencyBucket {
 
 	<DependencyType extends Dependency> void addDependency(Provider<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction);
 
-	void addDependency(FileCollection fileCollection);
+	void addDependency(ProviderConvertible<? extends Dependency> dependencyProvider);
+
+	<DependencyType extends Dependency> void addDependency(ProviderConvertible<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction);
 
 	void addDependency(Project project);
-
-	void addDependency(CharSequence dependencyNotation);
-
-	void addDependency(CharSequence dependencyNotation, Action<? super ExternalModuleDependency> configureAction);
 }

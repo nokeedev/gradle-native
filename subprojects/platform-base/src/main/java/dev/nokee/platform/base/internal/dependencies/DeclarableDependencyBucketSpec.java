@@ -28,10 +28,12 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.FileCollectionDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderConvertible;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -98,6 +100,21 @@ public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElem
 	@Override
 	public void addDependency(CharSequence dependencyNotation, Action<? super ExternalModuleDependency> configureAction) {
 		addDependency(dependencyFactory.create(dependencyNotation), configureAction);
+	}
+
+	@Override
+	public void addDependency(FileCollection fileCollection, Action<? super FileCollectionDependency> configureAction) {
+		addDependency(dependencyFactory.create(fileCollection), configureAction);
+	}
+
+	@Override
+	public void addDependency(ProviderConvertible<? extends Dependency> dependencyProvider) {
+		addDependency(dependencyProvider.asProvider());
+	}
+
+	@Override
+	public <DependencyType extends Dependency> void addDependency(ProviderConvertible<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction) {
+		addDependency(dependencyProvider.asProvider(), configureAction);
 	}
 
 	private ActionUtils.Action<Dependency> defaultAction() {
