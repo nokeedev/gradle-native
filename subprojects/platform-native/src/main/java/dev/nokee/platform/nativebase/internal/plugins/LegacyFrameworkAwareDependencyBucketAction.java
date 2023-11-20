@@ -16,8 +16,11 @@
 
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
@@ -44,18 +47,23 @@ public final class LegacyFrameworkAwareDependencyBucketAction<TargetType> implem
 	}
 
 	private <T> void configureDependencies(T target) {
-		if (target instanceof DependencyAwareComponent) {
-			ifNativeComponentDependencies((DependencyAwareComponent<?>) target, dependencies -> {
-				((DependencyBucketInternal) dependencies.getImplementation()).getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
-				((DependencyBucketInternal) dependencies.getCompileOnly()).getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
-				((DependencyBucketInternal) dependencies.getLinkOnly()).getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
-				((DependencyBucketInternal) dependencies.getRuntimeOnly()).getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
+		ModelElementSupport.safeAsModelElement(target).map(ModelElement::getIdentifier).ifPresent(identifier -> {
+			// TODO: skip if overlapping domain object
+			if (!(identifier instanceof VariantIdentifier && ((VariantIdentifier) identifier).getUnambiguousName().isEmpty())) {
+				if (target instanceof DependencyAwareComponent) {
+					ifNativeComponentDependencies((DependencyAwareComponent<?>) target, dependencies -> {
+						((DependencyBucketInternal) dependencies.getImplementation()).getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
+						((DependencyBucketInternal) dependencies.getCompileOnly()).getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
+						((DependencyBucketInternal) dependencies.getLinkOnly()).getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
+						((DependencyBucketInternal) dependencies.getRuntimeOnly()).getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
 
-				if (dependencies instanceof DefaultNativeLibraryComponentDependencies) {
-					((DefaultNativeLibraryComponentDependencies) dependencies).getApi().getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
+						if (dependencies instanceof DefaultNativeLibraryComponentDependencies) {
+							((DefaultNativeLibraryComponentDependencies) dependencies).getApi().getDefaultDependencyAction().set(new RequestFrameworkAction(objects));
+						}
+					});
 				}
-			});
-		}
+			}
+		});
 	}
 
 	private void ifNativeComponentDependencies(DependencyAwareComponent<?> target, Action<? super NativeComponentDependencies> action) {
