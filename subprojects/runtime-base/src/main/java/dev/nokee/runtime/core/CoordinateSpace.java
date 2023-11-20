@@ -33,7 +33,7 @@ public interface CoordinateSpace extends Iterable<CoordinateTuple> {
 		return cartesianProduct(ImmutableList.copyOf(coordinateSets));
 	}
 
-	static CoordinateSpace cartesianProduct(Iterable<CoordinateSet<?>> coordinateSets) {
+	static CoordinateSpace cartesianProduct(Iterable<? extends CoordinateSet<?>> coordinateSets) {
 		Set<List<Coordinate<?>>> result = Sets.cartesianProduct(stream(coordinateSets).map(ImmutableSet::copyOf).collect(toList()));
 		return new DefaultCoordinateSpace(result.stream().map(CoordinateTuple::of).collect(ImmutableSet.toImmutableSet()));
 	}

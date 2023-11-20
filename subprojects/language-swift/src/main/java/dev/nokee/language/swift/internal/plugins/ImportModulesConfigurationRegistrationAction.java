@@ -54,7 +54,7 @@ final class ImportModulesConfigurationRegistrationAction implements Action<Swift
 		return configureAttributes(builder -> builder.usage(objects.named(Usage.class, Usage.SWIFT_API)));
 	}
 
-	private static Transformer<Set<Path>, Iterable<Path>> parentFiles() {
+	private static Transformer<Set<Path>, Iterable<? extends Path>> parentFiles() {
 		return transformEach(Path::getParent).andThen(toSetTransformer(Path.class));
 	}
 

@@ -35,7 +35,6 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.nativeplatform.tasks.CreateStaticLibrary;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -62,7 +61,7 @@ public class NativeCompileCapabilityPlugin<T extends ExtensionAware & PluginAwar
 		public void execute(Artifact artifact) {
 			if (artifact instanceof HasObjectFilesToBinaryTask) {
 				ModelElementSupport.safeAsModelElement(artifact).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-					final Provider<List<FileCollection>> objectFiles = objs.get(AbstractNativeCompileTask.class, it -> {
+					final Provider<Iterable<? extends FileCollection>> objectFiles = objs.get(AbstractNativeCompileTask.class, it -> {
 						if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
 							it.realizeNow(); // realize to kickstart Task discover... we should be more smart about this
 							return it.instanceOf(AbstractNativeCompileTask.class);

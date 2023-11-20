@@ -56,7 +56,7 @@ public final class HeaderSearchPathsConfigurationRegistrationAction<T> implement
 		return configureAttributes(builder -> builder.usage(objects.named(Usage.class, Usage.C_PLUS_PLUS_API)));
 	}
 
-	private static Transformer<Set<Path>, Iterable<Path>> parentFiles() {
+	private static Transformer<Set<Path>, Iterable<? extends Path>> parentFiles() {
 		return transformEach(Path::getParent).andThen(toSetTransformer(Path.class));
 	}
 

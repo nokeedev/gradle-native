@@ -36,7 +36,6 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.HasMultipleValues;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
@@ -46,17 +45,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static dev.nokee.runtime.core.Coordinates.absentCoordinate;
-import static dev.nokee.utils.Cast.uncheckedCastBecauseOfTypeErasure;
+import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
 import static dev.nokee.utils.TransformerUtils.peek;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public /*final*/ abstract class DefaultVariantDimensions implements VariantDimensions {
 	private final DimensionPropertyRegistrationFactory factory;
-	private final Provider<Iterable<CoordinateSet<?>>> dimensions;
+	private final Provider<Iterable<? extends CoordinateSet<?>>> dimensions;
 	private final Provider<CoordinateSpace> finalSpace;
 	private final SetProperty<BuildVariant> buildVariants;
 
@@ -67,7 +65,7 @@ public /*final*/ abstract class DefaultVariantDimensions implements VariantDimen
 
 		this.dimensions = getElements()
 			.map(transformEach(new ToCoordinateSet(identifier.getName())))
-			.flatMap(new ToProviderOfIterableTransformer<>(() -> uncheckedCastBecauseOfTypeErasure(objects.listProperty(CoordinateSet.class))));
+			.flatMap(toProviderOfIterable(objects::listProperty));
 		this.finalSpace = this.dimensions.map(CoordinateSpace::cartesianProduct);
 		this.buildVariants = objects.setProperty(BuildVariant.class);
 
@@ -145,7 +143,7 @@ public /*final*/ abstract class DefaultVariantDimensions implements VariantDimen
 
 			TransformerUtils.Transformer<Iterable<Object>, Iterable<Object>> axisValues = assertNonEmpty(axis.getDisplayName(), componentName);
 
-			TransformerUtils.Transformer<Iterable<Coordinate<Object>>, Iterable<Object>> axisCoordinates = axisValues.andThen(transformEach(axis::create));
+			TransformerUtils.Transformer<Iterable<? extends Coordinate<Object>>, Iterable<Object>> axisCoordinates = axisValues.andThen(transformEach(axis::create));
 
 			val axisValidator = dimension.getValidator();
 			axisCoordinates = axisCoordinates.andThen(peek(it -> axisValidator.accept(it)));
@@ -157,15 +155,15 @@ public /*final*/ abstract class DefaultVariantDimensions implements VariantDimen
 			return axisCoordinates.andThen(CoordinateSet::of);
 		}
 
-		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> prepended(T element) {
+		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<? extends T>> prepended(T element) {
 			return new ToCoordinateSet.IterablePrependedAllTransformer<>(ImmutableList.of(element));
 		}
 
-		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> prependedAll(Iterable<T> prefix) {
+		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<? extends T>> prependedAll(Iterable<T> prefix) {
 			return new ToCoordinateSet.IterablePrependedAllTransformer<>(prefix);
 		}
 
-		public static final class IterablePrependedAllTransformer<T> implements TransformerUtils.Transformer<Iterable<T>, Iterable<T>> {
+		public static final class IterablePrependedAllTransformer<T> implements TransformerUtils.Transformer<Iterable<T>, Iterable<? extends T>> {
 			private final Iterable<T> prependElements;
 
 			public IterablePrependedAllTransformer(Iterable<T> prependElements) {
@@ -173,7 +171,7 @@ public /*final*/ abstract class DefaultVariantDimensions implements VariantDimen
 			}
 
 			@Override
-			public Iterable<T> transform(Iterable<T> values) {
+			public Iterable<T> transform(Iterable<? extends T> values) {
 				return Iterables.concat(prependElements, values);
 			}
 		}
@@ -197,21 +195,6 @@ public /*final*/ abstract class DefaultVariantDimensions implements VariantDimen
 					throw new IllegalArgumentException(String.format("A %s needs to be specified for component '%s'.", propertyName, componentName));
 				}
 			}
-		}
-	}
-
-	private static final class ToProviderOfIterableTransformer<T, C extends Provider<? extends Iterable<T>> & HasMultipleValues<T>> implements Transformer<Provider<? extends Iterable<T>>, Iterable<Provider<T>>> {
-		private final Supplier<C> containerSupplier;
-
-		public ToProviderOfIterableTransformer(Supplier<C> containerSupplier) {
-			this.containerSupplier = containerSupplier;
-		}
-
-		@Override
-		public Provider<? extends Iterable<T>> transform(Iterable<Provider<T>> providers) {
-			final C container = containerSupplier.get();
-			providers.forEach(((HasMultipleValues<T>) container)::add);
-			return container;
 		}
 	}
 }

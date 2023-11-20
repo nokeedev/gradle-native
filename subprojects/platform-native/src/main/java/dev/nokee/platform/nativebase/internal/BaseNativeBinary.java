@@ -15,17 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.nativebase.NativeBinary;
-import dev.nokee.utils.Cast;
+import dev.nokee.util.ProviderOfIterableTransformer;
 import lombok.val;
-import org.gradle.api.Transformer;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.HasMultipleValues;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
@@ -40,8 +37,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 
+import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public abstract class BaseNativeBinary extends ModelElementSupport implements Binary, NativeBinary, HasHeaderSearchPaths {
@@ -55,40 +52,14 @@ public abstract class BaseNativeBinary extends ModelElementSupport implements Bi
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
 		return objects.fileCollection()
-			.from(getCompileTasks().filter(AbstractNativeSourceCompileTask.class::isInstance).map(transformEach(it -> ((AbstractNativeSourceCompileTask) it).getIncludes().getElements())).flatMap(new ToProviderOfIterableTransformer<>(() -> Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(FileSystemLocation.class)))))
-			.from(getCompileTasks().filter(AbstractNativeSourceCompileTask.class::isInstance).map(transformEach(it -> ((AbstractNativeSourceCompileTask) it).getSystemIncludes().getElements())).flatMap(new ToProviderOfIterableTransformer<>(() -> Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(FileSystemLocation.class)))))
+			.from(getCompileTasks().filter(AbstractNativeSourceCompileTask.class::isInstance).map(transformEach(it -> ((AbstractNativeSourceCompileTask) it).getIncludes().getElements())).flatMap(toProviderOfIterable(objects::listProperty)))
+			.from(getCompileTasks().filter(AbstractNativeSourceCompileTask.class::isInstance).map(transformEach(it -> ((AbstractNativeSourceCompileTask) it).getSystemIncludes().getElements())).flatMap(toProviderOfIterable(objects::listProperty)))
 			.getElements();
-	}
-
-	public static final class ToProviderOfIterableTransformer<T, C extends Provider<? extends Iterable<T>> & HasMultipleValues<T>> implements Transformer<Provider<? extends Iterable<T>>, Iterable<Provider<T>>> {
-		private final Supplier<C> containerSupplier;
-
-		public ToProviderOfIterableTransformer(Supplier<C> containerSupplier) {
-			this.containerSupplier = containerSupplier;
-		}
-
-		@Override
-		public Provider<? extends Iterable<T>> transform(Iterable<Provider<T>> providers) {
-			final C container = containerSupplier.get();
-			for (Provider<T> provider : providers) {
-				((HasMultipleValues<T>) container).addAll(provider.map(this::ensureList));
-			}
-			return container;
-		}
-
-		@SuppressWarnings("unchecked")
-		private <OUT, IN> Iterable<OUT> ensureList(IN g) {
-			if (g instanceof Iterable) {
-				return (Iterable<OUT>) g;
-			} else {
-				return (Iterable<OUT>) ImmutableList.of(g);
-			}
-		}
 	}
 
 	public Provider<Set<FileSystemLocation>> getImportSearchPaths() {
 		return objects.fileCollection()
-			.from(getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).flatMap(new ToProviderOfIterableTransformer<>(() -> Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(File.class)))))
+			.from(getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).flatMap(toProviderOfIterable(objects::listProperty)))
 			.getElements();
 	}
 

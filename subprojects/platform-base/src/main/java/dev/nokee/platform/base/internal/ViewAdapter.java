@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
@@ -94,12 +95,12 @@ public final class ViewAdapter<T> implements View<T> {
 
 	@Override
 	public <S> Provider<List<S>> map(Transformer<? extends S, ? super T> mapper) {
-		return getElements().map(transformEach(mapper));
+		return getElements().map(transformEach(mapper)).map(ImmutableList::copyOf);
 	}
 
 	@Override
 	public <S> Provider<List<S>> flatMap(Transformer<? extends Iterable<S>, ? super T> mapper) {
-		return getElements().map(flatTransformEach(mapper));
+		return getElements().map(flatTransformEach(mapper)).map(ImmutableList::copyOf);
 	}
 
 	@Override

@@ -67,7 +67,7 @@ final class AttachImportModulesToCompileTaskRule implements Action<SwiftSourceSe
 		return it -> ImmutableList.of("-F", it.toString());
 	}
 
-	private static Provider<Iterable<String>> asFrameworkSearchPathFlags(Provider<Set<FileSystemLocation>> frameworksSearchPaths) {
+	private static Provider<Iterable<? extends String>> asFrameworkSearchPathFlags(Provider<Set<FileSystemLocation>> frameworksSearchPaths) {
 		return frameworksSearchPaths.map(transformEach(FileSystemLocationUtils::asPath)).map(flatTransformEach(toFrameworkSearchPathFlags()));
 	}
 	//endregion

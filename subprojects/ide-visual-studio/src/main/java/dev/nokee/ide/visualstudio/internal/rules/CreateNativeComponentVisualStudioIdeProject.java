@@ -15,6 +15,7 @@
  */
 package dev.nokee.ide.visualstudio.internal.rules;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.ide.visualstudio.VisualStudioIdeConfiguration;
 import dev.nokee.ide.visualstudio.VisualStudioIdePlatform;
 import dev.nokee.ide.visualstudio.VisualStudioIdePlatforms;
@@ -115,12 +116,12 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 					} else {
 						return Collections.emptyList();
 					}
-				}));
+				})).map(ImmutableList::copyOf);
 			}
 
 			private Provider<List<FileTree>> componentHeaders(BaseComponent<?> component) {
 				return sourceViewOf(component).filter(this::forHeaderSets)
-					.map(transformEach((Transformer<FileTree, LanguageSourceSet>) it -> ((HasHeaders) it).getHeaders().getAsFileTree()));
+					.map(transformEach(it -> ((HasHeaders) it).getHeaders().getAsFileTree())).map(ImmutableList::copyOf);
 			}
 
 			private boolean forHeaderSets(LanguageSourceSet sourceSet) {

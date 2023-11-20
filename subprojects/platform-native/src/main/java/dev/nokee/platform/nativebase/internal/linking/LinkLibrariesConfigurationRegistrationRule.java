@@ -123,7 +123,7 @@ final class LinkLibrariesConfigurationRegistrationRule implements Action<Artifac
 		return it -> ImmutableList.of("-framework", FilenameUtils.removeExtension(it.getFileName().toString()));
 	}
 
-	private static Provider<Iterable<String>> asFrameworkFlags(Provider<Set<Path>> frameworksSearchPaths) {
+	private static Provider<Iterable<? extends String>> asFrameworkFlags(Provider<Set<Path>> frameworksSearchPaths) {
 		return frameworksSearchPaths.map(flatTransformEach(it -> {
 			return ImmutableList.<String>builder()
 				.addAll(toFrameworkSearchPathFlags().transform(it))

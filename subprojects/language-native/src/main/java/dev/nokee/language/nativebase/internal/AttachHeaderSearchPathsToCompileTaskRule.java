@@ -79,7 +79,7 @@ public final class AttachHeaderSearchPathsToCompileTaskRule<T> implements Action
 		return it -> ImmutableList.of("-F", it.toString());
 	}
 
-	private static Provider<Iterable<String>> asFrameworkSearchPathFlags(FileCollection frameworksSearchPaths) {
+	private static Provider<Iterable<? extends String>> asFrameworkSearchPathFlags(FileCollection frameworksSearchPaths) {
 		return frameworksSearchPaths.getElements().map(transformEach(FileSystemLocationUtils::asPath)).map(flatTransformEach(toFrameworkSearchPathFlags()));
 	}
 	//endregion
