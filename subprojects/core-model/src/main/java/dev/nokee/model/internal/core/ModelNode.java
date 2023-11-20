@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -154,8 +153,6 @@ public final class ModelNode implements Entity {
 				}
 			}));
 			self.setValue(entity);
-			ModelStates.create(entity);
-			ModelStates.initialize(entity);
 			return entity;
 		}
 	}
