@@ -16,24 +16,13 @@
 package dev.nokee.model.internal.plugins;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Project;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.jupiter.api.Test;
-
-import static com.google.common.collect.ImmutableMap.of;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 class ModelBasePluginTest {
 	private final Project project = ProjectTestUtils.rootProject();
-
-	@Test
-	void registersModelRegistryService() {
-		project.apply(of("plugin", ModelBasePlugin.class));
-		assertThat(project, hasExtensionOf(ModelRegistry.class));
-	}
 
 	private static Matcher<Project> hasExtensionOf(Class<?> extensionType) {
 		return new TypeSafeMatcher<Project>() {

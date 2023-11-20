@@ -24,10 +24,7 @@ import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.utils.ActionUtils;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -58,9 +55,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	}
 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
-		val modelRegistry = new DefaultModelRegistry();
-		target.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
-
 		target.getExtensions().create("model", ModelExtension.class);
 	}
 

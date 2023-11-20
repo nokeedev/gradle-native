@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.reflect.Instantiator;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -199,11 +198,6 @@ public final class ModelNode implements Entity {
 			ModelStates.create(entity);
 			ModelStates.initialize(entity);
 			return entity;
-		}
-
-		private static ModelRegistry failingRegistry() {
-			return new ModelRegistry() {
-			};
 		}
 	}
 }
