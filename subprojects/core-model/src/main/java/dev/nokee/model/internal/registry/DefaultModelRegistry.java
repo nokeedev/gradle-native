@@ -15,5 +15,5 @@
  */
 package dev.nokee.model.internal.registry;
 
-public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer {
+public final class DefaultModelRegistry implements ModelRegistry {
 }

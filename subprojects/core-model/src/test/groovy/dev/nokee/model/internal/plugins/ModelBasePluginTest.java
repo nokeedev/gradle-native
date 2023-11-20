@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.plugins;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Project;
 import org.hamcrest.Description;
@@ -34,12 +33,6 @@ class ModelBasePluginTest {
 	void registersModelRegistryService() {
 		project.apply(of("plugin", ModelBasePlugin.class));
 		assertThat(project, hasExtensionOf(ModelRegistry.class));
-	}
-
-	@Test
-	void registersModelConfigurerService() {
-		project.apply(of("plugin", ModelBasePlugin.class));
-		assertThat(project, hasExtensionOf(ModelConfigurer.class));
 	}
 
 	private static Matcher<Project> hasExtensionOf(Class<?> extensionType) {
