@@ -90,8 +90,6 @@ subproject('testing-native')
 subproject('testing-xctest')
 subproject('xcode-ide-kit')
 
-subproject('universal-model-capability-variants')
-
 ModuleDependency templates(Object notation) {
 	final ModuleDependency result = (ModuleDependency) buildscript.dependencies.create(notation)
 	result.capabilities { ModuleDependencyCapabilitiesHandler capabilities ->

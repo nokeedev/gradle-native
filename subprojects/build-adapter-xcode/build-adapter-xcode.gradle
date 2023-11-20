@@ -19,7 +19,6 @@ dependencies {
 	implementation project(':runtimeBase')
 	implementation project(':runtimeNative')
 	implementation project(':runtimeDarwin')
-	implementation project(':universalModelCapabilityVariants')
 	compileOnly(project(':gradleAnnotation')) { because 'UntrackedTask annotation backport' }
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
