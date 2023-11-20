@@ -19,7 +19,6 @@ import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
@@ -48,10 +47,10 @@ import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
+import dev.nokee.platform.base.internal.rules.BaseNameConfigurationRule;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDependencyBucketAction;
-import dev.nokee.utils.Optionals;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
@@ -59,20 +58,13 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
-
-import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.utils.Optionals.safeAs;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>> COMPONENT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>>() {};
@@ -201,44 +193,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		};
 		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<DefaultVariantDimensions>>() {}, "__nokee_dimensionsFactory", dimensionsFactory);
 
-		model(project, objects()).configureEach(new BiConsumer<ModelObjects.ModelObjectIdentity, Object>() {
-			@Override
-			public void accept(ModelObjects.ModelObjectIdentity identifier, Object target) {
-				if (target instanceof HasBaseName) {
-					((HasBaseName) target).getBaseName().convention(project.provider(() -> {
-						return identifier.getParents()
-							.flatMap(projectionOf(HasBaseName.class))
-							.map(toProviderOf(HasBaseName::getBaseName))
-							.findFirst().orElseGet(() -> project.provider(notDefined()))
-							.orElse(project.provider(() -> {
-								if (target instanceof Named) {
-									return ((Named) target).getName();
-								} else {
-									return null;
-								}
-							}));
-					}).flatMap(it -> it));
-				}
-			}
-
-			private /*static*/ <V> Callable<V> notDefined() {
-				return () -> null;
-			}
-
-			private /*static*/ <T> Function<ModelObjects.ModelObjectIdentity, Stream<T>> projectionOf(Class<T> type) {
-				return it -> {
-					if (it.instanceOf(type)) {
-						return Optionals.stream(it.getAsOptional().map(safeAs(type)));
-					} else {
-						return Stream.empty();
-					}
-				};
-			}
-
-			// Useful because the intention is to use the Provider type of a Property (for example)
-			private /*static*/ <T, U> Function<U, Provider<T>> toProviderOf(Function<? super U, ? extends Provider<T>> mapper) {
-				return mapper::apply;
-			}
-		});
+		model(project, objects()).configureEach(HasBaseName.class, new BaseNameConfigurationRule(project.getProviders()));
 	}
 }
