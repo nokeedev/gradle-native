@@ -21,13 +21,10 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.internal.Cast;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
-import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestUtils.childNode;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
@@ -135,17 +132,6 @@ class ModelNodeTest {
 		assertThat(rootNode(), hasToString("<root>"));
 		assertThat(parentNode, hasToString("foo"));
 		assertThat(childNode, hasToString("foo.bar"));
-	}
-
-	@Test
-	void canGetTypeDescriptionOfNode() {
-		assertThat(ModelNodeUtils.getTypeDescription(node("a", MyType.class)), optionalWithValue(equalTo("interface dev.nokee.model.internal.core.ModelNodeTest$MyType")));
-	}
-
-	@Test
-	@Disabled // until we completely split the state from the ModelNode because state now "tag" the node using projections...
-	void returnsEmptyTypeDescriptionForNodeWithoutProjection() {
-		assertThat(ModelNodeUtils.getTypeDescription(node("a")), emptyOptional());
 	}
 
 	interface MyType {}

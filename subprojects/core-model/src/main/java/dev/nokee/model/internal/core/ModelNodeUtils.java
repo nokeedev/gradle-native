@@ -36,10 +36,6 @@ public final class ModelNodeUtils {
 		return self.find(ParentComponent.class).map(ParentComponent::get);
 	}
 
-	public static void setParent(ModelNode self, ModelNode parent) {
-		self.addComponent(new ParentComponent(parent));
-	}
-
 	/**
 	 * Returns if the current node can be viewed as the specified type.
 	 *
@@ -53,19 +49,6 @@ public final class ModelNodeUtils {
 
 	public static Stream<ModelProjection> getProjections(ModelNode self) {
 		return self.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast);
-	}
-
-	/**
-	 * Returns the main projection type description of this node.
-	 * In practice, this describes the type of the Object projection of this node.
-	 *
-	 * @param self  the node to query type description, must not be null
-	 * @return the type description of this node, if present.
-	 */
-	// TODO: This is used to generating descriptive message. We should find a better way to do this.
-	//  In the end, this fits in the reporting APIs.
-	public static Optional<String> getTypeDescription(ModelNode self) {
-		return getProjections(self).findFirst().map(ModelProjection::getTypeDescriptions).map(it -> String.join(", ", it));
 	}
 
 	/**

@@ -15,14 +15,10 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.ImmutableList;
-import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.plugins.ExtensionAware;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
 
@@ -31,60 +27,6 @@ import static java.util.Objects.requireNonNull;
  */
 public final class ModelNodes {
 	private ModelNodes() {}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class AndPredicate extends AbstractModelNodePredicate implements HasInputs {
-		private final Predicate<? super ModelNode> first;
-		private final Predicate<? super ModelNode> second;
-		private final Bits inputBits;
-		private final List<ModelComponentReference<?>> inputs;
-
-		public AndPredicate(Predicate<? super ModelNode> first, Predicate<? super ModelNode> second) {
-			this.first = requireNonNull(first);
-			this.second = requireNonNull(second);
-			val builder = ImmutableList.<ModelComponentReference<?>>builder();
-			if (first instanceof HasInputs) {
-				builder.addAll(((HasInputs) first).getInputs());
-			}
-			if (second instanceof HasInputs) {
-				builder.addAll(((HasInputs) second).getInputs());
-			}
-			this.inputs = builder.build();
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public boolean test(ModelNode node) {
-			return first.test(node) && second.test(node);
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-
-		@Override
-		public String toString() {
-			return "ModelNodes.and(" + first + ", " + second + ")";
-		}
-	}
-
-	// TODO: All custom predicate here should extends from this base predicate
-	private static abstract class AbstractModelNodePredicate implements Predicate<ModelNode> {
-		// TODO: We should test this method for all custom predicate
-		@Override
-		public Predicate<ModelNode> and(Predicate<? super ModelNode> other) {
-			return new AndPredicate(this, other);
-		}
-
-		// TODO: Support or
-		// TODO: Support negate
-	}
 
 	/**
 	 * Returns the decorated model node of the specified instance.
@@ -121,54 +63,6 @@ public final class ModelNodes {
 			throw new IllegalStateException("Injecting a different model node!");
 		}
 		return target;
-	}
-
-	/**
-	 * Returns a predicate filtering model nodes by the specified parent path.
-	 *
-	 * @param parentPath  the parent path to match model nodes
-	 * @return a predicate matching model nodes by parent path, never null.
-	 */
-	// TODO: Rename to directDescendantOf
-	public static Predicate<ModelNode> withParent(ModelPath parentPath) {
-		return new WithParentPredicate(parentPath);
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class WithParentPredicate extends AbstractModelNodePredicate implements HasInputs {
-		private final ModelPath parentPath;
-		private final List<ModelComponentReference<?>> inputs;
-		private final Bits inputBits;
-
-		public WithParentPredicate(ModelPath parentPath) {
-			this.parentPath = requireNonNull(parentPath);
-			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPathComponent.class));
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public boolean test(ModelNode node) {
-			return node.find(ModelPathComponent.class)
-				.map(ModelPathComponent::get)
-				.flatMap(ModelPath::getParent)
-				.map(parentPath::equals)
-				.orElse(false);
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-
-		@Override
-		public String toString() {
-			return "ModelNodes.withParent(" + parentPath + ")";
-		}
 	}
 
 	private static IllegalArgumentException objectNotDecoratedWithModelNode(Object target) {
