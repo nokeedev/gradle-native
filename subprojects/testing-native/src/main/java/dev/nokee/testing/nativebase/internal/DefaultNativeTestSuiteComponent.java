@@ -293,7 +293,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	}
 
 	@Override
-	public String toString() {
-		return "native test suite '" + getName() + "'";
+	protected String getTypeName() {
+		return "native test suite";
 	}
 }
