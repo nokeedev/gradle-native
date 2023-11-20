@@ -241,7 +241,7 @@ public final class TransformerUtils {
 	 * @param <InputElementType>  input element type to transform
 	 * @return a {@link Transformer} instance to transform each the element of an iterable, never null.
 	 */
-	public static <OutputElementType, InputElementType> Transformer<Iterable<? extends OutputElementType>, Iterable<? extends InputElementType>> transformEach(org.gradle.api.Transformer<? extends OutputElementType, ? super InputElementType> mapper) {
+	public static <OutputElementType, InputElementType> Transformer<Iterable<? extends OutputElementType>, Iterable<? extends InputElementType>> transformEach(org.gradle.api.Transformer<? extends OutputElementType, InputElementType> mapper) {
 		if (isNoOpTransformer(mapper)) {
 			return NoOpTransformer.INSTANCE.withNarrowTypes();
 		}

@@ -137,13 +137,15 @@ public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElem
 	@Override
 	public void addBundle(Provider<? extends Iterable<? extends Dependency>> bundleProvider) {
 		// See Note 1.
-		delegate.configure(dependencies(addAll(asCollectionProvider(bundleProvider.map(transformEach(peek(defaultAction()::execute)))))));
+		final Provider<Iterable<? extends Dependency>> o = bundleProvider.map(transformEach(peek(defaultAction()::execute)));
+		delegate.configure(dependencies(addAll(asCollectionProvider(o))));
 	}
 
 	@Override
 	public <DependencyType extends Dependency> void addBundle(Provider<? extends Iterable<? extends DependencyType>> bundleProvider, Action<? super DependencyType> configureAction) {
 		// See Note 1.
-		delegate.configure(dependencies(addAll(asCollectionProvider(bundleProvider.map(transformEach(peek(defaultAction()::execute))).map(transformEach(peek(configureAction::execute)))))));
+		final Provider<Iterable<? extends Dependency>> o = bundleProvider.map(transformEach(peek(defaultAction()::execute))).map(transformEach(peek(configureAction::execute)));
+		delegate.configure(dependencies(addAll(asCollectionProvider(o))));
 	}
 
 	@Override
