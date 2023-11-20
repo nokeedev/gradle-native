@@ -20,10 +20,6 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ComponentTagAwareFactory;
-import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -55,7 +51,7 @@ import java.util.stream.Stream;
 //      aka prevent further changes to the node.
 //    Actually, we shouldn't allow attaching configuration (applyTo, applyToSelf).
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
-public final class ModelNode implements Entity, ComponentTagAwareFactory {
+public final class ModelNode implements Entity {
 	private final ModelEntityId id = ModelEntityId.nextId();
 	private final ComponentRegistry components;
 
@@ -174,11 +170,6 @@ public final class ModelNode implements Entity, ComponentTagAwareFactory {
 	 */
 	public static Builder builder() {
 		return new Builder();
-	}
-
-	@Override
-	public <T extends ModelTag> ModelComponentTag<T> addComponentTag(Class<T> type) {
-		return addComponent(ModelTags.tag(type));
 	}
 
 	public static final class Builder {

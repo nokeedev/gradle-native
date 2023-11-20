@@ -25,7 +25,6 @@ import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
@@ -75,7 +74,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 
 		model(project, objects()).configureEach((identifier, target) -> {
 			if (target instanceof NativeLanguageSourceSetAware) {
-				final Class<? extends ModelTag> sourceSetTag = SupportSwiftSourceSetTag.class;
+				final Class<?> sourceSetTag = SupportSwiftSourceSetTag.class;
 				final ElementName name = ElementName.of("swift");
 				final Class<? extends LanguageSourceSet> sourceSetType = SwiftSourceSetSpec.class;
 

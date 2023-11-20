@@ -28,7 +28,6 @@ import dev.nokee.language.nativebase.internal.UseConventionalLayout;
 import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
@@ -73,7 +72,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 
 		model(project, objects()).configureEach((identifier, target) -> {
 			if (target instanceof NativeLanguageSourceSetAware) {
-				final Class<? extends ModelTag> sourceSetTag = SupportCSourceSetTag.class;
+				final Class<?> sourceSetTag = SupportCSourceSetTag.class;
 				final ElementName name = ElementName.of("c");
 				final Class<? extends LanguageSourceSet> sourceSetType = CSourceSetSpec.class;
 
