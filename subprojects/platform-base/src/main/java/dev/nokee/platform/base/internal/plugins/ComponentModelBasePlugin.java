@@ -19,10 +19,7 @@ import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
-import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -36,7 +33,6 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.MainProjectionComponent;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
@@ -64,8 +60,6 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -118,20 +112,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		// FIXME: This is temporary until we convert all entity
 		project.afterEvaluate(__ -> {
 			model(project, mapOf(Variant.class)).whenElementKnow(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
-		});
-		project.afterEvaluate(__ -> {
-			int previousCount = 0;
-			List<ModelNode> result = Collections.emptyList();
-			do
-			{
-				previousCount = result.size();
-				result = project.getExtensions().getByType(ModelLookup.class).query(it -> it.has(MainProjectionComponent.class)).get();
-				result.forEach(it -> {
-					it.find(MainProjectionComponent.class).ifPresent(component -> {
-						ModelStates.finalize(it);
-					});
-				});
-			} while (previousCount != result.size());
 		});
 
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class, name -> {

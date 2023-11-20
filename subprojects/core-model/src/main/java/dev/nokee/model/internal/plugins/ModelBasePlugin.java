@@ -60,7 +60,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	}
 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
-		val modelRegistry = new DefaultModelRegistry(objects::newInstance);
+		val modelRegistry = new DefaultModelRegistry();
 		target.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
 		target.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
 		target.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);

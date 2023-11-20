@@ -16,11 +16,8 @@
 package dev.nokee.model.internal.registry;
 
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelSpec;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -28,46 +25,6 @@ import java.util.function.Function;
  * A read-only supplier of {@link ModelNode}.
  */
 public interface ModelLookup {
-	/**
-	 * Returns the model node for the specified path.
-	 *
-	 * @param path  a model node path to retrieve
-	 * @return the {@link ModelNode} for the specified path, never null.
-	 */
-	ModelNode get(ModelPath path);
-
-	/**
-	 * Returns the model node for the specified path if present.
-	 *
-	 * @param path  a model node path to retrive, must not be null
-	 * @return the {@link ModelNode} for the specified path if present, never null
-	 */
-	Optional<ModelNode> find(ModelPath path);
-
-	/**
-	 * Executes a complex query on the known model nodes.
-	 *
-	 * @param spec  the spec to match the nodes to select
-	 * @return a result instance containing matching nodes, never null.
-	 */
-	Result query(ModelSpec spec);
-
-	/**
-	 * Returns true if node exists at the specified path, or false otherwise.
-	 *
-	 * @param path  a model node path to check
-	 * @return true if a node exists at the specified path, or false otherwise.
-	 */
-	boolean has(ModelPath path);
-
-	/**
-	 * Returns true if any node matches the specified spec, or false otherwise.
-	 *
-	 * @param spec  a spec to match any model nodes
-	 * @return true if a node matches the specified spec, of false otherwise.
-	 */
-	boolean anyMatch(ModelSpec spec);
-
 	// TODO: We could introduce a visitor pattern API to walk model nodes.
 	//   val result = ImmutableSet.<T>builder();
 	//   visit(directDescendants(projection(type).andThen(result::add)));
@@ -116,30 +73,6 @@ public interface ModelLookup {
 	 */
 	static ModelLookup failingLookup() {
 		return new ModelLookup() {
-			@Override
-			public ModelNode get(ModelPath path) {
-				throw new UnsupportedOperationException("This instance always fails.");
-			}
-
-			@Override
-			public Optional<ModelNode> find(ModelPath path) {
-				return Optional.empty();
-			}
-
-			@Override
-			public Result query(ModelSpec spec) {
-				throw new UnsupportedOperationException("This instance always fails.");
-			}
-
-			@Override
-			public boolean has(ModelPath path) {
-				throw new UnsupportedOperationException("This instance always fails.");
-			}
-
-			@Override
-			public boolean anyMatch(ModelSpec spec) {
-				throw new UnsupportedOperationException("This instance always fails.");
-			}
 		};
 	}
 }

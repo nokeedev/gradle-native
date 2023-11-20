@@ -221,9 +221,6 @@ public final class ModelNode implements Entity {
 			self.setValue(entity);
 			entity.addComponent(new BindManagedProjectionService(instantiator));
 			entity.addComponent(new ModelPathComponent(path));
-			path.getParent().ifPresent(parentPath -> {
-				entity.addComponent(new ParentComponent(lookup.get(parentPath)));
-			});
 			ModelStates.create(entity);
 			ModelStates.initialize(entity);
 			return entity;

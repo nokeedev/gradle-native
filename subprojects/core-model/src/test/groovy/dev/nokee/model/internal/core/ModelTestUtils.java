@@ -25,7 +25,6 @@ import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
@@ -120,53 +119,9 @@ public final class ModelTestUtils {
 		val actions = new ArrayList<ModelAction>();
 		builder.withPath(ModelNodeUtils.getPath(parent).child(name));
 		builder.withLookup(new ModelLookup() {
-			@Override
-			public ModelNode get(ModelPath path) {
-				if (ModelNodeUtils.getPath(parent).equals(path)) {
-					return parent;
-				}
-				return children.computeIfAbsent(path, key -> {
-					throw new UnsupportedOperationException("This instance always fails if path is not '" + parent + "' or any known direct children.");
-				});
-			}
-
-			@Override
-			public Optional<ModelNode> find(ModelPath path) {
-				if (ModelNodeUtils.getPath(parent).equals(path)) {
-					return Optional.of(parent);
-				}
-				return Optional.ofNullable(children.get(path));
-			}
-
-			@Override
-			public Result query(ModelSpec spec) {
-				throw new UnsupportedOperationException("This instance always fails.");
-			}
-
-			@Override
-			public boolean has(ModelPath path) {
-				return children.containsKey(path);
-			}
-
-			@Override
-			public boolean anyMatch(ModelSpec spec) {
-				throw new UnsupportedOperationException("This instance always fails.");
-			}
 		});
 		builder.withInstantiator(objectFactory()::newInstance);
 		builder.withConfigurer(new ModelConfigurer() {
-			@Override
-			public void configure(ModelAction action) {
-				actions.add(action);
-				val node = nodeProvider.getValue();
-				if (node != null) {
-					if (action instanceof HasInputs && ((HasInputs) action).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
-						action.execute(node);
-					} else {
-						action.execute(node);
-					}
-				}
-			}
 		});
 		builder.withListener(new ModelNodeListener() {
 			@Override
