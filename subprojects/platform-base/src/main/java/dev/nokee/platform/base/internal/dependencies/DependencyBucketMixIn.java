@@ -16,11 +16,11 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.provider.ProviderConvertible;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderConvertible;
 import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;

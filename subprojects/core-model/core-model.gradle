@@ -27,6 +27,7 @@ gradlePlugin {
 	dependencies {
 		implementation project(':coreUtils')
 		implementation project(':gradleApi')
+		compileOnly project(':gradleAnnotation')
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	}

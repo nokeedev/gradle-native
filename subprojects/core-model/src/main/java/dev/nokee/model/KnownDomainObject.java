@@ -15,7 +15,6 @@
  */
 package dev.nokee.model;
 
-import dev.nokee.provider.ProviderConvertible;
 import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
@@ -23,6 +22,7 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderConvertible;
 
 import static java.util.Objects.requireNonNull;
 
