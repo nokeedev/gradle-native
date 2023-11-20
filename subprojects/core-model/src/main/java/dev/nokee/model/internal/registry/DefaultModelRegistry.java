@@ -34,7 +34,6 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpec;
 import dev.nokee.model.internal.core.ObservableComponentRegistry;
 import lombok.val;
@@ -62,25 +61,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		this.instantiator = instantiator;
 		this.bindingService = new BindManagedProjectionService(instantiator);
 		rootNode = null;
-	}
-
-	@Override
-	public ModelNode instantiate(ModelRegistration registration) {
-		val node = new ModelNode(components);
-		idToEntities.put(node.getId(), node);
-		entities.add(node);
-		return newNode(node, registration);
-	}
-
-	private ModelNode newNode(ModelNode entity, ModelRegistration registration) {
-		for (Object component : registration.getComponents()) {
-			if (component instanceof ModelProjection) {
-				entity.addComponent(bindingService.bindManagedProjectionWithInstantiator((ModelProjection) component));
-			} else {
-				entity.addComponent((ModelComponent) component);
-			}
-		}
-		return entity;
 	}
 
 	@Override

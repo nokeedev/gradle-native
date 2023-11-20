@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static java.util.Arrays.stream;
@@ -190,29 +189,7 @@ public final class ModelTestUtils {
 				}
 			}
 		});
-		builder.withRegistry(new ModelRegistry() {
-			@Override
-			public ModelNode instantiate(ModelRegistration registration) {
-				val path = registration.getComponents().stream().flatMap(this::findModelPath).findFirst().get();
-				val childNode = childNode(nodeProvider.getValue(), path.getName(), builder -> {});
-				registration.getComponents().forEach(it -> {
-					if (it instanceof ModelProjection) {
-						childNode.addComponent((ModelProjection) it);
-					} else {
-						childNode.addComponent((ModelComponent) it);
-					}
-				});
-				children.put(path, childNode);
-				return childNode;
-			}
-
-			private Stream<ModelPath> findModelPath(Object component) {
-				if (component instanceof ModelPathComponent) {
-					return of(((ModelPathComponent) component).get());
-				}
-				return Stream.empty();
-			}
-		});
+		builder.withRegistry(new ModelRegistry() {});
 		action.accept(builder);
 		return builder.build();
 	}

@@ -15,9 +15,5 @@
  */
 package dev.nokee.model.internal.registry;
 
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelRegistration;
-
 public interface ModelRegistry {
-	ModelNode instantiate(ModelRegistration registration);
 }

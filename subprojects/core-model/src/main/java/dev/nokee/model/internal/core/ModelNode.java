@@ -231,10 +231,6 @@ public final class ModelNode implements Entity {
 
 		private static ModelRegistry failingRegistry() {
 			return new ModelRegistry() {
-				@Override
-				public ModelNode instantiate(ModelRegistration registration) {
-					throw new UnsupportedOperationException("This instance always fails.");
-				}
 			};
 		}
 	}
