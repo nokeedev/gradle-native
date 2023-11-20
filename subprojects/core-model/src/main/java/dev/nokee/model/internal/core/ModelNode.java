@@ -193,7 +193,6 @@ public final class ModelNode implements Entity {
 				}
 			}));
 			self.setValue(entity);
-			entity.addComponent(new BindManagedProjectionService(instantiator));
 			entity.addComponent(new ModelPathComponent(path));
 			ModelStates.create(entity);
 			ModelStates.initialize(entity);

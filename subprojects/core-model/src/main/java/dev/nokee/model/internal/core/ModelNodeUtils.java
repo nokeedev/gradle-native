@@ -15,11 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.type.ModelType;
-
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 // TODO: Remove "maybe add" custom logic to favour dedup within ModelProjection adding logic
 public final class ModelNodeUtils {
@@ -34,51 +30,6 @@ public final class ModelNodeUtils {
 	 */
 	public static Optional<ModelNode> getParent(ModelNode self) {
 		return self.find(ParentComponent.class).map(ParentComponent::get);
-	}
-
-	/**
-	 * Returns if the current node can be viewed as the specified type.
-	 *
-	 * @param self  the node to check viewing, must not be null
-	 * @param type  the type to query this model node
-	 * @return true if the node can be projected into the specified type, or false otherwise.
-	 */
-	public static boolean canBeViewedAs(ModelNode self, ModelType<?> type) {
-		return getProjections(self).anyMatch(it -> it.canBeViewedAs(type));
-	}
-
-	public static Stream<ModelProjection> getProjections(ModelNode self) {
-		return self.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast);
-	}
-
-	/**
-	 * Returns the first projection matching the specified type.
-	 *
-	 * @param self  the node to query projection, must not be null
-	 * @param type  the type of the requested projection
-	 * @param <T>  the type of the requested projection
-	 * @return an instance of the projected node into the specified instance
-	 * @see #get(ModelNode, ModelType)
-	 */
-	public static <T> T get(ModelNode self, Class<T> type) {
-		return get(self, ModelType.of(type));
-	}
-
-	/**
-	 * Returns the first projection matching the specified type.
-	 *
-	 * @param self  the node to query projection, must not be null
-	 * @param type  the type of the requested projection
-	 * @param <T>  the type of the requested projection
-	 * @return an instance of the projected node into the specified instance
-	 */
-	public static <T> T get(ModelNode self, ModelType<T> type) {
-		return ModelNodeContext.of(self).execute(node -> {
-			return getProjections(node)
-				.filter(it -> it.canBeViewedAs(type))
-				.findFirst().map(it -> it.get(type))
-				.orElseThrow(() -> new IllegalStateException("no projection for " + type + ": " + getProjections(node).map(it -> it.getType().getConcreteType().getSimpleName()).collect(Collectors.joining(", "))));
-		});
 	}
 
 	/**

@@ -34,7 +34,6 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantAwareComponentMixIn;
@@ -44,7 +43,6 @@ import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.SwiftIosApplication;
-import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
@@ -68,7 +66,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
 
 public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -89,7 +86,11 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 
 		final NamedDomainObjectProvider<DefaultSwiftIosApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultSwiftIosApplication.class).asProvider();
 		componentProvider.configure(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))));
-		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, (t, projection) -> projection.getGroupId().set(GroupId.of(project::getGroup))));
+		componentProvider.configure(it -> {
+//			assert it instanceof DefaultIosApplicationComponent;
+//			((DefaultIosApplicationComponent) it).getGroupId().set(GroupId.of(project::getGroup));
+			throw new UnsupportedOperationException("fix me");
+		});
 		project.getExtensions().add(SwiftIosApplication.class, EXTENSION_NAME, componentProvider.get());
 
 		// TODO: This should be solve in a better way

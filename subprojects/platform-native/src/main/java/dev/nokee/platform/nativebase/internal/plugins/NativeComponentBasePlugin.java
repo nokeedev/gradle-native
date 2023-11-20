@@ -34,7 +34,6 @@ import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.state.ModelStates;
@@ -42,7 +41,6 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasApiDependencyBucket;
@@ -130,7 +128,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
@@ -576,9 +573,5 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				((ObjectsTaskMixIn) component).getObjectsTask().configure(configureDependsOn(((HasDevelopmentVariant<?>) component).getDevelopmentVariant().flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
 			}
 		});
-	}
-
-	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {
-		return t -> action.accept(t, ModelNodeUtils.get(ModelNodes.of(t), type));
 	}
 }
