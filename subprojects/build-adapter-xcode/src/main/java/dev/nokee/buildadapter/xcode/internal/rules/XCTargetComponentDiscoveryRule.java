@@ -15,40 +15,30 @@
  */
 package dev.nokee.buildadapter.xcode.internal.rules;
 
-import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
-import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
-import dev.nokee.model.internal.core.DisplayNameComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.buildadapter.xcode.internal.plugins.XCProjectAdapterSpec;
+import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.platform.base.Component;
 import dev.nokee.xcode.XCLoader;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
+import org.gradle.api.Action;
+import org.gradle.api.Project;
 
-public final class XCTargetComponentDiscoveryRule extends ModelActionWithInputs.ModelAction2<XCProjectComponent, DisplayNameComponent> {
-	private final ModelRegistry registry;
+public final class XCTargetComponentDiscoveryRule implements Action<Project> {
+	private final ModelObjectRegistry<Component> componentRegistry;
 	private final XCLoader<Iterable<XCTargetReference>, XCProjectReference> targetLoader;
 
-	public XCTargetComponentDiscoveryRule(ModelRegistry registry, XCLoader<Iterable<XCTargetReference>, XCProjectReference> targetLoader) {
-		this.registry = registry;
+	public XCTargetComponentDiscoveryRule(ModelObjectRegistry<Component> componentRegistry, XCLoader<Iterable<XCTargetReference>, XCProjectReference> targetLoader) {
+		this.componentRegistry = componentRegistry;
 		this.targetLoader = targetLoader;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, XCProjectComponent xcProject, DisplayNameComponent displayName) {
-		xcProject.get().load(targetLoader).forEach(target -> {
-			ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent(target.getName()))
-				.withComponent(new XCTargetComponent(target))
-				.withComponentTag(IsComponent.class)
-				.withComponent(new DisplayNameComponent(String.format("target '%s' of %s", target.getName(), displayName.get())))
-				.withComponent(new ParentComponent(entity))
-				.build()));
+	public void execute(Project project) {
+		project.getExtensions().getByType(XCProjectReference.class).load(targetLoader).forEach(target -> {
+			componentRegistry.register(ProjectIdentifier.of(project).child(target.getName()), XCProjectAdapterSpec.class)
+				.configure(it -> it.getTarget().set(target));
 		});
 	}
 }

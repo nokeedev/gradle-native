@@ -16,14 +16,10 @@
 package dev.nokee.buildadapter.xcode.internal.rules;
 
 import dev.nokee.buildadapter.xcode.internal.GradleProjectPathService;
-import dev.nokee.buildadapter.xcode.internal.components.GradleProjectPathComponent;
-import dev.nokee.buildadapter.xcode.internal.components.GradleProjectTag;
-import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.tags.ModelComponentTag;
+import dev.nokee.buildadapter.xcode.internal.plugins.XcodeBuildAdapterExtension;
+import org.gradle.api.Action;
 
-public final class XcodeProjectPathRule extends ModelActionWithInputs.ModelAction2<ModelComponentTag<GradleProjectTag>, XCProjectComponent> {
+public final class XcodeProjectPathRule implements Action<XcodeBuildAdapterExtension.XCProjectExtension> {
 	private final GradleProjectPathService projectPaths;
 
 	public XcodeProjectPathRule(GradleProjectPathService projectPaths) {
@@ -31,7 +27,7 @@ public final class XcodeProjectPathRule extends ModelActionWithInputs.ModelActio
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelComponentTag<GradleProjectTag> ignore1, XCProjectComponent projectReference) {
-		entity.addComponent(new GradleProjectPathComponent(projectPaths.toProjectPath(projectReference.get())));
+	public void execute(XcodeBuildAdapterExtension.XCProjectExtension extension) {
+		extension.getProjectPath().convention(extension.getProjectLocation().map(projectPaths::toProjectPath));
 	}
 }

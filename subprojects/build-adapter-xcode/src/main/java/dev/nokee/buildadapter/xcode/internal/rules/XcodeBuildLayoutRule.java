@@ -16,14 +16,12 @@
 package dev.nokee.buildadapter.xcode.internal.rules;
 
 import dev.nokee.buildadapter.xcode.internal.GradleBuildLayout;
-import dev.nokee.buildadapter.xcode.internal.components.GradleProjectPathComponent;
-import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.plugins.CurrentXcodeInstallationValueSource;
+import dev.nokee.buildadapter.xcode.internal.plugins.XcodeBuildAdapterExtension;
 import dev.nokee.buildadapter.xcode.internal.plugins.XcodeInstallation;
 import dev.nokee.buildadapter.xcode.internal.plugins.XcodebuildExecTask;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.utils.ActionUtils;
+import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -36,7 +34,7 @@ import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 
-public final class XcodeBuildLayoutRule extends ModelActionWithInputs.ModelAction2<GradleProjectPathComponent, XCProjectComponent> {
+public final class XcodeBuildLayoutRule implements Action<XcodeBuildAdapterExtension.XCProjectExtension> {
 	private final GradleBuildLayout buildLayout;
 	private final ProviderFactory providers;
 	private final Provider<XcodeInstallation> defaultXcodeInstallation;
@@ -48,11 +46,11 @@ public final class XcodeBuildLayoutRule extends ModelActionWithInputs.ModelActio
 	}
 
 	@Override
-	protected void execute(ModelNode entity, GradleProjectPathComponent projectPath, XCProjectComponent projectReference) {
-		buildLayout.include(projectPath.get());
-		buildLayout.project(projectPath.get(), project -> {
+	public void execute(XcodeBuildAdapterExtension.XCProjectExtension extension) {
+		buildLayout.include(extension.getProjectPath().get());
+		buildLayout.project(extension.getProjectPath().get(), project -> {
 			project.getPluginManager().apply("dev.nokee.model-base");
-			forXcodeProject(projectReference.get(), composite(
+			forXcodeProject(extension.getProjectLocation().get(), composite(
 				workingDirectory(set(project.getRootProject().getLayout().getProjectDirectory())),
 				(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
 				(XcodebuildExecTask task) -> task.getXcodeInstallation().set(defaultXcodeInstallation)

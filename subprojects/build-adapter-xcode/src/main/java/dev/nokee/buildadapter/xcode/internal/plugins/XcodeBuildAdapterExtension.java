@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.internal.components;
 
-import dev.nokee.model.internal.core.ModelComponent;
+package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import java.nio.file.Path;
+import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.XCWorkspaceReference;
+import org.gradle.api.DomainObjectSet;
+import org.gradle.api.provider.Property;
+import org.gradle.util.Path;
 
-public final class SettingsDirectoryComponent implements ModelComponent {
-	private final Path value;
+public interface XcodeBuildAdapterExtension {
+	Property<XCWorkspaceReference> getWorkspaceLocation();
 
-	public SettingsDirectoryComponent(Path value) {
-		this.value = value;
-	}
+	DomainObjectSet<XCProjectExtension> getProjects();
 
-	public Path get() {
-		return value;
+	interface XCProjectExtension {
+		Property<XCProjectReference> getProjectLocation();
+		Property<Path> getProjectPath();
 	}
 }
