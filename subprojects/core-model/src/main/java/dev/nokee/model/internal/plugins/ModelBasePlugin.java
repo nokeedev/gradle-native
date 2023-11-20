@@ -24,10 +24,6 @@ import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.DisplayNameComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -69,8 +65,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		target.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
 		target.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
 
-		modelRegistry.get(ModelPath.root()).addComponent(new DisplayNameComponent(target.toString()));
-
 		target.getExtensions().create("model", ModelExtension.class);
 	}
 
@@ -83,10 +77,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		project.getConfigurations().all(ActionUtils.doNothing()); // Because... don't get me started with this... :'(
 
 		applyToAllTarget(project);
-
-		if (false) {
-			project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new IdentifierComponent(ProjectIdentifier.of(project)));
-		}
 
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
 		objects.register(model(project).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations()));
