@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal.rules;
 
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
@@ -25,14 +26,14 @@ import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMix
 
 import java.util.function.BiConsumer;
 
-public abstract class ExtendsFromImplementationDependencyBucketAction<T> implements BiConsumer<ModelObjectIdentifier, DependencyAwareComponent<?>> {
+public abstract class ExtendsFromImplementationDependencyBucketAction<T> implements BiConsumer<ModelObjects.ModelObjectIdentity, DependencyAwareComponent<?>> {
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
 	private Class<T> bucketUnderConfiguration() {
 		return (Class<T>) new TypeToken<T>(getClass()) {}.getRawType();
 	}
 
 	@Override
-	public final void accept(ModelObjectIdentifier identifier, DependencyAwareComponent<?> target) {
+	public final void accept(ModelObjects.ModelObjectIdentity identifier, DependencyAwareComponent<?> target) {
 		final ComponentDependencies targetDependencies = target.getDependencies();
 		if (targetDependencies instanceof ImplementationDependencyBucketMixIn && bucketUnderConfiguration().isInstance(targetDependencies)) {
 			bucketOf(bucketUnderConfiguration().cast(targetDependencies)).extendsFrom(((ImplementationDependencyBucketMixIn) targetDependencies).getImplementation());

@@ -152,7 +152,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DarwinRuntimePlugin.class); // for now, later we will be more smart
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction<LinkOnlyDependencyBucketMixIn>(model(project, objects())) {
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction<LinkOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(LinkOnlyDependencyBucketMixIn dependencies) {
 				return dependencies.getLinkOnly();

@@ -16,7 +16,7 @@
 
 package dev.nokee.platform.base.internal.rules;
 
-import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.LibraryComponentDependencies;
@@ -25,9 +25,9 @@ import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMix
 
 import java.util.function.BiConsumer;
 
-public final class ImplementationExtendsFromApiDependencyBucketAction implements BiConsumer<ModelObjectIdentifier, DependencyAwareComponent<?>> {
+public final class ImplementationExtendsFromApiDependencyBucketAction implements BiConsumer<ModelObjects.ModelObjectIdentity, DependencyAwareComponent<?>> {
 	@Override
-	public void accept(ModelObjectIdentifier objects, DependencyAwareComponent<?> target) {
+	public void accept(ModelObjects.ModelObjectIdentity objects, DependencyAwareComponent<?> target) {
 		final ComponentDependencies targetDependencies = target.getDependencies();
 		if (targetDependencies instanceof LibraryComponentDependencies && targetDependencies instanceof ApiDependencyBucketMixIn && targetDependencies instanceof ImplementationDependencyBucketMixIn) {
 			((ImplementationDependencyBucketMixIn) targetDependencies).getImplementation().extendsFrom(((ApiDependencyBucketMixIn) targetDependencies).getApi());

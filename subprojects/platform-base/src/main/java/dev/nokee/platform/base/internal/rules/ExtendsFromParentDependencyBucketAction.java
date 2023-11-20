@@ -17,34 +17,31 @@
 package dev.nokee.platform.base.internal.rules;
 
 import com.google.common.reflect.TypeToken;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
+import org.gradle.api.reflect.TypeOf;
 
 import java.util.function.BiConsumer;
 
-public abstract class ExtendsFromParentDependencyBucketAction<T> implements BiConsumer<ModelObjectIdentifier, DependencyAwareComponent<?>> {
-	private final ModelObjects objects; // TODO: Access to parent object should be allow through parameters
+import static dev.nokee.utils.Optionals.safeAs;
 
-	protected ExtendsFromParentDependencyBucketAction(ModelObjects objects) {
-		this.objects = objects;
-	}
-
+public abstract class ExtendsFromParentDependencyBucketAction<T> implements BiConsumer<ModelObjects.ModelObjectIdentity, DependencyAwareComponent<?>> {
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
 	private Class<T> bucketUnderConfiguration() {
 		return (Class<T>) new TypeToken<T>(getClass()) {}.getRawType();
 	}
 
 	@Override
-	public final void accept(ModelObjectIdentifier identifier, DependencyAwareComponent<?> target) {
+	public final void accept(ModelObjects.ModelObjectIdentity identifier, DependencyAwareComponent<?> target) {
 		final ComponentDependencies targetDependencies = target.getDependencies();
 		if (bucketUnderConfiguration().isInstance(targetDependencies)) {
-			objects.parentsOf(identifier)
+			identifier.getParents()
 				.filter(it -> it.instanceOf(DependencyAwareComponent.class))
 				.findFirst()
-				.map(it -> ((DependencyAwareComponent<?>) it.get()).getDependencies())
+				.map(safeAs(new TypeOf<DependencyAwareComponent<?>>() {}))
+				.map(DependencyAwareComponent::getDependencies)
 				.filter(bucketUnderConfiguration()::isInstance)
 				.ifPresent(parentDependencies -> {
 					bucketOf(bucketUnderConfiguration().cast(targetDependencies)).extendsFrom(bucketOf(bucketUnderConfiguration().cast(parentDependencies)));

@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -65,26 +66,61 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void configureEach(BiConsumer<? super ModelObjectIdentifier, ? super Object> configureAction) {
+	public void configureEach(BiConsumer<? super ModelObjectIdentity, ? super Object> configureAction) {
 		collections.all(it -> it.configureEach(target -> {
 			ModelElementSupport.safeAsModelElement(target).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-				configureAction.accept(identifier, target);
+				configureAction.accept(create(identifier), target);
 			});
 		}));
+	}
+
+	private ModelObjectIdentity create(ModelObjectIdentifier identifier) {
+		return new ModelObjectIdentity() {
+			@Override
+			public ModelObjectIdentifier getIdentifier() {
+				return identifier;
+			}
+
+			@Override
+			public Optional<ModelObjectIdentity> getParent() {
+				return Optional.ofNullable(identifier.getParent()).map(it -> create(it));
+			}
+
+			@Override
+			public Optional<Object> getAsOptional() {
+				return Optional.of(identifierToElements.get(identifier).get()); // TODO: cannot be null
+			}
+
+			@Nullable
+			@Override
+			public Object getOrNull() {
+				return identifierToElements.get(identifier).get(); // TODO: Cannot be null
+			}
+
+			@Override
+			public Stream<ModelObjectIdentity> getParents() {
+				return parentsOf(identifier).map(it -> create(it.getIdentifier()));
+			}
+
+			@Override
+			public boolean instanceOf(Class<?> type) {
+				return identifierToElements.get(identifier).instanceOf(type);
+			}
+		};
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> void configureEach(Class<T> type, BiConsumer<? super ModelObjectIdentifier, ? super T> configureAction) {
+	public <T> void configureEach(Class<T> type, BiConsumer<? super ModelObjectIdentity, ? super T> configureAction) {
 		collections.all(it -> it.configureEach(type, target -> {
 			ModelElementSupport.safeAsModelElement(target).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-				configureAction.accept(identifier, type.cast(target));
+				configureAction.accept(create(identifier), type.cast(target));
 			});
 		}));
 	}
 
 	@Override
-	public <T> void configureEach(TypeOf<T> type, BiConsumer<? super ModelObjectIdentifier, ? super T> configureAction) {
+	public <T> void configureEach(TypeOf<T> type, BiConsumer<? super ModelObjectIdentity, ? super T> configureAction) {
 		configureEach(type.getConcreteClass(), configureAction);
 	}
 

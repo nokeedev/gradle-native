@@ -192,7 +192,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 						val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
 						val values = project.getObjects().listProperty(PublishArtifact.class);
 						Provider<List<JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine()));
-						Provider<Iterable<JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
+						Provider<Iterable<? extends JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
 						val allArtifacts = project.getObjects().listProperty(PublishArtifact.class);
 						allArtifacts.set(allJniJars.flatMap(binaries -> {
 							val result = project.getObjects().listProperty(PublishArtifact.class);

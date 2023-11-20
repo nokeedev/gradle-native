@@ -19,6 +19,7 @@ import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
@@ -50,6 +51,7 @@ import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDependencyBucketAction;
+import dev.nokee.utils.Optionals;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
@@ -70,6 +72,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.utils.Optionals.safeAs;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>> COMPONENT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>>() {};
@@ -124,25 +127,25 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 		});
 
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ApiDependencyBucketMixIn>(model(project, objects())) {
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ApiDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(ApiDependencyBucketMixIn dependencies) {
 				return dependencies.getApi();
 			}
 		});
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ImplementationDependencyBucketMixIn>(model(project, objects())) {
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ImplementationDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(ImplementationDependencyBucketMixIn dependencies) {
 				return dependencies.getImplementation();
 			}
 		});
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<CompileOnlyDependencyBucketMixIn>(model(project, objects())) {
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<CompileOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(CompileOnlyDependencyBucketMixIn dependencies) {
 				return dependencies.getCompileOnly();
 			}
 		});
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<RuntimeOnlyDependencyBucketMixIn>(model(project, objects())) {
+		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<RuntimeOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(RuntimeOnlyDependencyBucketMixIn dependencies) {
 				return dependencies.getRuntimeOnly();
@@ -198,12 +201,12 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		};
 		project.getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<DefaultVariantDimensions>>() {}, "__nokee_dimensionsFactory", dimensionsFactory);
 
-		model(project, objects()).configureEach(new BiConsumer<ModelObjectIdentifier, Object>() {
+		model(project, objects()).configureEach(new BiConsumer<ModelObjects.ModelObjectIdentity, Object>() {
 			@Override
-			public void accept(ModelObjectIdentifier identifier, Object target) {
+			public void accept(ModelObjects.ModelObjectIdentity identifier, Object target) {
 				if (target instanceof HasBaseName) {
 					((HasBaseName) target).getBaseName().convention(project.provider(() -> {
-						return model(project, objects()).parentsOf(identifier)
+						return identifier.getParents()
 							.flatMap(projectionOf(HasBaseName.class))
 							.map(toProviderOf(HasBaseName::getBaseName))
 							.findFirst().orElseGet(() -> project.provider(notDefined()))
@@ -222,10 +225,10 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				return () -> null;
 			}
 
-			private /*static*/ <T> Function<ModelMapAdapters.ModelElementIdentity, Stream<T>> projectionOf(Class<T> type) {
+			private /*static*/ <T> Function<ModelObjects.ModelObjectIdentity, Stream<T>> projectionOf(Class<T> type) {
 				return it -> {
 					if (it.instanceOf(type)) {
-						return Stream.of(it.asModelObject(type).get());
+						return Optionals.stream(it.getAsOptional().map(safeAs(type)));
 					} else {
 						return Stream.empty();
 					}

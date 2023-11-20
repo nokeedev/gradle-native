@@ -20,6 +20,8 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.specs.Spec;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
@@ -27,12 +29,21 @@ import java.util.stream.Stream;
 public interface ModelObjects {
 	<T> void register(ModelMap<T> repository);
 
-	void configureEach(BiConsumer<? super ModelObjectIdentifier, ? super Object> configureAction);
-	<T> void configureEach(Class<T> type, BiConsumer<? super ModelObjectIdentifier, ? super T> configureAction);
-	<T> void configureEach(TypeOf<T> type, BiConsumer<? super ModelObjectIdentifier, ? super T> configureAction);
+	void configureEach(BiConsumer<? super ModelObjectIdentity, ? super Object> configureAction);
+	<T> void configureEach(Class<T> type, BiConsumer<? super ModelObjectIdentity, ? super T> configureAction);
+	<T> void configureEach(TypeOf<T> type, BiConsumer<? super ModelObjectIdentity, ? super T> configureAction);
 
 	Stream<ModelMapAdapters.ModelElementIdentity> parentsOf(ModelObjectIdentifier identifier);
 
 	<T> Provider<Set<T>> get(Class<T> type);
 	<T> Provider<Set<T>> get(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec);
+
+	interface ModelObjectIdentity {
+		ModelObjectIdentifier getIdentifier();
+		Optional<ModelObjectIdentity> getParent();
+		Optional<Object> getAsOptional();
+		@Nullable Object getOrNull();
+		Stream<ModelObjectIdentity> getParents();
+		boolean instanceOf(Class<?> type);
+	}
 }

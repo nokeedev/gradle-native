@@ -30,6 +30,7 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.scripts.DefaultImporter;
+import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -41,6 +42,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.utils.Optionals.safeAs;
 
 public class CLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -76,8 +78,8 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 				final ElementName name = ElementName.of("c");
 				final Class<? extends LanguageSourceSet> sourceSetType = CSourceSetSpec.class;
 
-				if (model(project, objects()).parentsOf(identifier).anyMatch(it -> ((ExtensionAware) it.get()).getExtensions().findByType(sourceSetTag) != null) || project.getExtensions().findByType(sourceSetTag) != null) {
-					model(project, registryOf(LanguageSourceSet.class)).register(identifier.child(name), sourceSetType);
+				if (identifier.getParents().flatMap(it -> Optionals.stream(it.getAsOptional().map(safeAs(ExtensionAware.class)))).anyMatch(it -> it.getExtensions().findByType(sourceSetTag) != null) || project.getExtensions().findByType(sourceSetTag) != null) {
+					model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
 				}
 			}
 		});
