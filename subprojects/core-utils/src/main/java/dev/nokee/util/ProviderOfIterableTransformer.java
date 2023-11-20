@@ -16,7 +16,6 @@
 
 package dev.nokee.util;
 
-import com.google.common.collect.ImmutableList;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.HasMultipleValues;
 import org.gradle.api.provider.Provider;
@@ -29,24 +28,16 @@ public final class ProviderOfIterableTransformer<ElementType> implements Transfo
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Provider<? extends Iterable<? extends ElementType>> transform(Iterable<? extends Provider<? extends ElementType>> providers) {
 		final Provider<?> container = containerFactory.create(Object.class);
 		for (Provider<? extends ElementType> provider : providers) {
-			((HasMultipleValues<?>) container).addAll(provider.map(this::ensureList));
+			((HasMultipleValues<Object>) container).add(provider);
 		}
 
 		@SuppressWarnings("unchecked")
 		Provider<? extends Iterable<ElementType>> result = (Provider<? extends Iterable<ElementType>>) container;
 		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	private <OUT, IN> Iterable<OUT> ensureList(IN g) {
-		if (g instanceof Iterable) {
-			return (Iterable<OUT>) g;
-		} else {
-			return (Iterable<OUT>) ImmutableList.of(g);
-		}
 	}
 
 	public static <ElementType> Transformer<Provider<? extends Iterable<? extends ElementType>>, Iterable<? extends Provider<? extends ElementType>>> toProviderOfIterable(CollectionContainerFactory<?> containerFactory) {
