@@ -31,11 +31,8 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeTarget;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
@@ -91,9 +88,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
-import static dev.nokee.model.internal.core.ModelNodes.withType;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 
@@ -346,7 +340,8 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 				}
 
 				private boolean hasSwiftCapability() {
-					return modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(component.getNode())).and(withType(of(SwiftSourceSet.class)))));
+					throw new UnsupportedOperationException("fix me");
+//					return modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(component.getNode())).and(withType(of(SwiftSourceSet.class)))));
 				}
 
 				public Transformer<Provider<? extends FileSystemLocation>, Binary> toProductLocation() {

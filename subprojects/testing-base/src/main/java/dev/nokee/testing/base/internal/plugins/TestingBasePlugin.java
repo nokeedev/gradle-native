@@ -16,10 +16,6 @@
 package dev.nokee.testing.base.internal.plugins;
 
 import dev.nokee.model.internal.ModelMapAdapters;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelSpecs;
-import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.testing.base.TestSuiteComponent;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
@@ -29,7 +25,6 @@ import org.gradle.api.plugins.ExtensionAware;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
-import static dev.nokee.model.internal.type.ModelType.of;
 
 public class TestingBasePlugin implements Plugin<Project> {
 	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent>> TEST_SUITE_COMPONENT_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent>>() {};
@@ -48,7 +43,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 
 		project.afterEvaluate(proj -> {
 			// Force realize all test suite... until we solve the differing problem.
-			project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withType(of(TestSuiteComponent.class)))).forEach(ModelStates::realize);
+			testSuites(proj).all(__ -> {});
 		});
 	}
 }

@@ -32,11 +32,11 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
@@ -95,8 +95,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
-import static dev.nokee.model.internal.core.ModelNodes.withType;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
@@ -201,7 +201,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 			// TODO: Map name to something close to what is expected
 			getBaseName().convention(component.getBaseName().map(it -> {
 				// if the tested component has a SwiftSourceSet
-				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(component.getNode())).and(withType(of(SwiftSourceSet.class)))))) {
+				if (model(project, objects()).get(SwiftSourceSet.class, t -> ModelObjectIdentifiers.descendantOf(t.getIdentifier(), component.getIdentifier())).get().isEmpty()) {
 					return it + "-" + getIdentifier().getName();
 				}
 				return it + StringUtils.capitalize(getIdentifier().getName().toString());
