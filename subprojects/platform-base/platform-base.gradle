@@ -28,7 +28,7 @@ gradlePlugin {
 		implementation project(':gradleApi')
 		implementation project(':coreUtils')
 		implementation project(':runtimeBase')
-		compileOnly project(':gradleAnnotation')
+		implementation project(':gradleAnnotation')
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 		compileOnly gradleApi(minimumGradleVersion)

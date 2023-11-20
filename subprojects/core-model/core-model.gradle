@@ -13,6 +13,7 @@ plugins {
 dependencies {
 	testFixturesApi project(':internalTesting')
 	testFixturesImplementation project(':coreUtils')
+	testFixturesImplementation project(':gradleAnnotation')
 	testFixturesImplementation gradleApi(minimumGradleVersion)
 }
 
@@ -27,7 +28,7 @@ gradlePlugin {
 	dependencies {
 		implementation project(':coreUtils')
 		implementation project(':gradleApi')
-		compileOnly project(':gradleAnnotation')
+		compileOnlyApi project(':gradleAnnotation')
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	}
