@@ -15,15 +15,12 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,23 +81,6 @@ public final class ModelNode implements Entity {
 		return component;
 	}
 
-	public <T extends ModelProjection> T addComponent(T component) {
-		@SuppressWarnings("unchecked")
-		final ModelComponentType<T> componentType = (ModelComponentType<T>) component.getComponentType();
-		val oldComponent = components.get(id, componentType);
-		if (oldComponent == null) {
-			componentBits = componentBits.or(componentType.familyBits());
-			components.set(id, componentType, component);
-		}
-		return component;
-	}
-
-	public ModelComponentTypes getComponentTypes() {
-		@SuppressWarnings("unchecked")
-		final Set<ModelComponentType<?>> allIds = (Set<ModelComponentType<?>>) components.getAllIds(id);
-		return new ModelComponentTypes(allIds);
-	}
-
 	public <T extends ModelComponent> T get(Class<T> type) {
 		return getComponent(ModelComponentType.componentOf(type));
 	}
@@ -119,13 +99,6 @@ public final class ModelNode implements Entity {
 		@SuppressWarnings("unchecked")
 		final T result = (T) components.get(id, componentType);
 		return Optional.ofNullable(result);
-	}
-
-	@Nullable
-	public <T extends ModelComponent> T findComponentNullable(ModelComponentType<T> componentType) {
-		@SuppressWarnings("unchecked")
-		final T result = (T) components.get(id, componentType);
-		return result;
 	}
 
 	public boolean hasComponent(ModelComponentType<? extends ModelComponent> componentType) {
@@ -170,19 +143,7 @@ public final class ModelNode implements Entity {
 	}
 
 	public static final class Builder {
-		private ModelPath path;
 		private ModelNodeListener listener = ModelNodeListener.noOpListener();
-		private Instantiator instantiator;
-
-		public Builder withPath(ModelPath path) {
-			this.path = path;
-			return this;
-		}
-
-		public Builder withInstantiator(Instantiator instantiator) {
-			this.instantiator = instantiator;
-			return this;
-		}
 
 		public ModelNode build() {
 			MutableObject<ModelNode> self = new MutableObject<>();
@@ -193,7 +154,6 @@ public final class ModelNode implements Entity {
 				}
 			}));
 			self.setValue(entity);
-			entity.addComponent(new ModelPathComponent(path));
 			ModelStates.create(entity);
 			ModelStates.initialize(entity);
 			return entity;

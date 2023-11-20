@@ -15,11 +15,9 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
 public abstract class ModelComponentReference<T extends ModelComponent> {
-	private static final ModelComponentType<ModelProjection> PROJECTION_COMPONENT_TYPE = ModelComponentType.componentOf(ModelProjection.class);
 	public abstract T get(ModelNode entity);
 
 	public abstract Bits componentBits();
@@ -31,11 +29,7 @@ public abstract class ModelComponentReference<T extends ModelComponent> {
 	}
 
 	public static <T extends ModelComponent> ModelComponentReference<T> ofInstance(ModelComponentType<T> componentType) {
-		if (PROJECTION_COMPONENT_TYPE.equals(componentType)) {
-			return ofAny(componentType);
-		} else {
-			return new OfInstanceReference<>(componentType);
-		}
+		return new OfInstanceReference<>(componentType);
 	}
 
 	@EqualsAndHashCode(callSuper = false)
@@ -69,93 +63,6 @@ public abstract class ModelComponentReference<T extends ModelComponent> {
 		@Override
 		public ModelComponentType<T> getType() {
 			return componentType;
-		}
-	}
-
-	private static <T extends ModelComponent> ModelComponentReference<T> ofAny(ModelComponentType<T> componentType) {
-		return new OfAnyReference<>(componentType);
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class OfAnyReference<T extends ModelComponent> extends ModelComponentReference<T> implements ModelComponentReferenceInternal {
-		private final ModelComponentType<T> componentType;
-
-		private OfAnyReference(ModelComponentType<T> componentType) {
-			this.componentType = componentType;
-		}
-
-		@Override
-		public boolean isSatisfiedBy(ModelComponentTypes componentTypes) {
-			return componentTypes.anyMatch(componentType::isSupertypeOf);
-		}
-
-		@Override
-		public boolean isSatisfiedBy(ModelComponentType<?> otherComponentType) {
-			return componentType.isSupertypeOf(otherComponentType);
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public T get(ModelNode entity) {
-			if (componentType.equals(ModelComponentType.componentOf(ModelProjection.class))) {
-				return (T) entity.getComponents().filter(it -> componentType.isSupertypeOf(ModelComponentType.ofInstance(it))).reduce((a, b) -> b).orElseThrow(RuntimeException::new);
-			} else {
-				return (T) entity.getComponents().filter(it -> componentType.isSupertypeOf(ModelComponentType.ofInstance(it))).findFirst().orElseThrow(RuntimeException::new);
-			}
-		}
-
-		@Override
-		public Bits componentBits() {
-			return componentType.bits();
-		}
-
-		@Override
-		public ModelComponentType<T> getType() {
-			return componentType;
-		}
-	}
-
-	public static <T> ModelComponentReference<ModelProjection> ofProjection(Class<T> projectionType) {
-		return new OfProjectionReference<>(projectionType);
-	}
-
-	public static <T> ModelComponentReference<ModelProjection> ofProjection(ModelType<T> projectionType) {
-		return new OfProjectionReference<>(projectionType.getConcreteType());
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class OfProjectionReference<T> extends ModelComponentReference<ModelProjection> implements ModelComponentReferenceInternal {
-		@EqualsAndHashCode.Exclude private final ModelComponentReference<ModelProjection> delegate;
-		private final Class<T> projectionType;
-
-		public OfProjectionReference(Class<T> projectionType) {
-			this.delegate = new OfAnyReference<>(ModelComponentType.projectionOf(projectionType));
-			this.projectionType = projectionType;
-		}
-
-		@Override
-		public ModelProjection get(ModelNode entity) {
-			return delegate.get(entity);
-		}
-
-		@Override
-		public Bits componentBits() {
-			return delegate.componentBits();
-		}
-
-		@Override
-		public ModelComponentType<ModelProjection> getType() {
-			return ModelComponentType.componentOf(ModelProjection.class);
-		}
-
-		@Override
-		public boolean isSatisfiedBy(ModelComponentTypes componentTypes) {
-			return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(componentTypes);
-		}
-
-		@Override
-		public boolean isSatisfiedBy(ModelComponentType<?> otherComponentType) {
-			return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(otherComponentType);
 		}
 	}
 }

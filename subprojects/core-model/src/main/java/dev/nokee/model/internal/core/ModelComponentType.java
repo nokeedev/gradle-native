@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
@@ -66,35 +65,15 @@ public abstract class ModelComponentType<T> implements Component.Id {
 
 	private static final ConcurrentHashMap<Type, ModelComponentType<?>> knownComponentTypes = new ConcurrentHashMap<>();
 
-	public abstract boolean isSupertypeOf(ModelComponentType<?> componentType);
-
 	public abstract Bits familyBits();
 
 	public abstract Bits bits();
-
-	@SuppressWarnings("unchecked")
-	public static <T> ModelComponentType<? super T> ofInstance(T component) {
-		Objects.requireNonNull(component);
-		Preconditions.checkArgument(component instanceof ModelComponent);
-		return (ModelComponentType<? super T>) ((ModelComponent) component).getComponentType();
-	}
 
 	private static final Function<Type, ModelComponentType<?>> COMPUTE_COMPONENT_TYPE = t -> new ComponentType<>((Class<?>) t);
 
 	public static <T> ModelComponentType<T> componentOf(Class<T> type) {
 		Objects.requireNonNull(type);
 		return (ModelComponentType<T>) knownComponentTypes.computeIfAbsent(type, COMPUTE_COMPONENT_TYPE);
-	}
-
-	private static final Function<Type, ModelComponentType<?>> COMPUTE_PROJECTION_TYPE = t -> new ProjectionType<>(ModelType.of(t));
-
-	public static <T> ModelComponentType<ModelProjection> projectionOf(Class<T> type) {
-		return projectionOf(ModelType.of(type));
-	}
-
-	public static <T> ModelComponentType<ModelProjection> projectionOf(ModelType<T> type) {
-		Objects.requireNonNull(type);
-		return (ModelComponentType<ModelProjection>) knownComponentTypes.computeIfAbsent(type.getType(), COMPUTE_PROJECTION_TYPE);
 	}
 
 	private static int id = 0;
@@ -118,16 +97,6 @@ public abstract class ModelComponentType<T> implements Component.Id {
 		}
 
 		@Override
-		public boolean isSupertypeOf(ModelComponentType<?> componentType) {
-			if (value.equals(ModelProjection.class) && componentType instanceof ProjectionType) {
-				return true;
-			} else if (componentType instanceof ComponentType) {
-				return value.isAssignableFrom(((ComponentType<?>) componentType).value);
-			}
-			return false;
-		}
-
-		@Override
 		public Bits familyBits() {
 			return componentFamilyBits(value);
 		}
@@ -140,37 +109,6 @@ public abstract class ModelComponentType<T> implements Component.Id {
 		@Override
 		public String toString() {
 			return value.getName().substring(value.getName().lastIndexOf('.') + 1).replace('$', '.');
-		}
-	}
-
-	private static class ProjectionType<T> extends ModelComponentType<ModelProjection> {
-		private final ModelType<T> value;
-
-		private ProjectionType(ModelType<T> value) {
-			this.value = value;
-		}
-
-		@Override
-		public boolean isSupertypeOf(ModelComponentType<?> componentType) {
-			if (componentType instanceof ProjectionType) {
-				return value.isAssignableFrom(((ProjectionType<?>) componentType).value);
-			}
-			return false;
-		}
-
-		@Override
-		public Bits familyBits() {
-			return componentFamilyBits(value.getType()).or(componentBits(ModelProjection.class));
-		}
-
-		@Override
-		public Bits bits() {
-			return componentBits(value.getType()).or(componentBits(ModelProjection.class));
-		}
-
-		@Override
-		public String toString() {
-			return "projection of " + value.getType().getTypeName();
 		}
 	}
 }
