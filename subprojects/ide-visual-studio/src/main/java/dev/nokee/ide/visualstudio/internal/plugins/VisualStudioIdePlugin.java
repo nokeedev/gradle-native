@@ -17,7 +17,6 @@ package dev.nokee.ide.visualstudio.internal.plugins;
 
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectExtension;
 import dev.nokee.ide.visualstudio.internal.rules.CreateNativeComponentVisualStudioIdeProject;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import lombok.val;
 import org.gradle.api.Action;
@@ -36,7 +35,6 @@ public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 		return new Action<ComponentModelBasePlugin>() {
 			@Override
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
-				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 				val action = new CreateNativeComponentVisualStudioIdeProject(extension, project.getLayout(), project.getObjects(), project.getProviders());
 				throw new UnsupportedOperationException("fixme");
 //				modelConfigurer.configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(ModelElementFactory.class), (entity, tag, factory) -> {
