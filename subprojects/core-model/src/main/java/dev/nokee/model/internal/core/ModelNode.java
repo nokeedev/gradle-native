@@ -15,14 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import lombok.val;
-import org.apache.commons.lang3.mutable.MutableObject;
-
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * A node in the model.
  */
@@ -46,114 +38,13 @@ import java.util.stream.Stream;
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode implements Entity {
 	private final ModelEntityId id = ModelEntityId.nextId();
-	private final ComponentRegistry components;
-
-	// Represent all components this entity has.
-	private Bits componentBits = Bits.empty();
-
-	public ModelNode() {
-		components = new DefaultComponentRegistry();
-	}
-
-	public ModelNode(ComponentRegistry components) {
-		this.components = components;
-	}
 
 	public ModelEntityId getId() {
 		return id;
 	}
 
-	public Bits getComponentBits() {
-		return componentBits;
-	}
-
-	public <T extends ModelComponent> T addComponent(T component) {
-		@SuppressWarnings("unchecked")
-		final ModelComponentType<T> componentType = (ModelComponentType<T>) component.getComponentType();
-		val oldComponent = components.get(id, componentType);
-		if (oldComponent == null || !oldComponent.equals(component)) {
-			if (oldComponent == null) {
-				componentBits = componentBits.or(componentType.familyBits());
-			}
-			components.set(id, componentType, component);
-		}
-		return component;
-	}
-
-	public <T extends ModelComponent> T get(Class<T> type) {
-		return getComponent(ModelComponentType.componentOf(type));
-	}
-
-	public <T extends ModelComponent> T getComponent(ModelComponentType<T> componentType) {
-		return findComponent(componentType).orElseThrow(() -> {
-			return new RuntimeException(String.format("No components of type '%s'. Available: %s", componentType, components.getAllIds(id).stream().map(Objects::toString).collect(Collectors.joining(", "))));
-		});
-	}
-
-	public <T extends ModelComponent> Optional<T> find(Class<T> type) {
-		return findComponent(ModelComponentType.componentOf(type));
-	}
-
-	public <T extends ModelComponent> Optional<T> findComponent(ModelComponentType<T> componentType) {
-		@SuppressWarnings("unchecked")
-		final T result = (T) components.get(id, componentType);
-		return Optional.ofNullable(result);
-	}
-
-	public boolean hasComponent(ModelComponentType<? extends ModelComponent> componentType) {
-		return components.get(id, componentType) != null;
-	}
-
-	public <T extends ModelComponent> boolean has(Class<T> type) {
-		return hasComponent(ModelComponentType.componentOf(type));
-	}
-
-	public <T extends ModelComponent> void setComponent(Class<T> componentType, T component) {
-		setComponent(component);
-	}
-
-	public <T extends ModelComponent> void setComponent(T component) {
-		@SuppressWarnings("unchecked")
-		val componentType = (ModelComponentType<T>) component.getComponentType();
-		if (components.get(id, componentType) == null) {
-			throw new RuntimeException();
-		}
-		componentBits = components.getAllIds(id).stream().map(it -> (ModelComponentType<?>) it)
-			.map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
-		components.set(id, componentType, component);
-	}
-
-	public Stream<ModelComponent> getComponents() {
-		return components.getAll(id).stream().map(ModelComponent.class::cast);
-	}
-
 	@Override
 	public String toString() {
-		return find(ModelPathComponent.class).map(ModelPathComponent::get).map(Objects::toString).orElseGet(() -> "entity '" + id + "'");
-	}
-
-	/**
-	 * Returns a builder for a model node.
-	 *
-	 * @return a builder to create a model node, never null.
-	 */
-	public static Builder builder() {
-		return new Builder();
-	}
-
-	public static final class Builder {
-		private ModelNodeListener listener = ModelNodeListener.noOpListener();
-
-		public ModelNode build() {
-			MutableObject<ModelNode> self = new MutableObject<>();
-			val entity = new ModelNode(new ObservableComponentRegistry(new DefaultComponentRegistry(), new ObservableComponentRegistry.Listener() {
-				@Override
-				public void componentChanged(Entity.Id entityId, Component.Id componentId, Component component) {
-					listener.projectionAdded(self.getValue(), (ModelComponent) component);
-				}
-			}));
-			self.setValue(entity);
-			return entity;
-		}
+		return "entity '" + id + "'";
 	}
 }

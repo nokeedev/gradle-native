@@ -16,7 +16,4 @@
 package dev.nokee.model.internal.core;
 
 public interface ModelComponent extends Component {
-	default ModelComponentType<?> getComponentType() {
-		return ModelComponentType.componentOf(getClass());
-	}
 }
