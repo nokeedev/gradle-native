@@ -23,6 +23,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 
@@ -53,6 +54,10 @@ public interface CompileOnlyDependencyBucketMixIn extends ModelMixIn, HasCompile
 
 	default void compileOnly(Project project) {
 		getCompileOnly().addDependency(project);
+	}
+
+	default void compileOnly(Project project, Action<? super ProjectDependency> configureAction) {
+		getCompileOnly().addDependency(project, configureAction);
 	}
 
 	default void compileOnly(CharSequence dependencyNotation) {

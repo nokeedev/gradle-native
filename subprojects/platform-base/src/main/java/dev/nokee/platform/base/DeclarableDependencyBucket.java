@@ -20,6 +20,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.FileCollectionDependency;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderConvertible;
@@ -52,6 +53,8 @@ public interface DeclarableDependencyBucket extends DependencyBucket {
 	<DependencyType extends Dependency> void addDependency(ProviderConvertible<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction);
 
 	void addDependency(Project project);
+
+	void addDependency(Project project, Action<? super ProjectDependency> configureAction);
 
 	void addBundle(Iterable<? extends Dependency> bundle);
 

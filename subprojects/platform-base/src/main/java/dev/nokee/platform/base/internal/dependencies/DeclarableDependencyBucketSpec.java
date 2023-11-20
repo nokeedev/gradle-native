@@ -30,6 +30,7 @@ import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.FileCollectionDependency;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
@@ -94,6 +95,11 @@ public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElem
 	@Override
 	public void addDependency(Project project) {
 		addDependency(dependencyFactory.create(project));
+	}
+
+	@Override
+	public void addDependency(Project project, Action<? super ProjectDependency> configureAction) {
+		addDependency(dependencyFactory.create(project), configureAction);
 	}
 
 	@Override

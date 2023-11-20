@@ -23,6 +23,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 
@@ -53,6 +54,10 @@ public interface LinkOnlyDependencyBucketMixIn extends ModelMixIn, HasLinkOnlyDe
 
 	default void linkOnly(Project project) {
 		getLinkOnly().addDependency(project);
+	}
+
+	default void linkOnly(Project project, Action<? super ProjectDependency> configureAction) {
+		getLinkOnly().addDependency(project, configureAction);
 	}
 
 	default void linkOnly(CharSequence dependencyNotation) {
