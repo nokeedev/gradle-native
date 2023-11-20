@@ -16,8 +16,6 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.reflect.Instantiator;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
@@ -174,34 +172,11 @@ public final class ModelNode implements Entity {
 
 	public static final class Builder {
 		private ModelPath path;
-		private ModelConfigurer configurer = ModelConfigurer.failingConfigurer();
 		private ModelNodeListener listener = ModelNodeListener.noOpListener();
-		private ModelLookup lookup = ModelLookup.failingLookup();
-		private ModelRegistry registry = failingRegistry();
 		private Instantiator instantiator;
 
 		public Builder withPath(ModelPath path) {
 			this.path = path;
-			return this;
-		}
-
-		public Builder withConfigurer(ModelConfigurer configurer) {
-			this.configurer = configurer;
-			return this;
-		}
-
-		public Builder withListener(ModelNodeListener listener) {
-			this.listener = listener;
-			return this;
-		}
-
-		public Builder withLookup(ModelLookup lookup) {
-			this.lookup = lookup;
-			return this;
-		}
-
-		public Builder withRegistry(ModelRegistry registry) {
-			this.registry = registry;
 			return this;
 		}
 

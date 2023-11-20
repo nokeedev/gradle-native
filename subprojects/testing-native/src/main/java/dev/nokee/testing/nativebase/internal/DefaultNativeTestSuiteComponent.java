@@ -37,7 +37,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -116,11 +115,10 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, TargetMachineAwareComponentMixIn
 {
 	private final ObjectFactory objects;
-	private final ModelLookup modelLookup;
 	private final ModelObjectRegistry<Task> taskRegistry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("binaries", binariesFactory.create());
@@ -129,7 +127,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 		getExtensions().add("dimensions", dimensionsFactory.create());
 		this.taskRegistry = taskRegistry;
 		this.objects = objects;
-		this.modelLookup = modelLookup;
 
 		this.getBaseName().convention(BaseNameUtils.from(getIdentifier()).getAsString());
 	}

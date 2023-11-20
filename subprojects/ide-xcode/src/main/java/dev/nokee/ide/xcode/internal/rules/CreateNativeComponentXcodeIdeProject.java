@@ -33,7 +33,6 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Binary;
@@ -98,16 +97,14 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 	private final ProjectLayout projectLayout;
 	private final TaskContainer taskContainer;
 	private final ProjectIdentifier projectIdentifier;
-	private final ModelLookup modelLookup;
 
-	public CreateNativeComponentXcodeIdeProject(XcodeIdeProjectExtension extension, ProviderFactory providerFactory, ObjectFactory objectFactory, ProjectLayout projectLayout, TaskContainer taskContainer, ProjectIdentifier projectIdentifier, ModelLookup modelLookup) {
+	public CreateNativeComponentXcodeIdeProject(XcodeIdeProjectExtension extension, ProviderFactory providerFactory, ObjectFactory objectFactory, ProjectLayout projectLayout, TaskContainer taskContainer, ProjectIdentifier projectIdentifier) {
 		this.extension = extension;
 		this.providerFactory = providerFactory;
 		this.objectFactory = objectFactory;
 		this.projectLayout = projectLayout;
 		this.taskContainer = taskContainer;
 		this.projectIdentifier = projectIdentifier;
-		this.modelLookup = modelLookup;
 	}
 
 	@Override

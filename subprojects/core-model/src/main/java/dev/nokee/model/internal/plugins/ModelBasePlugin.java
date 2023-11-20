@@ -26,7 +26,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
@@ -62,7 +61,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
 		val modelRegistry = new DefaultModelRegistry();
 		target.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
-		target.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
 		target.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
 
 		target.getExtensions().create("model", ModelExtension.class);

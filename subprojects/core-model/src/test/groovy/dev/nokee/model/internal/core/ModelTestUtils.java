@@ -15,16 +15,9 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
-import org.apache.commons.lang3.mutable.MutableObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.function.Consumer;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
@@ -113,38 +106,9 @@ public final class ModelTestUtils {
 	}
 
 	public static ModelNode childNode(ModelNode parent, String name, Consumer<? super ModelNode.Builder> action) {
-		val nodeProvider = new MutableObject<ModelNode>();
-		val children = new HashMap<ModelPath, ModelNode>();
 		val builder = ModelNode.builder();
-		val actions = new ArrayList<ModelAction>();
 		builder.withPath(ModelNodeUtils.getPath(parent).child(name));
-		builder.withLookup(new ModelLookup() {
-		});
 		builder.withInstantiator(objectFactory()::newInstance);
-		builder.withConfigurer(new ModelConfigurer() {
-		});
-		builder.withListener(new ModelNodeListener() {
-			@Override
-			public void projectionAdded(ModelNode node, ModelComponent newComponent) {
-				if (newComponent instanceof ModelState.IsAtLeastCreated) {
-					nodeProvider.setValue(node);
-				}
-				val size = actions.size(); // avoid replaying new actions
-				for (int i = 0; i < size; ++i) {
-					val configuration = actions.get(i);
-					if (configuration instanceof HasInputs) {
-						if (((HasInputs) configuration).getInputs().stream().anyMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(ModelComponentType.ofInstance(newComponent))) && ((HasInputs) configuration).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
-							configuration.execute(node);
-						} else if (((HasInputs) configuration).getInputs().isEmpty()) {
-							configuration.execute(node);
-						}
-					} else {
-						configuration.execute(node);
-					}
-				}
-			}
-		});
-		builder.withRegistry(new ModelRegistry() {});
 		action.accept(builder);
 		return builder.build();
 	}
