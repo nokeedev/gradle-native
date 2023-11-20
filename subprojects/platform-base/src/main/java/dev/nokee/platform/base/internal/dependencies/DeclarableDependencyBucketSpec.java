@@ -32,6 +32,7 @@ import org.gradle.api.artifacts.FileCollectionDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderConvertible;
 
@@ -41,17 +42,20 @@ import java.util.function.BiConsumer;
 
 import static dev.nokee.utils.ProviderUtils.finalizeValue;
 import static dev.nokee.utils.TransformerUtils.peek;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 // Note 1: We can't realistically delay until realize because Kotlin plugin suck big time and Gradle removed important APIs... Too bad, blame Gradle or Kotlin.
 public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElementSupport implements DeclarableDependencyBucket
 	, DependencyBucketMixIn
 {
 	private final NamedDomainObjectProvider<Configuration> delegate;
+	private final ObjectFactory objects;
 	private final DependencyFactory dependencyFactory;
 
 	@Inject
-	public DeclarableDependencyBucketSpec(DependencyHandler handler, ModelObjectRegistry<Configuration> configurationRegistry) {
+	public DeclarableDependencyBucketSpec(DependencyHandler handler, ModelObjectRegistry<Configuration> configurationRegistry, ObjectFactory objects) {
 		this.delegate = configurationRegistry.register(getIdentifier(), Configuration.class).asProvider();
+		this.objects = objects;
 		getExtensions().add("$configuration", delegate.get());
 
 		this.dependencyFactory = DependencyFactory.forHandler(handler);
@@ -117,6 +121,47 @@ public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElem
 		addDependency(dependencyProvider.asProvider(), configureAction);
 	}
 
+	@Override
+	public void addBundle(Iterable<? extends Dependency> bundle) {
+		bundle.forEach(defaultAction()::execute);
+		delegate.configure(dependencies(addAll(bundle)));
+	}
+
+	@Override
+	public <DependencyType extends Dependency> void addBundle(Iterable<? extends DependencyType> bundle, Action<? super DependencyType> configureAction) {
+		bundle.forEach(defaultAction()::execute);
+		bundle.forEach(configureAction::execute);
+		delegate.configure(dependencies(addAll(bundle)));
+	}
+
+	@Override
+	public void addBundle(Provider<? extends Iterable<? extends Dependency>> bundleProvider) {
+		// See Note 1.
+		delegate.configure(dependencies(addAll(asCollectionProvider(bundleProvider.map(transformEach(peek(defaultAction()::execute)))))));
+	}
+
+	@Override
+	public <DependencyType extends Dependency> void addBundle(Provider<? extends Iterable<? extends DependencyType>> bundleProvider, Action<? super DependencyType> configureAction) {
+		// See Note 1.
+		delegate.configure(dependencies(addAll(asCollectionProvider(bundleProvider.map(transformEach(peek(defaultAction()::execute))).map(transformEach(peek(configureAction::execute)))))));
+	}
+
+	@Override
+	public void addBundle(ProviderConvertible<? extends Iterable<? extends Dependency>> bundleProvider) {
+		addBundle(bundleProvider.asProvider());
+	}
+
+	@Override
+	public <DependencyType extends Dependency> void addBundle(ProviderConvertible<? extends Iterable<? extends DependencyType>> bundleProvider, Action<? super DependencyType> configureAction) {
+		addBundle(bundleProvider.asProvider(), configureAction);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> Provider<? extends Iterable<T>> asCollectionProvider(Provider<? extends Iterable<? extends T>> collectionProvider) {
+		// TODO: Only on early Gradle
+		return (Provider<? extends Iterable<T>>) objects.listProperty(Object.class).value(collectionProvider);
+	}
+
 	private ActionUtils.Action<Dependency> defaultAction() {
 		final Action<ModuleDependency> action = finalizeValue(getDefaultDependencyAction()).map(ActionUtils.Action::of).getOrElse(ActionUtils.doNothing());
 		return dependency -> {
@@ -138,6 +183,15 @@ public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElem
 
 	private static <SELF, ElementType> BiConsumer<SELF, DomainObjectCollection<ElementType>> add(Provider<ElementType> elementProvider) {
 		return (self, collection) -> collection.addLater(elementProvider);
+	}
+
+
+	private static <SELF, ElementType> BiConsumer<SELF, Collection<ElementType>> addAll(Iterable<? extends ElementType> elements) {
+		return (self, collection) -> elements.forEach(collection::add);
+	}
+
+	private static <SELF, ElementType> BiConsumer<SELF, DomainObjectCollection<ElementType>> addAll(Provider<? extends Iterable<ElementType>> elementsProvider) {
+		return (self, collection) -> collection.addAllLater(elementsProvider);
 	}
 
 	@Override

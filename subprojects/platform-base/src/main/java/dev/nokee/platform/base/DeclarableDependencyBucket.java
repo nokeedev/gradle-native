@@ -52,4 +52,16 @@ public interface DeclarableDependencyBucket extends DependencyBucket {
 	<DependencyType extends Dependency> void addDependency(ProviderConvertible<DependencyType> dependencyProvider, Action<? super DependencyType> configureAction);
 
 	void addDependency(Project project);
+
+	void addBundle(Iterable<? extends Dependency> bundle);
+
+	<DependencyType extends Dependency> void addBundle(Iterable<? extends DependencyType> bundle, Action<? super DependencyType> configureAction);
+
+	void addBundle(Provider<? extends Iterable<? extends Dependency>> bundleProvider);
+
+	<DependencyType extends Dependency> void addBundle(Provider<? extends Iterable<? extends DependencyType>> bundleProvider, Action<? super DependencyType> configureAction);
+
+	void addBundle(ProviderConvertible<? extends Iterable<? extends Dependency>> bundleProvider);
+
+	<DependencyType extends Dependency> void addBundle(ProviderConvertible<? extends Iterable<? extends DependencyType>> bundleProvider, Action<? super DependencyType> configureAction);
 }
