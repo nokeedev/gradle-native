@@ -19,7 +19,6 @@ import com.google.common.base.Preconditions;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.HasApiElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
@@ -32,7 +31,6 @@ import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
@@ -43,17 +41,13 @@ import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.SourceAwareComponent;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
-import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
@@ -163,29 +157,17 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		final Factory<TaskView<SourceCompile>> compileTasksFactory = () -> {
-			Task.Namer namer = new Task.Namer();
-			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-			Runnable realizeNow = () -> {
-				model(project, mapOf(LanguageSourceSet.class)).whenElementKnow(it -> {
-					if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
-						it.realizeNow(); // force realize
-					}
-				});
-			};
-			return new TaskViewAdapter<>(new ViewAdapter<>(SourceCompile.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-		};
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(SharedLibraryBinaryInternal.class, model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
+			return project.getObjects().newInstance(SharedLibraryBinaryInternal.class, model(project, registryOf(DependencyBucket.class)));
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(BundleBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(BundleBinaryInternal.class, model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
+			return project.getObjects().newInstance(BundleBinaryInternal.class, model(project, registryOf(DependencyBucket.class)));
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ExecutableBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(ExecutableBinaryInternal.class, model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
+			return project.getObjects().newInstance(ExecutableBinaryInternal.class, model(project, registryOf(DependencyBucket.class)));
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(StaticLibraryBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(StaticLibraryBinaryInternal.class, compileTasksFactory);
+			return project.getObjects().newInstance(StaticLibraryBinaryInternal.class);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, name -> {
 			return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));

@@ -15,12 +15,9 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
@@ -47,11 +44,10 @@ public /*final*/ abstract class BundleBinaryInternal extends BaseNativeBinary im
 	, CompileTasksMixIn
 {
 	@Inject
-	public BundleBinaryInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objects, ProviderFactory providers) {
+	public BundleBinaryInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
 		getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
 		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
-		getExtensions().add("compileTasks", compileTasksFactory.create());
 
 		getCreateOrLinkTask().configure(this::configureBundleTask);
 	}

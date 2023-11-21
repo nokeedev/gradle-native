@@ -20,6 +20,7 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObject;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.decorators.ModelMixInSupport;
@@ -196,17 +197,31 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		});
 
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new Consumer<MutableModelDecorator.NestedObjectContext>() {
-			private final Factory<TaskView<Task>> tasksFactory = () -> {
+			private <T extends Task> TaskView<T> create(Class<T> elementType) {
 				Task.Namer namer = new Task.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-				Runnable realizeNow = () -> {};
-				return new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+				Runnable realizeNow = () -> {
+					if (elementType.getSimpleName().equals("SourceCompile")) {
+						try {
+							Class<?> LanguageSourceSet = Class.forName("dev.nokee.language.base.LanguageSourceSet");
+							model(project, mapOf(LanguageSourceSet)).whenElementKnow(it -> {
+								if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
+									it.realizeNow(); // force realize
+								}
+							});
+						} catch (ClassNotFoundException e) {
+							// ignore
+						}
+					}
+				};
+				return new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 			};
 
 			@Override
 			public void accept(MutableModelDecorator.NestedObjectContext context) {
 				if (context.getNestedType().isSubtypeOf(TaskView.class)) {
-					context.mixIn(tasksFactory.create());
+					final Class<? extends Task> elementType = (Class<? extends Task>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
+					context.mixIn(create(elementType));
 				}
 			}
 		});

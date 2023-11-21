@@ -17,14 +17,16 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.nativebase.NativeBinary;
-import org.gradle.api.plugins.ExtensionAware;
 
 // TODO: Isolate compileTasks into its own interface OR convert into a NativeBinaryMixIn
-public interface CompileTasksMixIn extends NativeBinary, ExtensionAware {
-	@SuppressWarnings("unchecked")
+public interface CompileTasksMixIn extends ModelMixIn, NativeBinary {
+	@Override
+	@NestedObject
 	default TaskView<SourceCompile> getCompileTasks() {
-		return (TaskView<SourceCompile>) getExtensions().getByName("compileTasks");
+		return mixedIn("compileTasks");
 	}
 }

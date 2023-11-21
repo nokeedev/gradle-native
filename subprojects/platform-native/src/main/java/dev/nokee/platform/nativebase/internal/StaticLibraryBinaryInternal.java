@@ -15,10 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.CreateTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
@@ -39,9 +36,8 @@ public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBi
 	, CompileTasksMixIn
 {
 	@Inject
-	public StaticLibraryBinaryInternal(Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objects, ProviderFactory providers) {
+	public StaticLibraryBinaryInternal(ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
-		getExtensions().add("compileTasks", compileTasksFactory.create());
 	}
 
 	@Override
