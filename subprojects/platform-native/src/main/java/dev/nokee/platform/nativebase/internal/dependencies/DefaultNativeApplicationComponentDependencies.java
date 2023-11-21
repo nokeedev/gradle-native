@@ -33,7 +33,8 @@ public /*final*/ abstract class DefaultNativeApplicationComponentDependencies im
 	, ImplementationDependencyBucketMixIn
 	, RuntimeOnlyDependencyBucketMixIn
 	, LinkOnlyDependencyBucketMixIn
-	, ExtensionAware {
+	, ExtensionAware
+{
 	@Inject
 	public DefaultNativeApplicationComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
 		getExtensions().add("compileOnly", bucketRegistry.register(identifier.child("compileOnly"), DeclarableDependencyBucketSpec.class).get());

@@ -183,10 +183,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			return new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
 		project.getExtensions().add(new TypeOf<Factory<BinaryView<Binary>>>() {}, "__nokee_binariesFactory", binariesFactory);
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
-			if (BinaryView.class.isAssignableFrom(method.getReturnType())) {
-				String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
-				((ExtensionAware) obj).getExtensions().add(extensionName, binariesFactory.create());
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
+			if (BinaryView.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+				context.mixIn(binariesFactory.create());
 			}
 		});
 
@@ -197,10 +196,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			return new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
 		project.getExtensions().add(new TypeOf<Factory<TaskView<Task>>>() {}, "__nokee_tasksFactory", tasksFactory);
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
-			if (TaskView.class.isAssignableFrom(method.getReturnType())) {
-				String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
-				((ExtensionAware) obj).getExtensions().add(extensionName, tasksFactory.create());
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
+			if (TaskView.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+				context.mixIn(tasksFactory.create());
 			}
 		});
 
@@ -214,11 +212,10 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			}
 		};
 		project.getExtensions().add(VariantViewFactory.class, "__nokee_variantsFactory", variantsFactory);
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
-			if (VariantView.class.isAssignableFrom(method.getReturnType())) {
-				Class<? extends Variant> elementType = (Class<? extends Variant>) ((ParameterizedType) TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(method.getGenericReturnType()).getType()).getActualTypeArguments()[0];
-				String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
-				((ExtensionAware) obj).getExtensions().add(extensionName, variantsFactory.create(elementType));
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
+			if (VariantView.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+				final Class<? extends Variant> elementType = (Class<? extends Variant>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
+				context.mixIn(variantsFactory.create(elementType));
 			}
 		});
 
@@ -227,30 +224,27 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			return project.getObjects().newInstance(DefaultVariantDimensions.class, dimensionPropertyFactory);
 		};
 		project.getExtensions().add(new TypeOf<Factory<DefaultVariantDimensions>>() {}, "__nokee_dimensionsFactory", dimensionsFactory);
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
-			if (VariantDimensions.class.isAssignableFrom(method.getReturnType())) {
-				String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
-				((ExtensionAware) obj).getExtensions().add(extensionName, dimensionsFactory.create());
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
+			if (VariantDimensions.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+				context.mixIn(dimensionsFactory.create());
 			}
 		});
 
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
-			if (ComponentDependencies.class.isAssignableFrom(method.getReturnType())) {
-				final Class<?> type = TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(method.getGenericReturnType()).getRawType();
-				final String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
-				((ExtensionAware) obj).getExtensions().create(extensionName, type, obj.getIdentifier(), model(project, registryOf(DependencyBucket.class)));
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
+			if (ComponentDependencies.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+				final Class<?> type = context.getNestedType().getRawType();
+				context.mixIn(project.getObjects().newInstance(type, context.getIdentifier(), model(project, registryOf(DependencyBucket.class))));
 			}
 		});
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
-			if (TaskProvider.class.isAssignableFrom(method.getReturnType())) {
-				final Type type = TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(method.getGenericReturnType()).getType();
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
+			if (TaskProvider.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+				final Type type = context.getNestedType().getType();
 				final Class<? extends Task> taskType = (Class<? extends Task>) ((ParameterizedType) type).getActualTypeArguments()[0];
-				final String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
-				String taskName = extensionName;
+				String taskName = context.getPropertyName();
 				if (taskName.endsWith("Task")) {
 					taskName = taskName.substring(0, taskName.length() - "Task".length());
 				}
-				((ExtensionAware) obj).getExtensions().add(extensionName, model(project, registryOf(Task.class)).register(obj.getIdentifier().child(TaskName.of(taskName)), taskType).asProvider());
+				context.mixIn(model(project, registryOf(Task.class)).register(context.getIdentifier().child(TaskName.of(taskName)), taskType).asProvider());
 			}
 		});
 

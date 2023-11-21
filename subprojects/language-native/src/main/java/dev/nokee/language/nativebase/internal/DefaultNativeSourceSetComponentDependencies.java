@@ -23,9 +23,12 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 
+import javax.inject.Inject;
+
 public /*final*/ abstract class DefaultNativeSourceSetComponentDependencies implements NativeSourceSetComponentDependencies
 	, CompileOnlyDependencyBucketMixIn
 {
+	@Inject
 	public DefaultNativeSourceSetComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
 		getExtensions().add("compileOnly", bucketRegistry.register(identifier.child("compileOnly"), DeclarableDependencyBucketSpec.class).get());
 	}

@@ -25,6 +25,8 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import org.gradle.api.plugins.ExtensionAware;
 
+import javax.inject.Inject;
+
 public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies implements JavaNativeInterfaceLibraryComponentDependencies
 	, ApiDependencyBucketMixIn
 	, NativeImplementationDependencyBucketMixIn
@@ -34,6 +36,7 @@ public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies imp
 	, JvmRuntimeOnlyDependencyBucketMixIn
 	, ExtensionAware
 {
+	@Inject
 	public DefaultJavaNativeInterfaceLibraryComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
 		getExtensions().add("api", bucketRegistry.register(identifier.child("api"), DeclarableDependencyBucketSpec.class).get());
 		 getExtensions().create("jvm", DefaultJvmComponentDependencies.class, identifier.child("jvm"), bucketRegistry);
