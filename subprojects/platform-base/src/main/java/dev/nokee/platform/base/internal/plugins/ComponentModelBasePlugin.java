@@ -27,6 +27,7 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
@@ -48,6 +49,7 @@ import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.rules.BaseNameConfigurationRule;
+import dev.nokee.platform.base.internal.rules.DevelopmentBinaryConventionRule;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDependencyBucketAction;
@@ -194,5 +196,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(new TypeOf<Factory<DefaultVariantDimensions>>() {}, "__nokee_dimensionsFactory", dimensionsFactory);
 
 		model(project, objects()).configureEach(HasBaseName.class, new BaseNameConfigurationRule(project.getProviders()));
+		model(project, mapOf(Component.class)).configureEach(HasDevelopmentBinary.class, new DevelopmentBinaryConventionRule(project.getProviders()));
 	}
 }
