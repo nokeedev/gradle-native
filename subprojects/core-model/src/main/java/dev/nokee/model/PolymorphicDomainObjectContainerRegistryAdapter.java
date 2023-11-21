@@ -15,6 +15,8 @@
  */
 package dev.nokee.model;
 
+import dev.nokee.model.internal.SupportedType;
+import dev.nokee.model.internal.SupportedTypes;
 import dev.nokee.utils.NamedDomainObjectCollectionUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.PolymorphicDomainObjectContainer;
