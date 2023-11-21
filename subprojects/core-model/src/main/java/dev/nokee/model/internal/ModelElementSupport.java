@@ -17,13 +17,13 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.internal.Factory;
-import dev.nokee.model.internal.decorators.ModelDecorator;
+import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import org.gradle.api.plugins.ExtensionAware;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public abstract class ModelElementSupport implements ModelElement, ExtensionAware {
+public abstract class ModelElementSupport extends ModelMixInSupport implements ModelElement, ExtensionAware {
 	private static final ThreadLocal<ModelElement> nextIdentity = new ThreadLocal<>();
 	private final ModelElement delegate;
 
@@ -31,10 +31,6 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 		assert getClass().getSimpleName().endsWith("_Decorated") : "must be instantiated via Gradle's ObjectFactory";
 		assert nextIdentity.get() != null : "must have identity, user ModelObjectSupport.newInstance(...)";
 		this.delegate = nextIdentity.get();
-
-		if (this instanceof ModelMixIn) {
-			Optional.ofNullable(ModelDecorator.DECORATOR.get()).orElseThrow(() -> new RuntimeException("must have a decorator")).decorate(this);
-		}
 	}
 
 	public String getName() {
@@ -43,7 +39,12 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 
 	@Override
 	public ModelObjectIdentifier getIdentifier() {
-		return delegate.getIdentifier();
+		// only while construction
+		if (delegate == null) {
+			return nextIdentity.get().getIdentifier();
+		} else {
+			return delegate.getIdentifier();
+		}
 	}
 
 	// TODO: Get identifier should mark the element as single identifier else there is no way of knowing which overlapping you want
@@ -53,7 +54,7 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 		@Nullable final ModelElement currentIdentity = nextIdentity.get();
 		try {
 			nextIdentity.set(identifier);
-			return factory.create();
+			return ModelMixInSupport.newInstance(identifier.getIdentifier(), factory);
 		} finally {
 			nextIdentity.set(currentIdentity);
 		}

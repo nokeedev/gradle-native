@@ -17,6 +17,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
@@ -27,7 +28,7 @@ import org.gradle.api.plugins.ExtensionAware;
 
 import javax.inject.Inject;
 
-public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies implements JavaNativeInterfaceLibraryComponentDependencies
+public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies extends ModelMixInSupport implements JavaNativeInterfaceLibraryComponentDependencies
 	, ApiDependencyBucketMixIn
 	, NativeImplementationDependencyBucketMixIn
 	, NativeLinkOnlyDependencyBucketMixIn
@@ -38,9 +39,8 @@ public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies imp
 {
 	@Inject
 	public DefaultJavaNativeInterfaceLibraryComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
-		getExtensions().add("api", bucketRegistry.register(identifier.child("api"), DeclarableDependencyBucketSpec.class).get());
 		 getExtensions().create("jvm", DefaultJvmComponentDependencies.class, identifier.child("jvm"), bucketRegistry);
-		 getExtensions().create("native", DefaultNativeComponentDependencies.class, identifier.child("native"), bucketRegistry);
+		 ModelMixInSupport.newInstance(identifier.child("native"), () -> getExtensions().create("native", DefaultNativeComponentDependencies.class));
 		 getExtensions().add("apiElements", bucketRegistry.register(identifier.child("apiElements"), ConsumableDependencyBucketSpec.class).get());
 		 getExtensions().add("runtimeElements", bucketRegistry.register(identifier.child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
 	}

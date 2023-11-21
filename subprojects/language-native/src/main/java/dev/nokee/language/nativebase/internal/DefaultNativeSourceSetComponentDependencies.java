@@ -17,19 +17,10 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
+import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 
-import javax.inject.Inject;
-
-public /*final*/ abstract class DefaultNativeSourceSetComponentDependencies implements NativeSourceSetComponentDependencies
+public /*final*/ abstract class DefaultNativeSourceSetComponentDependencies extends ModelMixInSupport implements NativeSourceSetComponentDependencies
 	, CompileOnlyDependencyBucketMixIn
 {
-	@Inject
-	public DefaultNativeSourceSetComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
-		getExtensions().add("compileOnly", bucketRegistry.register(identifier.child("compileOnly"), DeclarableDependencyBucketSpec.class).get());
-	}
 }

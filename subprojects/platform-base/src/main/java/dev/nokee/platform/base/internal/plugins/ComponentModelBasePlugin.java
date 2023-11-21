@@ -20,6 +20,7 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.decorators.ModelDecorator;
+import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.Artifact;
@@ -70,6 +71,7 @@ import org.gradle.api.tasks.TaskProvider;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
@@ -230,7 +232,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
 			if (context.getNestedType().isSubtypeOf(ComponentDependencies.class)) {
 				final Class<?> type = context.getNestedType().getRawType();
-				context.mixIn(project.getObjects().newInstance(type, context.getIdentifier(), model(project, registryOf(DependencyBucket.class))));
+				if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 0)) {
+					context.mixIn(ModelMixInSupport.newInstance(context.getIdentifier(), () -> project.getObjects().newInstance(type)));
+				} else if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 1)) {
+					context.mixIn(ModelMixInSupport.newInstance(context.getIdentifier(), () -> project.getObjects().newInstance(type, context.getIdentifier())));
+				} else if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 2)) {
+					context.mixIn(ModelMixInSupport.newInstance(context.getIdentifier(), () -> project.getObjects().newInstance(type, context.getIdentifier(), model(project, registryOf(DependencyBucket.class)))));
+				}
 			}
 		});
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
@@ -242,6 +250,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 					taskName = taskName.substring(0, taskName.length() - "Task".length());
 				}
 				context.mixIn(model(project, registryOf(Task.class)).register(context.getIdentifier().child(TaskName.of(taskName)), taskType).asProvider());
+			}
+		});
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
+			if (context.getNestedType().isSubtypeOf(DependencyBucket.class)) {
+				final Class<? extends DependencyBucket> bucketType = (Class<? extends DependencyBucket>) context.getNestedType().getConcreteType();
+				final String bucketName = context.getPropertyName();
+				context.mixIn(model(project, registryOf(DependencyBucket.class)).register(context.getIdentifier().child(bucketName), bucketType).get());
 			}
 		});
 

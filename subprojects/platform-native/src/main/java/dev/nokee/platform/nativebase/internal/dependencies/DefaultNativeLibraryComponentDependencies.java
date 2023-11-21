@@ -15,10 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
+import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
@@ -27,9 +24,7 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.mixins.LinkOnlyDependencyBucketMixIn;
 import org.gradle.api.plugins.ExtensionAware;
 
-import javax.inject.Inject;
-
-public /*final*/ abstract class DefaultNativeLibraryComponentDependencies implements NativeLibraryComponentDependencies
+public /*final*/ abstract class DefaultNativeLibraryComponentDependencies extends ModelMixInSupport implements NativeLibraryComponentDependencies
 	, ApiDependencyBucketMixIn
 	, CompileOnlyDependencyBucketMixIn
 	, ImplementationDependencyBucketMixIn
@@ -37,12 +32,4 @@ public /*final*/ abstract class DefaultNativeLibraryComponentDependencies implem
 	, LinkOnlyDependencyBucketMixIn
 	, ExtensionAware
 {
-	@Inject
-	public DefaultNativeLibraryComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
-		getExtensions().add("api", bucketRegistry.register(identifier.child("api"), DeclarableDependencyBucketSpec.class).get());
-		getExtensions().add("compileOnly", bucketRegistry.register(identifier.child("compileOnly"), DeclarableDependencyBucketSpec.class).get());
-		getExtensions().add("implementation", bucketRegistry.register(identifier.child("implementation"), DeclarableDependencyBucketSpec.class).get());
-		getExtensions().add("runtimeOnly", bucketRegistry.register(identifier.child("runtimeOnly"), DeclarableDependencyBucketSpec.class).get());
-		getExtensions().add("linkOnly", bucketRegistry.register(identifier.child("linkOnly"), DeclarableDependencyBucketSpec.class).get());
-	}
 }

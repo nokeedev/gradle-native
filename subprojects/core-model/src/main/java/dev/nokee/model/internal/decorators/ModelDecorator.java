@@ -17,12 +17,12 @@
 package dev.nokee.model.internal.decorators;
 
 import dev.nokee.internal.Factory;
-import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelMixIn;
 
 public interface ModelDecorator {
 	ThreadLocal<ModelDecorator> DECORATOR = new ThreadLocal<>();
 
-	void decorate(ModelElement obj);
+	void decorate(ModelMixIn obj);
 
 	static <T> T decorateUsing(ModelDecorator decorator, Factory<T> mapper) {
 		ModelDecorator previousDecorator = DECORATOR.get();

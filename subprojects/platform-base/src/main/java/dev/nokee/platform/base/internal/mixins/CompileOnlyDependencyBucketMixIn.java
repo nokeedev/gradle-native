@@ -17,6 +17,7 @@
 package dev.nokee.platform.base.internal.mixins;
 
 import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.HasCompileOnlyDependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import org.gradle.api.Action;
@@ -28,6 +29,8 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 
 public interface CompileOnlyDependencyBucketMixIn extends ModelMixIn, HasCompileOnlyDependencyBucket {
+	@Override
+	@NestedObject
 	default DeclarableDependencyBucketSpec getCompileOnly() {
 		return mixedIn("compileOnly");
 	}

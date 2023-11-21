@@ -18,6 +18,8 @@ package dev.nokee.model.internal;
 import org.gradle.api.plugins.ExtensionAware;
 
 public interface ModelMixIn extends ExtensionAware {
+	ModelObjectIdentifier getIdentifier();
+
 	@SuppressWarnings("unchecked")
 	default <T> T mixedIn(String propertyName) {
 		return (T) getExtensions().getByName(propertyName);

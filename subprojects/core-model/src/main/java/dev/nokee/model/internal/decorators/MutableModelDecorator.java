@@ -17,12 +17,11 @@
 package dev.nokee.model.internal.decorators;
 
 import com.google.common.reflect.TypeToken;
-import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.plugins.ExtensionAware;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -35,11 +34,11 @@ public class MutableModelDecorator implements ModelDecorator {
 	private final List<Consumer<? super NestedObjectContext>> nestedObjects = new ArrayList<>();
 
 	@Override
-	public void decorate(ModelElement obj) {
-		ModelType.typeOf(obj).walkTypeHierarchy(new ModelType.Visitor<ModelElement>() {
+	public void decorate(ModelMixIn obj) {
+		ModelType.typeOf(obj).walkTypeHierarchy(new ModelType.Visitor<ModelMixIn>() {
 			private final Set<String> processed = new HashSet<>();
 			@Override
-			public void visitType(ModelType<? super ModelElement> type) {
+			public void visitType(ModelType<? super ModelMixIn> type) {
 				for (final Method method : type.getConcreteType().getDeclaredMethods()) {
 					if (method.isAnnotationPresent(NestedObject.class)) {
 						if (processed.add(method.getName())) { // avoid processing method multiple time
@@ -55,7 +54,7 @@ public class MutableModelDecorator implements ModelDecorator {
 		});
 	}
 
-	private NestedObjectContext contextFor(ModelElement obj, Method method) {
+	private NestedObjectContext contextFor(ModelMixIn obj, Method method) {
 		return new NestedObjectContext() {
 			@Override
 			public ModelObjectIdentifier getIdentifier() {
@@ -64,7 +63,12 @@ public class MutableModelDecorator implements ModelDecorator {
 
 			@Override
 			public ModelType<?> getNestedType() {
-				return ModelType.of(TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(method.getGenericReturnType()).getType());
+				try {
+					Method m = method.getDeclaringClass().getMethod(method.getName());
+					return ModelType.of(TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(m.getGenericReturnType()).getType());
+				} catch (NoSuchMethodException e) {
+					throw new RuntimeException(e);
+				}
 			}
 
 			@Override
@@ -74,7 +78,7 @@ public class MutableModelDecorator implements ModelDecorator {
 
 			@Override
 			public void mixIn(Object value) {
-				((ExtensionAware) obj).getExtensions().add(getPropertyName(), value);
+				obj.getExtensions().add(getPropertyName(), value);
 			}
 		};
 	}

@@ -198,7 +198,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		executeAllTestCases();
 	}
 
-	private static final boolean LEAVE_WORKSPACE_BEHIND_ON_ERRORS = Boolean.parseBoolean(System.getProperty("dev.gradleplugins.internal.leave-workspace-behind-on-errors", "false"));
+	private static final boolean LEAVE_WORKSPACE_BEHIND_ON_ERRORS = Boolean.parseBoolean(System.getProperty("dev.gradleplugins.internal.leave-workspace-behind-on-errors", "true"));
 	private abstract class FileTesterTestCase implements TestCase {
 		private final TestNameTestDirectoryProvider testDirectory = TestNameTestDirectoryProvider.newInstance(getDisplayName(), WellBehavedPluginTester.this);
 		private boolean shouldCleanup = true;

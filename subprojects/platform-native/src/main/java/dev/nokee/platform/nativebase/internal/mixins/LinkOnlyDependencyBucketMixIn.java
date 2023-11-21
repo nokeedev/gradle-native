@@ -17,6 +17,7 @@
 package dev.nokee.platform.nativebase.internal.mixins;
 
 import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.nativebase.HasLinkOnlyDependencyBucket;
 import org.gradle.api.Action;
@@ -28,6 +29,8 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 
 public interface LinkOnlyDependencyBucketMixIn extends ModelMixIn, HasLinkOnlyDependencyBucket {
+	@Override
+	@NestedObject
 	default DeclarableDependencyBucketSpec getLinkOnly() {
 		return mixedIn("linkOnly");
 	}
