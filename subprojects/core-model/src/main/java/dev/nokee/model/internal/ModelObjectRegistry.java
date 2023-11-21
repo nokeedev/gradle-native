@@ -18,4 +18,24 @@ package dev.nokee.model.internal;
 
 public interface ModelObjectRegistry<ElementType> {
 	<RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type);
+
+	/**
+	 * Returns the registrable types known to this registry.
+	 *
+	 * @return registrable types of this registry, never null
+	 */
+	RegistrableTypes getRegistrableTypes();
+
+	/**
+	 * Represent all registrable types for the registry.
+	 */
+	interface RegistrableTypes {
+		/**
+		 * Returns {@literal true} if the specified type is registrable.
+		 *
+		 * @param type  the type to check against registry, must not be null
+		 * @return {@code true} if the specified type is registrable or {@code false} otherwise
+		 */
+		boolean canRegisterType(Class<?> type);
+	}
 }

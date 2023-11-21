@@ -28,7 +28,6 @@ import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -71,7 +70,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
 		objects.register(model(project).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations()));
-		objects.register(model(project).getExtensions().create("$tasks", ModelMapAdapters.ForPolymorphicDomainObjectContainer.class, Task.class, new Task.Namer(), project.getTasks()));
+		objects.register(model(project).getExtensions().create("$tasks", ModelMapAdapters.ForTaskContainer.class, project.getTasks()));
 
 		project.getExtensions().create("__nokee_modelDecorator", MutableModelDecorator.class);
 	}

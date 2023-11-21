@@ -29,6 +29,7 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Namer;
 import org.gradle.api.PolymorphicDomainObjectContainer;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
@@ -36,9 +37,13 @@ import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.SupportedTypes.instanceOf;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 
 public final class ModelMapAdapters {
@@ -134,6 +139,11 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		public RegistrableTypes getRegistrableTypes() {
+			return new DefaultRegistrableType(Configuration.class);
+		}
+
+		@Override
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForNamedDomainObjectContainer<Configuration>>() {}.getType());
 		}
@@ -161,19 +171,37 @@ public final class ModelMapAdapters {
 		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.forEach(configureAction);
 		}
+
+		private static final class DefaultRegistrableType implements RegistrableTypes {
+			private final SupportedType registrableType;
+
+			private DefaultRegistrableType(Class<?> containerType) {
+				this.registrableType = instanceOf(containerType);
+			}
+
+			@Override
+			public boolean canRegisterType(Class<?> type) {
+				Objects.requireNonNull(type);
+				return registrableType.supports(type);
+			}
+		}
 	}
 
-	public static /*final*/ class ForPolymorphicDomainObjectContainer<ElementType> implements ModelObjectRegistry<ElementType>, ModelMap<ElementType>, HasPublicType {
-		private final Class<ElementType> elementType;
+	public interface ForPolymorphicDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
+
+
+	public static /*final*/ class ForTaskContainer implements ForPolymorphicDomainObjectContainer<Task>, HasPublicType {
+		private final Class<Task> elementType;
 		private final KnownElements knownElements;
-		private final PolymorphicDomainObjectContainer<ElementType> delegate;
+		private final PolymorphicDomainObjectContainer<Task> delegate;
 
 		@Inject
-		public ForPolymorphicDomainObjectContainer(Class<ElementType> elementType, Namer<ElementType> namer, PolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects) {
-			this.elementType = elementType;
+		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, ObjectFactory objects) {
+			this.elementType = Task.class;
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
 
+			final Namer<Task> namer = new Task.Namer();
 			delegate.configureEach(it -> {
 				KnownElement element = knownElements.mapping.findByName(namer.determineName(it));
 				if (element != null) {
@@ -183,17 +211,22 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
+		public <RegistrableType extends Task> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
 			return knownElements.register(identifier, type, name -> registerIfAbsent(delegate, name, type));
 		}
 
 		@Override
-		public TypeOf<?> getPublicType() {
-			return TypeOf.typeOf(new TypeToken<ForPolymorphicDomainObjectContainer<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getType());
+		public RegistrableTypes getRegistrableTypes() {
+			return new TaskContainerRegistrableTypes();
 		}
 
 		@Override
-		public void configureEach(Action<? super ElementType> configureAction) {
+		public TypeOf<?> getPublicType() {
+			return TypeOf.typeOf(new TypeToken<ForPolymorphicDomainObjectContainer<Task>>() {}.getType());
+		}
+
+		@Override
+		public void configureEach(Action<? super Task> configureAction) {
 			delegate.configureEach(configureAction);
 		}
 
@@ -201,7 +234,7 @@ public final class ModelMapAdapters {
 		@SuppressWarnings("unchecked")
 		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
 			if (elementType.isAssignableFrom(type)) {
-				delegate.withType((Class<? extends ElementType>) type).configureEach((Action<? super ElementType>) configureAction);
+				delegate.withType((Class<? extends Task>) type).configureEach((Action<? super Task>) configureAction);
 			} else {
 				delegate.configureEach(it -> {
 					if (type.isInstance(it)) {
@@ -215,6 +248,16 @@ public final class ModelMapAdapters {
 		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.forEach(configureAction);
 		}
+
+		private static final class TaskContainerRegistrableTypes implements RegistrableTypes {
+			private final SupportedType registrableTypes = SupportedTypes.anySubtypeOf(Task.class);
+
+			@Override
+			public boolean canRegisterType(Class<?> type) {
+				Objects.requireNonNull(type);
+				return registrableTypes.supports(type);
+			}
+		}
 	}
 
 	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, ModelMap<ElementType>, HasPublicType {
@@ -222,6 +265,7 @@ public final class ModelMapAdapters {
 		private final KnownElements knownElements;
 		private final ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate;
 		private final ModelDecorator decorator;
+		private final Set<Class<? extends ElementType>> creatableTypes = new LinkedHashSet<>();
 
 		@Inject
 		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ModelDecorator decorator) {
@@ -237,8 +281,14 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		public RegistrableTypes getRegistrableTypes() {
+			return new DefaultRegistrableTypes();
+		}
+
+		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
 			delegate.registerFactory(type, name -> ModelDecorator.decorateUsing(decorator, () -> knownElements.create(name, type, factory)));
+			creatableTypes.add(type);
 		}
 
 		@Override
@@ -268,6 +318,22 @@ public final class ModelMapAdapters {
 		@Override
 		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.forEach(configureAction);
+		}
+
+		private final class DefaultRegistrableTypes implements RegistrableTypes {
+			@Override
+			public boolean canRegisterType(Class<?> type) {
+				Objects.requireNonNull(type);
+				return getSupportedTypes().anyMatch(it -> it.supports(type));
+			}
+
+			private Stream<SupportedType> getSupportedTypes() {
+				return getCreatableType().stream().map(SupportedTypes::instanceOf);
+			}
+
+			private Set<? extends Class<?>> getCreatableType() {
+				return creatableTypes;
+			}
 		}
 	}
 

@@ -18,10 +18,13 @@ package dev.nokee.platform.base.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
+import dev.nokee.model.internal.ModelObject;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.model.internal.decorators.MutableModelDecorator;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
@@ -61,6 +64,7 @@ import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDepend
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -68,10 +72,13 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.tooling.model.Model;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
@@ -246,26 +253,60 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				}
 			}
 		});
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (context.getNestedType().isSubtypeOf(TaskProvider.class)) {
-				final Type type = context.getNestedType().getType();
-				final Class<? extends Task> taskType = (Class<? extends Task>) ((ParameterizedType) type).getActualTypeArguments()[0];
-				String taskName = context.getPropertyName();
-				if (taskName.endsWith("Task")) {
-					taskName = taskName.substring(0, taskName.length() - "Task".length());
-				}
-				context.mixIn(model(project, registryOf(Task.class)).register(context.getIdentifier().child(TaskName.of(taskName)), taskType).asProvider());
-			}
-		});
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (context.getNestedType().isSubtypeOf(DependencyBucket.class)) {
-				final Class<? extends DependencyBucket> bucketType = (Class<? extends DependencyBucket>) context.getNestedType().getConcreteType();
-				final String bucketName = context.getPropertyName();
-				context.mixIn(model(project, registryOf(DependencyBucket.class)).register(context.getIdentifier().child(bucketName), bucketType).get());
-			}
-		});
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Task.class))));
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(DependencyBucket.class))));
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Artifact.class))));
 
 		model(project, objects()).configureEach(HasBaseName.class, new BaseNameConfigurationRule(project.getProviders()));
 		model(project, mapOf(Component.class)).configureEach(HasDevelopmentBinary.class, new DevelopmentBinaryConventionRule(project.getProviders()));
+	}
+
+	private static final class ModelObjectDecorator<T> implements Consumer<MutableModelDecorator.NestedObjectContext> {
+		private final ModelObjectRegistry<T> registry;
+		private final Function<String, ElementName> namer;
+
+		public ModelObjectDecorator(ModelObjectRegistry<T> registry) {
+			this.registry = registry;
+
+			if (registry.getRegistrableTypes().canRegisterType(Task.class)) {
+				this.namer = propertyName -> {
+					String taskName = propertyName;
+					if (taskName.endsWith("Task")) {
+						taskName = taskName.substring(0, taskName.length() - "Task".length());
+					}
+					return TaskName.of(taskName);
+				};
+			} else {
+				this.namer = ElementName::of;
+			}
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public void accept(MutableModelDecorator.NestedObjectContext context) {
+			Class<? extends T> objectType = null;
+			Function<ModelObject<? extends T>, Object> mapper = null;
+			if (context.getNestedType().isSubtypeOf(NamedDomainObjectProvider.class)) {
+				final Class<?> candidateType = (Class<?>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
+				if (registry.getRegistrableTypes().canRegisterType(candidateType)) {
+					objectType = (Class<? extends T>) candidateType;
+					mapper = ModelObject::asProvider;
+				}
+			} else if (context.getNestedType().isSubtypeOf(ModelObject.class)) {
+				final Class<?> candidateType = (Class<?>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
+				if (registry.getRegistrableTypes().canRegisterType(candidateType)) {
+					objectType = (Class<? extends T>) candidateType;
+					mapper = it -> it;
+				}
+			} else if (registry.getRegistrableTypes().canRegisterType(context.getNestedType().getConcreteType())) {
+				objectType = (Class<? extends T>) context.getNestedType().getConcreteType();
+				mapper = ModelObject::get;
+			}
+
+			if (objectType != null) {
+				final ElementName elementName = namer.apply(context.getPropertyName());
+				context.mixIn(mapper.apply(registry.register(context.getIdentifier().child(elementName), objectType)));
+			}
+		}
 	}
 }
