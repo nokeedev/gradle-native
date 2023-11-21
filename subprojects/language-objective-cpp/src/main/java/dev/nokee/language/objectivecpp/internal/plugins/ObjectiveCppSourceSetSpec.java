@@ -28,9 +28,7 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskDependency;
 
 import javax.inject.Inject;
@@ -42,9 +40,8 @@ public /*final*/ abstract class ObjectiveCppSourceSetSpec extends ModelElementSu
 	, HasHeaderSearchPaths
 {
 	@Inject
-	public ObjectiveCppSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
+	public ObjectiveCppSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
 		getExtensions().add("headerSearchPaths", bucketRegistry.register(getIdentifier().child("headerSearchPaths"), ResolvableDependencyBucketSpec.class).get());
-		getExtensions().add("compileTask", taskRegistry.register(getIdentifier().child(TaskName.of("compile")), ObjectiveCppCompileTask.class).asProvider());
 	}
 
 	@Override

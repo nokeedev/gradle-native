@@ -176,16 +176,16 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			return new TaskViewAdapter<>(new ViewAdapter<>(SourceCompile.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(SharedLibraryBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
+			return project.getObjects().newInstance(SharedLibraryBinaryInternal.class, model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(BundleBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(BundleBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
+			return project.getObjects().newInstance(BundleBinaryInternal.class, model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ExecutableBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(ExecutableBinaryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
+			return project.getObjects().newInstance(ExecutableBinaryInternal.class, model(project, registryOf(DependencyBucket.class)), compileTasksFactory);
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(StaticLibraryBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(StaticLibraryBinaryInternal.class, model(project, registryOf(Task.class)), compileTasksFactory);
+			return project.getObjects().newInstance(StaticLibraryBinaryInternal.class, compileTasksFactory);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, name -> {
 			return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));

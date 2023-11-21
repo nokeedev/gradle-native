@@ -30,7 +30,6 @@ import dev.nokee.scripts.DefaultImporter;
 import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
@@ -50,7 +49,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(SwiftSourceSetSpec.class, name -> {
-			return project.getObjects().newInstance(SwiftSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
+			return project.getObjects().newInstance(SwiftSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
 		});
 
 		DefaultImporter.forProject(project).defaultImport(SwiftSourceSet.class);

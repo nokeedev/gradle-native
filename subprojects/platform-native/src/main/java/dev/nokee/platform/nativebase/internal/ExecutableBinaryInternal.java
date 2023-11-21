@@ -22,7 +22,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.linking.LinkTaskMixIn;
@@ -30,7 +29,6 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
-import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskDependency;
@@ -49,9 +47,8 @@ public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinar
 	, CompileTasksMixIn
 {
 	@Inject
-	public ExecutableBinaryInternal(ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objects, ProviderFactory providers) {
+	public ExecutableBinaryInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
-		getExtensions().add("linkTask", taskRegistry.register(getIdentifier().child(TaskName.of("link")), LinkExecutableTask.class).asProvider());
 		getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
 		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
 		getExtensions().add("compileTasks", compileTasksFactory.create());

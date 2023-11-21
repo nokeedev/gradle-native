@@ -17,12 +17,14 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.tasks.SourceCompile;
-import org.gradle.api.plugins.ExtensionAware;
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface NativeCompileTaskMixIn<T extends SourceCompile, U extends T> extends HasCompileTask<T>, ExtensionAware {
-	@SuppressWarnings("unchecked") // IntelliJ is incompetent
+public interface NativeCompileTaskMixIn<T extends SourceCompile, U extends T> extends ModelMixIn, HasCompileTask<T> {
+	@Override
+	@NestedObject
 	default TaskProvider<U> getCompileTask() {
-		return (TaskProvider<U>) getExtensions().getByName("compileTask");
+		return mixedIn("compileTask");
 	}
 }

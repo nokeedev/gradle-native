@@ -15,14 +15,16 @@
  */
 package dev.nokee.platform.nativebase.internal.archiving;
 
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.nativebase.HasCreateTask;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface CreateTaskMixIn extends HasCreateTask, ExtensionAware {
-	@SuppressWarnings("unchecked")
+public interface CreateTaskMixIn extends ModelMixIn, HasCreateTask {
+	@Override
+	@NestedObject
 	default TaskProvider<CreateStaticLibraryTask> getCreateTask() {
-		return (TaskProvider<CreateStaticLibraryTask>) getExtensions().getByName("createTask");
+		return mixedIn("createTask");
 	}
 }

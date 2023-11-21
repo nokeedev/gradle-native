@@ -18,15 +18,12 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
-import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.CreateTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
-import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskDependency;
@@ -42,9 +39,8 @@ public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBi
 	, CompileTasksMixIn
 {
 	@Inject
-	public StaticLibraryBinaryInternal(ModelObjectRegistry<Task> taskRegistry, Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objects, ProviderFactory providers) {
+	public StaticLibraryBinaryInternal(Factory<TaskView<SourceCompile>> compileTasksFactory, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
-		getExtensions().add("createTask", taskRegistry.register(getIdentifier().child(TaskName.of("create")), CreateStaticLibraryTask.class).asProvider());
 		getExtensions().add("compileTasks", compileTasksFactory.create());
 	}
 

@@ -33,7 +33,6 @@ import dev.nokee.scripts.DefaultImporter;
 import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
@@ -52,7 +51,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(CSourceSetSpec.class, name -> {
-			return project.getObjects().newInstance(CSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)));
+			return project.getObjects().newInstance(CSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
 		});
 
 		DefaultImporter.forProject(project)

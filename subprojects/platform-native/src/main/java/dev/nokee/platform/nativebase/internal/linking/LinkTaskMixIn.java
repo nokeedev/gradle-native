@@ -15,14 +15,16 @@
  */
 package dev.nokee.platform.nativebase.internal.linking;
 
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.nativebase.HasLinkTask;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface LinkTaskMixIn<T extends ObjectLink, U extends T> extends HasLinkTask<T>, ExtensionAware {
-	@SuppressWarnings("unchecked")
+public interface LinkTaskMixIn<T extends ObjectLink, U extends T> extends ModelMixIn, HasLinkTask<T> {
+	@Override
+	@NestedObject
 	default TaskProvider<U> getLinkTask() {
-		return (TaskProvider<U>) getExtensions().getByName("linkTask");
+		return mixedIn("linkTask");
 	}
 }
