@@ -15,41 +15,36 @@
  */
 package dev.nokee.platform.base.internal.assembletask;
 
-import org.gradle.api.Action;
+import dev.nokee.model.internal.ModelObjects;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import java.util.function.BiConsumer;
+
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public class AssembleTaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
 	public void apply(T target) {
-		components(target).configureEach(new ConfigureAssembleTaskDescriptionRule<>());
-		variants(target).configureEach(new ConfigureAssembleTaskDescriptionRule<>());
-
-		components(target).configureEach(new ConfigureAssembleTaskGroupRule<>());
-		variants(target).configureEach(new ConfigureAssembleTaskGroupRule<>());
+		model(target, objects()).configureEach(HasAssembleTask.class, new ConfigureAssembleTaskDescriptionRule());
+		model(target, objects()).configureEach(HasAssembleTask.class, new ConfigureAssembleTaskGroupRule());
 	}
 
-	private static final class ConfigureAssembleTaskDescriptionRule<TargetType> implements Action<TargetType> {
+	private static final class ConfigureAssembleTaskDescriptionRule implements BiConsumer<ModelObjects.ModelObjectIdentity, HasAssembleTask> {
 		@Override
-		public void execute(TargetType target) {
-			if (target instanceof HasAssembleTask) {
-				((HasAssembleTask) target).getAssembleTask().configure(configureDescription("Assembles the outputs of the %s.", target));
-			}
+		public void accept(ModelObjects.ModelObjectIdentity identifier, HasAssembleTask component) {
+			component.getAssembleTask().configure(configureDescription("Assembles the outputs of the %s.", component));
 		}
 	}
 
-	private static final class ConfigureAssembleTaskGroupRule<TargetType> implements Action<TargetType> {
+	private static final class ConfigureAssembleTaskGroupRule implements BiConsumer<ModelObjects.ModelObjectIdentity, HasAssembleTask> {
 		@Override
-		public void execute(TargetType target) {
-			if (target instanceof HasAssembleTask) {
-				((HasAssembleTask) target).getAssembleTask().configure(configureBuildGroup());
-			}
+		public void accept(ModelObjects.ModelObjectIdentity identifier, HasAssembleTask target) {
+			target.getAssembleTask().configure(configureBuildGroup());
 		}
 	}
 }
