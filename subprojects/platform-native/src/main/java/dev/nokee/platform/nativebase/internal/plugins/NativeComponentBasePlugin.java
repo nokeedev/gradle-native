@@ -94,6 +94,8 @@ import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin
 import dev.nokee.platform.nativebase.internal.mixins.LinkOnlyDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
+import dev.nokee.platform.nativebase.internal.rules.TargetBuildTypeConventionRule;
+import dev.nokee.platform.nativebase.internal.rules.TargetMachineConventionRule;
 import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
@@ -102,7 +104,6 @@ import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
-import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.utils.ConfigurationUtils;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
@@ -434,17 +435,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeArchiveCapabilityPlugin.class);
 
 		components(project).configureEach(new TargetMachinesPropertyRegistrationRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
-		components(project).configureEach(component -> {
-			if (component instanceof TargetMachineAwareComponent) {
-				((TargetMachineAwareComponent) component).getTargetMachines().convention(singletonList(TargetMachines.host()));
-			}
-		});
+		model(project, objects()).configureEach(TargetMachineAwareComponent.class, new TargetMachineConventionRule(project.getProviders()));
 		components(project).configureEach(new TargetBuildTypesPropertyRegistrationRule());
-		components(project).configureEach(component -> {
-			if (component instanceof TargetBuildTypeAwareComponent) {
-				((TargetBuildTypeAwareComponent) component).getTargetBuildTypes().convention(singletonList(TargetBuildTypes.DEFAULT));
-			}
-		});
+		model(project, objects()).configureEach(TargetBuildTypeAwareComponent.class, new TargetBuildTypeConventionRule(project.getProviders()));
 		components(project).configureEach(new TargetLinkagesPropertyRegistrationRule());
 		components(project).configureEach(component -> {
 			if (component instanceof NativeApplicationComponent && component instanceof TargetLinkageAwareComponent) {

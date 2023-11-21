@@ -14,52 +14,43 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.base.internal.rules;
+package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.model.internal.ModelObjects;
-import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.utils.Optionals;
-import org.gradle.api.Named;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
-import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static dev.nokee.utils.Optionals.safeAs;
+import static java.util.Collections.singleton;
 
-public final class BaseNameConfigurationRule implements BiConsumer<ModelObjects.ModelObjectIdentity, HasBaseName> {
+public final class TargetMachineConventionRule implements BiConsumer<ModelObjects.ModelObjectIdentity, TargetMachineAwareComponent> {
 	private final ProviderFactory providers;
 
-	public BaseNameConfigurationRule(ProviderFactory providers) {
+	public TargetMachineConventionRule(ProviderFactory providers) {
 		this.providers = providers;
 	}
 
 	@Override
-	public void accept(ModelObjects.ModelObjectIdentity identity, HasBaseName target) {
-		target.getBaseName().convention(providers.provider(() -> {
+	public void accept(ModelObjects.ModelObjectIdentity identity, TargetMachineAwareComponent component) {
+		component.getTargetMachines().convention(providers.provider(() -> {
 			return identity.getParents()
-				.flatMap(projectionOf(HasBaseName.class))
-				.map(toProviderOf(HasBaseName::getBaseName))
-				.findFirst().orElseGet(this::absentProvider)
-				.orElse(providers.provider(() -> {
-					if (target instanceof Named) {
-						return ((Named) target).getName();
-					} else {
-						return null;
-					}
-				}));
+				.flatMap(projectionOf(TargetMachineAwareComponent.class))
+				.map(toProviderOf(TargetMachineAwareComponent::getTargetMachines))
+				.findFirst()
+				.orElseGet(this::absentProvider)
+				.orElse(singleton(TargetMachines.host()));
 		}).flatMap(it -> it));
 	}
 
 	private <T> Provider<T> absentProvider() {
-		return providers.provider(notDefined());
-	}
-
-	private static <V> Callable<V> notDefined() {
-		return () -> null;
+		return providers.provider(() -> null);
 	}
 
 	private static <T> Function<ModelObjects.ModelObjectIdentity, Stream<T>> projectionOf(Class<T> type) {
