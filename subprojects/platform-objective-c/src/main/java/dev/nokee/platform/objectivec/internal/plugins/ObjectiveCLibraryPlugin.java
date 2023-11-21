@@ -21,13 +21,8 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
-import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivec.ObjectiveCLibrary;
 import dev.nokee.platform.objectivec.internal.ObjectiveCLibrarySpec;
@@ -68,7 +63,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(ObjectiveCLibrarySpec.class, name -> {
-			return project.getObjects().newInstance(ObjectiveCLibrarySpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
+			return project.getObjects().newInstance(ObjectiveCLibrarySpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<ObjectiveCLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), ObjectiveCLibrarySpec.class).asProvider();

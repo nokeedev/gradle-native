@@ -27,21 +27,16 @@ import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSet
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.VariantViewFactory;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
@@ -91,7 +86,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCIosApplication.class, name -> {
-			return project.getObjects().newInstance(DefaultObjectiveCIosApplication.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<TaskView<Task>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
+			return project.getObjects().newInstance(DefaultObjectiveCIosApplication.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<DefaultObjectiveCIosApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultObjectiveCIosApplication.class).asProvider();
@@ -135,14 +130,10 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ObjectiveCSourcesMixIn
 		, PrivateHeadersMixIn
 	{
-		public DefaultObjectiveCIosApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
+		public DefaultObjectiveCIosApplication(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 			getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
-			getExtensions().add("binaries", binariesFactory.create());
 			getExtensions().add("sources", sourcesFactory.create());
-			getExtensions().add("tasks", tasksFactory.create());
-			getExtensions().add("variants", variantsFactory.create(IosApplication.class));
-			getExtensions().add("dimensions", dimensionsFactory.create());
 			getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		}
 

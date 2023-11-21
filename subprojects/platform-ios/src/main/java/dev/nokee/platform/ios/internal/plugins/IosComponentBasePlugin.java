@@ -17,12 +17,9 @@ package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -39,7 +36,6 @@ import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.reflect.TypeOf;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -60,7 +56,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			return project.getObjects().newInstance(IosResourceSetSpec.class);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class, name -> {
-			return project.getObjects().newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
+			return project.getObjects().newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class));
 		});
 
 		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {

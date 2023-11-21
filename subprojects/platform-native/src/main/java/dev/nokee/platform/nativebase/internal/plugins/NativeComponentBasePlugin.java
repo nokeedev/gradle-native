@@ -36,8 +36,6 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
@@ -102,7 +100,6 @@ import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
-import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigurationUtils;
 import dev.nokee.utils.TextCaseUtils;
@@ -191,13 +188,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			return project.getObjects().newInstance(StaticLibraryBinaryInternal.class, model(project, registryOf(Task.class)), compileTasksFactory);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, name -> {
-			return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
+			return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(result -> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibraryVariant.class, name -> {
-			return project.getObjects().newInstance(DefaultNativeLibraryVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
+			return project.getObjects().newInstance(DefaultNativeLibraryVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(result -> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));

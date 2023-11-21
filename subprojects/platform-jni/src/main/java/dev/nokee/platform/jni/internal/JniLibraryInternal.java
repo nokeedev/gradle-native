@@ -28,14 +28,13 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
-import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
@@ -68,16 +67,14 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	, AssembleTaskMixIn
 {
 	@Inject
-	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, Factory<TaskView<Task>> tasksFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
+	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
 		getExtensions().create("dependencies", DefaultJavaNativeInterfaceNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sharedLibraryTask", taskRegistry.register(getIdentifier().child(TaskName.of("sharedLibrary")), Task.class).asProvider());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
-		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
-		getExtensions().add("tasks", tasksFactory.create());
 		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), SharedLibraryBinaryInternal.class).asProvider());
 		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), ModelBackedJniJarBinary.class).asProvider());
 	}

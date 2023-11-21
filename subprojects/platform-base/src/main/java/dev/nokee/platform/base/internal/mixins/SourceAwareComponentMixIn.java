@@ -15,18 +15,17 @@
  */
 package dev.nokee.platform.base.internal.mixins;
 
+import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
-import org.gradle.api.plugins.ExtensionAware;
 
-public interface SourceAwareComponentMixIn<T extends ComponentSources, S extends T> extends SourceAwareComponent<T>, ExtensionAware {
+public interface SourceAwareComponentMixIn<T extends ComponentSources, S extends T> extends ModelMixIn, SourceAwareComponent<T> {
 	@Override
-	@SuppressWarnings("unchecked")
 	default T getSources() {
-		return (T) getExtensions().getByName("sources");
+		return mixedIn("sources");
 	}
 
 	@Override

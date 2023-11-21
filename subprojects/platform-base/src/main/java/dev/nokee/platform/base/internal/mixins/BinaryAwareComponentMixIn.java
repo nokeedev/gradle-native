@@ -15,19 +15,20 @@
  */
 package dev.nokee.platform.base.internal.mixins;
 
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
-import org.gradle.api.plugins.ExtensionAware;
 
-public interface BinaryAwareComponentMixIn extends BinaryAwareComponent, ExtensionAware {
+public interface BinaryAwareComponentMixIn extends ModelMixIn, BinaryAwareComponent {
 	@Override
-	@SuppressWarnings("unchecked")
+	@NestedObject
 	default BinaryView<Binary> getBinaries() {
-		return (BinaryView<Binary>) getExtensions().getByName("binaries");
+		return mixedIn("binaries");
 	}
 
 	@Override

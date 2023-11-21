@@ -33,8 +33,6 @@ import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
@@ -42,18 +40,16 @@ import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
-import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
+import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
@@ -113,13 +109,10 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	private final ModelObjectRegistry<Task> taskRegistry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<SourceView<LanguageSourceSet>> sourcesFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
-		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
-		getExtensions().add("variants", variantsFactory.create(NativeTestSuiteVariant.class));
-		getExtensions().add("dimensions", dimensionsFactory.create());
 		this.taskRegistry = taskRegistry;
 		this.objects = objects;
 

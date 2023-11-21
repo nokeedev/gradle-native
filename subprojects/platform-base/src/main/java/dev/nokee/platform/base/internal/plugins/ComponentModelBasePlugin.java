@@ -15,11 +15,15 @@
  */
 package dev.nokee.platform.base.internal.plugins;
 
+import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.decorators.ModelDecorator;
+import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
+import dev.nokee.model.internal.type.ModelTypeUtils;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -30,6 +34,7 @@ import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.VariantDimensions;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
@@ -53,6 +58,7 @@ import dev.nokee.platform.base.internal.rules.DevelopmentBinaryConventionRule;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDependencyBucketAction;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
@@ -61,6 +67,8 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
+
+import java.lang.reflect.ParameterizedType;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
@@ -101,10 +109,12 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(DEPENDENCY_BUCKET_CONTAINER_TYPE, "$dependencyBuckets", project.getObjects().polymorphicDomainObjectContainer(DependencyBucket.class));
 		project.getExtensions().add(ARTIFACT_CONTAINER_TYPE, "$artifacts", project.getObjects().polymorphicDomainObjectContainer(Artifact.class));
 
-		model(project, objects()).register(model(project).getExtensions().create("components", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Component.class, components(project)));
-		model(project, objects()).register(model(project).getExtensions().create("variants", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Variant.class, variants(project)));
-		model(project, objects()).register(model(project).getExtensions().create("dependencyBuckets", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, DependencyBucket.class, dependencyBuckets(project)));
-		model(project, objects()).register(model(project).getExtensions().create("artifacts", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Artifact.class, artifacts(project)));
+		final ModelDecorator decorator = project.getExtensions().getByType(ModelDecorator.class);
+
+		model(project, objects()).register(model(project).getExtensions().create("components", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Component.class, components(project), decorator));
+		model(project, objects()).register(model(project).getExtensions().create("variants", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Variant.class, variants(project), decorator));
+		model(project, objects()).register(model(project).getExtensions().create("dependencyBuckets", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, DependencyBucket.class, dependencyBuckets(project), decorator));
+		model(project, objects()).register(model(project).getExtensions().create("artifacts", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Artifact.class, artifacts(project), decorator));
 
 		// FIXME: This is temporary until we convert all entity
 		project.afterEvaluate(__ -> {
@@ -169,6 +179,12 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			return new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
 		project.getExtensions().add(new TypeOf<Factory<BinaryView<Binary>>>() {}, "__nokee_binariesFactory", binariesFactory);
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
+			if (BinaryView.class.isAssignableFrom(method.getReturnType())) {
+				String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
+				((ExtensionAware) obj).getExtensions().add(extensionName, binariesFactory.create());
+			}
+		});
 
 		final Factory<TaskView<Task>> tasksFactory = () -> {
 			Task.Namer namer = new Task.Namer();
@@ -177,6 +193,12 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			return new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		};
 		project.getExtensions().add(new TypeOf<Factory<TaskView<Task>>>() {}, "__nokee_tasksFactory", tasksFactory);
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
+			if (TaskView.class.isAssignableFrom(method.getReturnType())) {
+				String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
+				((ExtensionAware) obj).getExtensions().add(extensionName, tasksFactory.create());
+			}
+		});
 
 		final VariantViewFactory variantsFactory = new VariantViewFactory() {
 			@Override
@@ -188,12 +210,25 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			}
 		};
 		project.getExtensions().add(VariantViewFactory.class, "__nokee_variantsFactory", variantsFactory);
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
+			if (VariantView.class.isAssignableFrom(method.getReturnType())) {
+				Class<? extends Variant> elementType = (Class<? extends Variant>) ((ParameterizedType) TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(method.getGenericReturnType()).getType()).getActualTypeArguments()[0];
+				String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
+				((ExtensionAware) obj).getExtensions().add(extensionName, variantsFactory.create(elementType));
+			}
+		});
 
 		DimensionPropertyRegistrationFactory dimensionPropertyFactory = new DimensionPropertyRegistrationFactory(project.getObjects());
 		final Factory<DefaultVariantDimensions> dimensionsFactory = () -> {
 			return project.getObjects().newInstance(DefaultVariantDimensions.class, dimensionPropertyFactory);
 		};
 		project.getExtensions().add(new TypeOf<Factory<DefaultVariantDimensions>>() {}, "__nokee_dimensionsFactory", dimensionsFactory);
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
+			if (VariantDimensions.class.isAssignableFrom(method.getReturnType())) {
+				String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
+				((ExtensionAware) obj).getExtensions().add(extensionName, dimensionsFactory.create());
+			}
+		});
 
 		model(project, objects()).configureEach(HasBaseName.class, new BaseNameConfigurationRule(project.getProviders()));
 		model(project, mapOf(Component.class)).configureEach(HasDevelopmentBinary.class, new DevelopmentBinaryConventionRule(project.getProviders()));

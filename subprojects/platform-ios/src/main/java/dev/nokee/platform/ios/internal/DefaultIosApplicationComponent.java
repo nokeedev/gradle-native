@@ -25,26 +25,21 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
-import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
+import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantViewFactory;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.IosResourceSet;
@@ -103,13 +98,9 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	private final ModelObjectRegistry<Artifact> artifactRegistry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<BinaryView<Binary>> binariesFactory, Factory<ComponentSources> sourcesFactory, Factory<TaskView<Task>> tasksFactory, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
+	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<ComponentSources> sourcesFactory, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {
 		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
-		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
-		getExtensions().add("tasks", tasksFactory.create());
-		getExtensions().add("variants", variantsFactory.create(IosApplication.class));
-		getExtensions().add("dimensions", dimensionsFactory.create());
 		this.artifactRegistry = artifactRegistry;
 		this.taskRegistry = taskRegistry;
 		this.providers = providers;

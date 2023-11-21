@@ -20,13 +20,8 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
-import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.swift.SwiftApplication;
 import dev.nokee.platform.swift.internal.SwiftApplicationSpec;
@@ -69,7 +64,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(SwiftApplicationSpec.class, name -> {
-			return project.getObjects().newInstance(SwiftApplicationSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
+			return project.getObjects().newInstance(SwiftApplicationSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<SwiftApplicationSpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), SwiftApplicationSpec.class).asProvider();

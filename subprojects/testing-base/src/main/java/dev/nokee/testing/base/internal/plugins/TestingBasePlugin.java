@@ -16,6 +16,7 @@
 package dev.nokee.testing.base.internal.plugins;
 
 import dev.nokee.model.internal.ModelMapAdapters;
+import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.testing.base.TestSuiteComponent;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
@@ -39,7 +40,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add(TEST_SUITE_COMPONENT_CONTAINER_TYPE, "$testSuites", project.getObjects().polymorphicDomainObjectContainer(TestSuiteComponent.class));
 
-		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, testSuites(project)));
+		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, testSuites(project), project.getExtensions().getByType(ModelDecorator.class)));
 
 		project.afterEvaluate(proj -> {
 			// Force realize all test suite... until we solve the differing problem.

@@ -20,17 +20,12 @@ import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
@@ -80,7 +75,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultXCTestTestSuiteVariant.class, name -> {
-			return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}));
+			return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
@@ -128,10 +123,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultUnitTestXCTestTestSuiteComponent.class, name -> {
-				return project.getObjects().newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), model(project, registryOf(Artifact.class)), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
+				return project.getObjects().newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
 			});
 			model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultUiTestXCTestTestSuiteComponent.class, name -> {
-				return project.getObjects().newInstance(DefaultUiTestXCTestTestSuiteComponent.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), model(project, registryOf(Artifact.class)), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
+				return project.getObjects().newInstance(DefaultUiTestXCTestTestSuiteComponent.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
 			});
 
 			BaseNativeComponent<?> application = (BaseNativeComponent<?>) project.getExtensions().getByType(ObjectiveCIosApplication.class);

@@ -16,18 +16,17 @@
 
 package dev.nokee.platform.base.internal.mixins;
 
+import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
-import org.gradle.api.plugins.ExtensionAware;
 
-public interface DependencyAwareComponentMixIn<T extends ComponentDependencies> extends DependencyAwareComponent<T>, ExtensionAware {
+public interface DependencyAwareComponentMixIn<T extends ComponentDependencies> extends ModelMixIn, DependencyAwareComponent<T> {
 	@Override
-	@SuppressWarnings("unchecked")
 	default T getDependencies() {
-		return (T) getExtensions().getByName("dependencies");
+		return mixedIn("dependencies");
 	}
 
 	@Override

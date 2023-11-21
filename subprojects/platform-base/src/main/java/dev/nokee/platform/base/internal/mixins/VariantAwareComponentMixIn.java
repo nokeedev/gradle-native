@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.base.internal.mixins;
 
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
@@ -24,16 +26,15 @@ import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 
 import java.util.Set;
 
-public interface VariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T>, VariantAwareComponentInternal<T>, ExtensionAware {
+public interface VariantAwareComponentMixIn<T extends Variant> extends ModelMixIn, VariantAwareComponent<T>, VariantAwareComponentInternal<T> {
 	@Override
-	@SuppressWarnings("unchecked")
+	@NestedObject
 	default VariantView<T> getVariants() {
-		return (VariantView<T>) getExtensions().getByName("variants");
+		return mixedIn("variants");
 	}
 
 	@Override
@@ -47,6 +48,7 @@ public interface VariantAwareComponentMixIn<T extends Variant> extends VariantAw
 	}
 
 	@Override
+	@NestedObject
 	default DefaultVariantDimensions getDimensions() {
 		return (DefaultVariantDimensions) getExtensions().getByName("dimensions");
 	}

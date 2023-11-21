@@ -15,19 +15,20 @@
  */
 package dev.nokee.platform.base.internal.mixins;
 
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
-import org.gradle.api.plugins.ExtensionAware;
 
-public interface TaskAwareComponentMixIn extends TaskAwareComponent, ExtensionAware {
+public interface TaskAwareComponentMixIn extends ModelMixIn, TaskAwareComponent {
 	@Override
-	@SuppressWarnings("unchecked")
+	@NestedObject
 	default TaskView<Task> getTasks() {
-		return (TaskView<Task>) getExtensions().getByName("tasks");
+		return mixedIn("tasks");
 	}
 
 	@Override

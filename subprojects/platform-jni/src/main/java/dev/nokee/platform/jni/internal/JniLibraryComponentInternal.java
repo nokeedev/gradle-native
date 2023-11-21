@@ -23,18 +23,15 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentBinary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.VariantViewFactory;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
@@ -64,17 +61,13 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, AssembleTaskMixIn
 {
 	@Inject
-	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<BinaryView<Binary>> binariesFactory, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory, Factory<TaskView<Task>> tasksFactory, VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
+	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory) {
 		getExtensions().create("dependencies", DefaultJavaNativeInterfaceLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("developmentVariant", objects.property(JniLibrary.class));
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
-		getExtensions().add("binaries", binariesFactory.create());
 		getExtensions().add("sources", sourcesFactory.create());
-		getExtensions().add("tasks", tasksFactory.create());
-		getExtensions().add("variants", variantsFactory.create(JniLibrary.class));
-		getExtensions().add("dimensions", dimensionsFactory.create());
 	}
 
 	@Override

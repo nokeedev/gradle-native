@@ -19,6 +19,7 @@ package dev.nokee.model.internal;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
+import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.names.ElementName;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
@@ -220,12 +221,14 @@ public final class ModelMapAdapters {
 		private final Class<ElementType> elementType;
 		private final KnownElements knownElements;
 		private final ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate;
+		private final ModelDecorator decorator;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ModelDecorator decorator) {
 			this.elementType = elementType;
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
+			this.decorator = decorator;
 		}
 
 		@Override
@@ -235,7 +238,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
-			delegate.registerFactory(type, name -> knownElements.create(name, type, factory));
+			delegate.registerFactory(type, name -> ModelDecorator.decorateUsing(decorator, () -> knownElements.create(name, type, factory)));
 		}
 
 		@Override

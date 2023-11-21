@@ -17,6 +17,7 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.internal.Factory;
+import dev.nokee.model.internal.decorators.ModelDecorator;
 import org.gradle.api.plugins.ExtensionAware;
 
 import javax.annotation.Nullable;
@@ -30,6 +31,10 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 		assert getClass().getSimpleName().endsWith("_Decorated") : "must be instantiated via Gradle's ObjectFactory";
 		assert nextIdentity.get() != null : "must have identity, user ModelObjectSupport.newInstance(...)";
 		this.delegate = nextIdentity.get();
+
+		if (this instanceof ModelMixIn) {
+			Optional.ofNullable(ModelDecorator.DECORATOR.get()).orElseThrow(() -> new RuntimeException("must have a decorator")).decorate(this);
+		}
 	}
 
 	public String getName() {

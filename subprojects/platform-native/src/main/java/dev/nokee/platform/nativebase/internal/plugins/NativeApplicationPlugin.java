@@ -21,13 +21,8 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
-import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSpec;
 import lombok.AccessLevel;
@@ -67,7 +62,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(NativeApplicationSpec.class, name -> {
-			return project.getObjects().newInstance(NativeApplicationSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<BinaryView<Binary>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), project.getExtensions().getByType(new TypeOf<Factory<TaskView<Task>>>() {}), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {}));
+			return project.getObjects().newInstance(NativeApplicationSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<NativeApplicationSpec> componentProvider = model(project, registryOf(NativeApplicationSpec.class)).register(ProjectIdentifier.of(project).child(ofMain()), NativeApplicationSpec.class).asProvider();
