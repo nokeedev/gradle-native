@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.platform.base.internal.mixins;
 
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.ComponentSources;
+import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.plugins.ExtensionAware;
 
-public interface BinaryAwareComponentMixIn extends BinaryAwareComponent, ExtensionAware {
+public interface SourceAwareComponentMixIn<T extends ComponentSources, S extends T> extends SourceAwareComponent<T>, ExtensionAware {
 	@Override
 	@SuppressWarnings("unchecked")
-	default BinaryView<Binary> getBinaries() {
-		return (BinaryView<Binary>) getExtensions().getByName("binaries");
+	default T getSources() {
+		return (T) getExtensions().getByName("sources");
 	}
 
 	@Override
-	default void binaries(Action<? super BinaryView<Binary>> action) {
-		action.execute(getBinaries());
+	default void sources(Action<? super T> action) {
+		action.execute(getSources());
 	}
 
 	@Override
-	default void binaries(@SuppressWarnings("rawtypes") Closure closure) {
-		binaries(new ClosureWrappedConfigureAction<>(closure));
+	default void sources(@SuppressWarnings("rawtypes") Closure closure) {
+		sources(new ClosureWrappedConfigureAction<>(closure));
 	}
 }
