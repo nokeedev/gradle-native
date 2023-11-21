@@ -28,6 +28,7 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
@@ -227,6 +228,14 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			if (VariantDimensions.class.isAssignableFrom(method.getReturnType())) {
 				String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
 				((ExtensionAware) obj).getExtensions().add(extensionName, dimensionsFactory.create());
+			}
+		});
+
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
+			if (ComponentDependencies.class.isAssignableFrom(method.getReturnType())) {
+				final Class<?> type = TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(method.getGenericReturnType()).getRawType();
+				final String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
+				((ExtensionAware) obj).getExtensions().create(extensionName, type, obj.getIdentifier(), model(project, registryOf(DependencyBucket.class)));
 			}
 		});
 

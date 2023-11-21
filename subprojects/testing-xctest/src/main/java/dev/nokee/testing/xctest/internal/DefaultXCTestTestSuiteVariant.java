@@ -44,7 +44,7 @@ import javax.inject.Inject;
 public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVariant implements IosApplication, VariantInternal
 	, NativeVariant
 	, NativeSourcesAware
-	, DependencyAwareComponentMixIn<NativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
@@ -52,7 +52,6 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 {
 	@Inject
 	public DefaultXCTestTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
 		getExtensions().add("sources", sourcesFactory.create());

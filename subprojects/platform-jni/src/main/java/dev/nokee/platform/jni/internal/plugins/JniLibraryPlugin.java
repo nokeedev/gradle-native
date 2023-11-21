@@ -32,7 +32,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
@@ -125,7 +124,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, name -> {
-			return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), (Factory<JavaNativeInterfaceLibrarySources>) () -> {
+			return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(Task.class)), (Factory<JavaNativeInterfaceLibrarySources>) () -> {
 					Named.Namer namer = new Named.Namer();
 					ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 					Runnable realizeNow = () -> {};
@@ -133,7 +132,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				});
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, name -> {
-			return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), model(project, registryOf(DependencyBucket.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
+			return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
 		});
 
 		val extension = registerExtension(project);

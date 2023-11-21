@@ -21,7 +21,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -50,7 +49,7 @@ import java.util.Set;
 public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
+	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies, DefaultJavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<JniLibrary>
 	, SourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources, JavaNativeInterfaceSourcesViewAdapter>
 	, BinaryAwareComponentMixIn
@@ -61,18 +60,12 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, AssembleTaskMixIn
 {
 	@Inject
-	public JniLibraryComponentInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory) {
-		getExtensions().create("dependencies", DefaultJavaNativeInterfaceLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
+	public JniLibraryComponentInternal(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory) {
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("developmentVariant", objects.property(JniLibrary.class));
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
-	}
-
-	@Override
-	public DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies() {
-		return (DefaultJavaNativeInterfaceLibraryComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

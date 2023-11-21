@@ -22,7 +22,6 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
 import dev.nokee.platform.objectivecpp.internal.ObjectiveCppApplicationSpec;
@@ -63,7 +62,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(ObjectiveCppApplicationSpec.class, name -> {
-			return project.getObjects().newInstance(ObjectiveCppApplicationSpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return project.getObjects().newInstance(ObjectiveCppApplicationSpec.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<ObjectiveCppApplicationSpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), ObjectiveCppApplicationSpec.class).asProvider();

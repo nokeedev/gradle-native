@@ -52,7 +52,7 @@ import javax.inject.Inject;
 public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant implements NativeLibrary, VariantInternal
 	, NativeVariant
 	, NativeSourcesAware
-	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies, DefaultNativeLibraryComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
@@ -64,7 +64,6 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 {
 	@Inject
 	public DefaultNativeLibraryVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().create("dependencies", DefaultNativeLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("api", bucketRegistry.register(getIdentifier().child("api"), DeclarableDependencyBucketSpec.class).get());
 		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
@@ -78,11 +77,6 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 		} else {
 			getExtensions().add("binaryLifecycleTask", taskRegistry.register(getIdentifier().child(TaskName.of("staticLibrary")), Task.class).asProvider());
 		}
-	}
-
-	@Override
-	public DefaultNativeLibraryComponentDependencies getDependencies() {
-		return (DefaultNativeLibraryComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

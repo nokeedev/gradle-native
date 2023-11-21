@@ -25,7 +25,6 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BaseVariant;
@@ -60,15 +59,14 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	, NativeSourcesAware
 	, TaskAwareComponentMixIn
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-	, DependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies, DefaultJavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, HasBaseName
 	, HasDevelopmentBinary
 	, AssembleTaskMixIn
 {
 	@Inject
-	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
-		getExtensions().create("dependencies", DefaultJavaNativeInterfaceNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
+	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
@@ -77,11 +75,6 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), SharedLibraryBinaryInternal.class).asProvider());
 		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), ModelBackedJniJarBinary.class).asProvider());
-	}
-
-	@Override
-	public DefaultJavaNativeInterfaceNativeComponentDependencies getDependencies() {
-		return (DefaultJavaNativeInterfaceNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

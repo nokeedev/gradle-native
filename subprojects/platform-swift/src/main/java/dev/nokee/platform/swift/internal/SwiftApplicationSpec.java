@@ -24,7 +24,6 @@ import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
@@ -49,7 +48,7 @@ import javax.inject.Inject;
 public  /*final*/ abstract class SwiftApplicationSpec extends ModelElementSupport implements SwiftApplication
 	, NativeApplicationComponent
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies, DefaultNativeApplicationComponentDependencies>
 	, VariantAwareComponentMixIn<NativeApplication>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -61,17 +60,11 @@ public  /*final*/ abstract class SwiftApplicationSpec extends ModelElementSuppor
 	, SwiftSourcesMixIn
 	, ObjectsTaskMixIn {
 	@Inject
-	public SwiftApplicationSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().create("dependencies", DefaultNativeApplicationComponentDependencies.class, getIdentifier(), bucketRegistry);
+	public SwiftApplicationSpec(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
-	}
-
-	@Override
-	public DefaultNativeApplicationComponentDependencies getDependencies() {
-		return (DefaultNativeApplicationComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

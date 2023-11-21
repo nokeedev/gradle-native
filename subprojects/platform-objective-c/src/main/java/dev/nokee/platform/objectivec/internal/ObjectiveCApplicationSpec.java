@@ -25,7 +25,6 @@ import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -51,7 +50,7 @@ import javax.inject.Inject;
 public  /*final*/ abstract class ObjectiveCApplicationSpec extends ModelElementSupport implements ObjectiveCApplication
 	, NativeApplicationComponent
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies, DefaultNativeApplicationComponentDependencies>
 	, VariantAwareComponentMixIn<NativeApplication>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -65,17 +64,11 @@ public  /*final*/ abstract class ObjectiveCApplicationSpec extends ModelElementS
 	, PrivateHeadersMixIn
 	, ObjectsTaskMixIn {
 	@Inject
-	public ObjectiveCApplicationSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().create("dependencies", DefaultNativeApplicationComponentDependencies.class, getIdentifier(), bucketRegistry);
+	public ObjectiveCApplicationSpec(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
-	}
-
-	@Override
-	public DefaultNativeApplicationComponentDependencies getDependencies() {
-		return (DefaultNativeApplicationComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

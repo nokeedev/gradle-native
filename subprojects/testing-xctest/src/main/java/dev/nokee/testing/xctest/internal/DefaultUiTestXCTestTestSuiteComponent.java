@@ -28,7 +28,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
@@ -76,7 +75,7 @@ import java.util.stream.Collectors;
 public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
 	, VariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -93,9 +92,8 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	private final ModelObjectRegistry<Artifact> artifactRegistry;
 
 	@Inject
-	public DefaultUiTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
+	public DefaultUiTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
 		super(objects, providers, layout, taskRegistry);
-		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
@@ -218,11 +216,6 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 
 	@Override
 	public abstract Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant();
-
-	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
-		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
-	}
 
 	@Override
 	public VariantView<DefaultXCTestTestSuiteVariant> getVariants() {

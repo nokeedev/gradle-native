@@ -25,7 +25,6 @@ import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesMixIn;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -51,7 +50,7 @@ import javax.inject.Inject;
 public  /*final*/ abstract class ObjectiveCppApplicationSpec extends ModelElementSupport implements ObjectiveCppApplication
 	, NativeApplicationComponent
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies, DefaultNativeApplicationComponentDependencies>
 	, VariantAwareComponentMixIn<NativeApplication>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -65,17 +64,11 @@ public  /*final*/ abstract class ObjectiveCppApplicationSpec extends ModelElemen
 	, PrivateHeadersMixIn
 	, ObjectsTaskMixIn {
 	@Inject
-	public ObjectiveCppApplicationSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().create("dependencies", DefaultNativeApplicationComponentDependencies.class, getIdentifier(), bucketRegistry);
+	public ObjectiveCppApplicationSpec(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
-	}
-
-	@Override
-	public DefaultNativeApplicationComponentDependencies getDependencies() {
-		return (DefaultNativeApplicationComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

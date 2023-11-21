@@ -35,7 +35,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -95,7 +94,7 @@ import static java.util.stream.Collectors.toList;
 public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, VariantAwareComponentMixIn<NativeTestSuiteVariant>
 	, HasDevelopmentVariant<NativeTestSuiteVariant>
@@ -109,8 +108,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	private final ModelObjectRegistry<Task> taskRegistry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		this.taskRegistry = taskRegistry;
@@ -120,11 +118,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	}
 
 	public abstract Property<Component> getTestedComponent();
-
-	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
-		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
-	}
 
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {

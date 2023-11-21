@@ -22,7 +22,6 @@ import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.c.CLibrary;
 import dev.nokee.platform.c.internal.CLibrarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -63,7 +62,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(CLibrarySpec.class, name -> {
-			return project.getObjects().newInstance(CLibrarySpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return project.getObjects().newInstance(CLibrarySpec.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<CLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), CLibrarySpec.class).asProvider();

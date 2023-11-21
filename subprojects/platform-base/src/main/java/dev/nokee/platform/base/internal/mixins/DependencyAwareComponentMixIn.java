@@ -17,15 +17,17 @@
 package dev.nokee.platform.base.internal.mixins;
 
 import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 
-public interface DependencyAwareComponentMixIn<T extends ComponentDependencies> extends ModelMixIn, DependencyAwareComponent<T> {
+public interface DependencyAwareComponentMixIn<T extends ComponentDependencies, U extends T> extends ModelMixIn, DependencyAwareComponent<T> {
 	@Override
-	default T getDependencies() {
+	@NestedObject
+	default U getDependencies() {
 		return mixedIn("dependencies");
 	}
 

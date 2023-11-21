@@ -92,7 +92,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class, name -> {
-			return project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {

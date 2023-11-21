@@ -25,8 +25,8 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Task;
@@ -37,13 +37,12 @@ import javax.inject.Inject;
 public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet
 	, ModelMixIn
 	, NativeCompileTaskMixIn<SwiftCompile, SwiftCompileTask>
-	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies, DefaultNativeSourceSetComponentDependencies>
 	, HasImportModules
 {
 	@Inject
 	public SwiftSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().add("importModules", bucketRegistry.register(getIdentifier().child("importModules"), ResolvableDependencyBucketSpec.class).get());
-		getExtensions().create("dependencies", DefaultNativeSourceSetComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("compileTask", taskRegistry.register(getIdentifier().child(TaskName.of("compile")), SwiftCompileTask.class).asProvider());
 	}
 

@@ -44,7 +44,7 @@ import javax.inject.Inject;
 public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal
 	, NativeVariant
 	, NativeSourcesAware
-	, DependencyAwareComponentMixIn<NativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
@@ -54,17 +54,11 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 
 	@Inject
 	public DefaultIosApplicationVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<ComponentSources> sourcesFactory) {
-		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		this.productBundleIdentifier = objects.property(String.class);
-	}
-
-	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
-		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

@@ -123,10 +123,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultUnitTestXCTestTestSuiteComponent.class, name -> {
-				return project.getObjects().newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
+				return project.getObjects().newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
 			});
 			model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultUiTestXCTestTestSuiteComponent.class, name -> {
-				return project.getObjects().newInstance(DefaultUiTestXCTestTestSuiteComponent.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
+				return project.getObjects().newInstance(DefaultUiTestXCTestTestSuiteComponent.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
 			});
 
 			BaseNativeComponent<?> application = (BaseNativeComponent<?>) project.getExtensions().getByType(ObjectiveCIosApplication.class);

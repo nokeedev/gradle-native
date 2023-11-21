@@ -22,7 +22,6 @@ import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.cpp.CppLibrary;
 import dev.nokee.platform.cpp.internal.CppLibrarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -63,7 +62,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(CppLibrarySpec.class, name -> {
-			return project.getObjects().newInstance(CppLibrarySpec.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return project.getObjects().newInstance(CppLibrarySpec.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<CppLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), CppLibrarySpec.class).asProvider();

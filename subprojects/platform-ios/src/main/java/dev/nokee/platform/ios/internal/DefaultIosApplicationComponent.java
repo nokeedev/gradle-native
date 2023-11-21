@@ -28,7 +28,6 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
@@ -81,7 +80,7 @@ import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements Component
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
 	, SourceAwareComponentMixIn<ComponentSources, ComponentSources>
 	, VariantAwareComponentMixIn<IosApplication>
 	, BinaryAwareComponentMixIn
@@ -98,8 +97,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	private final ModelObjectRegistry<Artifact> artifactRegistry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelObjectRegistry<DependencyBucket> bucketRegistry, Factory<ComponentSources> sourcesFactory, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {
-		getExtensions().create("dependencies", DefaultNativeComponentDependencies.class, getIdentifier(), bucketRegistry);
+	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, Factory<ComponentSources> sourcesFactory, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {
 		getExtensions().add("sources", sourcesFactory.create());
 		this.artifactRegistry = artifactRegistry;
 		this.taskRegistry = taskRegistry;
@@ -109,11 +107,6 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 		this.dependencyHandler = dependencyHandler;
 		this.groupId = objects.property(GroupId.class);
 		this.moduleName = objects.property(String.class).convention(getBaseName());
-	}
-
-	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
-		return (DefaultNativeComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override

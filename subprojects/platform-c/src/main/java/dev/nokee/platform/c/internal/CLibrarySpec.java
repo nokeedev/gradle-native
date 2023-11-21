@@ -26,7 +26,6 @@ import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
@@ -51,7 +50,7 @@ import javax.inject.Inject;
 public  /*final*/ abstract class CLibrarySpec extends ModelElementSupport implements CLibrary
 	, NativeLibraryComponent
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies, DefaultNativeLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -65,17 +64,11 @@ public  /*final*/ abstract class CLibrarySpec extends ModelElementSupport implem
 	, CSourcesMixIn
 	, ObjectsTaskMixIn {
 	@Inject
-	public CLibrarySpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().create("dependencies", DefaultNativeLibraryComponentDependencies.class, getIdentifier(), bucketRegistry);
+	public CLibrarySpec(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().create("$cSupport", SupportCSourceSetTag.class);
-	}
-
-	@Override
-	public DefaultNativeLibraryComponentDependencies getDependencies() {
-		return (DefaultNativeLibraryComponentDependencies) DependencyAwareComponentMixIn.super.getDependencies();
 	}
 
 	@Override
