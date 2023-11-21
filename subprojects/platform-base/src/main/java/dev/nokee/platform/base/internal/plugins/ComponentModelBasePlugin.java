@@ -71,11 +71,8 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.tooling.model.Model;
 
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -182,57 +179,69 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
 
-		final Factory<BinaryView<Binary>> binariesFactory = () -> {
-			Named.Namer namer = new Named.Namer();
-			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-			Runnable realizeNow = () -> {};
-			return new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-		};
-		project.getExtensions().add(new TypeOf<Factory<BinaryView<Binary>>>() {}, "__nokee_binariesFactory", binariesFactory);
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (context.getNestedType().isSubtypeOf(BinaryView.class)) {
-				context.mixIn(binariesFactory.create());
-			}
-		});
-
-		final Factory<TaskView<Task>> tasksFactory = () -> {
-			Task.Namer namer = new Task.Namer();
-			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-			Runnable realizeNow = () -> {};
-			return new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-		};
-		project.getExtensions().add(new TypeOf<Factory<TaskView<Task>>>() {}, "__nokee_tasksFactory", tasksFactory);
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (context.getNestedType().isSubtypeOf(TaskView.class)) {
-				context.mixIn(tasksFactory.create());
-			}
-		});
-
-		final VariantViewFactory variantsFactory = new VariantViewFactory() {
-			@Override
-			public <T extends Variant> VariantView<T> create(Class<T> elementType) {
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new Consumer<MutableModelDecorator.NestedObjectContext>() {
+			private final Factory<BinaryView<Binary>> binariesFactory = () -> {
 				Named.Namer namer = new Named.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 				Runnable realizeNow = () -> {};
-				return new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-			}
-		};
-		project.getExtensions().add(VariantViewFactory.class, "__nokee_variantsFactory", variantsFactory);
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (context.getNestedType().isSubtypeOf(VariantView.class)) {
-				final Class<? extends Variant> elementType = (Class<? extends Variant>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
-				context.mixIn(variantsFactory.create(elementType));
+				return new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+			};
+
+			@Override
+			public void accept(MutableModelDecorator.NestedObjectContext context) {
+				if (context.getNestedType().isSubtypeOf(BinaryView.class)) {
+					context.mixIn(binariesFactory.create());
+				}
 			}
 		});
 
-		DimensionPropertyRegistrationFactory dimensionPropertyFactory = new DimensionPropertyRegistrationFactory(project.getObjects());
-		final Factory<DefaultVariantDimensions> dimensionsFactory = () -> {
-			return project.getObjects().newInstance(DefaultVariantDimensions.class, dimensionPropertyFactory);
-		};
-		project.getExtensions().add(new TypeOf<Factory<DefaultVariantDimensions>>() {}, "__nokee_dimensionsFactory", dimensionsFactory);
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (context.getNestedType().isSubtypeOf(VariantDimensions.class)) {
-				context.mixIn(dimensionsFactory.create());
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new Consumer<MutableModelDecorator.NestedObjectContext>() {
+			private final Factory<TaskView<Task>> tasksFactory = () -> {
+				Task.Namer namer = new Task.Namer();
+				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+				Runnable realizeNow = () -> {};
+				return new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+			};
+
+			@Override
+			public void accept(MutableModelDecorator.NestedObjectContext context) {
+				if (context.getNestedType().isSubtypeOf(TaskView.class)) {
+					context.mixIn(tasksFactory.create());
+				}
+			}
+		});
+
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new Consumer<MutableModelDecorator.NestedObjectContext>() {
+			private final VariantViewFactory variantsFactory = new VariantViewFactory() {
+				@Override
+				public <T extends Variant> VariantView<T> create(Class<T> elementType) {
+					Named.Namer namer = new Named.Namer();
+					ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+					Runnable realizeNow = () -> {};
+					return new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+				}
+			};
+
+			@Override
+			public void accept(MutableModelDecorator.NestedObjectContext context) {
+				if (context.getNestedType().isSubtypeOf(VariantView.class)) {
+					final Class<? extends Variant> elementType = (Class<? extends Variant>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
+					context.mixIn(variantsFactory.create(elementType));
+				}
+			}
+		});
+
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new Consumer<MutableModelDecorator.NestedObjectContext>() {
+			private final DimensionPropertyRegistrationFactory dimensionPropertyFactory = new DimensionPropertyRegistrationFactory(project.getObjects());
+			private final Factory<DefaultVariantDimensions> dimensionsFactory = () -> {
+				return project.getObjects().newInstance(DefaultVariantDimensions.class, dimensionPropertyFactory);
+			};
+
+			@Override
+			public void accept(MutableModelDecorator.NestedObjectContext context) {
+				if (context.getNestedType().isSubtypeOf(VariantDimensions.class)) {
+					context.mixIn(dimensionsFactory.create());
+				}
 			}
 		});
 
