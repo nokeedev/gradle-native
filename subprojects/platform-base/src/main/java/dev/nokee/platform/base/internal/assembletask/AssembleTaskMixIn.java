@@ -16,14 +16,15 @@
 
 package dev.nokee.platform.base.internal.assembletask;
 
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import org.gradle.api.Task;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface AssembleTaskMixIn extends HasAssembleTask, ExtensionAware {
+public interface AssembleTaskMixIn extends ModelMixIn, HasAssembleTask {
 	@Override
-	@SuppressWarnings("unchecked")
+	@NestedObject
 	default TaskProvider<Task> getAssembleTask() {
-		return (TaskProvider<Task>) getExtensions().getByName("assembleTask");
+		return mixedIn("assembleTask");
 	}
 }

@@ -124,7 +124,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, name -> {
-			return project.getObjects().newInstance(JniLibraryComponentInternal.class, model(project, registryOf(Task.class)), (Factory<JavaNativeInterfaceLibrarySources>) () -> {
+			return project.getObjects().newInstance(JniLibraryComponentInternal.class, (Factory<JavaNativeInterfaceLibrarySources>) () -> {
 					Named.Namer namer = new Named.Namer();
 					ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 					Runnable realizeNow = () -> {};

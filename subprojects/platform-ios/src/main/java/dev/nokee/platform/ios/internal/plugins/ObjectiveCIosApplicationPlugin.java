@@ -36,7 +36,6 @@ import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -130,7 +129,6 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, PrivateHeadersMixIn
 	{
 		public DefaultObjectiveCIosApplication(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 			getExtensions().add("sources", sourcesFactory.create());
 			getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		}

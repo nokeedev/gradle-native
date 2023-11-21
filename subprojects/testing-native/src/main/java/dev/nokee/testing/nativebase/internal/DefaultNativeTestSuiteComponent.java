@@ -109,7 +109,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 
 	@Inject
 	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		this.taskRegistry = taskRegistry;
 		this.objects = objects;

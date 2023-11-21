@@ -61,7 +61,6 @@ public  /*final*/ abstract class SwiftLibrarySpec extends ModelElementSupport im
 	, ObjectsTaskMixIn {
 	@Inject
 	public SwiftLibrarySpec(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);

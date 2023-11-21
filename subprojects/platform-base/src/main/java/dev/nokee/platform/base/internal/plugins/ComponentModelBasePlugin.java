@@ -59,6 +59,7 @@ import dev.nokee.platform.base.internal.rules.DevelopmentBinaryConventionRule;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDependencyBucketAction;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
@@ -68,8 +69,10 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
+import org.gradle.api.tasks.TaskProvider;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
@@ -236,6 +239,18 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				final Class<?> type = TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(method.getGenericReturnType()).getRawType();
 				final String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
 				((ExtensionAware) obj).getExtensions().create(extensionName, type, obj.getIdentifier(), model(project, registryOf(DependencyBucket.class)));
+			}
+		});
+		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject((obj, method) -> {
+			if (TaskProvider.class.isAssignableFrom(method.getReturnType())) {
+				final Type type = TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(method.getGenericReturnType()).getType();
+				final Class<? extends Task> taskType = (Class<? extends Task>) ((ParameterizedType) type).getActualTypeArguments()[0];
+				final String extensionName = StringUtils.uncapitalize(method.getName().substring(3));
+				String taskName = extensionName;
+				if (taskName.endsWith("Task")) {
+					taskName = taskName.substring(0, taskName.length() - "Task".length());
+				}
+				((ExtensionAware) obj).getExtensions().add(extensionName, model(project, registryOf(Task.class)).register(obj.getIdentifier().child(TaskName.of(taskName)), taskType).asProvider());
 			}
 		});
 

@@ -92,7 +92,6 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 	@Inject
 	public DefaultUnitTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
 		super(objects, providers, layout, taskRegistry);
-		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		this.taskRegistry = taskRegistry;

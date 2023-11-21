@@ -65,7 +65,6 @@ public  /*final*/ abstract class ObjectiveCppApplicationSpec extends ModelElemen
 	, ObjectsTaskMixIn {
 	@Inject
 	public ObjectiveCppApplicationSpec(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);

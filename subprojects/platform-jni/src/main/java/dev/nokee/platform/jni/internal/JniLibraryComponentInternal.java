@@ -17,7 +17,6 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
-import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -31,14 +30,12 @@ import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
-import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -60,11 +57,10 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, AssembleTaskMixIn
 {
 	@Inject
-	public JniLibraryComponentInternal(ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory) {
+	public JniLibraryComponentInternal(ObjectFactory objects, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory) {
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("developmentVariant", objects.property(JniLibrary.class));
-		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 	}
 

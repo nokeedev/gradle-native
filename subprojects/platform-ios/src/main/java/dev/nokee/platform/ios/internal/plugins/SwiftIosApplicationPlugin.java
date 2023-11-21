@@ -23,7 +23,6 @@ import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
@@ -34,7 +33,6 @@ import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.SwiftIosApplication;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
@@ -48,7 +46,6 @@ import dev.nokee.utils.TextCaseUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
@@ -75,7 +72,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultSwiftIosApplication.class, name -> {
-			return project.getObjects().newInstance(DefaultSwiftIosApplication.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return project.getObjects().newInstance(DefaultSwiftIosApplication.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<DefaultSwiftIosApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultSwiftIosApplication.class).asProvider();
@@ -108,8 +105,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, SwiftSourcesMixIn
 	{
 		@Inject
-		public DefaultSwiftIosApplication(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-			getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
+		public DefaultSwiftIosApplication(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 			getExtensions().add("sources", sourcesFactory.create());
 			getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
 		}

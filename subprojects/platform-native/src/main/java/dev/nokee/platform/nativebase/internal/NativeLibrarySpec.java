@@ -55,7 +55,6 @@ public  /*final*/ abstract class NativeLibrarySpec extends ModelElementSupport i
 	, ObjectsTaskMixIn {
 	@Inject
 	public NativeLibrarySpec(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 	}

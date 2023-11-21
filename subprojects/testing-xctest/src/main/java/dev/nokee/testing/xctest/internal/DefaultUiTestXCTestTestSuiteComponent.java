@@ -94,7 +94,6 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	@Inject
 	public DefaultUiTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
 		super(objects, providers, layout, taskRegistry);
-		getExtensions().add("assembleTask", taskRegistry.register(getIdentifier().child(TaskName.of("assemble")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		this.artifactRegistry = artifactRegistry;
