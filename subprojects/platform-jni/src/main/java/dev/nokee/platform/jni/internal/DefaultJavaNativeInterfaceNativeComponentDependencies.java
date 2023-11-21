@@ -15,14 +15,12 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.decorators.ModelMixInSupport;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import org.gradle.api.plugins.ExtensionAware;
-
-import javax.inject.Inject;
 
 public abstract class DefaultJavaNativeInterfaceNativeComponentDependencies extends ModelMixInSupport implements JavaNativeInterfaceNativeComponentDependencies
 	, NativeImplementationDependencyBucketMixIn
@@ -30,13 +28,9 @@ public abstract class DefaultJavaNativeInterfaceNativeComponentDependencies exte
 	, NativeRuntimeOnlyDependencyBucketMixIn
 	, ExtensionAware
 {
-	@Inject
-	public DefaultJavaNativeInterfaceNativeComponentDependencies(ModelObjectIdentifier identifier) {
-		ModelMixInSupport.newInstance(identifier.child("native"), () -> getExtensions().create("native", DefaultNativeComponentDependencies.class));
-	}
-
+	@NestedObject("native")
 	public DefaultNativeComponentDependencies getNative() {
-		return (DefaultNativeComponentDependencies) getExtensions().getByName("native");
+		return mixedIn("native");
 	}
 
 	@Override

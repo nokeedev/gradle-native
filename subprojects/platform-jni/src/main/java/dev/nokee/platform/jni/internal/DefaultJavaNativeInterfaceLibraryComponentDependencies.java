@@ -18,6 +18,7 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.ModelMixInSupport;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
@@ -39,14 +40,18 @@ public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies ext
 {
 	@Inject
 	public DefaultJavaNativeInterfaceLibraryComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
-		 getExtensions().create("jvm", DefaultJvmComponentDependencies.class, identifier.child("jvm"), bucketRegistry);
-		 ModelMixInSupport.newInstance(identifier.child("native"), () -> getExtensions().create("native", DefaultNativeComponentDependencies.class));
 		 getExtensions().add("apiElements", bucketRegistry.register(identifier.child("apiElements"), ConsumableDependencyBucketSpec.class).get());
 		 getExtensions().add("runtimeElements", bucketRegistry.register(identifier.child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
 	}
 
+	@NestedObject("native")
 	public DefaultNativeComponentDependencies getNative() {
-		return (DefaultNativeComponentDependencies) getExtensions().getByName("native");
+		return mixedIn("native");
+	}
+
+	@NestedObject("jvm")
+	public DefaultJvmComponentDependencies getJvm() {
+		return mixedIn("jvm");
 	}
 
 	@Override

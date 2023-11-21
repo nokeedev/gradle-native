@@ -16,30 +16,15 @@
 
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.HasImplementationDependencyBucket;
-import dev.nokee.platform.base.HasRuntimeOnlyDependencyBucket;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
+import dev.nokee.model.internal.decorators.ModelMixInSupport;
+import dev.nokee.platform.base.ComponentDependencies;
+import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
+import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
 import org.gradle.api.plugins.ExtensionAware;
 
-import javax.inject.Inject;
-
-public abstract class DefaultJvmComponentDependencies implements HasImplementationDependencyBucket, HasRuntimeOnlyDependencyBucket, ExtensionAware {
-	@Inject
-	public DefaultJvmComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
-		getExtensions().add("implementation", bucketRegistry.register(identifier.child("implementation"), DeclarableDependencyBucketSpec.class).get());
-		getExtensions().add("runtimeOnly", bucketRegistry.register(identifier.child("runtimeOnly"), DeclarableDependencyBucketSpec.class).get());
-	}
-
-	@Override
-	public DeclarableDependencyBucketSpec getImplementation() {
-		return (DeclarableDependencyBucketSpec) getExtensions().getByName("implementation");
-	}
-
-	@Override
-	public DeclarableDependencyBucketSpec getRuntimeOnly() {
-		return (DeclarableDependencyBucketSpec) getExtensions().getByName("runtimeOnly");
-	}
+public abstract class DefaultJvmComponentDependencies extends ModelMixInSupport implements ComponentDependencies
+	, ImplementationDependencyBucketMixIn
+	, RuntimeOnlyDependencyBucketMixIn
+	, ExtensionAware
+{
 }

@@ -232,12 +232,17 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
 			if (context.getNestedType().isSubtypeOf(ComponentDependencies.class)) {
 				final Class<?> type = context.getNestedType().getRawType();
+				ModelObjectIdentifier identifier = context.getIdentifier();
+				if (!context.getAnnotation().value().isEmpty()) {
+					identifier = identifier.child(context.getAnnotation().value());
+				}
+
 				if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 0)) {
-					context.mixIn(ModelMixInSupport.newInstance(context.getIdentifier(), () -> project.getObjects().newInstance(type)));
+					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> project.getObjects().newInstance(type)));
 				} else if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 1)) {
-					context.mixIn(ModelMixInSupport.newInstance(context.getIdentifier(), () -> project.getObjects().newInstance(type, context.getIdentifier())));
+					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> project.getObjects().newInstance(type, context.getIdentifier())));
 				} else if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 2)) {
-					context.mixIn(ModelMixInSupport.newInstance(context.getIdentifier(), () -> project.getObjects().newInstance(type, context.getIdentifier(), model(project, registryOf(DependencyBucket.class)))));
+					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> project.getObjects().newInstance(type, context.getIdentifier(), model(project, registryOf(DependencyBucket.class)))));
 				}
 			}
 		});

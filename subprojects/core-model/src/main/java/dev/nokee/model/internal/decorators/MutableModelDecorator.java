@@ -71,6 +71,10 @@ public class MutableModelDecorator implements ModelDecorator {
 				}
 			}
 
+			public NestedObject getAnnotation() {
+				return method.getAnnotation(NestedObject.class);
+			}
+
 			@Override
 			public String getPropertyName() {
 				return StringUtils.uncapitalize(method.getName().substring(3));
@@ -91,6 +95,7 @@ public class MutableModelDecorator implements ModelDecorator {
 		ModelObjectIdentifier getIdentifier();
 		ModelType<?> getNestedType();
 		void mixIn(Object value);
+		NestedObject getAnnotation();
 		String getPropertyName();
 	}
 }
