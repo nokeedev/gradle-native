@@ -63,11 +63,6 @@ public class MutableModelDecorator implements ModelDecorator {
 			}
 
 			@Override
-			public Method getAnnotatedMethod() {
-				return method;
-			}
-
-			@Override
 			public ModelType<?> getNestedType() {
 				return ModelType.of(TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(method.getGenericReturnType()).getType());
 			}
@@ -90,7 +85,6 @@ public class MutableModelDecorator implements ModelDecorator {
 
 	public interface NestedObjectContext {
 		ModelObjectIdentifier getIdentifier();
-		Method getAnnotatedMethod();
 		ModelType<?> getNestedType();
 		void mixIn(Object value);
 		String getPropertyName();

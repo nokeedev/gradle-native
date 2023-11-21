@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.plugins;
 
-import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
@@ -23,7 +22,6 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
-import dev.nokee.model.internal.type.ModelTypeUtils;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -60,7 +58,6 @@ import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependenc
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDependencyBucketAction;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
@@ -184,7 +181,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		};
 		project.getExtensions().add(new TypeOf<Factory<BinaryView<Binary>>>() {}, "__nokee_binariesFactory", binariesFactory);
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (BinaryView.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+			if (context.getNestedType().isSubtypeOf(BinaryView.class)) {
 				context.mixIn(binariesFactory.create());
 			}
 		});
@@ -197,7 +194,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		};
 		project.getExtensions().add(new TypeOf<Factory<TaskView<Task>>>() {}, "__nokee_tasksFactory", tasksFactory);
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (TaskView.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+			if (context.getNestedType().isSubtypeOf(TaskView.class)) {
 				context.mixIn(tasksFactory.create());
 			}
 		});
@@ -213,7 +210,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		};
 		project.getExtensions().add(VariantViewFactory.class, "__nokee_variantsFactory", variantsFactory);
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (VariantView.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+			if (context.getNestedType().isSubtypeOf(VariantView.class)) {
 				final Class<? extends Variant> elementType = (Class<? extends Variant>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
 				context.mixIn(variantsFactory.create(elementType));
 			}
@@ -225,19 +222,19 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		};
 		project.getExtensions().add(new TypeOf<Factory<DefaultVariantDimensions>>() {}, "__nokee_dimensionsFactory", dimensionsFactory);
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (VariantDimensions.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+			if (context.getNestedType().isSubtypeOf(VariantDimensions.class)) {
 				context.mixIn(dimensionsFactory.create());
 			}
 		});
 
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (ComponentDependencies.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+			if (context.getNestedType().isSubtypeOf(ComponentDependencies.class)) {
 				final Class<?> type = context.getNestedType().getRawType();
 				context.mixIn(project.getObjects().newInstance(type, context.getIdentifier(), model(project, registryOf(DependencyBucket.class))));
 			}
 		});
 		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
-			if (TaskProvider.class.isAssignableFrom(context.getAnnotatedMethod().getReturnType())) {
+			if (context.getNestedType().isSubtypeOf(TaskProvider.class)) {
 				final Type type = context.getNestedType().getType();
 				final Class<? extends Task> taskType = (Class<? extends Task>) ((ParameterizedType) type).getActualTypeArguments()[0];
 				String taskName = context.getPropertyName();
