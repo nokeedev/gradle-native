@@ -21,9 +21,12 @@ import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
+import dev.nokee.utils.Optionals;
 import org.gradle.api.reflect.TypeOf;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static dev.nokee.utils.Optionals.safeAs;
 
@@ -38,15 +41,18 @@ public abstract class ExtendsFromParentDependencyBucketAction<T> implements BiCo
 		final ComponentDependencies targetDependencies = target.getDependencies();
 		if (bucketUnderConfiguration().isInstance(targetDependencies)) {
 			identifier.getParents()
-				.filter(it -> it.instanceOf(DependencyAwareComponent.class))
+				.flatMap(projectionOf(new TypeOf<DependencyAwareComponent<?>>() {}))
 				.findFirst()
-				.map(safeAs(new TypeOf<DependencyAwareComponent<?>>() {}))
 				.map(DependencyAwareComponent::getDependencies)
 				.filter(bucketUnderConfiguration()::isInstance)
 				.ifPresent(parentDependencies -> {
 					bucketOf(bucketUnderConfiguration().cast(targetDependencies)).extendsFrom(bucketOf(bucketUnderConfiguration().cast(parentDependencies)));
 				});
 		}
+	}
+
+	private static <T> Function<ModelObjects.ModelObjectIdentity, Stream<T>> projectionOf(TypeOf<T> type) {
+		return it -> Optionals.stream(it.getAsOptional().map(safeAs(type)));
 	}
 
 	protected abstract DeclarableDependencyBucketSpec bucketOf(T dependencies);
