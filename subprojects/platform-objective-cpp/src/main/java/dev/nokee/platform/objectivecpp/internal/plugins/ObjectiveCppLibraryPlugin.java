@@ -31,7 +31,6 @@ import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.reflect.TypeOf;
 
@@ -62,7 +61,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(ObjectiveCppLibrarySpec.class, name -> {
-			return project.getObjects().newInstance(ObjectiveCppLibrarySpec.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return project.getObjects().newInstance(ObjectiveCppLibrarySpec.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<ObjectiveCppLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), ObjectiveCppLibrarySpec.class).asProvider();

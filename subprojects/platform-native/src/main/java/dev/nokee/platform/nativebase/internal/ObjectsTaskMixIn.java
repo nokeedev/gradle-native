@@ -16,13 +16,14 @@
 
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
 import org.gradle.api.Task;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface ObjectsTaskMixIn extends ExtensionAware {
-	@SuppressWarnings("unchecked")
+public interface ObjectsTaskMixIn extends ModelMixIn {
+	@NestedObject
 	default TaskProvider<Task> getObjectsTask() {
-		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
+		return mixedIn("objectsTask");
 	}
 }
