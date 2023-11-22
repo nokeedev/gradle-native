@@ -18,6 +18,7 @@ package dev.nokee.model.internal;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.decorators.ModelMixInSupport;
+import dev.nokee.model.internal.type.ModelTypeUtils;
 import org.gradle.api.plugins.ExtensionAware;
 
 import javax.annotation.Nullable;
@@ -85,7 +86,11 @@ public abstract class ModelElementSupport extends ModelMixInSupport implements M
 		return nextIdentity.get().getIdentifier();
 	}
 
-	protected abstract String getTypeName();
+	protected String getTypeName() {
+		// TODO: We should use public type by default or maybe annotate the class
+		//   Passing the public type directly via constructor makes things a bit more complicated
+		return ModelTypeUtils.toUndecoratedType(getClass()).getSimpleName();
+	}
 
 	@Override
 	public final String toString() {
