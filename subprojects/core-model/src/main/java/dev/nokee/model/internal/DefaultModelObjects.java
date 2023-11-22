@@ -90,6 +90,11 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 				return Optional.of(identifierToElements.get(identifier).get()); // TODO: cannot be null
 			}
 
+			@Override
+			public <T> Provider<T> getAsProvider(Class<T> type) {
+				return providers.provider(() -> identifierToElements.get(identifier).asModelObject(type).asProvider()).flatMap(it -> it);
+			}
+
 			@Nullable
 			@Override
 			public Object getOrNull() {

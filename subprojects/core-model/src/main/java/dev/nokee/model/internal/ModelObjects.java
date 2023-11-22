@@ -38,10 +38,15 @@ public interface ModelObjects {
 	<T> Provider<Set<T>> get(Class<T> type);
 	<T> Provider<Set<T>> get(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec);
 
+	// TODO: We need to account that when a component is being created, the sub components will "appear" first
+	//   This prevent from fetching the parent component directly inside a configureEach/configure actions.
+	//   We should give a better error message to let the dev knows it should be done in a differed context
+	//   You can still query the instance of and parent.
 	interface ModelObjectIdentity {
 		ModelObjectIdentifier getIdentifier();
 		Optional<ModelObjectIdentity> getParent();
 		Optional<Object> getAsOptional();
+		<T> Provider<T> getAsProvider(Class<T> type);
 		@Nullable Object getOrNull();
 		Stream<ModelObjectIdentity> getParents();
 		boolean instanceOf(Class<?> type);
