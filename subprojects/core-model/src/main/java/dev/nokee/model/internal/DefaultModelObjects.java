@@ -41,6 +41,8 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static dev.nokee.model.internal.ModelElementActionAdapter.elementWith;
+
 public /*final*/ class DefaultModelObjects implements ModelObjects {
 	private final Map<ModelObjectIdentifier, ModelMapAdapters.ModelElementIdentity> identifierToElements = new HashMap<>();
 	private final List<ModelMapAdapters.ModelElementIdentity> elements = new ArrayList<>();
@@ -67,11 +69,8 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void configureEach(BiConsumer<? super ModelObjectIdentity, ? super Object> configureAction) {
-		collections.all(it -> it.configureEach(target -> {
-			ModelElementSupport.safeAsModelElement(target).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-				configureAction.accept(create(identifier), target);
-			});
-		}));
+		collections.all(it -> it.configureEach(elementWith((identifier, target) ->
+			configureAction.accept(create(identifier), target))));
 	}
 
 	private ModelObjectIdentity create(ModelObjectIdentifier identifier) {
@@ -112,11 +111,8 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> void configureEach(Class<T> type, BiConsumer<? super ModelObjectIdentity, ? super T> configureAction) {
-		collections.all(it -> it.configureEach(type, target -> {
-			ModelElementSupport.safeAsModelElement(target).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-				configureAction.accept(create(identifier), type.cast(target));
-			});
-		}));
+		collections.all(it -> it.configureEach(type, elementWith((identifier, target) ->
+			configureAction.accept(create(identifier), type.cast(target)))));
 	}
 
 	@Override
