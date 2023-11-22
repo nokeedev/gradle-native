@@ -47,12 +47,11 @@ import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
+import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
@@ -72,7 +71,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
+public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements TestSuiteComponent
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
@@ -82,9 +81,6 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasDevelopmentVariant<DefaultXCTestTestSuiteVariant>
-	, TargetMachineAwareComponentMixIn
-	, TargetBuildTypeAwareComponentMixIn
-	, TargetLinkageAwareComponentMixIn
 {
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
@@ -113,7 +109,7 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
 				binary.getLinkTask().configure(task -> {
 					// TODO: Filter for matching build variant
-					task.dependsOn(getTestedComponent().flatMap(testedComponent -> testedComponent.getVariants().map(it -> it.getDevelopmentBinary())));
+					task.dependsOn(getTestedComponent().map(it -> ((BaseNativeComponent<?>) it)).flatMap(testedComponent -> testedComponent.getVariants().map(it -> it.getDevelopmentBinary())));
 				});
 			});
 		});

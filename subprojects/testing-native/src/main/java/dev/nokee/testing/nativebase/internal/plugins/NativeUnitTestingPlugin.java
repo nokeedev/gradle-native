@@ -15,7 +15,6 @@
  */
 package dev.nokee.testing.nativebase.internal.plugins;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
@@ -23,6 +22,7 @@ import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
+import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
@@ -40,16 +40,16 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
+import dev.nokee.platform.nativebase.internal.rules.TargetedNativeComponentDimensionsRule;
 import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
-import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
-import dev.nokee.utils.ProviderUtils;
+import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentSpec;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -72,6 +72,25 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(TestingBasePlugin.class);
+
+		testSuites(project).withType(NativeTestSuiteComponentSpec.class)
+			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
+		testSuites(project).withType(NativeTestSuiteComponentSpec.class).configureEach(testSuite -> {
+			testSuite.getTargetMachines().convention(testSuite.getTestedComponent().flatMap(it -> {
+				if (it instanceof TargetMachineAwareComponent) {
+					return ((TargetMachineAwareComponent) it).getTargetMachines();
+				} else {
+					return null; // safe as per-contract
+				}
+			}).orElse(Collections.singleton(TargetMachines.host())));
+			testSuite.getTargetBuildTypes().convention(testSuite.getTestedComponent().flatMap(it -> {
+				if (it instanceof TargetBuildTypeAwareComponent) {
+					return ((TargetBuildTypeAwareComponent) it).getTargetBuildTypes();
+				} else {
+					return null; // safe as per-contract
+				}
+			}));
+		});
 
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeTestSuiteVariant.class, name -> {
 			return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
@@ -113,26 +132,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
-		});
-		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
-			component.getTargetBuildTypes().convention(component.getTestedComponent()
-				.flatMap(it -> {
-					if (it instanceof TargetBuildTypeAwareComponent) {
-						return ((TargetBuildTypeAwareComponent) it).getTargetBuildTypes();
-					} else {
-						return ProviderUtils.notDefined();
-					}
-				}).orElse(ImmutableSet.of(TargetBuildTypes.DEFAULT)));
-		});
-		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
-			component.getTargetMachines().convention(component.getTestedComponent()
-				.flatMap(it -> {
-					if (it instanceof TargetMachineAwareComponent) {
-						return ((TargetMachineAwareComponent) it).getTargetMachines();
-					} else {
-						return ProviderUtils.notDefined();
-					}
-				}).orElse(ImmutableSet.of(TargetMachines.host())));
 		});
 		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(testSuite -> {
 			if (project.getPlugins().hasPlugin(CLanguageBasePlugin.class)) {

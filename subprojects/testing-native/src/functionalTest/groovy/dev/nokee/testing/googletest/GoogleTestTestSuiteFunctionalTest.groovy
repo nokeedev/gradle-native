@@ -21,6 +21,7 @@ import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
 import dev.nokee.platform.nativebase.fixtures.GoogleTestGreeterTest
 import dev.nokee.testing.nativebase.NativeTestSuite
+import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent
 import org.apache.commons.lang3.SystemUtils
 import spock.lang.IgnoreIf
 
@@ -45,11 +46,11 @@ class GoogleTestTestSuiteFunctionalTest extends AbstractInstalledToolChainIntegr
 				id 'dev.nokee.native-unit-testing'
 			}
 
-			import ${NativeTestSuite.canonicalName}
+			import ${DefaultNativeTestSuiteComponent.canonicalName}
 			import ${ExecutableBinary.canonicalName}
 
 			testSuites {
-				test(${NativeTestSuite.simpleName}) {
+				test(${DefaultNativeTestSuiteComponent.simpleName}) {
 					testedComponent library
 					dependencies {
 						implementation('com.github.google.googletest:gtest:latest.integration') {

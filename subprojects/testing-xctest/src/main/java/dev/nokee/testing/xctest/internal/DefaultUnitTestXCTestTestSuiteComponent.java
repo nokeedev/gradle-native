@@ -27,7 +27,6 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
@@ -47,11 +46,10 @@ import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
@@ -70,7 +68,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
+public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements TestSuiteComponent
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
@@ -80,9 +78,6 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasDevelopmentVariant<DefaultXCTestTestSuiteVariant>
-	, TargetMachineAwareComponentMixIn
-	, TargetBuildTypeAwareComponentMixIn
-	, TargetLinkageAwareComponentMixIn
 {
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
@@ -135,8 +130,8 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 		variant.configure(it -> it.getDevelopmentBinary().set(xcTestBundle));
 
 		val createUnitTestApplicationBundleTask = taskRegistry.register(variantIdentifier.child(TaskName.of("create", "launcherApplicationBundle")), CreateIosApplicationBundleTask.class).configure(task -> {
-			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getBaseName().get() + "-unsigned.app"));
-			task.getSources().from(getTestedComponent().flatMap(c -> c.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources()))));
+			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().map(it -> ((BaseNativeComponent<?>) it)).get().getBaseName().get() + "-unsigned.app"));
+			task.getSources().from(getTestedComponent().map(it -> ((BaseNativeComponent<?>) it)).flatMap(c -> c.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources()))));
 			task.getPlugIns().from(signUnitTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
 			task.getFrameworks().from(getXCTestBundleInjectDynamicLibrary());
 			task.getFrameworks().from(getXCTestFrameworks());
@@ -145,7 +140,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 
 		val signTask = taskRegistry.register(variantIdentifier.child(TaskName.of("sign", "launcherApplicationBundle")), SignIosApplicationBundleTask.class).configure(task -> {
 			task.getUnsignedApplicationBundle().set(createUnitTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
-			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getBaseName().get() + ".app"));
+			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().map(it -> ((BaseNativeComponent<?>) it)).get().getBaseName().get() + ".app"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
 			task.getCodeSignatureTool().disallowChanges();
 		}).asProvider();

@@ -21,6 +21,7 @@ import dev.nokee.language.c.CTaskNames
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CGreeterLib
+import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent
 
 class CTestSuiteLibraryFunctionalTest extends AbstractTestSuiteComponentFunctionalTest implements CTaskNames {
 	@Override
@@ -31,11 +32,11 @@ class CTestSuiteLibraryFunctionalTest extends AbstractTestSuiteComponentFunction
 				id 'dev.nokee.native-unit-testing'
 			}
 
-			import ${NativeTestSuite.canonicalName}
+			import ${DefaultNativeTestSuiteComponent.canonicalName}
 			import ${ExecutableBinary.canonicalName}
 
 			testSuites {
-				test(${NativeTestSuite.simpleName}) {
+				test(${DefaultNativeTestSuiteComponent.simpleName}) {
 					testedComponent library
 				}
 			}
@@ -62,11 +63,11 @@ class CTestSuiteApplicationFunctionalTest extends AbstractTestSuiteComponentFunc
 				id 'dev.nokee.native-unit-testing'
 			}
 
-			import ${NativeTestSuite.canonicalName}
+			import ${DefaultNativeTestSuiteComponent.canonicalName}
 			import ${ExecutableBinary.canonicalName}
 
 			testSuites {
-				test(${NativeTestSuite.simpleName}) {
+				test(${DefaultNativeTestSuiteComponent.simpleName}) {
 					testedComponent application
 				}
 			}

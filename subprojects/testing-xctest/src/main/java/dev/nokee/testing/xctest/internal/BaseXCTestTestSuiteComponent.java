@@ -20,24 +20,19 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
-import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
-import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
-import dev.nokee.testing.base.TestSuiteComponent;
-import dev.nokee.utils.Cast;
+import dev.nokee.testing.base.internal.TestSuiteComponentSpec;
+import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentSpec;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.Getter;
 import org.gradle.api.Project;
@@ -51,20 +46,15 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 
 import java.util.Set;
 
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.getSdkPlatformPath;
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements TestSuiteComponent
+public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements NativeTestSuiteComponentSpec
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, BinaryAwareComponent
-	, TargetMachineAwareComponent
-	, TargetLinkageAwareComponent
-	, TargetBuildTypeAwareComponent
 {
 	@Getter private final Property<GroupId> groupId;
-	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
 	@Getter private final Property<String> moduleName;
@@ -75,7 +65,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		this.providers = providers;
 		this.layout = layout;
 		this.groupId = objects.property(GroupId.class);
-		this.testedComponent = Cast.uncheckedCastBecauseOfTypeErasure(objects.property(BaseNativeComponent.class));
 		this.moduleName = configureDisplayName(objects.property(String.class), "moduleName");
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
 		this.taskRegistry = taskRegistry;
@@ -93,7 +82,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 
 	private void onEachVariant(DefaultXCTestTestSuiteVariant testSuite) {
 		testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-			Provider<String> moduleName = getTestedComponent().flatMap(BaseComponent::getBaseName);
+			Provider<String> moduleName = getTestedComponent().flatMap(it -> ((BaseNativeComponent<?>) it).getBaseName());
 			binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
 				task.getCompilerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks", "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks")));
 				task.getCompilerArgs().addAll(task.getToolChain().map(toolChain -> {
@@ -143,9 +132,16 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	}
 
 	@Override
-	public TestSuiteComponent testedComponent(Object component) {
+	public TestSuiteComponentSpec testedComponent(Object component) {
 		if (component instanceof BaseNativeComponent) {
-			testedComponent.set((BaseNativeComponent<?>) component);
+			NativeTestSuiteComponentSpec.super.testedComponent(component);
+		} else if (component instanceof Provider) {
+			NativeTestSuiteComponentSpec.super.testedComponent(((Provider<?>) component).map(it -> {
+				if (!(it instanceof BaseNativeComponent)) {
+					throw new IllegalArgumentException("Unsupported tested component type, expecting a BaseNativeComponent");
+				}
+				return it;
+			}));
 		}
 		throw new IllegalArgumentException("Unsupported tested component type, expecting a BaseNativeComponent");
 	}

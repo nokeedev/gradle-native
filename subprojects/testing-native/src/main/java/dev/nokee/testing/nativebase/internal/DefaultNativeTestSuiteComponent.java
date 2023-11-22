@@ -33,8 +33,9 @@ import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -56,13 +57,8 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
-import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import lombok.val;
@@ -92,6 +88,7 @@ import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static java.util.stream.Collectors.toList;
 
 public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
+	, NativeTestSuiteComponentSpec
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
@@ -100,9 +97,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, HasDevelopmentVariant<NativeTestSuiteVariant>
 	, BinaryAwareComponentMixIn
 	, AssembleTaskMixIn
-	, TargetBuildTypeAwareComponentMixIn
-	, TargetLinkageAwareComponentMixIn
-	, TargetMachineAwareComponentMixIn
 {
 	private final ObjectFactory objects;
 	private final ModelObjectRegistry<Task> taskRegistry;
@@ -116,7 +110,10 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 		this.getBaseName().convention(BaseNameUtils.from(getIdentifier()).getAsString());
 	}
 
-	public abstract Property<Component> getTestedComponent();
+	@Override
+	public DefaultNativeComponentDependencies getDependencies() {
+		return DependencyAwareComponentMixIn.super.getDependencies();
+	}
 
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
@@ -132,13 +129,8 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	}
 
 	@Override
-	public TestSuiteComponent testedComponent(Object component) {
-		if (component instanceof BaseComponent) {
-			getTestedComponent().set((BaseComponent) component);
-		} else {
-			throw new UnsupportedOperationException();
-		}
-		return this;
+	public BinaryView<Binary> getBinaries() {
+		return BinaryAwareComponentMixIn.super.getBinaries();
 	}
 
 	public void finalizeExtension(Project project) {
@@ -246,8 +238,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 						objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
 					}
 					binary.getLinkTask().configure(task -> {
-						val taskInternal = (LinkExecutableTask) task;
-						taskInternal.source(objects);
+						task.source(objects);
 					});
 				});
 			});
