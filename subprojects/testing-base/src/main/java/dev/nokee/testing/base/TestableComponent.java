@@ -16,6 +16,13 @@
 
 package dev.nokee.testing.base;
 
-public interface TestableComponent {
+import dev.nokee.platform.base.Component;
+
+/**
+ * Represent a component that can be checked.
+ *
+ * @since 0.5
+ */
+public interface TestableComponent extends TestSuiteAwareComponent<TestSuiteContainer>, Component {
 	TestSuiteContainer getTestSuites();
 }

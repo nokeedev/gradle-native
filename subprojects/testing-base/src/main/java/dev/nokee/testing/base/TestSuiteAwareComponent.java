@@ -16,9 +16,11 @@
 
 package dev.nokee.testing.base;
 
-import dev.nokee.platform.base.View;
-import org.gradle.api.NamedDomainObjectProvider;
-
-public interface TestSuiteContainer extends ComponentTestSuites, View<TestSuiteComponent> {
-	<T extends TestSuiteComponent> NamedDomainObjectProvider<T> register(String name, Class<T> type);
+/**
+ * A component with test suites.
+ *
+ * @since 0.4
+ */
+public interface TestSuiteAwareComponent<T extends ComponentTestSuites> {
+	T getTestSuites();
 }
