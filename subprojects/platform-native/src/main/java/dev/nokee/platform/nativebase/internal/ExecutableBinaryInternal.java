@@ -24,11 +24,9 @@ import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependency
 import dev.nokee.platform.nativebase.internal.linking.LinkTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
@@ -38,7 +36,6 @@ public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinar
 	, Buildable
 	, NativeLanguageSourceSetAware
 	, LinkTaskMixIn<LinkExecutable, LinkExecutableTask>
-	, HasObjectFilesToBinaryTask
 	, HasLinkLibrariesDependencyBucket
 	, HasRuntimeLibrariesDependencyBucket
 	, CompileTasksMixIn
@@ -60,11 +57,6 @@ public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinar
 	@Override
 	public TaskProvider<LinkExecutableTask> getCreateOrLinkTask() {
 		return getLinkTask();
-	}
-
-	@Override
-	public TaskDependency getBuildDependencies() {
-		return TaskDependencyUtils.of(getCreateOrLinkTask());
 	}
 
 	@Override

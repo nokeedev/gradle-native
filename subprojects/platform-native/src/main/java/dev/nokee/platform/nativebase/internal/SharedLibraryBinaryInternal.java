@@ -24,7 +24,6 @@ import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependency
 import dev.nokee.platform.nativebase.internal.linking.LinkTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.utils.TaskDependencyUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Buildable;
@@ -32,7 +31,6 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
@@ -42,7 +40,6 @@ public /*final*/ abstract class SharedLibraryBinaryInternal extends BaseNativeBi
 	, Buildable
 	, NativeLanguageSourceSetAware
 	, LinkTaskMixIn<LinkSharedLibrary, LinkSharedLibraryTask>
-	, HasObjectFilesToBinaryTask
 	, HasLinkLibrariesDependencyBucket
 	, HasRuntimeLibrariesDependencyBucket
 	, CompileTasksMixIn
@@ -91,11 +88,6 @@ public /*final*/ abstract class SharedLibraryBinaryInternal extends BaseNativeBi
 	private static boolean isBuildable(LinkSharedLibrary linkTask) {
 		AbstractLinkTask linkTaskInternal = (AbstractLinkTask)linkTask;
 		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
-	}
-
-	@Override
-	public TaskDependency getBuildDependencies() {
-		return TaskDependencyUtils.of(getCreateOrLinkTask());
 	}
 
 	@Override
