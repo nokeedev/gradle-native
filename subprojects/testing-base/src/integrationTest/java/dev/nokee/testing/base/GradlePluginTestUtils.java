@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package dev.nokee.testing.base;
 
-import dev.nokee.platform.base.Component;
-import org.gradle.api.provider.Property;
+import org.gradle.api.Plugin;
 
-// FIXME: Don't extends from Component
-public interface TestSuiteComponent extends Component {
-	Property<Component> getTestedComponent();
+import java.util.HashMap;
+import java.util.Map;
 
-	TestSuiteComponent testedComponent(Object component);
+public final class GradlePluginTestUtils {
+
+	public static Map<String, ?> pluginId(String pluginId) {
+		return new HashMap<String, Object>() {{ put("plugin", pluginId); }};
+	}
+
+	public static Map<String, ?> pluginType(Class<? extends Plugin<?>> pluginType) {
+		return new HashMap<String, Object>() {{ put("plugin", pluginType); }};
+	}
 }
