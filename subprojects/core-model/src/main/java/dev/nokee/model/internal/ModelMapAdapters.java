@@ -277,6 +277,7 @@ public final class ModelMapAdapters {
 		private final ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate;
 		private final ModelDecorator decorator;
 		private final Set<Class<? extends ElementType>> creatableTypes = new LinkedHashSet<>();
+		private final ManagedFactoryProvider managedFactory;
 
 		@Inject
 		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ModelDecorator decorator) {
@@ -284,6 +285,7 @@ public final class ModelMapAdapters {
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
 			this.decorator = decorator;
+			this.managedFactory = new ManagedFactoryProvider(objects);
 
 			knownElements.forEach(it -> {
 				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
@@ -306,6 +308,11 @@ public final class ModelMapAdapters {
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
 			delegate.registerFactory(type, name -> ModelDecorator.decorateUsing(decorator, () -> knownElements.create(name, type, factory)));
 			creatableTypes.add(type);
+		}
+
+		@Override
+		public <U extends ElementType> void registerFactory(Class<U> type) {
+			registerFactory(type, managedFactory.create(type));
 		}
 
 		@Override
@@ -416,6 +423,18 @@ public final class ModelMapAdapters {
 		@Override
 		public String toString() {
 			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identifier) + "' (" + implementationType.getSimpleName() + ")";
+		}
+	}
+
+	private static final class ManagedFactoryProvider {
+		private final ObjectFactory objects;
+
+		public ManagedFactoryProvider(ObjectFactory objects) {
+			this.objects = objects;
+		}
+
+		public <T> NamedDomainObjectFactory<T> create(Class<T> type) {
+			return __ -> objects.newInstance(type);
 		}
 	}
 }
