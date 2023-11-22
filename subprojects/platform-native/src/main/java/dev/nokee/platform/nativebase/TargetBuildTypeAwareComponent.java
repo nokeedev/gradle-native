@@ -17,7 +17,6 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import dev.nokee.runtime.nativebase.TargetBuildTypeFactory;
-import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import org.gradle.api.provider.SetProperty;
 
 /**
@@ -44,7 +43,5 @@ public interface TargetBuildTypeAwareComponent {
 	 *
 	 * @return a {@link TargetBuildTypeFactory} for creating {@link TargetBuildType} instance, never null.
 	 */
-	default TargetBuildTypeFactory getBuildTypes() {
-		return NativeRuntimeBasePlugin.TARGET_BUILD_TYPE_FACTORY;
-	}
+	TargetBuildTypeFactory getBuildTypes();
 }

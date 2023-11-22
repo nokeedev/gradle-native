@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 
 public class MutableModelDecorator implements ModelDecorator {
 	private final List<Consumer<? super NestedObjectContext>> nestedObjects = new ArrayList<>();
+	private final List<Consumer<? super InjectServiceContext>> injectServices = new ArrayList<>();
 
 	@Override
 	public void decorate(ModelMixIn obj) {
@@ -40,12 +41,24 @@ public class MutableModelDecorator implements ModelDecorator {
 			@Override
 			public void visitType(ModelType<? super ModelMixIn> type) {
 				for (final Method method : type.getConcreteType().getDeclaredMethods()) {
+					// TODO: Raise exception if method annotated with both NestedObject and InjectService
+					// TODO: Stop passing along to other consumer when a mixIn invocation was done by the action
+					// TODO: Save the action and dehydrated context so speed up the decoration of the same object later
+
 					if (method.isAnnotationPresent(NestedObject.class)) {
 						if (processed.add(method.getName())) { // avoid processing method multiple time
 							assert method.getParameterCount() == 0;
 							assert method.getName().startsWith("get");
 							for (Consumer<? super NestedObjectContext> nestedObject : nestedObjects) {
-								nestedObject.accept(contextFor(obj, method));
+								nestedObject.accept(nestedContextFor(obj, method));
+							}
+						}
+					} else if (method.isAnnotationPresent(InjectService.class)) {
+						if (processed.add(method.getName())) { // avoid processing method multiple time
+							assert method.getParameterCount() == 0;
+							assert method.getName().startsWith("get");
+							for (Consumer<? super InjectServiceContext> injectService : injectServices) {
+								injectService.accept(serviceContextFor(obj, method));
 							}
 						}
 					}
@@ -54,7 +67,7 @@ public class MutableModelDecorator implements ModelDecorator {
 		});
 	}
 
-	private NestedObjectContext contextFor(ModelMixIn obj, Method method) {
+	private NestedObjectContext nestedContextFor(ModelMixIn obj, Method method) {
 		return new NestedObjectContext() {
 			@Override
 			public ModelObjectIdentifier getIdentifier() {
@@ -87,6 +100,29 @@ public class MutableModelDecorator implements ModelDecorator {
 		};
 	}
 
+	private InjectServiceContext serviceContextFor(ModelMixIn obj, Method method) {
+		return new InjectServiceContext() {
+			@Override
+			public ModelType<?> getServiceType() {
+				try {
+					Method m = method.getDeclaringClass().getMethod(method.getName());
+					return ModelType.of(TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(m.getGenericReturnType()).getType());
+				} catch (NoSuchMethodException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			public String getPropertyName() {
+				return StringUtils.uncapitalize(method.getName().substring(3));
+			}
+
+			@Override
+			public void mixIn(Object value) {
+				obj.getExtensions().add(getPropertyName(), value);
+			}
+		};
+	}
+
 	public void nestedObject(Consumer<? super NestedObjectContext> action) {
 		nestedObjects.add(action);
 	}
@@ -97,5 +133,14 @@ public class MutableModelDecorator implements ModelDecorator {
 		void mixIn(Object value);
 		NestedObject getAnnotation();
 		String getPropertyName();
+	}
+
+	public void injectService(Consumer<? super InjectServiceContext> action) {
+		injectServices.add(action);
+	}
+
+	public interface InjectServiceContext {
+		ModelType<?> getServiceType();
+		void mixIn(Object service);
 	}
 }

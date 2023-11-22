@@ -15,7 +15,15 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
+import dev.nokee.runtime.nativebase.TargetBuildTypeFactory;
 
-public interface TargetBuildTypeAwareComponentMixIn extends TargetBuildTypeAwareComponent {
+public interface TargetBuildTypeAwareComponentMixIn extends ModelMixIn, TargetBuildTypeAwareComponent {
+	@Override
+	@InjectService
+	default TargetBuildTypeFactory getBuildTypes() {
+		return mixedIn("buildTypes");
+	}
 }

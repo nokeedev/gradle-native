@@ -15,7 +15,15 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import dev.nokee.runtime.nativebase.TargetMachineFactory;
 
-public interface TargetMachineAwareComponentMixIn extends TargetMachineAwareComponent {
+public interface TargetMachineAwareComponentMixIn extends ModelMixIn, TargetMachineAwareComponent {
+	@Override
+	@InjectService
+	default TargetMachineFactory getMachines() {
+		return mixedIn("machines");
+	}
 }

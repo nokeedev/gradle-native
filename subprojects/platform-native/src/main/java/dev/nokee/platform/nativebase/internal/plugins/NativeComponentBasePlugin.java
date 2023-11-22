@@ -32,6 +32,7 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
+import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
@@ -93,6 +94,10 @@ import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransform
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
+import dev.nokee.runtime.nativebase.TargetBuildTypeFactory;
+import dev.nokee.runtime.nativebase.TargetLinkageFactory;
+import dev.nokee.runtime.nativebase.TargetMachineFactory;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigurationUtils;
@@ -426,6 +431,21 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		components(project).configureEach(component -> {
 			if (component instanceof NativeLibraryComponent && component instanceof TargetLinkageAwareComponent) {
 				((TargetLinkageAwareComponent) component).getTargetLinkages().convention(singletonList(TargetLinkages.SHARED));
+			}
+		});
+		project.getExtensions().getByType(MutableModelDecorator.class).injectService(context -> {
+			if (context.getServiceType().getType().equals(TargetMachineFactory.class)) {
+				context.mixIn(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY);
+			}
+		});
+		project.getExtensions().getByType(MutableModelDecorator.class).injectService(context -> {
+			if (context.getServiceType().getType().equals(TargetBuildTypeFactory.class)) {
+				context.mixIn(NativeRuntimeBasePlugin.TARGET_BUILD_TYPE_FACTORY);
+			}
+		});
+		project.getExtensions().getByType(MutableModelDecorator.class).injectService(context -> {
+			if (context.getServiceType().getType().equals(TargetLinkageFactory.class)) {
+				context.mixIn(NativeRuntimeBasePlugin.TARGET_LINKAGE_FACTORY);
 			}
 		});
 

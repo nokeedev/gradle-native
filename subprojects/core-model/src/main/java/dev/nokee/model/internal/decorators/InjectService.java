@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.ModelMixIn;
-import dev.nokee.model.internal.decorators.InjectService;
-import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
-import dev.nokee.runtime.nativebase.TargetLinkageFactory;
+package dev.nokee.model.internal.decorators;
 
-public interface TargetLinkageAwareComponentMixIn extends ModelMixIn, TargetLinkageAwareComponent {
-	@Override
-	@InjectService
-	default TargetLinkageFactory getLinkages() {
-		return mixedIn("linkages");
-	}
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface InjectService {
 }
