@@ -24,6 +24,7 @@ import org.gradle.api.provider.Provider;
 import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.jupiter.api.Assertions;
 
@@ -151,6 +152,10 @@ public final class GradleProviderMatchers {
 	@SuppressWarnings("UnstableApiUsage")
 	public static Matcher<HasConfigurableValue> changesDisallowed() {
 		return new ProviderChangesDisallowedMatcher();
+	}
+
+	public static Matcher<HasConfigurableValue> changesAllowed() {
+		return Matchers.not(new ProviderChangesDisallowedMatcher());
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
