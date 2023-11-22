@@ -65,6 +65,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkActio
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.TargetedNativeComponentDimensionsRule;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
@@ -137,6 +138,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			return project.getObjects().newInstance(ModelBackedJvmJarBinary.class, model(project, registryOf(Task.class)));
 		});
 
+		components(project).withType(JniLibraryComponentInternal.class)
+			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(new Action<JniLibraryComponentInternal>() {
 			@Override
 			public void execute(JniLibraryComponentInternal component) {

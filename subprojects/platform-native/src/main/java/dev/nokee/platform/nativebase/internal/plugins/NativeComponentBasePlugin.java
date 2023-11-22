@@ -67,15 +67,13 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeVariant;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyRegistrationRule;
-import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyRegistrationRule;
-import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyRegistrationRule;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
@@ -89,6 +87,7 @@ import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantC
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.rules.TargetBuildTypeConventionRule;
 import dev.nokee.platform.nativebase.internal.rules.TargetMachineConventionRule;
+import dev.nokee.platform.nativebase.internal.rules.TargetedNativeComponentDimensionsRule;
 import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
@@ -418,11 +417,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeLinkCapabilityPlugin.class);
 		project.getPluginManager().apply(NativeArchiveCapabilityPlugin.class);
 
-		components(project).configureEach(new TargetMachinesPropertyRegistrationRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
+		components(project).withType(NativeComponentSpec.class)
+			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
 		model(project, objects()).configureEach(TargetMachineAwareComponent.class, new TargetMachineConventionRule(project.getProviders()));
-		components(project).configureEach(new TargetBuildTypesPropertyRegistrationRule());
 		model(project, objects()).configureEach(TargetBuildTypeAwareComponent.class, new TargetBuildTypeConventionRule(project.getProviders()));
-		components(project).configureEach(new TargetLinkagesPropertyRegistrationRule());
 		components(project).configureEach(component -> {
 			if (component instanceof NativeApplicationComponent && component instanceof TargetLinkageAwareComponent) {
 				((TargetLinkageAwareComponent) component).getTargetLinkages().convention(singletonList(TargetLinkages.EXECUTABLE));

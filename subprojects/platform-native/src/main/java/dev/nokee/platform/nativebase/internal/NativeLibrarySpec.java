@@ -37,6 +37,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryC
 import javax.inject.Inject;
 
 public  /*final*/ abstract class NativeLibrarySpec extends ModelElementSupport implements NativeLibraryExtension
+	, NativeComponentSpec
 	, NativeLibraryComponent
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies, DefaultNativeLibraryComponentDependencies>
@@ -44,9 +45,6 @@ public  /*final*/ abstract class NativeLibrarySpec extends ModelElementSupport i
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
-	, TargetMachineAwareComponentMixIn
-	, TargetBuildTypeAwareComponentMixIn
-	, TargetLinkageAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasDevelopmentVariant<NativeLibrary>
 	, ObjectsTaskMixIn {

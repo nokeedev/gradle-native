@@ -34,17 +34,16 @@ import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibrary;
 
 import javax.inject.Inject;
 
 public  /*final*/ abstract class ObjectiveCppLibrarySpec extends ModelElementSupport implements ObjectiveCppLibrary
+	, NativeComponentSpec
 	, NativeLibraryComponent
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies, DefaultNativeLibraryComponentDependencies>
@@ -52,9 +51,6 @@ public  /*final*/ abstract class ObjectiveCppLibrarySpec extends ModelElementSup
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
-	, TargetMachineAwareComponentMixIn
-	, TargetBuildTypeAwareComponentMixIn
-	, TargetLinkageAwareComponentMixIn
 	, AssembleTaskMixIn
 	, ObjectiveCppSourcesMixIn
 	, PrivateHeadersMixIn

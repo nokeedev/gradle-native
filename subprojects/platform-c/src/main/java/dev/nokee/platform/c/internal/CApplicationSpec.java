@@ -24,7 +24,6 @@ import dev.nokee.language.c.internal.CSourcesMixIn;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
@@ -36,16 +35,14 @@ import dev.nokee.platform.c.CApplication;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
-import org.gradle.api.Task;
 
 import javax.inject.Inject;
 
 public  /*final*/ abstract class CApplicationSpec extends ModelElementSupport implements CApplication
+	, NativeComponentSpec
 	, NativeApplicationComponent
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies, DefaultNativeApplicationComponentDependencies>
@@ -53,9 +50,6 @@ public  /*final*/ abstract class CApplicationSpec extends ModelElementSupport im
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
-	, TargetMachineAwareComponentMixIn
-	, TargetBuildTypeAwareComponentMixIn
-	, TargetLinkageAwareComponentMixIn
 	, AssembleTaskMixIn
 	, PrivateHeadersMixIn
 	, CSourcesMixIn

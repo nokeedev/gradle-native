@@ -34,8 +34,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.TargetedNativeComponentSpec;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -44,6 +43,7 @@ import javax.inject.Inject;
 import java.util.Set;
 
 public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
+	, TargetedNativeComponentSpec
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies, DefaultJavaNativeInterfaceLibraryComponentDependencies>
@@ -51,8 +51,6 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, SourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources, JavaNativeInterfaceSourcesViewAdapter>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
-	, TargetMachineAwareComponentMixIn
-	, TargetLinkageAwareComponentMixIn
 	, HasDevelopmentBinary
 	, AssembleTaskMixIn
 {

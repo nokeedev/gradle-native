@@ -37,9 +37,7 @@ import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.SwiftIosApplication;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.utils.TextCaseUtils;
@@ -91,6 +89,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static /*final*/ abstract class DefaultSwiftIosApplication extends ModelElementSupport implements SwiftIosApplication
+		, NativeComponentSpec
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
 		, VariantAwareComponentMixIn<IosApplication>
@@ -98,9 +97,6 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, BinaryAwareComponentMixIn
 		, TaskAwareComponentMixIn
 		, AssembleTaskMixIn
-		, TargetMachineAwareComponentMixIn
-		, TargetLinkageAwareComponentMixIn
-		, TargetBuildTypeAwareComponentMixIn
 		, HasDevelopmentVariant<IosApplication>
 		, SwiftSourcesMixIn
 	{

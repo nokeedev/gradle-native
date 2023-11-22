@@ -35,15 +35,14 @@ import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 
 import javax.inject.Inject;
 
 public  /*final*/ abstract class CppApplicationSpec extends ModelElementSupport implements CppApplication
+	, NativeComponentSpec
 	, NativeApplicationComponent
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies, DefaultNativeApplicationComponentDependencies>
@@ -51,9 +50,6 @@ public  /*final*/ abstract class CppApplicationSpec extends ModelElementSupport 
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
-	, TargetMachineAwareComponentMixIn
-	, TargetBuildTypeAwareComponentMixIn
-	, TargetLinkageAwareComponentMixIn
 	, AssembleTaskMixIn
 	, PrivateHeadersMixIn
 	, CppSourcesMixIn

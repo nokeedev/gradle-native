@@ -35,16 +35,15 @@ import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
 
 import javax.inject.Inject;
 
 public  /*final*/ abstract class ObjectiveCppApplicationSpec extends ModelElementSupport implements ObjectiveCppApplication
+	, NativeComponentSpec
 	, NativeApplicationComponent
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies, DefaultNativeApplicationComponentDependencies>
@@ -53,9 +52,6 @@ public  /*final*/ abstract class ObjectiveCppApplicationSpec extends ModelElemen
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, HasDevelopmentVariant<NativeApplication>
-	, TargetMachineAwareComponentMixIn
-	, TargetBuildTypeAwareComponentMixIn
-	, TargetLinkageAwareComponentMixIn
 	, AssembleTaskMixIn
 	, ObjectiveCppSourcesMixIn
 	, PrivateHeadersMixIn

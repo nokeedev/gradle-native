@@ -39,9 +39,7 @@ import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.TargetMachineAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
@@ -114,6 +112,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static /*final*/ abstract class DefaultObjectiveCIosApplication extends ModelElementSupport implements ObjectiveCIosApplication
+		, NativeComponentSpec
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
 		, VariantAwareComponentMixIn<IosApplication>
@@ -121,9 +120,6 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, BinaryAwareComponentMixIn
 		, TaskAwareComponentMixIn
 		, AssembleTaskMixIn
-		, TargetMachineAwareComponentMixIn
-		, TargetLinkageAwareComponentMixIn
-		, TargetBuildTypeAwareComponentMixIn
 		, HasDevelopmentVariant<IosApplication>
 		, ObjectiveCSourcesMixIn
 		, PrivateHeadersMixIn

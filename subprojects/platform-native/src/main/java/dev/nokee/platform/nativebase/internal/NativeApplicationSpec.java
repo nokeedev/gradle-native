@@ -37,6 +37,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicat
 import javax.inject.Inject;
 
 public abstract class NativeApplicationSpec extends ModelElementSupport implements NativeApplicationExtension
+	, NativeComponentSpec
 	, NativeApplicationComponent
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies, DefaultNativeApplicationComponentDependencies>
@@ -45,8 +46,6 @@ public abstract class NativeApplicationSpec extends ModelElementSupport implemen
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, HasDevelopmentVariant<NativeApplication>
-	, TargetMachineAwareComponentMixIn
-	, TargetBuildTypeAwareComponentMixIn
 	, AssembleTaskMixIn
 	, ObjectsTaskMixIn {
 	@Inject
