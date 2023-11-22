@@ -122,6 +122,12 @@ public final class ModelMapAdapters {
 		public ForConfigurationContainer(ConfigurationContainer delegate, ObjectFactory objects) {
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
+
+			knownElements.forEach(it -> {
+				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
+					it.attachProvider(delegate.named(it.getName()));
+				}
+			});
 		}
 
 		@Override
@@ -201,6 +207,11 @@ public final class ModelMapAdapters {
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
 
+			knownElements.forEach(it -> {
+				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
+					it.attachProvider(delegate.named(it.getName()));
+				}
+			});
 			final Namer<Task> namer = new Task.Namer();
 			delegate.configureEach(it -> {
 				KnownElement element = knownElements.mapping.findByName(namer.determineName(it));
@@ -273,6 +284,12 @@ public final class ModelMapAdapters {
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
 			this.decorator = decorator;
+
+			knownElements.forEach(it -> {
+				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
+					it.attachProvider(delegate.named(it.getName()));
+				}
+			});
 		}
 
 		@Override
