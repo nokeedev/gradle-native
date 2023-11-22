@@ -71,9 +71,9 @@ abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInsta
 			library {
 				variants.configureEach { variant ->
 					configuredVariants << variant
-					project.tasks.register("custom${variant.identifier.fullName.capitalize()}") {
+					project.tasks.register("custom${variant.name.capitalize()}") {
 						group = 'Custom'
-						description = "Custom task for variant '${variant.identifier.fullName}'."
+						description = "Custom task for variant '${variant.name}'."
 					}
 				}
 			}
@@ -87,9 +87,9 @@ abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInsta
 		succeeds('tasks')
 		result.assertOutputContains("""Custom tasks
 ------------
-customLinux${currentArchitecture.capitalize()}Shared - Custom task for variant 'linux${currentArchitecture.capitalize()}Shared'.
-customMacos${currentArchitecture.capitalize()}Shared - Custom task for variant 'macos${currentArchitecture.capitalize()}Shared'.
-customWindows${currentArchitecture.capitalize()}Shared - Custom task for variant 'windows${currentArchitecture.capitalize()}Shared'.
+customLinux - Custom task for variant 'linux'.
+customMacos - Custom task for variant 'macos'.
+customWindows - Custom task for variant 'windows'.
 """)
 	}
 
@@ -104,8 +104,8 @@ customWindows${currentArchitecture.capitalize()}Shared - Custom task for variant
 			library {
 				variants.configureEach { variant ->
 					configuredVariants << variant
-					configurations.create("custom${variant.identifier.fullName.capitalize()}") {
-						description = "Custom configuration for variant '${variant.identifier.fullName}'."
+					configurations.create("custom${variant.name.capitalize()}") {
+						description = "Custom configuration for variant '${variant.name}'."
 					}
 				}
 			}
@@ -118,13 +118,13 @@ customWindows${currentArchitecture.capitalize()}Shared - Custom task for variant
 		expect:
 		succeeds('dependencies')
 		result.assertOutputContains("""
-customLinux${currentArchitecture.capitalize()}Shared - Custom configuration for variant 'linux${currentArchitecture.capitalize()}Shared'.
+customLinux - Custom configuration for variant 'linux'.
 No dependencies
 
-customMacos${currentArchitecture.capitalize()}Shared - Custom configuration for variant 'macos${currentArchitecture.capitalize()}Shared'.
+customMacos - Custom configuration for variant 'macos'.
 No dependencies
 
-customWindows${currentArchitecture.capitalize()}Shared - Custom configuration for variant 'windows${currentArchitecture.capitalize()}Shared'.
+customWindows - Custom configuration for variant 'windows'.
 No dependencies
 """)
 	}
@@ -141,11 +141,11 @@ No dependencies
 			library {
 				variants.configureEach { variant ->
 					configuredVariants << variant
-					configurations.create("custom${variant.identifier.fullName.capitalize()}Elements") {
-						description = "Custom configuration for variant '${variant.identifier.fullName}'."
+					configurations.create("custom${variant.name.capitalize()}Elements") {
+						description = "Custom configuration for variant '${variant.name}'."
 						canBeConsumed = true
 						canBeResolved = false
-						outgoing.artifact(file("build/${variant.identifier.fullName}.potato"))
+						outgoing.artifact(file("build/${variant.name}.potato"))
 					}
 				}
 			}
@@ -159,28 +159,28 @@ No dependencies
 		succeeds('outgoingVariants')
 		result.assertOutputContains(separatorsToSystem("""
 --------------------------------------------------
-Variant customLinux${currentArchitecture.capitalize()}SharedElements
+Variant customLinuxElements
 --------------------------------------------------
-Description = Custom configuration for variant 'linux${currentArchitecture.capitalize()}Shared'.
+Description = Custom configuration for variant 'linux'.
 
 Artifacts
-    - build/linux${currentArchitecture.capitalize()}Shared.potato (artifactType = potato)
+    - build/linux.potato (artifactType = potato)
 
 --------------------------------------------------
-Variant customMacos${currentArchitecture.capitalize()}SharedElements
+Variant customMacosElements
 --------------------------------------------------
-Description = Custom configuration for variant 'macos${currentArchitecture.capitalize()}Shared'.
-
-Artifacts
-    - build/macos${currentArchitecture.capitalize()}Shared.potato (artifactType = potato)
-
---------------------------------------------------
-Variant customWindows${currentArchitecture.capitalize()}SharedElements
---------------------------------------------------
-Description = Custom configuration for variant 'windows${currentArchitecture.capitalize()}Shared'.
+Description = Custom configuration for variant 'macos'.
 
 Artifacts
-    - build/windows${currentArchitecture.capitalize()}Shared.potato (artifactType = potato)
+    - build/macos.potato (artifactType = potato)
+
+--------------------------------------------------
+Variant customWindowsElements
+--------------------------------------------------
+Description = Custom configuration for variant 'windows'.
+
+Artifacts
+    - build/windows.potato (artifactType = potato)
 """))
 	}
 
@@ -200,8 +200,8 @@ Artifacts
 			library {
 				variants.configureEach { variant ->
 					configuredVariants << variant
-					configurations.create("custom${variant.identifier.fullName.capitalize()}") {
-						description = "Custom configuration for variant '${variant.identifier.fullName}'."
+					configurations.create("custom${variant.name.capitalize()}") {
+						description = "Custom configuration for variant '${variant.name}'."
 						canBeConsumed = false
 						canBeResolved = true
 						dependencies.add(project.dependencies.create('dev.nokee:platformJni:0.3.0'))
@@ -215,7 +215,7 @@ Artifacts
 		'''
 
 		expect:
-		succeeds('dependencyInsight', '--configuration', "custom${hostVariantName.capitalize()}Shared", '--dependency', 'dev.nokee:platformJni:0.3.0')
+		succeeds('dependencyInsight', '--configuration', "custom${hostVariantName.capitalize()}", '--dependency', 'dev.nokee:platformJni:0.3.0')
 		result.assertOutputContains("""> Task :dependencyInsight
 dev.nokee:platformJni:0.3.0
    variant "runtimeElements" [
@@ -228,7 +228,7 @@ dev.nokee:platformJni:0.3.0
    ]
 
 dev.nokee:platformJni:0.3.0
-\\--- custom${hostVariantName.capitalize()}Shared""")
+\\--- custom${hostVariantName.capitalize()}""")
 	}
 
 	protected abstract void makeSingleProject()
