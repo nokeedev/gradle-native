@@ -20,7 +20,6 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.decorators.ModelDecorator;
-import dev.nokee.model.internal.names.ElementName;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
@@ -97,10 +96,10 @@ public final class ModelMapAdapters {
 			return identity.asModelObject(type);
 		}
 
-		public <S> S create(String name, Class<S> type, NamedDomainObjectFactory<? extends S> factory) {
+		public <S> S create(ProjectIdentifier projectIdentifier, String name, Class<S> type, NamedDomainObjectFactory<? extends S> factory) {
 			KnownElement element = mapping.findByName(name);
 			if (element == null) {
-				knownElements.add(new ModelElementIdentity(new DefaultModelObjectIdentifier(ElementName.of(name)), type));
+				knownElements.add(new ModelElementIdentity(projectIdentifier.child(name), type));
 				element = Objects.requireNonNull(mapping.findByName(name));
 			}
 
@@ -278,14 +277,16 @@ public final class ModelMapAdapters {
 		private final ModelDecorator decorator;
 		private final Set<Class<? extends ElementType>> creatableTypes = new LinkedHashSet<>();
 		private final ManagedFactoryProvider managedFactory;
+		private final ProjectIdentifier projectIdentifier;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ModelDecorator decorator) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ModelDecorator decorator, ProjectIdentifier projectIdentifier) {
 			this.elementType = elementType;
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
 			this.decorator = decorator;
 			this.managedFactory = new ManagedFactoryProvider(objects);
+			this.projectIdentifier = projectIdentifier;
 
 			knownElements.forEach(it -> {
 				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
@@ -306,7 +307,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
-			delegate.registerFactory(type, name -> ModelDecorator.decorateUsing(decorator, () -> knownElements.create(name, type, factory)));
+			delegate.registerFactory(type, name -> ModelDecorator.decorateUsing(decorator, () -> knownElements.create(projectIdentifier, name, type, factory)));
 			creatableTypes.add(type);
 		}
 
