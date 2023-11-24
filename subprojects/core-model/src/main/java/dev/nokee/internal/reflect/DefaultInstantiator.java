@@ -17,8 +17,10 @@
 package dev.nokee.internal.reflect;
 
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.decorators.DecoratorHandlers;
 import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.model.internal.decorators.ModelDecorator;
+import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeUtils;
@@ -47,17 +49,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
 
-public final class DefaultInstantiator implements Instantiator {
+public final class DefaultInstantiator implements Instantiator, DecoratorHandlers {
 	private final ObjectFactory objects;
-	private final ModelDecorator decorator;
+	private final MutableModelDecorator decorator = new MutableModelDecorator();
 
 	// TODO: We should keep the decorated class globally across all projects, maybe use a BuildService
 	private final InjectorClassLoader classLoader = new InjectorClassLoader(DefaultInstantiator.class.getClassLoader());
 
-	public DefaultInstantiator(ObjectFactory objects, ModelDecorator decorator) {
+	public DefaultInstantiator(ObjectFactory objects) {
 		this.objects = objects;
-		this.decorator = decorator;
 	}
 
 	@Override
@@ -71,6 +73,16 @@ public final class DefaultInstantiator implements Instantiator {
 		// TODO: We should merge decorator with this class so we register the decorator here
 		// TODO: If type is final, do direct instantiator
 		return new ClassInspector().inspectType(type).generateClass(classLoader);
+	}
+
+	@Override
+	public void nestedObject(Consumer<? super NestedObjectContext> action) {
+		decorator.nestedObject(action);
+	}
+
+	@Override
+	public void injectService(Consumer<? super InjectServiceContext> action) {
+		decorator.injectService(action);
 	}
 
 	@EqualsAndHashCode

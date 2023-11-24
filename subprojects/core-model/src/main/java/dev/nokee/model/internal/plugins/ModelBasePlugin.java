@@ -26,8 +26,6 @@ import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
-import dev.nokee.model.internal.decorators.ModelDecorator;
-import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -59,8 +57,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
 		target.getExtensions().create("model", ModelExtension.class);
-		target.getExtensions().create("__nokee_modelDecorator", MutableModelDecorator.class);
-		target.getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, target.getExtensions().getByType(ModelDecorator.class)));
+		target.getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects));
 	}
 
 	private void applyToSettings(Settings settings) {
