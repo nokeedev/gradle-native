@@ -17,7 +17,6 @@ package dev.nokee.testing.base.internal.plugins;
 
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
@@ -32,7 +31,6 @@ import org.gradle.api.Named;
 import org.gradle.api.Namer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
 
 import static dev.nokee.model.internal.ModelElementActionAdapter.elementWith;
@@ -56,7 +54,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add(TEST_SUITE_COMPONENT_CONTAINER_TYPE, "testSuites", project.getObjects().polymorphicDomainObjectContainer(TestSuiteComponent.class));
 
-		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, testSuites(project), project.getExtensions().getByType(ModelDecorator.class), ProjectIdentifier.of(project), instantiator(project)));
+		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, testSuites(project), ProjectIdentifier.of(project), instantiator(project)));
 
 		project.getPlugins().withType(ComponentModelBasePlugin.class).configureEach(__ -> {
 			components(project).withType(TestableComponentSpec.class).configureEach(elementWith((identifier, component) -> {

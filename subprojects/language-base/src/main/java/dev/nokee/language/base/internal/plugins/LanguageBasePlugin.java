@@ -23,7 +23,6 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
@@ -50,7 +49,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 
 		project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "$sources", project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class));
-		model(project, objects()).register(model(project).getExtensions().create("sources", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, LanguageSourceSet.class, sources(project), project.getExtensions().getByType(ModelDecorator.class), ProjectIdentifier.of(project), instantiator(project)));
+		model(project, objects()).register(model(project).getExtensions().create("sources", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, LanguageSourceSet.class, sources(project), ProjectIdentifier.of(project), instantiator(project)));
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 

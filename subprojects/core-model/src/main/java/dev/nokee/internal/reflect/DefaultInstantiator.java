@@ -17,7 +17,10 @@
 package dev.nokee.internal.reflect;
 
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.decorators.InjectService;
+import dev.nokee.model.internal.decorators.ModelDecorator;
+import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeUtils;
@@ -47,20 +50,22 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class DefaultInstantiator implements Instantiator {
+public final class DefaultInstantiator implements Instantiator {
 	private final ObjectFactory objects;
+	private final ModelDecorator decorator;
 
 	// TODO: We should keep the decorated class globally across all projects, maybe use a BuildService
 	private final InjectorClassLoader classLoader = new InjectorClassLoader(DefaultInstantiator.class.getClassLoader());
 
-	public DefaultInstantiator(ObjectFactory objects) {
+	public DefaultInstantiator(ObjectFactory objects, ModelDecorator decorator) {
 		this.objects = objects;
+		this.decorator = decorator;
 	}
 
 	@Override
 	public <T> T newInstance(Class<? extends T> type, Object... parameters) throws ObjectInstantiationException {
 		// TODO: Inspect @Inject constructor and pass along Nokee build service
-		return objects.newInstance(generateSubType(type), parameters);
+		return ModelDecorator.decorateUsing(decorator, () -> objects.newInstance(generateSubType(type), parameters));
 	}
 
 	private <T> Class<? extends T> generateSubType(Class<? extends T> type) {

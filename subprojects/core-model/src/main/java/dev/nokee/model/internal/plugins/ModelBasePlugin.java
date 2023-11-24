@@ -26,6 +26,7 @@ import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
+import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Plugin;
@@ -58,7 +59,8 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
 		target.getExtensions().create("model", ModelExtension.class);
-		target.getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects));
+		target.getExtensions().create("__nokee_modelDecorator", MutableModelDecorator.class);
+		target.getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, target.getExtensions().getByType(ModelDecorator.class)));
 	}
 
 	private void applyToSettings(Settings settings) {
@@ -74,8 +76,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
 		objects.register(model(project).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations()));
 		objects.register(model(project).getExtensions().create("$tasks", ModelMapAdapters.ForTaskContainer.class, project.getTasks()));
-
-		project.getExtensions().create("__nokee_modelDecorator", MutableModelDecorator.class);
 	}
 
 	public static ModelExtension model(ExtensionAware target) {
