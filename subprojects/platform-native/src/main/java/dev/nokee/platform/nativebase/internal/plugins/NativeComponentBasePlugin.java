@@ -32,6 +32,7 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
+import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
@@ -116,12 +117,14 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.Sync;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
@@ -558,6 +561,20 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		components(project).configureEach(component -> {
 			if (component instanceof ObjectsTaskMixIn && component instanceof HasDevelopmentVariant) {
 				((ObjectsTaskMixIn) component).getObjectsTask().configure(configureDependsOn(((HasDevelopmentVariant<?>) component).getDevelopmentVariant().flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS)));
+			}
+		});
+
+		model(project, objects()).configureEach(AbstractLinkTask.class, new BiConsumer<ModelObjects.ModelObjectIdentity, AbstractLinkTask>() {
+			@Override
+			public void accept(ModelObjects.ModelObjectIdentity identity, AbstractLinkTask task) {
+				identity.getParent().filter(this::isNativeLinkableBinary).ifPresent(__ -> {
+					// Until we model the build type
+					task.getDebuggable().set(false);
+				});
+			}
+
+			private boolean isNativeLinkableBinary(ModelObjects.ModelObjectIdentity it) {
+				return it.instanceOf(NativeBundleBinarySpec.class) || it.instanceOf(NativeExecutableBinarySpec.class) || it.instanceOf(NativeSharedLibraryBinarySpec.class);
 			}
 		});
 	}

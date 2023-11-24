@@ -43,13 +43,6 @@ public /*final*/ abstract class NativeBundleBinarySpec extends BaseNativeBinary 
 		super(objects, providers);
 		getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
 		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
-
-		getCreateOrLinkTask().configure(this::configureBundleTask);
-	}
-
-	private void configureBundleTask(LinkBundleTask task) {
-		// Until we model the build type
-		task.getDebuggable().set(false);
 	}
 
 	@Override

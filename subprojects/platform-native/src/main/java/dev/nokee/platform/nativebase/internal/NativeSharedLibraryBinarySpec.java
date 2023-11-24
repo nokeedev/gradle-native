@@ -62,9 +62,6 @@ public /*final*/ abstract class NativeSharedLibraryBinarySpec extends BaseNative
 	}
 
 	private void configureSharedLibraryTask(LinkSharedLibraryTask task) {
-		// Until we model the build type
-		task.getDebuggable().set(false);
-
 		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 		task.getInstallName().set(installName);
 	}
