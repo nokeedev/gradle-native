@@ -577,5 +577,16 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				return it.instanceOf(NativeBundleBinarySpec.class) || it.instanceOf(NativeExecutableBinarySpec.class) || it.instanceOf(NativeSharedLibraryBinarySpec.class);
 			}
 		});
+		artifacts(project).withType(NativeSharedLibraryBinarySpec.class).configureEach(binary -> {
+			binary.getLinkTask().configure(task -> {
+				final Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
+				task.getInstallName().set(installName);
+			});
+		});
+		artifacts(project).withType(NativeSharedLibraryBinarySpec.class).configureEach(binary -> {
+			binary.getLinkedFile().set(binary.getLinkTask().flatMap(AbstractLinkTask::getLinkedFile));
+			binary.getLinkedFile().disallowChanges();
+			binary.getLinkedFile().finalizeValueOnRead();
+		});
 	}
 }

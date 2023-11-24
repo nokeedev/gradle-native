@@ -28,7 +28,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -53,15 +52,6 @@ public /*final*/ abstract class NativeSharedLibraryBinarySpec extends BaseNative
 		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
 		this.objects = objects;
 		this.providerFactory = providers;
-		getCreateOrLinkTask().configure(this::configureSharedLibraryTask);
-
-		getLinkedFile().set(getCreateOrLinkTask().flatMap(AbstractLinkTask::getLinkedFile));
-		getLinkedFile().disallowChanges();
-	}
-
-	private void configureSharedLibraryTask(LinkSharedLibraryTask task) {
-		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
-		task.getInstallName().set(installName);
 	}
 
 	@Override
