@@ -44,7 +44,6 @@ public /*final*/ abstract class NativeSharedLibraryBinarySpec extends BaseNative
 {
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
-	@Getter RegularFileProperty linkedFile;
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
@@ -54,7 +53,6 @@ public /*final*/ abstract class NativeSharedLibraryBinarySpec extends BaseNative
 		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
 		this.objects = objects;
 		this.providerFactory = providers;
-		this.linkedFile = objects.fileProperty();
 		getCreateOrLinkTask().configure(this::configureSharedLibraryTask);
 
 		getLinkedFile().set(getCreateOrLinkTask().flatMap(AbstractLinkTask::getLinkedFile));
@@ -70,6 +68,8 @@ public /*final*/ abstract class NativeSharedLibraryBinarySpec extends BaseNative
 	public TaskProvider<LinkSharedLibraryTask> getCreateOrLinkTask() {
 		return getLinkTask();
 	}
+
+	public abstract RegularFileProperty getLinkedFile();
 
 	@Override
 	public boolean isBuildable() {
