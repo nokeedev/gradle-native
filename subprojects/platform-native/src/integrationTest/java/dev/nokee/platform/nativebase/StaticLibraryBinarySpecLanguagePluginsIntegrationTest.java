@@ -16,7 +16,7 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
@@ -24,6 +24,6 @@ import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 class StaticLibraryBinarySpecLanguagePluginsIntegrationTest extends NativeBinaryLanguagePluginsIntegrationTester {
 	public NativeBinary createSubject(String name) {
-		return artifacts(project).register(name, StaticLibraryBinaryInternal.class).get();
+		return artifacts(project).register(name, NativeStaticLibraryBinarySpec.class).get();
 	}
 }

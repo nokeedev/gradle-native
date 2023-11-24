@@ -18,7 +18,7 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ class ExecutableBinarySpecToStringIntegrationTest {
 
 	@BeforeEach
 	void createSubject() {
-		subject = artifacts(project).register("robe", ExecutableBinaryInternal.class).get();
+		subject = artifacts(project).register("robe", NativeExecutableBinarySpec.class).get();
 	}
 
 	@Test

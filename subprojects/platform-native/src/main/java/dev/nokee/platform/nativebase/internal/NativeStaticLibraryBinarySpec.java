@@ -26,14 +26,14 @@ import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-public /*final*/ abstract class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
+public /*final*/ abstract class NativeStaticLibraryBinarySpec extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
 	, NativeLanguageSourceSetAware
 	, CreateTaskMixIn
 	, CompileTasksMixIn
 {
 	@Inject
-	public StaticLibraryBinaryInternal(ObjectFactory objects, ProviderFactory providers) {
+	public NativeStaticLibraryBinarySpec(ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
 	}
 

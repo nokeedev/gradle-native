@@ -18,7 +18,7 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ class SharedLibraryBinarySpecToStringIntegrationTest {
 
 	@BeforeEach
 	void createSubject() {
-		subject = artifacts(project).register("jiqo", SharedLibraryBinaryInternal.class).get();
+		subject = artifacts(project).register("jiqo", NativeSharedLibraryBinarySpec.class).get();
 	}
 
 	@Test

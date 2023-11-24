@@ -16,7 +16,7 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
@@ -24,6 +24,6 @@ import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 class ExecutableBinarySpecLinkLibrariesConfigurationIntegrationTest extends NativeLinkLibrariesConfigurationIntegrationTester<ExecutableBinary> {
 	public ExecutableBinary createSubject(String name) {
-		return artifacts(project).register(name, ExecutableBinaryInternal.class).get();
+		return artifacts(project).register(name, NativeExecutableBinarySpec.class).get();
 	}
 }

@@ -32,7 +32,7 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 
-public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary
+public /*final*/ abstract class NativeExecutableBinarySpec extends BaseNativeBinary implements ExecutableBinary
 	, Buildable
 	, NativeLanguageSourceSetAware
 	, LinkTaskMixIn<LinkExecutable, LinkExecutableTask>
@@ -41,7 +41,7 @@ public /*final*/ abstract class ExecutableBinaryInternal extends BaseNativeBinar
 	, CompileTasksMixIn
 {
 	@Inject
-	public ExecutableBinaryInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objects, ProviderFactory providers) {
+	public NativeExecutableBinarySpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
 		getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
 		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());

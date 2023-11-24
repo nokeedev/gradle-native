@@ -23,7 +23,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeBundleBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import lombok.val;
@@ -69,7 +69,7 @@ class BundleBinarySpecLinkTaskIntegrationTest {
 		val projectIdentifier = ProjectIdentifier.of(project);
 		val componentIdentifier = ComponentIdentifier.of("luko", projectIdentifier);
 		val variantIdentifier = VariantIdentifier.of("foto", componentIdentifier);
-		binary = model(project, registryOf(Artifact.class)).register(variantIdentifier.child("vupi"), BundleBinaryInternal.class).get();
+		binary = model(project, registryOf(Artifact.class)).register(variantIdentifier.child("vupi"), NativeBundleBinarySpec.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkBundleTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkBundleTask) binary.getLinkTask().get();

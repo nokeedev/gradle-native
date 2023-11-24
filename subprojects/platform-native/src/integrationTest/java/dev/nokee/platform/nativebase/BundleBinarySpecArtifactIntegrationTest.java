@@ -19,7 +19,7 @@ import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.platform.base.testers.ArtifactTester;
-import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeBundleBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import org.gradle.api.Project;
@@ -36,7 +36,7 @@ class BundleBinarySpecArtifactIntegrationTest implements ArtifactTester<BundleBi
 
 	@BeforeEach
 	void createSubject() {
-		subject = artifacts(project).register("kiqa", BundleBinaryInternal.class).get();
+		subject = artifacts(project).register("kiqa", NativeBundleBinarySpec.class).get();
 		subject.getLinkTask().configure(task -> ((LinkBundleTask) task).getTargetPlatform().set(macosPlatform()));
 	}
 

@@ -16,14 +16,14 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeBundleBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
-class BundleBinarySpecBuildabilityIntegrationTest extends NativeBinaryBuildabilityIntegrationTester<BundleBinaryInternal> {
-	public BundleBinaryInternal createSubject() {
-		return artifacts(project).register("kase", BundleBinaryInternal.class).get();
+class BundleBinarySpecBuildabilityIntegrationTest extends NativeBinaryBuildabilityIntegrationTester<NativeBundleBinarySpec> {
+	public NativeBundleBinarySpec createSubject() {
+		return artifacts(project).register("kase", NativeBundleBinarySpec.class).get();
 	}
 }

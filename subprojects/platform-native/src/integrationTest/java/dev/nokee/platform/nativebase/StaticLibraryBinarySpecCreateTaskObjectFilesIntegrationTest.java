@@ -20,7 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
-import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import lombok.val;
@@ -52,12 +52,12 @@ import static org.hamcrest.Matchers.emptyIterable;
 @IntegrationTest
 class StaticLibraryBinarySpecCreateTaskObjectFilesIntegrationTest {
 	@GradleProject Project project;
-	StaticLibraryBinaryInternal binary;
+	NativeStaticLibraryBinarySpec binary;
 	CreateStaticLibraryTask subject;
 
 	@BeforeEach
 	void createSubject() {
-		binary = artifacts(project).register("liku", StaticLibraryBinaryInternal.class).get();
+		binary = artifacts(project).register("liku", NativeStaticLibraryBinarySpec.class).get();
 
 		binary.getCreateTask().configure(task -> ((CreateStaticLibraryTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (CreateStaticLibraryTask) binary.getCreateTask().get();

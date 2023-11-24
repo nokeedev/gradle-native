@@ -20,7 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.val;
@@ -52,12 +52,12 @@ import static org.hamcrest.Matchers.emptyIterable;
 @SuppressWarnings("unchecked")
 class SharedLibraryBinarySpecLinkTaskObjectFilesIntegrationTest {
 	@GradleProject Project project;
-	SharedLibraryBinaryInternal binary;
+	NativeSharedLibraryBinarySpec binary;
 	LinkSharedLibraryTask subject;
 
 	@BeforeEach
 	void createSubject() {
-		binary = artifacts(project).register("liku", SharedLibraryBinaryInternal.class).get();
+		binary = artifacts(project).register("liku", NativeSharedLibraryBinarySpec.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkSharedLibraryTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkSharedLibraryTask) binary.getLinkTask().get();

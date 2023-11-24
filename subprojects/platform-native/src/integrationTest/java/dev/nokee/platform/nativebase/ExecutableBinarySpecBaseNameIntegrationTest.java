@@ -20,7 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -43,7 +43,7 @@ class ExecutableBinarySpecBaseNameIntegrationTest implements HasBaseNameTester {
 
 	@BeforeEach
 	void createSubject() {
-		subject = artifacts(project).register("wepo", ExecutableBinaryInternal.class).get();
+		subject = artifacts(project).register("wepo", NativeExecutableBinarySpec.class).get();
 		subject.getLinkTask().configure(task -> ((LinkExecutableTask) task).getTargetPlatform().set(macosPlatform()));
 	}
 

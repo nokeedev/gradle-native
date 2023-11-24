@@ -19,7 +19,7 @@ import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.platform.base.testers.ArtifactTester;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import org.gradle.api.Project;
@@ -36,7 +36,7 @@ class SharedLibraryBinarySpecArtifactIntegrationTest implements ArtifactTester<S
 
 	@BeforeEach
 	void createSubject() {
-		subject = artifacts(project).register("wuxo", SharedLibraryBinaryInternal.class).get();
+		subject = artifacts(project).register("wuxo", NativeSharedLibraryBinarySpec.class).get();
 		subject.getLinkTask().configure(task -> ((LinkSharedLibraryTask) task).getTargetPlatform().set(macosPlatform()));
 	}
 

@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.HasOutputFile;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.util.internal.LazyPublishArtifact;
@@ -66,8 +66,8 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 	}
 
 	private Provider<Iterable<PublishArtifact>> getOutgoingLinkLibrary(Binary binary) {
-		if (binary instanceof SharedLibraryBinaryInternal) {
-			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(it -> it.getImportLibrary().orElse(it.getLinkedFile())))));
+		if (binary instanceof NativeSharedLibraryBinarySpec) {
+			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((NativeSharedLibraryBinarySpec) binary).getLinkTask().flatMap(it -> it.getImportLibrary().orElse(it.getLinkedFile())))));
 		} else if (binary instanceof StaticLibraryBinary) {
 			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((StaticLibraryBinary) binary).getCreateTask().flatMap(CreateStaticLibrary::getOutputFile))));
 		} else if (binary instanceof HasOutputFile) {
@@ -77,8 +77,8 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 	}
 
 	private Provider<Iterable<PublishArtifact>> getOutgoingRuntimeLibrary(Binary binary) {
-		if (binary instanceof SharedLibraryBinaryInternal) {
-			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile))));
+		if (binary instanceof NativeSharedLibraryBinarySpec) {
+			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((NativeSharedLibraryBinarySpec) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile))));
 		} else if (binary instanceof StaticLibraryBinary) {
 			return Providers.of(ImmutableList.of());
 		} else if (binary instanceof HasOutputFile) {

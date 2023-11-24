@@ -39,7 +39,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
@@ -72,7 +72,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 		getExtensions().add("sharedLibraryTask", taskRegistry.register(getIdentifier().child(TaskName.of("sharedLibrary")), Task.class).asProvider());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
-		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), SharedLibraryBinaryInternal.class).asProvider());
+		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), NativeSharedLibraryBinarySpec.class).asProvider());
 		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), ModelBackedJniJarBinary.class).asProvider());
 	}
 
@@ -109,8 +109,8 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	}
 
 	@SuppressWarnings("unchecked")
-	public SharedLibraryBinaryInternal getSharedLibrary() {
-		return ((NamedDomainObjectProvider<SharedLibraryBinaryInternal>) getExtensions().getByName("sharedLibrary")).get();
+	public NativeSharedLibraryBinarySpec getSharedLibrary() {
+		return ((NamedDomainObjectProvider<NativeSharedLibraryBinarySpec>) getExtensions().getByName("sharedLibrary")).get();
 	}
 
 	@Override

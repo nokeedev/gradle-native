@@ -20,7 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -43,7 +43,7 @@ class SharedLibraryBinarySpecBaseNameIntegrationTest implements HasBaseNameTeste
 
 	@BeforeEach
 	void createSubject() {
-		subject = artifacts(project).register("camo", SharedLibraryBinaryInternal.class).get();
+		subject = artifacts(project).register("camo", NativeSharedLibraryBinarySpec.class).get();
 		subject.getLinkTask().configure(task -> ((LinkSharedLibraryTask) task).getTargetPlatform().set(macosPlatform()));
 	}
 

@@ -16,13 +16,12 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
@@ -46,8 +45,8 @@ public final class NativeApplicationOutgoingDependencies implements NativeOutgoi
 	}
 
 	private Provider<RegularFile> getOutgoingRuntimeLibrary(Binary binary) {
-		if (binary instanceof ExecutableBinaryInternal) {
-			return ((ExecutableBinaryInternal) binary).getLinkTask().flatMap(LinkExecutable::getLinkedFile);
+		if (binary instanceof NativeExecutableBinarySpec) {
+			return ((NativeExecutableBinarySpec) binary).getLinkTask().flatMap(LinkExecutable::getLinkedFile);
 		} else if (binary instanceof HasOutputFile) {
 			return ((HasOutputFile) binary).getOutputFile();
 		}

@@ -23,7 +23,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import lombok.val;
@@ -69,7 +69,7 @@ class ExecutableBinarySpecLinkTaskIntegrationTest {
 		val projectIdentifier = ProjectIdentifier.of(project);
 		val componentIdentifier = ComponentIdentifier.of("mede", projectIdentifier);
 		val variantIdentifier = VariantIdentifier.of("wuri", componentIdentifier);
-		binary = model(project, registryOf(Artifact.class)).register(variantIdentifier.child("ruro"), ExecutableBinaryInternal.class).get();
+		binary = model(project, registryOf(Artifact.class)).register(variantIdentifier.child("ruro"), NativeExecutableBinarySpec.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkExecutableTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkExecutableTask) binary.getLinkTask().get();

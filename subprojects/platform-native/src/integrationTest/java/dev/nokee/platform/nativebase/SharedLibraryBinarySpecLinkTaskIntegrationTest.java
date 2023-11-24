@@ -25,7 +25,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.val;
@@ -89,7 +89,7 @@ class SharedLibraryBinarySpecLinkTaskIntegrationTest {
 		val projectIdentifier = ProjectIdentifier.of(project);
 		val componentIdentifier = ComponentIdentifier.of("qame", projectIdentifier);
 		val variantIdentifier = VariantIdentifier.of("sopu", componentIdentifier);
-		binary = model(project, registryOf(Artifact.class)).register(variantIdentifier.child("tota"), SharedLibraryBinaryInternal.class).get();
+		binary = model(project, registryOf(Artifact.class)).register(variantIdentifier.child("tota"), NativeSharedLibraryBinarySpec.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkSharedLibraryTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkSharedLibraryTask) binary.getLinkTask().get();

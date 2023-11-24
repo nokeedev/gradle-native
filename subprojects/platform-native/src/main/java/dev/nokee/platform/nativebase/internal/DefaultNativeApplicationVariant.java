@@ -67,8 +67,8 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 	}
 
 	@SuppressWarnings("unchecked")
-	public NamedDomainObjectProvider<ExecutableBinaryInternal> getExecutable() {
-		return (NamedDomainObjectProvider<ExecutableBinaryInternal>) getExtensions().getByName("executable");
+	public NamedDomainObjectProvider<NativeExecutableBinarySpec> getExecutable() {
+		return (NamedDomainObjectProvider<NativeExecutableBinarySpec>) getExtensions().getByName("executable");
 	}
 
 	@SuppressWarnings("unchecked")

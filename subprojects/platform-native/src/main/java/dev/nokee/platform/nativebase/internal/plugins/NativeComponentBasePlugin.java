@@ -61,10 +61,10 @@ import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
-import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeBundleBinarySpec;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
@@ -72,8 +72,8 @@ import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeVariant;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
+import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
@@ -161,17 +161,17 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(SharedLibraryBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(SharedLibraryBinaryInternal.class, model(project, registryOf(DependencyBucket.class)));
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeSharedLibraryBinarySpec.class, name -> {
+			return project.getObjects().newInstance(NativeSharedLibraryBinarySpec.class, model(project, registryOf(DependencyBucket.class)));
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(BundleBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(BundleBinaryInternal.class, model(project, registryOf(DependencyBucket.class)));
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeBundleBinarySpec.class, name -> {
+			return project.getObjects().newInstance(NativeBundleBinarySpec.class, model(project, registryOf(DependencyBucket.class)));
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ExecutableBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(ExecutableBinaryInternal.class, model(project, registryOf(DependencyBucket.class)));
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeExecutableBinarySpec.class, name -> {
+			return project.getObjects().newInstance(NativeExecutableBinarySpec.class, model(project, registryOf(DependencyBucket.class)));
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(StaticLibraryBinaryInternal.class, name -> {
-			return project.getObjects().newInstance(StaticLibraryBinaryInternal.class);
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeStaticLibraryBinarySpec.class, name -> {
+			return project.getObjects().newInstance(NativeStaticLibraryBinarySpec.class);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, name -> {
 			return project.getObjects().newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
@@ -276,13 +276,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 				final BinaryLinkage linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 				if (linkage.isExecutable()) {
-					((ExtensionAware) variant).getExtensions().add("executable", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("executable")), ExecutableBinaryInternal.class).asProvider());
+					((ExtensionAware) variant).getExtensions().add("executable", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("executable")), NativeExecutableBinarySpec.class).asProvider());
 				} else if (linkage.isShared()) {
-					((ExtensionAware) variant).getExtensions().add("sharedLibrary", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("sharedLibrary")), SharedLibraryBinaryInternal.class).asProvider());
+					((ExtensionAware) variant).getExtensions().add("sharedLibrary", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("sharedLibrary")), NativeSharedLibraryBinarySpec.class).asProvider());
 				} else if (linkage.isBundle()) {
-					((ExtensionAware) variant).getExtensions().add("bundle", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("bundle")), BundleBinaryInternal.class).asProvider());
+					((ExtensionAware) variant).getExtensions().add("bundle", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("bundle")), NativeBundleBinarySpec.class).asProvider());
 				} else if (linkage.isStatic()) {
-					((ExtensionAware) variant).getExtensions().add("staticLibrary", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("staticLibrary")), StaticLibraryBinaryInternal.class).asProvider());
+					((ExtensionAware) variant).getExtensions().add("staticLibrary", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("staticLibrary")), NativeStaticLibraryBinarySpec.class).asProvider());
 				}
 
 				if (linkage.isShared() || linkage.isStatic()) {

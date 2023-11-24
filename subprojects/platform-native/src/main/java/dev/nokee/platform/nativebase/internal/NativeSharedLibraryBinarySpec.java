@@ -19,43 +19,60 @@ import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import dev.nokee.platform.nativebase.BundleBinary;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.linking.LinkTaskMixIn;
-import dev.nokee.platform.nativebase.tasks.LinkBundle;
-import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
+import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
+import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.gradle.api.Buildable;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 
-public /*final*/ abstract class BundleBinaryInternal extends BaseNativeBinary implements BundleBinary
+public /*final*/ abstract class NativeSharedLibraryBinarySpec extends BaseNativeBinary implements SharedLibraryBinary
 	, Buildable
 	, NativeLanguageSourceSetAware
-	, LinkTaskMixIn<LinkBundle, LinkBundleTask>
+	, LinkTaskMixIn<LinkSharedLibrary, LinkSharedLibraryTask>
 	, HasLinkLibrariesDependencyBucket
 	, HasRuntimeLibrariesDependencyBucket
 	, CompileTasksMixIn
 {
+	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
+	@Getter RegularFileProperty linkedFile;
+
+	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public BundleBinaryInternal(ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objects, ProviderFactory providers) {
+	public NativeSharedLibraryBinarySpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
 		getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
 		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
+		this.objects = objects;
+		this.providerFactory = providers;
+		this.linkedFile = objects.fileProperty();
+		getCreateOrLinkTask().configure(this::configureSharedLibraryTask);
 
-		getCreateOrLinkTask().configure(this::configureBundleTask);
+		getLinkedFile().set(getCreateOrLinkTask().flatMap(AbstractLinkTask::getLinkedFile));
+		getLinkedFile().disallowChanges();
 	}
 
-	private void configureBundleTask(LinkBundleTask task) {
+	private void configureSharedLibraryTask(LinkSharedLibraryTask task) {
 		// Until we model the build type
 		task.getDebuggable().set(false);
+
+		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
+		task.getInstallName().set(installName);
 	}
 
 	@Override
-	public TaskProvider<LinkBundleTask> getCreateOrLinkTask() {
+	public TaskProvider<LinkSharedLibraryTask> getCreateOrLinkTask() {
 		return getLinkTask();
 	}
 
@@ -68,13 +85,13 @@ public /*final*/ abstract class BundleBinaryInternal extends BaseNativeBinary im
 		}
 	}
 
-	private static boolean isBuildable(LinkBundle linkTask) {
+	private static boolean isBuildable(LinkSharedLibrary linkTask) {
 		AbstractLinkTask linkTaskInternal = (AbstractLinkTask)linkTask;
 		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
 	}
 
 	@Override
 	protected String getTypeName() {
-		return "bundle binary";
+		return "shared library binary";
 	}
 }

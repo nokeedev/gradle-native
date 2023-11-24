@@ -51,7 +51,7 @@ import dev.nokee.platform.ios.tasks.internal.StoryboardLinkTask;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import lombok.Getter;
@@ -178,7 +178,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 		}).asProvider();
 
 		val createApplicationBundleTask = taskRegistry.register(variantIdentifier.child(TaskName.of("createApplicationBundle")), CreateIosApplicationBundleTask.class).configure(task -> {
-			Provider<List<? extends Provider<RegularFile>>> binaries = variant.flatMap(application -> application.getBinaries().withType(ExecutableBinaryInternal.class).map(it -> it.getLinkTask().flatMap(LinkExecutable::getLinkedFile)));
+			Provider<List<? extends Provider<RegularFile>>> binaries = variant.flatMap(application -> application.getBinaries().withType(NativeExecutableBinarySpec.class).map(it -> it.getLinkTask().flatMap(LinkExecutable::getLinkedFile)));
 
 			task.getExecutable().set(binaries.flatMap(it -> it.iterator().next())); // TODO: Fix this approximation
 			task.getSwiftSupportRequired().convention(false);
