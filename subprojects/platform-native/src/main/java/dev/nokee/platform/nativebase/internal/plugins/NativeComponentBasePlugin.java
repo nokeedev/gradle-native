@@ -33,7 +33,7 @@ import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjects;
-import dev.nokee.model.internal.decorators.MutableModelDecorator;
+import dev.nokee.model.internal.decorators.DecoratorHandlers;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
@@ -62,19 +62,19 @@ import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
-import dev.nokee.platform.nativebase.internal.NativeBundleBinarySpec;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
-import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.NativeBundleBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
+import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeVariant;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
-import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
-import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
@@ -435,17 +435,17 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				((TargetLinkageAwareComponent) component).getTargetLinkages().convention(singletonList(TargetLinkages.SHARED));
 			}
 		});
-		project.getExtensions().getByType(MutableModelDecorator.class).injectService(context -> {
+		project.getExtensions().getByType(DecoratorHandlers.class).injectService(context -> {
 			if (context.getServiceType().getType().equals(TargetMachineFactory.class)) {
 				context.mixIn(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY);
 			}
 		});
-		project.getExtensions().getByType(MutableModelDecorator.class).injectService(context -> {
+		project.getExtensions().getByType(DecoratorHandlers.class).injectService(context -> {
 			if (context.getServiceType().getType().equals(TargetBuildTypeFactory.class)) {
 				context.mixIn(NativeRuntimeBasePlugin.TARGET_BUILD_TYPE_FACTORY);
 			}
 		});
-		project.getExtensions().getByType(MutableModelDecorator.class).injectService(context -> {
+		project.getExtensions().getByType(DecoratorHandlers.class).injectService(context -> {
 			if (context.getServiceType().getType().equals(TargetLinkageFactory.class)) {
 				context.mixIn(NativeRuntimeBasePlugin.TARGET_LINKAGE_FACTORY);
 			}

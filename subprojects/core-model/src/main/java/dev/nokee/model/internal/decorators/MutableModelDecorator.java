@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class MutableModelDecorator implements ModelDecorator {
+public class MutableModelDecorator implements ModelDecorator, DecoratorHandlers {
 	private final List<Consumer<? super NestedObjectContext>> nestedObjects = new ArrayList<>();
 	private final List<Consumer<? super InjectServiceContext>> injectServices = new ArrayList<>();
 
@@ -123,24 +123,13 @@ public class MutableModelDecorator implements ModelDecorator {
 		};
 	}
 
+	@Override
 	public void nestedObject(Consumer<? super NestedObjectContext> action) {
 		nestedObjects.add(action);
 	}
 
-	public interface NestedObjectContext {
-		ModelObjectIdentifier getIdentifier();
-		ModelType<?> getNestedType();
-		void mixIn(Object value);
-		NestedObject getAnnotation();
-		String getPropertyName();
-	}
-
+	@Override
 	public void injectService(Consumer<? super InjectServiceContext> action) {
 		injectServices.add(action);
-	}
-
-	public interface InjectServiceContext {
-		ModelType<?> getServiceType();
-		void mixIn(Object service);
 	}
 }

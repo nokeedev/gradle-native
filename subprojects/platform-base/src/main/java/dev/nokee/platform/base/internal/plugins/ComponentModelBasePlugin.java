@@ -23,8 +23,8 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.decorators.DecoratorHandlers;
 import dev.nokee.model.internal.decorators.ModelMixInSupport;
-import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.Artifact;
@@ -179,7 +179,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
 
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new Consumer<MutableModelDecorator.NestedObjectContext>() {
+		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
 			private final Factory<BinaryView<Binary>> binariesFactory = () -> {
 				Named.Namer namer = new Named.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
@@ -188,14 +188,14 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			};
 
 			@Override
-			public void accept(MutableModelDecorator.NestedObjectContext context) {
+			public void accept(DecoratorHandlers.NestedObjectContext context) {
 				if (context.getNestedType().isSubtypeOf(BinaryView.class)) {
 					context.mixIn(binariesFactory.create());
 				}
 			}
 		});
 
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new Consumer<MutableModelDecorator.NestedObjectContext>() {
+		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
 			private <T extends Task> TaskView<T> create(Class<T> elementType) {
 				Task.Namer namer = new Task.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
@@ -217,7 +217,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			};
 
 			@Override
-			public void accept(MutableModelDecorator.NestedObjectContext context) {
+			public void accept(DecoratorHandlers.NestedObjectContext context) {
 				if (context.getNestedType().isSubtypeOf(TaskView.class)) {
 					final Class<? extends Task> elementType = (Class<? extends Task>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
 					context.mixIn(create(elementType));
@@ -225,7 +225,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new Consumer<MutableModelDecorator.NestedObjectContext>() {
+		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
 			private final VariantViewFactory variantsFactory = new VariantViewFactory() {
 				@Override
 				public <T extends Variant> VariantView<T> create(Class<T> elementType) {
@@ -237,7 +237,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			};
 
 			@Override
-			public void accept(MutableModelDecorator.NestedObjectContext context) {
+			public void accept(DecoratorHandlers.NestedObjectContext context) {
 				if (context.getNestedType().isSubtypeOf(VariantView.class)) {
 					final Class<? extends Variant> elementType = (Class<? extends Variant>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
 					context.mixIn(variantsFactory.create(elementType));
@@ -245,21 +245,21 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new Consumer<MutableModelDecorator.NestedObjectContext>() {
+		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
 			private final DimensionPropertyRegistrationFactory dimensionPropertyFactory = new DimensionPropertyRegistrationFactory(project.getObjects());
 			private final Factory<DefaultVariantDimensions> dimensionsFactory = () -> {
 				return project.getObjects().newInstance(DefaultVariantDimensions.class, dimensionPropertyFactory);
 			};
 
 			@Override
-			public void accept(MutableModelDecorator.NestedObjectContext context) {
+			public void accept(DecoratorHandlers.NestedObjectContext context) {
 				if (context.getNestedType().isSubtypeOf(VariantDimensions.class)) {
 					context.mixIn(dimensionsFactory.create());
 				}
 			}
 		});
 
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(context -> {
+		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(context -> {
 			if (context.getNestedType().isSubtypeOf(ComponentDependencies.class)) {
 				final Class<?> type = context.getNestedType().getRawType();
 				ModelObjectIdentifier identifier = context.getIdentifier();
@@ -276,15 +276,15 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				}
 			}
 		});
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Task.class))));
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(DependencyBucket.class))));
-		project.getExtensions().getByType(MutableModelDecorator.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Artifact.class))));
+		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Task.class))));
+		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(DependencyBucket.class))));
+		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Artifact.class))));
 
 		model(project, objects()).configureEach(HasBaseName.class, new BaseNameConfigurationRule(project.getProviders()));
 		model(project, mapOf(Component.class)).configureEach(HasDevelopmentBinary.class, new DevelopmentBinaryConventionRule(project.getProviders()));
 	}
 
-	private static final class ModelObjectDecorator<T> implements Consumer<MutableModelDecorator.NestedObjectContext> {
+	private static final class ModelObjectDecorator<T> implements Consumer<DecoratorHandlers.NestedObjectContext> {
 		private final ModelObjectRegistry<T> registry;
 		private final Function<String, ElementName> namer;
 
@@ -306,7 +306,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public void accept(MutableModelDecorator.NestedObjectContext context) {
+		public void accept(DecoratorHandlers.NestedObjectContext context) {
 			Class<? extends T> objectType = null;
 			Function<ModelObject<? extends T>, Object> mapper = null;
 			if (context.getNestedType().isSubtypeOf(NamedDomainObjectProvider.class)) {

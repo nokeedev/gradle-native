@@ -17,10 +17,8 @@
 package dev.nokee.internal.reflect;
 
 import com.google.common.reflect.TypeToken;
-import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.model.internal.decorators.ModelDecorator;
-import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeUtils;
