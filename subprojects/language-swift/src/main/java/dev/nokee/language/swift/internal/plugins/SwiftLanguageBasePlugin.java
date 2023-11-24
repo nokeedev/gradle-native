@@ -35,6 +35,7 @@ import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
@@ -49,7 +50,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(SwiftSourceSetSpec.class, name -> {
-			return project.getObjects().newInstance(SwiftSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
+			return instantiator(project).newInstance(SwiftSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
 		});
 
 		DefaultImporter.forProject(project).defaultImport(SwiftSourceSet.class);

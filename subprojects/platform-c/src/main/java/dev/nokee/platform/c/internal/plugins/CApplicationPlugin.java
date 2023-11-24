@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.names.ElementName.ofMain;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
@@ -61,7 +62,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(CApplicationSpec.class, name -> {
-			return project.getObjects().newInstance(CApplicationSpec.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(CApplicationSpec.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<CApplicationSpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), CApplicationSpec.class).asProvider();

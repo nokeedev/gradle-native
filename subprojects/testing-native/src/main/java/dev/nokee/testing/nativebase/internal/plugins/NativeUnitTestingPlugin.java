@@ -60,6 +60,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
@@ -93,7 +94,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeTestSuiteVariant.class, name -> {
-			return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultNativeTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
@@ -111,7 +112,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class, name -> {
-			return project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultNativeTestSuiteComponent.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {

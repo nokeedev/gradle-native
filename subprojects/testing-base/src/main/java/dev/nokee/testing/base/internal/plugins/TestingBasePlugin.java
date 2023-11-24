@@ -36,6 +36,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
 
 import static dev.nokee.model.internal.ModelElementActionAdapter.elementWith;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
@@ -55,7 +56,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add(TEST_SUITE_COMPONENT_CONTAINER_TYPE, "testSuites", project.getObjects().polymorphicDomainObjectContainer(TestSuiteComponent.class));
 
-		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, testSuites(project), project.getExtensions().getByType(ModelDecorator.class), ProjectIdentifier.of(project)));
+		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, testSuites(project), project.getExtensions().getByType(ModelDecorator.class), ProjectIdentifier.of(project), instantiator(project)));
 
 		project.getPlugins().withType(ComponentModelBasePlugin.class).configureEach(__ -> {
 			components(project).withType(TestableComponentSpec.class).configureEach(elementWith((identifier, component) -> {

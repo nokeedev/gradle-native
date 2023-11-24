@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
@@ -53,10 +54,10 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(IosResourceSetSpec.class, name -> {
-			return project.getObjects().newInstance(IosResourceSetSpec.class);
+			return instantiator(project).newInstance(IosResourceSetSpec.class);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class, name -> {
-			return project.getObjects().newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class));
+			return instantiator(project).newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class));
 		});
 
 		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {

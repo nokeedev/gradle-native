@@ -80,6 +80,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
@@ -120,10 +121,10 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		final ModelDecorator decorator = project.getExtensions().getByType(ModelDecorator.class);
 
-		model(project, objects()).register(model(project).getExtensions().create("components", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Component.class, components(project), decorator, ProjectIdentifier.of(project)));
-		model(project, objects()).register(model(project).getExtensions().create("variants", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Variant.class, variants(project), decorator, ProjectIdentifier.of(project)));
-		model(project, objects()).register(model(project).getExtensions().create("dependencyBuckets", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, DependencyBucket.class, dependencyBuckets(project), decorator, ProjectIdentifier.of(project)));
-		model(project, objects()).register(model(project).getExtensions().create("artifacts", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Artifact.class, artifacts(project), decorator, ProjectIdentifier.of(project)));
+		model(project, objects()).register(model(project).getExtensions().create("components", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Component.class, components(project), decorator, ProjectIdentifier.of(project), instantiator(project)));
+		model(project, objects()).register(model(project).getExtensions().create("variants", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Variant.class, variants(project), decorator, ProjectIdentifier.of(project), instantiator(project)));
+		model(project, objects()).register(model(project).getExtensions().create("dependencyBuckets", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, DependencyBucket.class, dependencyBuckets(project), decorator, ProjectIdentifier.of(project), instantiator(project)));
+		model(project, objects()).register(model(project).getExtensions().create("artifacts", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Artifact.class, artifacts(project), decorator, ProjectIdentifier.of(project), instantiator(project)));
 
 		// FIXME: This is temporary until we convert all entity
 		project.afterEvaluate(__ -> {
@@ -131,13 +132,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class, name -> {
-			return project.getObjects().newInstance(ConsumableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
+			return instantiator(project).newInstance(ConsumableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 		});
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class, name -> {
-			return project.getObjects().newInstance(ResolvableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
+			return instantiator(project).newInstance(ResolvableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 		});
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class, name -> {
-			return project.getObjects().newInstance(DeclarableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
+			return instantiator(project).newInstance(DeclarableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
 		});
 
 		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ApiDependencyBucketMixIn>() {

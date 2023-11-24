@@ -17,6 +17,8 @@ package dev.nokee.model.internal.plugins;
 
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.reflect.DefaultInstantiator;
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMap;
@@ -56,6 +58,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
 		target.getExtensions().create("model", ModelExtension.class);
+		target.getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects));
 	}
 
 	private void applyToSettings(Settings settings) {
@@ -97,5 +100,9 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 	public static <S> TypeOf<ModelMap<S>> mapOf(Class<S> type) {
 		return TypeOf.typeOf(new TypeToken<ModelMap<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
+	}
+
+	public static Instantiator instantiator(Project project) {
+		return project.getExtensions().getByType(Instantiator.class);
 	}
 }

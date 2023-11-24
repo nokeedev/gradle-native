@@ -39,6 +39,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.names.ElementName.ofMain;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
@@ -62,7 +63,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(SwiftApplicationSpec.class, name -> {
-			return project.getObjects().newInstance(SwiftApplicationSpec.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(SwiftApplicationSpec.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<SwiftApplicationSpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), SwiftApplicationSpec.class).asProvider();

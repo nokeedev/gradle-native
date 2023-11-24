@@ -102,6 +102,7 @@ import java.util.function.Consumer;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
@@ -132,10 +133,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, name -> {
-			return project.getObjects().newInstance(ModelBackedJniJarBinary.class, model(project, registryOf(Task.class)));
+			return instantiator(project).newInstance(ModelBackedJniJarBinary.class, model(project, registryOf(Task.class)));
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJvmJarBinary.class, name -> {
-			return project.getObjects().newInstance(ModelBackedJvmJarBinary.class, model(project, registryOf(Task.class)));
+			return instantiator(project).newInstance(ModelBackedJvmJarBinary.class, model(project, registryOf(Task.class)));
 		});
 
 		components(project).withType(JniLibraryComponentInternal.class)

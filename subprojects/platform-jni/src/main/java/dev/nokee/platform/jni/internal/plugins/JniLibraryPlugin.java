@@ -74,6 +74,7 @@ import java.util.concurrent.Callable;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.CURRENT_MODEL_PLUGIN_IDS;
@@ -124,7 +125,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, name -> {
-			return project.getObjects().newInstance(JniLibraryComponentInternal.class, (Factory<JavaNativeInterfaceLibrarySources>) () -> {
+			return instantiator(project).newInstance(JniLibraryComponentInternal.class, (Factory<JavaNativeInterfaceLibrarySources>) () -> {
 					Named.Namer namer = new Named.Namer();
 					ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 					Runnable realizeNow = () -> {};
@@ -132,7 +133,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				});
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, name -> {
-			return project.getObjects().newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
+			return instantiator(project).newInstance(JniLibraryInternal.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}), model(project, registryOf(Artifact.class)));
 		});
 
 		val extension = registerExtension(project);

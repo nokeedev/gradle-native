@@ -33,6 +33,7 @@ import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 
@@ -49,7 +50,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 
 		project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "$sources", project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class));
-		model(project, objects()).register(model(project).getExtensions().create("sources", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, LanguageSourceSet.class, sources(project), project.getExtensions().getByType(ModelDecorator.class), ProjectIdentifier.of(project)));
+		model(project, objects()).register(model(project).getExtensions().create("sources", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, LanguageSourceSet.class, sources(project), project.getExtensions().getByType(ModelDecorator.class), ProjectIdentifier.of(project), instantiator(project)));
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 

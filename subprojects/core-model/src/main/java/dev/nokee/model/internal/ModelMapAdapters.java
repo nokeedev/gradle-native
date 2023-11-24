@@ -19,6 +19,7 @@ package dev.nokee.model.internal;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.internal.decorators.ModelDecorator;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
@@ -280,12 +281,12 @@ public final class ModelMapAdapters {
 		private final ProjectIdentifier projectIdentifier;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ModelDecorator decorator, ProjectIdentifier projectIdentifier) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ModelDecorator decorator, ProjectIdentifier projectIdentifier, Instantiator instantiator) {
 			this.elementType = elementType;
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
 			this.decorator = decorator;
-			this.managedFactory = new ManagedFactoryProvider(objects);
+			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.projectIdentifier = projectIdentifier;
 
 			knownElements.forEach(it -> {
@@ -428,14 +429,14 @@ public final class ModelMapAdapters {
 	}
 
 	private static final class ManagedFactoryProvider {
-		private final ObjectFactory objects;
+		private final Instantiator instantiator;
 
-		public ManagedFactoryProvider(ObjectFactory objects) {
-			this.objects = objects;
+		public ManagedFactoryProvider(Instantiator instantiator) {
+			this.instantiator = instantiator;
 		}
 
 		public <T> NamedDomainObjectFactory<T> create(Class<T> type) {
-			return __ -> objects.newInstance(type);
+			return __ -> instantiator.newInstance(type);
 		}
 	}
 }

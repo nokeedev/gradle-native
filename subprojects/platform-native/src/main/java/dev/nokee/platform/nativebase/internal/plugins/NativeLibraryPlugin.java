@@ -37,6 +37,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.names.ElementName.ofMain;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
@@ -60,7 +61,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(NativeLibrarySpec.class, name -> {
-			return project.getObjects().newInstance(NativeLibrarySpec.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(NativeLibrarySpec.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<NativeLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), NativeLibrarySpec.class).asProvider();
