@@ -24,8 +24,6 @@ import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependency
 import dev.nokee.platform.nativebase.internal.linking.LinkTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -41,17 +39,12 @@ public /*final*/ abstract class NativeSharedLibraryBinarySpec extends BaseNative
 	, HasRuntimeLibrariesDependencyBucket
 	, CompileTasksMixIn
 {
-	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
-	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
-
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
 	public NativeSharedLibraryBinarySpec(ModelObjectRegistry<DependencyBucket> bucketRegistry, ObjectFactory objects, ProviderFactory providers) {
 		super(objects, providers);
 		getExtensions().add("linkLibraries", bucketRegistry.register(getIdentifier().child("linkLibraries"), ResolvableDependencyBucketSpec.class).get());
 		getExtensions().add("runtimeLibraries", bucketRegistry.register(getIdentifier().child("runtimeLibraries"), ResolvableDependencyBucketSpec.class).get());
-		this.objects = objects;
-		this.providerFactory = providers;
 	}
 
 	@Override
