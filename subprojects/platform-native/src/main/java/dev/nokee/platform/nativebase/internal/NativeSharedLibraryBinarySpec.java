@@ -26,7 +26,6 @@ import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.gradle.api.Buildable;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -37,7 +36,6 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import javax.inject.Inject;
 
 public /*final*/ abstract class NativeSharedLibraryBinarySpec extends BaseNativeBinary implements SharedLibraryBinary
-	, Buildable
 	, NativeLanguageSourceSetAware
 	, LinkTaskMixIn<LinkSharedLibrary, LinkSharedLibraryTask>
 	, HasLinkLibrariesDependencyBucket

@@ -19,7 +19,6 @@ import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.CreateTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
-import org.gradle.api.Buildable;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
@@ -27,7 +26,6 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.inject.Inject;
 
 public /*final*/ abstract class NativeStaticLibraryBinarySpec extends BaseNativeBinary implements StaticLibraryBinary
-	, Buildable
 	, NativeLanguageSourceSetAware
 	, CreateTaskMixIn
 	, CompileTasksMixIn

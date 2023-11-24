@@ -24,7 +24,6 @@ import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependency
 import dev.nokee.platform.nativebase.internal.linking.LinkTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import org.gradle.api.Buildable;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
@@ -33,7 +32,6 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import javax.inject.Inject;
 
 public /*final*/ abstract class NativeExecutableBinarySpec extends BaseNativeBinary implements ExecutableBinary
-	, Buildable
 	, NativeLanguageSourceSetAware
 	, LinkTaskMixIn<LinkExecutable, LinkExecutableTask>
 	, HasLinkLibrariesDependencyBucket
