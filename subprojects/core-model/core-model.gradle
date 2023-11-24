@@ -31,6 +31,8 @@ gradlePlugin {
 		compileOnlyApi project(':gradleAnnotation')
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+		implementation "org.ow2.asm:asm:9.6"
+
 	}
 }
 
