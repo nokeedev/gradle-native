@@ -30,9 +30,12 @@ import dev.nokee.model.internal.type.ModelTypeUtils;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.reflect.ObjectInstantiationException;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -103,7 +106,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 	}
 
 	public interface PropertyInit {
-		<T> T init(String propertyName);
+		Object init(String propertyName);
 	}
 
 	private static final ThreadLocal<PropertyInit> nextPropInit = new ThreadLocal<>();
@@ -148,16 +151,16 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 			mv.visitVarInsn(Opcodes.ALOAD, 0);
 
 			// Cast 'this' to ExtensionAware
-			mv.visitTypeInsn(Opcodes.CHECKCAST, "org/gradle/api/plugins/ExtensionAware");
+			mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(ExtensionAware.class));
 
 			// Invoke getExtensions() on the ExtensionAware object
-			mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "org/gradle/api/plugins/ExtensionAware", "getExtensions", "()Lorg/gradle/api/plugins/ExtensionContainer;", true);
+			mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, Type.getInternalName(ExtensionAware.class), "getExtensions", "()Lorg/gradle/api/plugins/ExtensionContainer;", true);
 
 			// Load the propertyName onto the stack
 			mv.visitLdcInsn(propertyName);
 
 			// Invoke getByName(propertyName) on the extensions map
-			mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "org/gradle/api/plugins/ExtensionContainer", "getByName", "(Ljava/lang/String;)Ljava/lang/Object;", true);
+			mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, Type.getInternalName(ExtensionContainer.class), "getByName", "(Ljava/lang/String;)Ljava/lang/Object;", true);
 
 			// Cast the result to the return type
 			mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(returnType.getRawType()));
@@ -167,6 +170,22 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 
 			mv.visitMaxs(-1, -1); // Auto compute stack and local variables size
 			mv.visitEnd();
+
+			visitField(cw);
+		}
+
+		public void visitField(ClassWriter cw) {
+			FieldVisitor fv = cw.visitField(Opcodes.ACC_PRIVATE, propertyName, Type.getDescriptor(returnType.getRawType()), null, null);
+			fv.visitEnd();
+		}
+
+		public void visitFieldInitialization(MethodVisitor mv, String ownerInternalName) {
+			mv.visitVarInsn(Opcodes.ALOAD, 0); // Load 'this' to set the field on
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(DefaultInstantiator.class), "getNext", "()Ldev/nokee/internal/reflect/DefaultInstantiator$PropertyInit;", false);
+			mv.visitLdcInsn(propertyName);
+			mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, Type.getInternalName(PropertyInit.class), "init", "(Ljava/lang/String;)Ljava/lang/Object;", true);
+			mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(returnType.getRawType()));
+			mv.visitFieldInsn(Opcodes.PUTFIELD, ownerInternalName, propertyName, Type.getDescriptor(returnType.getRawType()));
 		}
 	}
 
@@ -303,11 +322,11 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 							try {
 								nextPropInit.set(new PropertyInit() {
 									@Override
-									public <T> T init(String propertyName) {
-										return (T) Objects.requireNonNull(values.get(propertyName));
+									public Object init(String propertyName) {
+										return Objects.requireNonNull(values.get(propertyName));
 									}
 								});
-								return objects.newInstance(type, params);
+								return objects.newInstance(typeToInstantiate, params);
 							} finally {
 								nextPropInit.set(previous);
 							}
@@ -330,10 +349,16 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 
 		cw.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT, subclassNameInternal, null, superClassNameInternal, null);
 
+		boolean injectConstructorFound = false;
 		for (Constructor<?> constructor : superClass.getConstructors()) {
 			if (constructor.isAnnotationPresent(Inject.class)) {
-				generateConstructor(cw, superClassNameInternal, constructor);
+				injectConstructorFound = true;
+				generateConstructor(cw, subclassNameInternal, superClassNameInternal, constructor, methods);
 			}
+		}
+
+		if (!injectConstructorFound) {
+			generateDefaultConstructor(cw, subclassNameInternal, superClassNameInternal, methods);
 		}
 
 		for (GeneratedMethod method : methods) {
@@ -345,7 +370,25 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 		return cw.toByteArray();
 	}
 
-	private static void generateConstructor(ClassWriter cw, String superClassNameInternal, Constructor<?> constructor) {
+	private static void generateDefaultConstructor(ClassWriter cw, String classNameInternal, String superClassNameInternal, Collection<GeneratedMethod> methods) {
+		MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+
+		// Note: there is no need to annotate the default constructor with @Inject
+
+		mv.visitCode();
+		mv.visitVarInsn(Opcodes.ALOAD, 0); // Load "this"
+		mv.visitMethodInsn(Opcodes.INVOKESPECIAL, superClassNameInternal, "<init>", "()V", false); // Call the superclass constructor
+
+		for (GeneratedMethod method : methods) {
+			method.visitFieldInitialization(mv, classNameInternal);
+		}
+
+		mv.visitInsn(Opcodes.RETURN);
+		mv.visitMaxs(-1, -1); // Auto compute stack and locals
+		mv.visitEnd();
+	}
+
+	private static void generateConstructor(ClassWriter cw, String classNameInternal, String superClassNameInternal, Constructor<?> constructor, Collection<GeneratedMethod> methods) {
 		String constructorDescriptor = Type.getConstructorDescriptor(constructor);
 		MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", constructorDescriptor, null, null);
 
@@ -369,6 +412,10 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 
 		// Call the super constructor
 		mv.visitMethodInsn(Opcodes.INVOKESPECIAL, superClassNameInternal, "<init>", constructorDescriptor, false);
+
+		for (GeneratedMethod method : methods) {
+			method.visitFieldInitialization(mv, classNameInternal);
+		}
 
 		// Complete the constructor with return
 		mv.visitInsn(Opcodes.RETURN);
