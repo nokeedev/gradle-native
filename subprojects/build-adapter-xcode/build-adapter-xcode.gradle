@@ -19,7 +19,7 @@ dependencies {
 	implementation project(':runtimeBase')
 	implementation project(':runtimeNative')
 	implementation project(':runtimeDarwin')
-	compileOnly(project(':gradleAnnotation')) { because 'UntrackedTask annotation backport' }
+	compileOnly 'dev.gradleplugins:gradle-backport-annotation-untracked-task'
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"

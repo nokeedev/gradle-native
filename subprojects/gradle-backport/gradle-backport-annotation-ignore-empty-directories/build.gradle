@@ -1,0 +1,5 @@
+plugins {
+	id 'java-library'
+}
+
+description = '@IgnoreEmptyDirectories was introduced in Gradle v6.8'

@@ -25,7 +25,7 @@ gradlePlugin {
 
 	dependencies {
 		api project(':platformBase')
-		compileOnly project(':gradleAnnotation')
+		compileOnly 'dev.gradleplugins:gradle-backport-annotation-ignore-empty-directories'
 		api project(':coreModel')
 		implementation project(':coreUtils')
 		implementation project(':coreScript')

@@ -20,6 +20,8 @@ includeBuild 'gradle/libraries/nokeetest-libraries'
 includeBuild 'gradle/libraries/gradle-build-script'
 includeBuild 'gradle/libraries/gradle-test-script'
 
+includeBuild 'subprojects/gradle-backport'
+
 /**
  * Adds specified subproject path to this Gradle build.
  *
@@ -54,8 +56,6 @@ subproject('docs')
 subproject('docs/exemplar-kit') {
 	buildFileName = 'exemplar-kit.gradle'
 }
-subproject('gradle-annotation')
-subproject('gradle-api')
 subproject('gradle-repository-shim')
 subproject('ide-base')
 subproject('ide-visual-studio')
