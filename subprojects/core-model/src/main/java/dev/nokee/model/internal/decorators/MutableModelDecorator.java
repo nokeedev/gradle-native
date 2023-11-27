@@ -16,24 +16,16 @@
 
 package dev.nokee.model.internal.decorators;
 
-import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.reflect.DefaultInstantiator;
 import dev.nokee.model.internal.ModelMixIn;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.ModelTypeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
-public class MutableModelDecorator implements ModelDecorator, DecoratorHandlers {
-	private final List<Consumer<? super NestedObjectContext>> nestedObjects = new ArrayList<>();
-	private final List<Consumer<? super InjectServiceContext>> injectServices = new ArrayList<>();
-
+public class MutableModelDecorator implements ModelDecorator {
 	@Override
 	public void decorate(ModelMixIn obj) {
 		ModelType.typeOf(obj).walkTypeHierarchy(new ModelType.Visitor<ModelMixIn>() {
@@ -49,17 +41,13 @@ public class MutableModelDecorator implements ModelDecorator, DecoratorHandlers 
 						if (processed.add(method.getName())) { // avoid processing method multiple time
 							assert method.getParameterCount() == 0;
 							assert method.getName().startsWith("get");
-							for (Consumer<? super NestedObjectContext> nestedObject : nestedObjects) {
-								nestedObject.accept(nestedContextFor(obj, method));
-							}
+							obj.getExtensions().add(propertyNameOf(method), DefaultInstantiator.getNext().init(propertyNameOf(method)));
 						}
 					} else if (method.isAnnotationPresent(InjectService.class)) {
 						if (processed.add(method.getName())) { // avoid processing method multiple time
 							assert method.getParameterCount() == 0;
 							assert method.getName().startsWith("get");
-							for (Consumer<? super InjectServiceContext> injectService : injectServices) {
-								injectService.accept(serviceContextFor(obj, method));
-							}
+							obj.getExtensions().add(propertyNameOf(method), DefaultInstantiator.getNext().init(propertyNameOf(method)));
 						}
 					}
 				}
@@ -67,69 +55,7 @@ public class MutableModelDecorator implements ModelDecorator, DecoratorHandlers 
 		});
 	}
 
-	private NestedObjectContext nestedContextFor(ModelMixIn obj, Method method) {
-		return new NestedObjectContext() {
-			@Override
-			public ModelObjectIdentifier getIdentifier() {
-				return obj.getIdentifier();
-			}
-
-			@Override
-			public ModelType<?> getNestedType() {
-				try {
-					Method m = method.getDeclaringClass().getMethod(method.getName());
-					return ModelType.of(TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(m.getGenericReturnType()).getType());
-				} catch (NoSuchMethodException e) {
-					throw new RuntimeException(e);
-				}
-			}
-
-			public NestedObject getAnnotation() {
-				return method.getAnnotation(NestedObject.class);
-			}
-
-			@Override
-			public String getPropertyName() {
-				return StringUtils.uncapitalize(method.getName().substring(3));
-			}
-
-			@Override
-			public void mixIn(Object value) {
-				obj.getExtensions().add(getPropertyName(), value);
-			}
-		};
-	}
-
-	private InjectServiceContext serviceContextFor(ModelMixIn obj, Method method) {
-		return new InjectServiceContext() {
-			@Override
-			public ModelType<?> getServiceType() {
-				try {
-					Method m = method.getDeclaringClass().getMethod(method.getName());
-					return ModelType.of(TypeToken.of(ModelTypeUtils.toUndecoratedType(obj.getClass())).resolveType(m.getGenericReturnType()).getType());
-				} catch (NoSuchMethodException e) {
-					throw new RuntimeException(e);
-				}
-			}
-
-			public String getPropertyName() {
-				return StringUtils.uncapitalize(method.getName().substring(3));
-			}
-
-			@Override
-			public void mixIn(Object value) {
-				obj.getExtensions().add(getPropertyName(), value);
-			}
-		};
-	}
-
-	@Override
-	public void nestedObject(Consumer<? super NestedObjectContext> action) {
-		nestedObjects.add(action);
-	}
-
-	@Override
-	public void injectService(Consumer<? super InjectServiceContext> action) {
-		injectServices.add(action);
+	private static String propertyNameOf(Method method) {
+		return StringUtils.uncapitalize(method.getName().substring(3));
 	}
 }

@@ -17,9 +17,12 @@
 package dev.nokee.internal.reflect;
 
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.decorators.DecoratorHandlers;
 import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.model.internal.decorators.ModelDecorator;
+import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.type.ModelType;
@@ -36,6 +39,7 @@ import org.objectweb.asm.Type;
 
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
@@ -44,16 +48,22 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public final class DefaultInstantiator implements Instantiator, DecoratorHandlers {
 	private final ObjectFactory objects;
 	private final MutableModelDecorator decorator = new MutableModelDecorator();
+	private final List<Consumer<? super NestedObjectContext>> nestedObjects = new ArrayList<>();
+	private final List<Consumer<? super InjectServiceContext>> injectServices = new ArrayList<>();
 
 	// TODO: We should keep the decorated class globally across all projects, maybe use a BuildService
 	private final InjectorClassLoader classLoader = new InjectorClassLoader(DefaultInstantiator.class.getClassLoader());
@@ -63,12 +73,19 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> T newInstance(Class<? extends T> type, Object... parameters) throws ObjectInstantiationException {
 		// TODO: Inspect @Inject constructor and pass along Nokee build service
-		return ModelDecorator.decorateUsing(decorator, () -> objects.newInstance(generateSubType(type), parameters));
+		return (T) ModelDecorator.decorateUsing(decorator, () -> {
+			try {
+				return generateSubType(type).newInstance(objects, parameters);
+			} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+				throw new ObjectInstantiationException(type, e);
+			}
+		});
 	}
 
-	private <T> Class<? extends T> generateSubType(Class<? extends T> type) {
+	private <T> InstantiationStrategy generateSubType(Class<? extends T> type) {
 		// TODO: If the type implements ModelMixIn or ModelMixInSupport do not decorate, else decorate
 		// TODO: We should merge decorator with this class so we register the decorator here
 		// TODO: If type is final, do direct instantiator
@@ -77,12 +94,26 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 
 	@Override
 	public void nestedObject(Consumer<? super NestedObjectContext> action) {
-		decorator.nestedObject(action);
+		nestedObjects.add(action);
 	}
 
 	@Override
 	public void injectService(Consumer<? super InjectServiceContext> action) {
-		decorator.injectService(action);
+		injectServices.add(action);
+	}
+
+	public interface PropertyInit {
+		<T> T init(String propertyName);
+	}
+
+	private static final ThreadLocal<PropertyInit> nextPropInit = new ThreadLocal<>();
+
+	public static PropertyInit getNext() {
+		return Objects.requireNonNull(nextPropInit.get());
+	}
+
+	interface MixIn {
+		void mixIn(Object value);
 	}
 
 	@EqualsAndHashCode
@@ -90,11 +121,21 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 		private final ModelType<?> returnType;
 		private final String methodName;
 		private final String propertyName;
+		@EqualsAndHashCode.Exclude private final BiConsumer<? super GeneratedMethod, ? super MixIn> action;
 
-		GeneratedMethod(ModelType<?> returnType, String methodName, String propertyName) {
+		GeneratedMethod(ModelType<?> returnType, String methodName, String propertyName, BiConsumer<? super GeneratedMethod, ? super MixIn> action) {
 			this.returnType = returnType;
 			this.methodName = methodName;
 			this.propertyName = propertyName;
+			this.action = action;
+		}
+
+		interface MixInProperty {
+			void mixIn(String propertyName, Object value);
+		}
+
+		void mixIn(MixInProperty mixIn) {
+			action.accept(this, (MixIn) value -> mixIn.mixIn(propertyName, value));
 		}
 
 		void applyTo(ClassWriter cw) {
@@ -129,7 +170,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 		}
 	}
 
-	private static final class ClassInspector {
+	private final class ClassInspector {
 		public ClassInspection inspectType(Class<?> type) {
 			Set<GeneratedMethod> result = new LinkedHashSet<>();
 
@@ -153,13 +194,77 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 				@Override
 				public void visitInjectedProperty(Method method) {
 					assert current != null;
-					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method)));
+					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), new BiConsumer<GeneratedMethod, MixIn>() {
+						@Override
+						public void accept(GeneratedMethod data, MixIn mixIn) {
+							for (Consumer<? super InjectServiceContext> injectService : injectServices) {
+								injectService.accept(serviceContextFor(data, mixIn));
+							}
+						}
+
+						private InjectServiceContext serviceContextFor(GeneratedMethod data, MixIn mixIn) {
+							return new InjectServiceContext() {
+								@Override
+								public ModelType<?> getServiceType() {
+									return data.returnType;
+								}
+
+								public String getPropertyName() {
+									return data.propertyName;
+								}
+
+								@Override
+								public void mixIn(Object value) {
+									mixIn.mixIn(value);
+								}
+							};
+						}
+					}));
 				}
 
 				@Override
 				public void visitNestedProperty(Method method) {
 					assert current != null;
-					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method)));
+					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), new BiConsumer<GeneratedMethod, MixIn>() {
+						@Override
+						public void accept(GeneratedMethod data, MixIn mixIn) {
+							for (Consumer<? super NestedObjectContext> nestedObject : nestedObjects) {
+								nestedObject.accept(nestedContextFor(data, mixIn));
+							}
+						}
+
+						private NestedObjectContext nestedContextFor(GeneratedMethod data, MixIn mixIn) {
+							return new NestedObjectContext() {
+								@Override
+								public ModelObjectIdentifier getIdentifier() {
+									ModelObjectIdentifier result = ModelMixInSupport.nextIdentifier();
+									if (result == null) {
+										result = ModelElementSupport.nextIdentifier();
+									}
+									return Objects.requireNonNull(result);
+								}
+
+								@Override
+								public ModelType<?> getNestedType() {
+									return data.returnType;
+								}
+
+								public NestedObject getAnnotation() {
+									return method.getAnnotation(NestedObject.class);
+								}
+
+								@Override
+								public String getPropertyName() {
+									return data.propertyName;
+								}
+
+								@Override
+								public void mixIn(Object value) {
+									mixIn.mixIn(value);
+								}
+							};
+						}
+					}));
 				}
 
 				private ModelType<?> returnTypeOf(Method method) {
@@ -184,11 +289,37 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 			return new ClassInspection() {
 				@Override
 				@SuppressWarnings("unchecked")
-				public <T> Class<T> generateClass(InjectorClassLoader classLoader) {
-					return (Class<T>) classLoader.defineClass(Type.getInternalName(type) + "Subclass", generateSubclass(type, result));
+				public InstantiationStrategy generateClass(InjectorClassLoader classLoader) {
+					return new InstantiationStrategy() {
+						@Override
+						public Object newInstance(ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+							Class<?> typeToInstantiate = classLoader.defineClass(Type.getInternalName(type) + "Subclass", generateSubclass(type, result));
+
+							Map<String, Object> values = new LinkedHashMap<>();
+							for (GeneratedMethod generatedMethod : result) {
+								generatedMethod.mixIn(values::put);
+							}
+							PropertyInit previous = nextPropInit.get();
+							try {
+								nextPropInit.set(new PropertyInit() {
+									@Override
+									public <T> T init(String propertyName) {
+										return (T) Objects.requireNonNull(values.get(propertyName));
+									}
+								});
+								return objects.newInstance(type, params);
+							} finally {
+								nextPropInit.set(previous);
+							}
+						}
+					};
 				}
 			};
 		}
+	}
+
+	interface InstantiationStrategy {
+		Object newInstance(ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException;
 	}
 
 	public static byte[] generateSubclass(Class<?> superClass, Collection<GeneratedMethod> methods) {
@@ -397,7 +528,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 	}
 
 	private interface ClassInspection {
-		<T> Class<T> generateClass(InjectorClassLoader classLoader);
+		InstantiationStrategy generateClass(InjectorClassLoader classLoader);
 	}
 
 	public static final class InjectorClassLoader extends ClassLoader {

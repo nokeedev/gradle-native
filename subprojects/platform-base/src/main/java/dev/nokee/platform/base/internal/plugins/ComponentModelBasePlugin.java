@@ -267,12 +267,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 					identifier = identifier.child(context.getAnnotation().value());
 				}
 
+				final ModelObjectIdentifier id = identifier;
 				if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 0)) {
 					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type)));
 				} else if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 1)) {
-					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type, context.getIdentifier())));
+					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type, id)));
 				} else if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 2)) {
-					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type, context.getIdentifier(), model(project, registryOf(DependencyBucket.class)))));
+					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type, id, model(project, registryOf(DependencyBucket.class)))));
 				}
 			}
 		});

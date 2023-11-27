@@ -45,4 +45,9 @@ public abstract class ModelMixInSupport implements ModelMixIn {
 			nextIdentifier.set(previousIdentifier);
 		}
 	}
+
+	// TODO: Should probably remove this API
+	public static ModelObjectIdentifier nextIdentifier() {
+		return nextIdentifier.get();
+	}
 }
