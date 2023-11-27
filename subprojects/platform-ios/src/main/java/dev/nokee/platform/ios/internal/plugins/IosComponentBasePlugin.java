@@ -57,7 +57,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			return instantiator(project).newInstance(IosResourceSetSpec.class);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), (Factory<ComponentSources>) () -> project.getObjects().newInstance(ComponentSources.class));
+			return instantiator(project).newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), (Factory<ComponentSources>) () -> instantiator(project).newInstance(ComponentSources.class));
 		});
 
 		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {

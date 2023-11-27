@@ -59,7 +59,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 		project.getPlugins().withType(ComponentModelBasePlugin.class).configureEach(__ -> {
 			components(project).withType(TestableComponentSpec.class).configureEach(elementWith((identifier, component) -> {
 				final Namer<Named> namer = new Named.Namer();
-				component.getExtensions().add(TestableComponentSpec.TEST_SUITES_EXTENSION_NAME, project.getObjects().newInstance(ContextualTestSuiteContainer.class, identifier, model(project, registryOf(TestSuiteComponent.class)), new ViewAdapter<>(TestSuiteComponent.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((TestSuiteComponent) it), testSuites(project), project.getProviders(), project.getObjects(), (Runnable) () -> {}, identifier))));
+				component.getExtensions().add(TestableComponentSpec.TEST_SUITES_EXTENSION_NAME, instantiator(project).newInstance(ContextualTestSuiteContainer.class, identifier, model(project, registryOf(TestSuiteComponent.class)), new ViewAdapter<>(TestSuiteComponent.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((TestSuiteComponent) it), testSuites(project), project.getProviders(), project.getObjects(), (Runnable) () -> {}, identifier))));
 			}));
 		});
 
