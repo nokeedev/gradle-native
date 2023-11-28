@@ -21,8 +21,7 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -31,7 +30,6 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketS
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariant;
@@ -55,11 +53,6 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
-	}
-
-	@Override
-	public BinaryView<Binary> getBinaries() {
-		return BinaryAwareComponentMixIn.super.getBinaries();
 	}
 
 	@Override

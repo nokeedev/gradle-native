@@ -18,7 +18,6 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.VariantView;
@@ -60,11 +59,6 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("developmentVariant", objects.property(JniLibrary.class));
 		getExtensions().add("sources", sourcesFactory.create());
-	}
-
-	@Override
-	public BinaryView<Binary> getBinaries() {
-		return BinaryAwareComponentMixIn.super.getBinaries();
 	}
 
 	public VariantView<JniLibrary> getVariants() {

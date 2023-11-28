@@ -24,8 +24,7 @@ import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
@@ -37,7 +36,6 @@ import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -76,11 +74,6 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 		} else {
 			getExtensions().add("binaryLifecycleTask", taskRegistry.register(getIdentifier().child(TaskName.of("staticLibrary")), Task.class).asProvider());
 		}
-	}
-
-	@Override
-	public BinaryView<Binary> getBinaries() {
-		return BinaryAwareComponentMixIn.super.getBinaries();
 	}
 
 	@Override

@@ -22,8 +22,7 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -33,7 +32,6 @@ import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
@@ -59,11 +57,6 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("binaryLifecycleTask", taskRegistry.register(getIdentifier().child(TaskName.of("executable")), Task.class).asProvider());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
-	}
-
-	@Override
-	public BinaryView<Binary> getBinaries() {
-		return BinaryAwareComponentMixIn.super.getBinaries();
 	}
 
 	@SuppressWarnings("unchecked")

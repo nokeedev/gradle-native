@@ -22,9 +22,9 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BaseVariant;
@@ -34,7 +34,6 @@ import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
@@ -74,11 +73,6 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), NativeSharedLibraryBinarySpec.class).asProvider());
 		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), ModelBackedJniJarBinary.class).asProvider());
-	}
-
-	@Override
-	public BinaryView<Binary> getBinaries() {
-		return BinaryAwareComponentMixIn.super.getBinaries();
 	}
 
 	@Override

@@ -15,9 +15,7 @@
  */
 package dev.nokee.platform.base.internal.mixins;
 
-import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.decorators.Decorate;
-import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BinaryView;
@@ -26,12 +24,10 @@ import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 
-public interface BinaryAwareComponentMixIn extends ModelMixIn, BinaryAwareComponent {
+public interface BinaryAwareComponentMixIn extends BinaryAwareComponent {
 	@Override
 	@Decorate(NestedViewDecorator.class)
-	default BinaryView<Binary> getBinaries() {
-		return mixedIn("binaries");
-	}
+	BinaryView<Binary> getBinaries();
 
 	@Override
 	default void binaries(Action<? super BinaryView<Binary>> action) {
