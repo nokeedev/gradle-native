@@ -19,7 +19,6 @@ package dev.nokee.platform.objectivec.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
@@ -49,7 +48,7 @@ public  /*final*/ abstract class ObjectiveCApplicationSpec extends ModelElementS
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, VariantAwareComponentMixIn<NativeApplication>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, HasDevelopmentVariant<NativeApplication>

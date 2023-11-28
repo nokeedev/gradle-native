@@ -18,7 +18,6 @@ package dev.nokee.platform.ios.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
@@ -94,7 +93,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies>
 		, VariantAwareComponentMixIn<IosApplication>
-		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 		, BinaryAwareComponentMixIn
 		, TaskAwareComponentMixIn
 		, AssembleTaskMixIn

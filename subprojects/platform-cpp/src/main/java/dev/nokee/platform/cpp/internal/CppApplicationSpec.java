@@ -19,7 +19,6 @@ package dev.nokee.platform.cpp.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.cpp.internal.CppSourcesMixIn;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
@@ -48,7 +47,7 @@ public  /*final*/ abstract class CppApplicationSpec extends ModelElementSupport 
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, VariantAwareComponentMixIn<NativeApplication>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn

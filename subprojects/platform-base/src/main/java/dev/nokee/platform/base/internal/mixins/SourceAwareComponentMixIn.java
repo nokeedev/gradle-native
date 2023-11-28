@@ -22,7 +22,7 @@ import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 
-public interface SourceAwareComponentMixIn<T extends ComponentSources, S extends T> extends ModelMixIn, SourceAwareComponent<T> {
+public interface SourceAwareComponentMixIn<T extends ComponentSources> extends ModelMixIn, SourceAwareComponent<T> {
 	@Override
 	default T getSources() {
 		return mixedIn("sources");

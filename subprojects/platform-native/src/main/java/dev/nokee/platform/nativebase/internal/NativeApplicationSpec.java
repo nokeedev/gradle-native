@@ -19,7 +19,6 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.HasDevelopmentVariant;
@@ -43,7 +42,7 @@ public abstract class NativeApplicationSpec extends ModelElementSupport implemen
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, VariantAwareComponentMixIn<NativeApplication>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, HasDevelopmentVariant<NativeApplication>

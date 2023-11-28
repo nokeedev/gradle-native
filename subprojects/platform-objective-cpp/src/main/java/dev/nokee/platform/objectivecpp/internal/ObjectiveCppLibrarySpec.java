@@ -19,7 +19,6 @@ package dev.nokee.platform.objectivecpp.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesMixIn;
@@ -34,7 +33,7 @@ import javax.inject.Inject;
 
 public  /*final*/ abstract class ObjectiveCppLibrarySpec extends BaseNativeLibraryComponentSpec implements ObjectiveCppLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, ObjectiveCppSourcesMixIn
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn

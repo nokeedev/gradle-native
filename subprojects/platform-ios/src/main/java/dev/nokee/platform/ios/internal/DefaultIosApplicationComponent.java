@@ -81,7 +81,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
-	, SourceAwareComponentMixIn<ComponentSources, ComponentSources>
+	, SourceAwareComponentMixIn<ComponentSources>
 	, VariantAwareComponentMixIn<IosApplication>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn

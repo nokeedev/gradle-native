@@ -19,7 +19,6 @@ package dev.nokee.platform.cpp.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.cpp.internal.CppSourcesMixIn;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
@@ -34,7 +33,7 @@ import javax.inject.Inject;
 
 public  /*final*/ abstract class CppLibrarySpec extends BaseNativeLibraryComponentSpec implements CppLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn
 	, CppSourcesMixIn

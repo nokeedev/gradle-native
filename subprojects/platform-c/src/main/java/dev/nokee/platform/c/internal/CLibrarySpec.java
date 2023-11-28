@@ -19,7 +19,6 @@ package dev.nokee.platform.c.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.CSourcesMixIn;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
@@ -34,7 +33,7 @@ import javax.inject.Inject;
 
 public  /*final*/ abstract class CLibrarySpec extends BaseNativeLibraryComponentSpec implements CLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn
 	, CSourcesMixIn

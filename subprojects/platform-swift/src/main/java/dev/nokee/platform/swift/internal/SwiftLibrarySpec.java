@@ -19,7 +19,6 @@ package dev.nokee.platform.swift.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
@@ -32,7 +31,7 @@ import javax.inject.Inject;
 
 public  /*final*/ abstract class SwiftLibrarySpec extends BaseNativeLibraryComponentSpec implements SwiftLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, SwiftSourcesMixIn
 {
 	@Inject

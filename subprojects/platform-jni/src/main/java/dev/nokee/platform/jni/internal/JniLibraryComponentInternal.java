@@ -47,7 +47,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<JniLibrary>
-	, SourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources, JavaNativeInterfaceSourcesViewAdapter>
+	, SourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, HasDevelopmentBinary

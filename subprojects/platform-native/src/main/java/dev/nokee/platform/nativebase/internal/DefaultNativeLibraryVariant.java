@@ -18,7 +18,6 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.HasApiElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
@@ -52,7 +51,7 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 	, NativeVariant
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
