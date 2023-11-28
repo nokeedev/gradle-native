@@ -21,22 +21,17 @@ import dev.nokee.internal.services.ServiceLookup;
 import dev.nokee.model.internal.decorators.ClassGenerationVisitor;
 import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.Decorator;
-import dev.nokee.model.internal.decorators.DecoratorHandlers;
 import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.model.internal.decorators.InjectServiceDecorator;
 import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.decorators.NestedObjectDecorator;
-import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeUtils;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Named;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.ObjectInstantiationException;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -70,9 +65,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dev.nokee.internal.reflect.SignatureUtils.getConstructorSignature;
-import static dev.nokee.model.internal.decorators.NestedObjectDecorator.isTaskType;
 
-public final class DefaultInstantiator implements Instantiator, DecoratorHandlers {
+public final class DefaultInstantiator implements Instantiator {
 	private static final ThreadLocal<ServiceLookup> nextService = new ThreadLocal<>();
 	private final ObjectFactory objects;
 	private final ServiceLookup serviceLookup;
@@ -221,25 +215,9 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), method.getAnnotations(), new BiConsumer<GeneratedMethod, MixIn>() {
 						@Override
 						public void accept(GeneratedMethod data, MixIn mixIn) {
-							ElementName elementName;
-							if (isTaskType(data.returnType.getType())) {
-								String taskName = data.propertyName;
-								if (taskName.endsWith("Task")) {
-									taskName = taskName.substring(0, taskName.length() - "Task".length());
-								}
-								elementName = TaskName.of(taskName);
-							} else if (Provider.class.isAssignableFrom(data.returnType.getRawType()) || Named.class.isAssignableFrom(data.returnType.getRawType())) {
-								elementName = ElementName.of(data.propertyName);
-							} else {
-								NestedObject nestedObject = (NestedObject) Arrays.stream(method.getAnnotations()).filter(it -> it.annotationType().equals(NestedObject.class)).findFirst().orElse(null);
-								if (nestedObject == null || nestedObject.value().length() == 0) {
-									elementName = null;
-								} else {
-									elementName = ElementName.of(nestedObject.value());
-								}
+							if (data.methodName.equals("getDependencies")) {
+								mixIn.mixIn(NestedObjectDecorator.create(null, data.returnType.getType()));
 							}
-
-							mixIn.mixIn(NestedObjectDecorator.create(elementName, data.returnType.getType()));
 						}
 					}));
 				}

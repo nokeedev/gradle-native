@@ -41,13 +41,9 @@ public class MutableModelDecorator implements ModelDecorator {
 						if (processed.add(method.getName())) { // avoid processing method multiple time
 							assert method.getParameterCount() == 0;
 							assert method.getName().startsWith("get");
-							obj.getExtensions().add(propertyNameOf(method), DefaultInstantiator.getNext().init(propertyNameOf(method)));
-						}
-					} else if (method.isAnnotationPresent(InjectService.class)) {
-						if (processed.add(method.getName())) { // avoid processing method multiple time
-							assert method.getParameterCount() == 0;
-							assert method.getName().startsWith("get");
-							obj.getExtensions().add(propertyNameOf(method), DefaultInstantiator.getNext().init(propertyNameOf(method)));
+							if (method.getName().equals("getDependencies")) {
+								obj.getExtensions().add(propertyNameOf(method), DefaultInstantiator.getNext().init(propertyNameOf(method)));
+							}
 						}
 					}
 				}
