@@ -22,5 +22,5 @@ import org.objectweb.asm.MethodVisitor;
 public interface ClassGenerationVisitor {
 	void visitFieldsInitialization(String ownerInternalName, MethodVisitor mv);
 	void visitFields(ClassVisitor cw);
-	void visitMethods(ClassVisitor cw);
+	void visitMethods(String ownerInternalName, ClassVisitor cw);
 }

@@ -194,7 +194,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), new BiConsumer<GeneratedMethod, MixIn>() {
 						@Override
 						public void accept(GeneratedMethod data, MixIn mixIn) {
-							mixIn.mixIn(InjectServiceDecorator.get(data.returnType.getType()));
+							mixIn.mixIn(InjectServiceDecorator.getService(data.returnType.getType()));
 						}
 					}));
 				}
@@ -358,7 +358,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 
 		for (GeneratedMethod method : methods) {
 			method.visitor.visitFields(cw);
-			method.visitor.visitMethods(cw);
+			method.visitor.visitMethods(subclassNameInternal, cw);
 		}
 
 		cw.visitEnd();

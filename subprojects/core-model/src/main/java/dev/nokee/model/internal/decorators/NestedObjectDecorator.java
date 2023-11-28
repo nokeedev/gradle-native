@@ -77,7 +77,7 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 			}
 
 			@Override
-			public void visitMethods(ClassVisitor cw) {
+			public void visitMethods(String ownerInternalName, ClassVisitor cw) {
 				String methodDescriptor = "()" + org.objectweb.asm.Type.getDescriptor(returnType.getRawType());
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, methodName, methodDescriptor, getterSignature(returnType.getType()), null);
 
