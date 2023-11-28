@@ -18,24 +18,23 @@ package dev.nokee.language.swift.internal.plugins;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
 import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import org.gradle.api.tasks.TaskProvider;
 
 public /*final*/ abstract class SwiftSourceSetSpec extends BaseNativeSourceSetSpec implements SwiftSourceSet
-	, NativeCompileTaskMixIn<SwiftCompile, SwiftCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasImportModules
 {
-	@Override
+	@NestedObject
+	public abstract TaskProvider<SwiftCompileTask> getCompileTask();
+
 	@NestedObject
 	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
 
-	@Override
 	@NestedObject
 	public abstract ResolvableDependencyBucketSpec getImportModules();
 

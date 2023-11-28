@@ -24,7 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
 public interface HasCompileTaskTester {
-	HasCompileTask<?> subject();
+	HasCompileTask subject();
 
 	@Test
 	default void hasCompileTask() {

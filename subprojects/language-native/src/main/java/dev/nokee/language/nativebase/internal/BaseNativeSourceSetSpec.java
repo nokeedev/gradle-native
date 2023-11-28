@@ -24,7 +24,7 @@ import dev.nokee.model.internal.ModelElementSupport;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskProvider;
 
-public abstract class BaseNativeSourceSetSpec extends ModelElementSupport implements LanguageSourceSet, HasSource {
+public abstract class BaseNativeSourceSetSpec extends ModelElementSupport implements LanguageSourceSet, HasSource, HasCompileTask {
 	@Nested
 	public abstract TaskDependencyProperty getBuildDependencies();
 

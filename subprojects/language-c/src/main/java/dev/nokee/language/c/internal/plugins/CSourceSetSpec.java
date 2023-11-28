@@ -17,26 +17,25 @@ package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
-import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
 import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import org.gradle.api.tasks.TaskProvider;
 
 public /*final*/ abstract class CSourceSetSpec extends BaseNativeSourceSetSpec implements CSourceSet
-	, NativeCompileTaskMixIn<CCompile, CCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
 {
-	@Override
+	@NestedObject
+	public abstract TaskProvider<CCompileTask> getCompileTask();
+
 	@NestedObject
 	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
 
-	@Override
 	@NestedObject
 	public abstract ResolvableDependencyBucketSpec getHeaderSearchPaths();
 

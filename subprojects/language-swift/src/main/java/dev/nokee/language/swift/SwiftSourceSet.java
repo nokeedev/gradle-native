@@ -21,6 +21,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import org.gradle.api.tasks.TaskProvider;
 
 /**
  * A set of Swift source files.
@@ -30,6 +31,9 @@ import dev.nokee.platform.base.DependencyAwareComponent;
  */
 public interface SwiftSourceSet extends LanguageSourceSet
 	, HasSource
-	, HasCompileTask<SwiftCompile>
+	, HasCompileTask
 	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
-{}
+{
+	@Override
+	TaskProvider<? extends SwiftCompile> getCompileTask();
+}

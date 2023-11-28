@@ -38,7 +38,7 @@ public class LanguageNativeBasePlugin implements Plugin<Project> {
 		// Attach native source to compile task
 		sources(project).configureEach(sourceSet -> {
 			if (sourceSet instanceof HasSource && sourceSet instanceof HasCompileTask) {
-				((HasCompileTask<?>) sourceSet).getCompileTask().configure(task -> {
+				((HasCompileTask) sourceSet).getCompileTask().configure(task -> {
 					if (task instanceof AbstractNativeCompileTask) {
 						((AbstractNativeCompileTask) task).getSource().from(((HasSource) sourceSet).getSource().getAsFileTree());
 					} else if (task instanceof SwiftCompile) {

@@ -44,12 +44,12 @@ public final class NativeCompileTaskDefaultConfigurationRule<T> implements Actio
 	@Override
 	public void execute(T t) {
 		if (t instanceof HasCompileTask) {
-			((HasCompileTask<?>) t).getCompileTask().configure(task -> {
+			((HasCompileTask) t).getCompileTask().configure(task -> {
 				if (task instanceof NativeSourceCompileTask) {
 					configurePositionIndependentCode(set(true)).execute((NativeSourceCompileTask) task);
 				}
 			});
-			((HasCompileTask<?>) t).getCompileTask().configure(task -> {
+			((HasCompileTask) t).getCompileTask().configure(task -> {
 				if (task instanceof NativeSourceCompileTask) {
 					configureSystemIncludes(from(platformTool())).execute((NativeSourceCompileTask) task);
 				}

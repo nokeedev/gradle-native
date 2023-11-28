@@ -15,8 +15,8 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.HasCompileTask;
+import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.DomainObjectIdentifier;
@@ -55,10 +55,10 @@ public final class HasNativeCompileTaskMixInRule<T> implements Action<T> {
 	@Override
 	public void execute(T t) {
 		if (t instanceof HasCompileTask && t instanceof ModelElement) {
-			((HasCompileTask<?>) t).getCompileTask().configure(configureDescription("Compiles the %s.", t));
-			((HasCompileTask<?>) t).getCompileTask().configure(configureDestinationDirectory(convention(forObjects(((ModelElement) t).getIdentifier()))));
-			((HasCompileTask<?>) t).getCompileTask().configure(configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
-			((HasCompileTask<?>) t).getCompileTask().configure(configureObjectFiles(from(objectFilesInDestinationDirectory())));
+			((HasCompileTask) t).getCompileTask().configure(configureDescription("Compiles the %s.", t));
+			((HasCompileTask) t).getCompileTask().configure(configureDestinationDirectory(convention(forObjects(((ModelElement) t).getIdentifier()))));
+			((HasCompileTask) t).getCompileTask().configure(configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
+			((HasCompileTask) t).getCompileTask().configure(configureObjectFiles(from(objectFilesInDestinationDirectory())));
 		}
 	}
 

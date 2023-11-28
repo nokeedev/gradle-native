@@ -44,11 +44,11 @@ public final class AttachHeaderSearchPathsToCompileTaskRule<T> implements Action
 	public void execute(T t) {
 		if (t instanceof HasCompileTask) {
 			if (t instanceof HasHeaders) {
-				((HasCompileTask<?>) t).getCompileTask().configure(configureIncludeRoots(from(sourceDirectories(((HasHeaders) t).getHeaders()))));
+				((HasCompileTask) t).getCompileTask().configure(configureIncludeRoots(from(sourceDirectories(((HasHeaders) t).getHeaders()))));
 			}
 			if (t instanceof HasHeaderSearchPaths) {
-				((HasCompileTask<?>) t).getCompileTask().configure(configureIncludeRoots(from(((HasHeaderSearchPaths) t).getDependentHeaderSearchPaths())));
-				((HasCompileTask<?>) t).getCompileTask().configure(task -> {
+				((HasCompileTask) t).getCompileTask().configure(configureIncludeRoots(from(((HasHeaderSearchPaths) t).getDependentHeaderSearchPaths())));
+				((HasCompileTask) t).getCompileTask().configure(task -> {
 					assert task instanceof SourceCompile;
 					configureCompilerArgs(addAll(asFrameworkSearchPathFlags(((HasHeaderSearchPaths) t).getDependentFrameworkSearchPaths()))).execute((SourceCompile) task);
 				});

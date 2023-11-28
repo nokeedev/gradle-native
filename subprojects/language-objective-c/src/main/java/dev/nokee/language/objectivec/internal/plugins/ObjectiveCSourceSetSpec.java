@@ -19,24 +19,23 @@ import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
 import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
-import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import org.gradle.api.tasks.TaskProvider;
 
 public /*final*/ abstract class ObjectiveCSourceSetSpec extends BaseNativeSourceSetSpec implements ObjectiveCSourceSet
-	, NativeCompileTaskMixIn<ObjectiveCCompile, ObjectiveCCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
 {
-	@Override
+	@NestedObject
+	public abstract TaskProvider<ObjectiveCCompileTask> getCompileTask();
+
 	@NestedObject
 	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
 
-	@Override
 	@NestedObject
 	public abstract ResolvableDependencyBucketSpec getHeaderSearchPaths();
 

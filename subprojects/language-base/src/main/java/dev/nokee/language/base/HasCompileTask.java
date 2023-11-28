@@ -21,9 +21,8 @@ import org.gradle.api.tasks.TaskProvider;
 /**
  * Represents an element that involve a compile task to process inputs.
  *
- * @param <T>  the compile task type
  * @since 1.0
  */
-public interface HasCompileTask<T extends Task> {
-	TaskProvider<? extends T> getCompileTask();
+public interface HasCompileTask {
+	TaskProvider<? extends Task> getCompileTask();
 }

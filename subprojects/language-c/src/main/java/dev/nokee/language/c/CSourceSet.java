@@ -22,6 +22,7 @@ import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import org.gradle.api.tasks.TaskProvider;
 
 /**
  * A set of C source files.
@@ -32,6 +33,9 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 public interface CSourceSet extends LanguageSourceSet
 	, HasSource
 	, HasHeaders
-	, HasCompileTask<CCompile>
+	, HasCompileTask
 	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
-{}
+{
+	@Override
+	TaskProvider<? extends CCompile> getCompileTask();
+}

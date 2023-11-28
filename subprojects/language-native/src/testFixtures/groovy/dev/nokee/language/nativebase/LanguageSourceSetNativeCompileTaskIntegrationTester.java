@@ -15,9 +15,9 @@
  */
 package dev.nokee.language.nativebase;
 
+import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.tasks.SourceCompile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.isA;
 
-public interface LanguageSourceSetNativeCompileTaskIntegrationTester<T extends LanguageSourceSet & HasCompileTask<?>> {
+public interface LanguageSourceSetNativeCompileTaskIntegrationTester<T extends LanguageSourceSet & HasCompileTask> {
 	T subject();
 
 	@BeforeEach

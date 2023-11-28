@@ -22,6 +22,7 @@ import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import org.gradle.api.tasks.TaskProvider;
 
 /**
  * A set of Objective-C source files.
@@ -32,6 +33,9 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 public interface ObjectiveCSourceSet extends LanguageSourceSet
 	, HasSource
 	, HasHeaders
-	, HasCompileTask<ObjectiveCCompile>
+	, HasCompileTask
 	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
-{}
+{
+	@Override
+	TaskProvider<? extends ObjectiveCCompile> getCompileTask();
+}
