@@ -16,20 +16,18 @@
 package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
 import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
-import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.tasks.TaskDependency;
 
-public /*final*/ abstract class ObjectiveCSourceSetSpec extends ModelElementSupport implements ObjectiveCSourceSet
+public /*final*/ abstract class ObjectiveCSourceSetSpec extends BaseNativeSourceSetSpec implements ObjectiveCSourceSet
 	, NativeCompileTaskMixIn<ObjectiveCCompile, ObjectiveCCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
@@ -37,11 +35,6 @@ public /*final*/ abstract class ObjectiveCSourceSetSpec extends ModelElementSupp
 	@Override
 	@NestedObject
 	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
-
-	@Override
-	public TaskDependency getBuildDependencies() {
-		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), getHeaders().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
-	}
 
 	@Override
 	@NestedObject

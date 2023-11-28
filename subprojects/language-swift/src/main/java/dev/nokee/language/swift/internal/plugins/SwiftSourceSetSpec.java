@@ -16,19 +16,17 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
 import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.tasks.TaskDependency;
 
-public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet
+public /*final*/ abstract class SwiftSourceSetSpec extends BaseNativeSourceSetSpec implements SwiftSourceSet
 	, NativeCompileTaskMixIn<SwiftCompile, SwiftCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasImportModules
@@ -40,11 +38,6 @@ public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport i
 	@Override
 	@NestedObject
 	public abstract ResolvableDependencyBucketSpec getImportModules();
-
-	@Override
-	public TaskDependency getBuildDependencies() {
-		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
-	}
 
 	@Override
 	protected String getTypeName() {

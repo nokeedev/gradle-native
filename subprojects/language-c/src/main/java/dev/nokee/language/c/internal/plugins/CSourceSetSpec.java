@@ -19,17 +19,15 @@ import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
 import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskMixIn;
-import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.tasks.TaskDependency;
 
-public /*final*/ abstract class CSourceSetSpec extends ModelElementSupport implements CSourceSet
+public /*final*/ abstract class CSourceSetSpec extends BaseNativeSourceSetSpec implements CSourceSet
 	, NativeCompileTaskMixIn<CCompile, CCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
@@ -37,11 +35,6 @@ public /*final*/ abstract class CSourceSetSpec extends ModelElementSupport imple
 	@Override
 	@NestedObject
 	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
-
-	@Override
-	public TaskDependency getBuildDependencies() {
-		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), getHeaders().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
-	}
 
 	@Override
 	@NestedObject

@@ -15,10 +15,12 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.HasCompileTask;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.project.ProjectInternal;
@@ -47,5 +49,13 @@ public class LanguageNativeBasePlugin implements Plugin<Project> {
 		});
 
 		sources(project).configureEach(new HasNativeCompileTaskMixInRule<>(new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders())));
+
+		sources(project).withType(BaseNativeSourceSetSpec.class).configureEach(sourceSet -> {
+			sourceSet.getBuildDependencies().add(sourceSet.getSource().getBuildDependencies());
+			sourceSet.getBuildDependencies().add(TaskDependencyUtils.of(sourceSet.getCompileTask()));
+			if (sourceSet instanceof HasHeaders) {
+				sourceSet.getBuildDependencies().add(((HasHeaders) sourceSet).getHeaders().getBuildDependencies());
+			}
+		});
 	}
 }
