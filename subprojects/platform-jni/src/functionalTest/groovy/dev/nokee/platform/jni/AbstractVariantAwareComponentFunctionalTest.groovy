@@ -240,7 +240,7 @@ dev.nokee:platformJni:0.3.0
 	}
 
 	protected String getHostVariantName() {
-		return "${currentOsFamilyName}${currentArchitecture.capitalize()}"
+		return "${currentOsFamilyName}"
 	}
 
 	protected configureTargetMachines(String... targetMachines) {
