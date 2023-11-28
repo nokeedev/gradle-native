@@ -16,7 +16,9 @@
 
 package dev.nokee.model.internal.decorators;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.stream.Stream;
 
 public interface Decorator {
 	// TODO: we should return a generator visitor
@@ -26,5 +28,6 @@ public interface Decorator {
 		String getName();
 		Class<?> getReturnType();
 		Type getGenericReturnType();
+		Stream<Annotation> getAnnotations();
 	}
 }

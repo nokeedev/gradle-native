@@ -18,33 +18,26 @@ package dev.nokee.platform.base.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
-import dev.nokee.model.internal.ModelObject;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.decorators.DecoratorHandlers;
-import dev.nokee.model.internal.decorators.ModelMixInSupport;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantDimensions;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
-import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
+import dev.nokee.platform.base.internal.TaskViewFactory;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.ViewAdapter;
@@ -62,26 +55,19 @@ import dev.nokee.platform.base.internal.rules.DevelopmentBinaryConventionRule;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDependencyBucketAction;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
 
-import java.lang.reflect.ParameterizedType;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>> COMPONENT_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>>() {};
@@ -177,24 +163,16 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
 
-		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
-			private final Factory<BinaryView<Binary>> binariesFactory = () -> {
-				Named.Namer namer = new Named.Namer();
-				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-				Runnable realizeNow = () -> {};
-				return new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-			};
-
-			@Override
-			public void accept(DecoratorHandlers.NestedObjectContext context) {
-				if (context.getNestedType().isSubtypeOf(BinaryView.class)) {
-					context.mixIn(binariesFactory.create());
-				}
-			}
+		model(project).getExtensions().add(new TypeOf<Factory<BinaryView<Binary>>>() {}, "__nokeeService_binaryFactory", (Factory<BinaryView<Binary>>) () -> {
+			Named.Namer namer = new Named.Namer();
+			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+			Runnable realizeNow = () -> {};
+			return new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		});
 
-		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
-			private <T extends Task> TaskView<T> create(Class<T> elementType) {
+		model(project).getExtensions().add(TaskViewFactory.class, "__nokeeService_taskViewFactory", new TaskViewFactory() {
+			@Override
+			public <T extends Task> TaskView<T> create(Class<T> elementType) {
 				Task.Namer namer = new Task.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 				Runnable realizeNow = () -> {
@@ -212,116 +190,21 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 					}
 				};
 				return new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-			};
+			}
+		});
 
+		model(project).getExtensions().add(VariantViewFactory.class, "__nokeeService_variantViewFactory", new VariantViewFactory() {
 			@Override
-			public void accept(DecoratorHandlers.NestedObjectContext context) {
-				if (context.getNestedType().isSubtypeOf(TaskView.class)) {
-					final Class<? extends Task> elementType = (Class<? extends Task>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
-					context.mixIn(create(elementType));
-				}
+			public <T extends Variant> VariantView<T> create(Class<T> elementType) {
+				Named.Namer namer = new Named.Namer();
+				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+				Runnable realizeNow = () -> {};
+				return new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 			}
 		});
 
-		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
-			private final VariantViewFactory variantsFactory = new VariantViewFactory() {
-				@Override
-				public <T extends Variant> VariantView<T> create(Class<T> elementType) {
-					Named.Namer namer = new Named.Namer();
-					ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-					Runnable realizeNow = () -> {};
-					return new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-				}
-			};
-
-			@Override
-			public void accept(DecoratorHandlers.NestedObjectContext context) {
-				if (context.getNestedType().isSubtypeOf(VariantView.class)) {
-					final Class<? extends Variant> elementType = (Class<? extends Variant>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
-					context.mixIn(variantsFactory.create(elementType));
-				}
-			}
-		});
-
-		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
-			private final DimensionPropertyRegistrationFactory dimensionPropertyFactory = new DimensionPropertyRegistrationFactory(project.getObjects());
-			private final Factory<DefaultVariantDimensions> dimensionsFactory = () -> {
-				return instantiator(project).newInstance(DefaultVariantDimensions.class, dimensionPropertyFactory);
-			};
-
-			@Override
-			public void accept(DecoratorHandlers.NestedObjectContext context) {
-				if (context.getNestedType().isSubtypeOf(VariantDimensions.class)) {
-					context.mixIn(dimensionsFactory.create());
-				}
-			}
-		});
-
-		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(context -> {
-			if (context.getNestedType().isSubtypeOf(ComponentDependencies.class)) {
-				final Class<?> type = context.getNestedType().getRawType();
-				ModelObjectIdentifier identifier = context.getIdentifier();
-				if (!context.getAnnotation().value().isEmpty()) {
-					identifier = identifier.child(context.getAnnotation().value());
-				}
-
-				context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type)));
-			}
-		});
-		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Task.class))));
-		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(DependencyBucket.class))));
-		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Artifact.class))));
-
+		model(project).getExtensions().add("__nokeeService_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 		model(project, objects()).configureEach(HasBaseName.class, new BaseNameConfigurationRule(project.getProviders()));
 		model(project, mapOf(Component.class)).configureEach(HasDevelopmentBinary.class, new DevelopmentBinaryConventionRule(project.getProviders()));
-	}
-
-	private static final class ModelObjectDecorator<T> implements Consumer<DecoratorHandlers.NestedObjectContext> {
-		private final ModelObjectRegistry<T> registry;
-		private final Function<String, ElementName> namer;
-
-		public ModelObjectDecorator(ModelObjectRegistry<T> registry) {
-			this.registry = registry;
-
-			if (registry.getRegistrableTypes().canRegisterType(Task.class)) {
-				this.namer = propertyName -> {
-					String taskName = propertyName;
-					if (taskName.endsWith("Task")) {
-						taskName = taskName.substring(0, taskName.length() - "Task".length());
-					}
-					return TaskName.of(taskName);
-				};
-			} else {
-				this.namer = ElementName::of;
-			}
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public void accept(DecoratorHandlers.NestedObjectContext context) {
-			Class<? extends T> objectType = null;
-			Function<ModelObject<? extends T>, Object> mapper = null;
-			if (context.getNestedType().isSubtypeOf(NamedDomainObjectProvider.class)) {
-				final Class<?> candidateType = (Class<?>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
-				if (registry.getRegistrableTypes().canRegisterType(candidateType)) {
-					objectType = (Class<? extends T>) candidateType;
-					mapper = ModelObject::asProvider;
-				}
-			} else if (context.getNestedType().isSubtypeOf(ModelObject.class)) {
-				final Class<?> candidateType = (Class<?>) ((ParameterizedType) context.getNestedType().getType()).getActualTypeArguments()[0];
-				if (registry.getRegistrableTypes().canRegisterType(candidateType)) {
-					objectType = (Class<? extends T>) candidateType;
-					mapper = it -> it;
-				}
-			} else if (registry.getRegistrableTypes().canRegisterType(context.getNestedType().getConcreteType())) {
-				objectType = (Class<? extends T>) context.getNestedType().getConcreteType();
-				mapper = ModelObject::get;
-			}
-
-			if (objectType != null) {
-				final ElementName elementName = namer.apply(context.getPropertyName());
-				context.mixIn(mapper.apply(registry.register(context.getIdentifier().child(elementName), objectType)));
-			}
-		}
 	}
 }

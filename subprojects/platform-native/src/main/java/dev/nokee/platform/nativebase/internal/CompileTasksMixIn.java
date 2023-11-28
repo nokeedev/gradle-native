@@ -18,14 +18,15 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.internal.ModelMixIn;
-import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.internal.NestedViewDecorator;
 import dev.nokee.platform.nativebase.NativeBinary;
 
 // TODO: Isolate compileTasks into its own interface OR convert into a NativeBinaryMixIn
 public interface CompileTasksMixIn extends ModelMixIn, NativeBinary {
 	@Override
-	@NestedObject
+	@Decorate(NestedViewDecorator.class)
 	default TaskView<SourceCompile> getCompileTasks() {
 		return mixedIn("compileTasks");
 	}

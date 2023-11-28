@@ -16,12 +16,14 @@
 package dev.nokee.platform.base.internal.mixins;
 
 import dev.nokee.model.internal.ModelMixIn;
+import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
+import dev.nokee.platform.base.internal.NestedViewDecorator;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
@@ -32,7 +34,7 @@ import java.util.Set;
 
 public interface VariantAwareComponentMixIn<T extends Variant> extends ModelMixIn, VariantAwareComponent<T>, VariantAwareComponentInternal<T> {
 	@Override
-	@NestedObject
+	@Decorate(NestedViewDecorator.class)
 	default VariantView<T> getVariants() {
 		return mixedIn("variants");
 	}

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package dev.nokee.model.internal.decorators;
+package dev.nokee.platform.base.internal;
 
-public interface DecoratorHandlers {
+import dev.nokee.platform.base.TaskView;
+import org.gradle.api.Task;
+
+public interface TaskViewFactory {
+	<T extends Task> TaskView<T> create(Class<T> elementType);
 }

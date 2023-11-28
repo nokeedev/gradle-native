@@ -14,62 +14,47 @@
  * limitations under the License.
  */
 
-package dev.nokee.model.internal.decorators;
+package dev.nokee.platform.base.internal;
 
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.Factory;
 import dev.nokee.internal.reflect.DefaultInstantiator;
-import dev.nokee.internal.reflect.Instantiator;
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObject;
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.model.internal.decorators.ClassGenerationVisitor;
+import dev.nokee.model.internal.decorators.Decorator;
+import dev.nokee.model.internal.decorators.InjectServiceDecorator;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.VariantView;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
-import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskProvider;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Objects;
 
 import static dev.nokee.internal.reflect.SignatureUtils.getGenericSignature;
 import static dev.nokee.internal.reflect.SignatureUtils.getterSignature;
 
-public /*final*/ class NestedObjectDecorator implements Decorator {
+public /*final*/ class NestedViewDecorator implements Decorator {
 	// TODO: Make sure objectType can be generic type
-	// GENERATE <objectType> get<prop>() {
+	// GENERATE <viewType> get<prop>() {
 	//      if (this._nokee_<prop> == null) {
 	//          this._nokee_<prop> = <init>;
 	//      }
 	//      return this._nokee_<prop>;
 	// }
 
-	// GENERATE private <objectType> _nokee_<prop> = <init>;
+	// GENERATE private <viewType> _nokee_<prop> = <init>;
 
-	// <init> => NestedObjectDecorator.create(TaskName/ElementName.of('name'), <objectType>)
-
-	public static boolean isTaskType(Type type) {
-		if (TaskProvider.class.isAssignableFrom(TypeToken.of(type).getRawType())) {
-			return true;
-		} else if (TypeToken.of(type).getType() instanceof ParameterizedType) {
-			if (Task.class.isAssignableFrom((Class<?>) ((ParameterizedType) TypeToken.of(type).getType()).getActualTypeArguments()[0])) {
-				return true;
-			}
-		}
-		return false;
-	}
+	// <init> => NestedViewDecorator.create(<viewType>)
 
 	public ClassGenerationVisitor applyTo(MethodMetadata method) {
 		return new ClassGenerationVisitor() {
@@ -81,26 +66,6 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 			@Override
 			public void visitFieldsInitialization(String ownerInternalName, MethodVisitor mv) {
 				mv.visitVarInsn(Opcodes.ALOAD, 0); // Load 'this' to set the field on
-
-				if (isTaskType(returnType.getType())) {
-					String taskName = propertyName;
-					if (taskName.endsWith("Task")) {
-						taskName = taskName.substring(0, taskName.length() - "Task".length());
-					}
-					mv.visitLdcInsn(taskName);
-					mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(TaskName.class), "of", "(Ljava/lang/String;)Ldev/nokee/model/internal/names/TaskName;", false);
-				} else if (Provider.class.isAssignableFrom(returnType.getRawType()) || Named.class.isAssignableFrom(returnType.getRawType())) {
-					mv.visitLdcInsn(propertyName);
-					mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(ElementName.class), "of", "(Ljava/lang/String;)Ldev/nokee/model/internal/names/ElementName;", true);
-				} else {
-					NestedObject nestedObject = (NestedObject) method.getAnnotations().filter(it -> it.annotationType().equals(NestedObject.class)).findFirst().orElse(null);
-					if (nestedObject == null || nestedObject.value().length() == 0) {
-						mv.visitInsn(Opcodes.ACONST_NULL);
-					} else {
-						mv.visitLdcInsn(nestedObject.value());
-						mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(ElementName.class), "of", "(Ljava/lang/String;)Ldev/nokee/model/internal/names/ElementName;", true);
-					}
-				}
 
 				if (returnType.getType() instanceof ParameterizedType) {
 					assert ((ParameterizedType) returnType.getType()).getActualTypeArguments().length == 1;
@@ -119,7 +84,7 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 					mv.visitLdcInsn(org.objectweb.asm.Type.getType((Class<?>) returnType.getType()));
 				}
 
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(NestedObjectDecorator.class), "create", "(Ldev/nokee/model/internal/names/ElementName;Ljava/lang/reflect/Type;)Ljava/lang/Object;", false);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(NestedViewDecorator.class), "create", "(Ljava/lang/reflect/Type;)Ljava/lang/Object;", false);
 				mv.visitTypeInsn(Opcodes.CHECKCAST, org.objectweb.asm.Type.getInternalName(returnType.getRawType()));
 				mv.visitFieldInsn(Opcodes.PUTFIELD, ownerInternalName, fieldName, org.objectweb.asm.Type.getDescriptor(returnType.getRawType()));
 			}
@@ -164,54 +129,34 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Object create(@Nullable ElementName elementName, Type objectType) {
-		ModelObjectIdentifier identifier = nextIdentifier();
-		if (elementName != null) {
-			identifier = identifier.child(elementName);
-		}
-
+	public static Object create(Type objectType) {
 		if (objectType instanceof ParameterizedType) {
 			Type rawType = ((ParameterizedType) objectType).getRawType();
 			assert rawType instanceof Class;
-			if (NamedDomainObjectProvider.class.isAssignableFrom((Class<?>) rawType)) {
-				assert ((ParameterizedType) objectType).getActualTypeArguments().length == 1;
-				assert ((ParameterizedType) objectType).getActualTypeArguments()[0] instanceof Class;
-				Class<Object> elementType = (Class<Object>) ((ParameterizedType) objectType).getActualTypeArguments()[0];
-				return ((ModelObjectRegistry<? super Object>) Objects.requireNonNull(DefaultInstantiator.getNextService().find(registryTypeOf(elementType)))).register(identifier, elementType).asProvider();
-			} else if (ModelObject.class.isAssignableFrom((Class<?>) rawType)) {
-				assert ((ParameterizedType) objectType).getActualTypeArguments().length == 1;
-				assert ((ParameterizedType) objectType).getActualTypeArguments()[0] instanceof Class;
-				Class<Object> elementType = (Class<Object>) ((ParameterizedType) objectType).getActualTypeArguments()[0];
-				return ((ModelObjectRegistry<? super Object>) Objects.requireNonNull(DefaultInstantiator.getNextService().find(registryTypeOf(elementType)))).register(identifier, elementType);
+			if (BinaryView.class.isAssignableFrom((Class<?>) rawType)) {
+				return ((Factory<?>) DefaultInstantiator.getNextService().find(new TypeToken<Factory<BinaryView<Binary>>>() {}.getType())).create();
+			} else if (TaskView.class.isAssignableFrom((Class<?>) rawType)) {
+				Class<? extends Task> elementType = (Class<? extends Task>) ((ParameterizedType) objectType).getActualTypeArguments()[0];
+				return ((TaskViewFactory) DefaultInstantiator.getNextService().find(TaskViewFactory.class)).create(elementType);
+			} else if (VariantView.class.isAssignableFrom((Class<?>) rawType)) {
+				Class<? extends Variant> elementType = (Class<? extends Variant>) ((ParameterizedType) objectType).getActualTypeArguments()[0];
+				return ((VariantViewFactory) DefaultInstantiator.getNextService().find(VariantViewFactory.class)).create(elementType);
 			} else {
+				Factory<?> factory = (Factory<?>) DefaultInstantiator.getNextService().find(factoryOf(TypeToken.of(objectType)));
+				if (factory != null) {
+					return factory.create();
+				}
 				throw new UnsupportedOperationException(rawType + " -- " + objectType.getTypeName());
 			}
-		} else {
-			assert objectType instanceof Class;
-			Class<Object> elementType = (Class<Object>) objectType;
-			final ModelObjectRegistry<? super Object> registry = (ModelObjectRegistry<? super Object>) DefaultInstantiator.getNextService().find(registryTypeOf(elementType));
-			if (registry != null) {
-				return registry.register(identifier, elementType).get();
-			} else {
-				return ModelMixInSupport.newInstance(identifier, () -> ((Instantiator) DefaultInstantiator.getNextService().find(Instantiator.class)).newInstance(elementType));
-			}
 		}
-	}
-
-	// TODO: Should get it from ServiceLookup
-	private static ModelObjectIdentifier nextIdentifier() {
-		ModelObjectIdentifier result = ModelMixInSupport.nextIdentifier();
-		if (result == null) {
-			result = ModelElementSupport.nextIdentifier();
-		}
-		return Objects.requireNonNull(result);
+		throw new UnsupportedOperationException(objectType.getTypeName());
 	}
 
 	private static String propertyNameOf(MethodMetadata method) {
 		return StringUtils.uncapitalize(method.getName().substring("get".length()));
 	}
 
-	private static <T> Type registryTypeOf(Class<T> type) {
-		return new TypeToken<ModelObjectRegistry<? super T>>() {}.where(new TypeParameter<T>() {}, type).getType();
+	private static <T> Type factoryOf(TypeToken<T> type) {
+		return new TypeToken<Factory<T>>() {}.where(new TypeParameter<T>() {}, type).getType();
 	}
 }
