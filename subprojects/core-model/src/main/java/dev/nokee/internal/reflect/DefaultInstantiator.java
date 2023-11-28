@@ -62,6 +62,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static dev.nokee.internal.reflect.SignatureUtils.getConstructorSignature;
+import static dev.nokee.internal.reflect.SignatureUtils.getterSignature;
+
 public final class DefaultInstantiator implements Instantiator, DecoratorHandlers {
 	private final ObjectFactory objects;
 	private final MutableModelDecorator decorator = new MutableModelDecorator();
@@ -143,7 +146,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 
 		void applyTo(ClassWriter cw) {
 			String methodDescriptor = "()" + Type.getDescriptor(returnType.getRawType());
-			MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, methodName, methodDescriptor, null, null);
+			MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, methodName, methodDescriptor, getterSignature(returnType.getType()), null);
 
 			mv.visitCode();
 
@@ -390,7 +393,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 
 	private static void generateConstructor(ClassWriter cw, String classNameInternal, String superClassNameInternal, Constructor<?> constructor, Collection<GeneratedMethod> methods) {
 		String constructorDescriptor = Type.getConstructorDescriptor(constructor);
-		MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", constructorDescriptor, null, null);
+		MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", constructorDescriptor, getConstructorSignature(constructor), null);
 
 		if (constructor.isAnnotationPresent(Inject.class)) {
 			AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Inject.class), true);
