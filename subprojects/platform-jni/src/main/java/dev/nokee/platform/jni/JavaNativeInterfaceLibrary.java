@@ -32,8 +32,7 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  *
  * @since 0.1
  */
-@SuppressWarnings("deprecation")
-public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Component
+public interface JavaNativeInterfaceLibrary extends Component
 	, DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponent<JniLibrary>
 	, SourceAwareComponent<JavaNativeInterfaceLibrarySources>
