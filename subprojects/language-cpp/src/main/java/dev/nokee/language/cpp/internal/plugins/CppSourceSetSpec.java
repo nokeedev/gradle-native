@@ -17,24 +17,17 @@ package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
-import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
-import dev.nokee.language.nativebase.internal.DefaultNativeSourceSetComponentDependencies;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import org.gradle.api.tasks.TaskProvider;
 
 public /*final*/ abstract class CppSourceSetSpec extends BaseNativeSourceSetSpec implements CppSourceSet
-	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
 {
 	@NestedObject
 	public abstract TaskProvider<CppCompileTask> getCompileTask();
-
-	@NestedObject
-	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
 
 	@NestedObject
 	public abstract ResolvableDependencyBucketSpec getHeaderSearchPaths();

@@ -15,12 +15,9 @@
  */
 package dev.nokee.language.swift;
 
-import dev.nokee.language.base.HasCompileTask;
-import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.nativebase.NativeSourceSet;
 import dev.nokee.language.swift.tasks.SwiftCompile;
-import dev.nokee.platform.base.DependencyAwareComponent;
 import org.gradle.api.tasks.TaskProvider;
 
 /**
@@ -29,11 +26,7 @@ import org.gradle.api.tasks.TaskProvider;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface SwiftSourceSet extends LanguageSourceSet
-	, HasSource
-	, HasCompileTask
-	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
-{
+public interface SwiftSourceSet extends NativeSourceSet {
 	@Override
 	TaskProvider<? extends SwiftCompile> getCompileTask();
 }

@@ -16,17 +16,19 @@
 
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.HasCompileTask;
-import dev.nokee.language.base.HasSource;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.nativebase.NativeSourceSet;
+import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import org.gradle.api.tasks.Nested;
-import org.gradle.api.tasks.TaskProvider;
 
-public abstract class BaseNativeSourceSetSpec extends ModelElementSupport implements LanguageSourceSet, HasSource, HasCompileTask {
+public abstract class BaseNativeSourceSetSpec extends ModelElementSupport implements NativeSourceSet
+	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
+{
 	@Nested
 	public abstract TaskDependencyProperty getBuildDependencies();
 
-	public abstract TaskProvider<? extends SourceCompile> getCompileTask();
+	@NestedObject
+	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
 }

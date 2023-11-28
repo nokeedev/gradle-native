@@ -15,13 +15,10 @@
  */
 package dev.nokee.language.cpp;
 
-import dev.nokee.language.base.HasCompileTask;
-import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
-import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.language.nativebase.NativeSourceSet;
 import org.gradle.api.tasks.TaskProvider;
 
 /**
@@ -30,12 +27,7 @@ import org.gradle.api.tasks.TaskProvider;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface CppSourceSet extends LanguageSourceSet
-	, HasSource
-	, HasHeaders
-	, HasCompileTask
-	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
-{
+public interface CppSourceSet extends NativeSourceSet, HasHeaders {
 	@Override
 	TaskProvider<? extends CppCompile> getCompileTask();
 }

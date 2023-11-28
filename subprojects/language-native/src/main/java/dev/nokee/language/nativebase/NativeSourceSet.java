@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.c;
 
+package dev.nokee.language.nativebase;
+
+import dev.nokee.language.base.HasCompileTask;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.c.tasks.CCompile;
-import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.language.nativebase.NativeSourceSet;
+import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.platform.base.DependencyAwareComponent;
 import org.gradle.api.tasks.TaskProvider;
 
-/**
- * A set of C source files.
- *
- * @see LanguageSourceSet
- * @since 0.5
- */
-public interface CSourceSet extends NativeSourceSet, HasHeaders {
+public interface NativeSourceSet extends LanguageSourceSet
+	, HasSource
+	, HasCompileTask
+	, DependencyAwareComponent<NativeSourceSetComponentDependencies>
+{
 	@Override
-	TaskProvider<? extends CCompile> getCompileTask();
+	TaskProvider<? extends SourceCompile> getCompileTask();
 }
