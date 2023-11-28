@@ -45,43 +45,34 @@ public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies ext
 	}
 
 	@NestedObject("native")
-	public DefaultNativeComponentDependencies getNative() {
-		return mixedIn("native");
-	}
+	public abstract DefaultNativeComponentDependencies getNative();
 
 	@NestedObject("jvm")
-	public DefaultJvmComponentDependencies getJvm() {
-		return mixedIn("jvm");
-	}
-
-	@Override
-	public DeclarableDependencyBucketSpec getApi() {
-		return (DeclarableDependencyBucketSpec) getExtensions().getByName("api");
-	}
+	public abstract DefaultJvmComponentDependencies getJvm();
 
 	@Override
 	public DeclarableDependencyBucketSpec getJvmImplementation() {
-		return getExtensions().getByType(DefaultJvmComponentDependencies.class).getImplementation();
+		return getJvm().getImplementation();
 	}
 
 	@Override
 	public DeclarableDependencyBucketSpec getJvmRuntimeOnly() {
-		return getExtensions().getByType(DefaultJvmComponentDependencies.class).getRuntimeOnly();
+		return getJvm().getRuntimeOnly();
 	}
 
 	@Override
 	public DeclarableDependencyBucketSpec getNativeImplementation() {
-		return getExtensions().getByType(DefaultNativeComponentDependencies.class).getImplementation();
+		return getNative().getImplementation();
 	}
 
 	@Override
 	public DeclarableDependencyBucketSpec getNativeLinkOnly() {
-		return getExtensions().getByType(DefaultNativeComponentDependencies.class).getLinkOnly();
+		return getNative().getLinkOnly();
 	}
 
 	@Override
 	public DeclarableDependencyBucketSpec getNativeRuntimeOnly() {
-		return getExtensions().getByType(DefaultNativeComponentDependencies.class).getRuntimeOnly();
+		return getNative().getRuntimeOnly();
 	}
 
 	public ConsumableDependencyBucketSpec getApiElements() {

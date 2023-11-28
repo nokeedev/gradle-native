@@ -16,7 +16,6 @@
 
 package dev.nokee.platform.base.internal.mixins;
 
-import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.HasRuntimeOnlyDependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
@@ -28,12 +27,10 @@ import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 
-public interface RuntimeOnlyDependencyBucketMixIn extends ModelMixIn, HasRuntimeOnlyDependencyBucket {
+public interface RuntimeOnlyDependencyBucketMixIn extends HasRuntimeOnlyDependencyBucket {
 	@Override
 	@NestedObject
-	default DeclarableDependencyBucketSpec getRuntimeOnly() {
-		return mixedIn("runtimeOnly");
-	}
+	DeclarableDependencyBucketSpec getRuntimeOnly();
 
 	default void runtimeOnly(Dependency dependency) {
 		getRuntimeOnly().addDependency(dependency);

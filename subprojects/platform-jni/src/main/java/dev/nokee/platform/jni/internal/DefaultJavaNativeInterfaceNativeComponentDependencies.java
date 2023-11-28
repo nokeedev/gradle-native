@@ -29,9 +29,7 @@ public abstract class DefaultJavaNativeInterfaceNativeComponentDependencies exte
 	, ExtensionAware
 {
 	@NestedObject("native")
-	public DefaultNativeComponentDependencies getNative() {
-		return mixedIn("native");
-	}
+	public abstract DefaultNativeComponentDependencies getNative();
 
 	@Override
 	public DeclarableDependencyBucketSpec getNativeImplementation() {

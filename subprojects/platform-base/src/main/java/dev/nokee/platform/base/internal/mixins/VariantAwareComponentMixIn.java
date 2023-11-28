@@ -48,9 +48,7 @@ public interface VariantAwareComponentMixIn<T extends Variant> extends VariantAw
 
 	@Override
 	@NestedObject
-	default DefaultVariantDimensions getDimensions() {
-		return (DefaultVariantDimensions) getExtensions().getByName("dimensions");
-	}
+	DefaultVariantDimensions getDimensions();
 
 	@Override
 	default Provider<Set<BuildVariant>> getBuildVariants() {

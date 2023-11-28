@@ -16,7 +16,6 @@
 
 package dev.nokee.platform.base.internal.mixins;
 
-import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.HasImplementationDependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
@@ -28,12 +27,10 @@ import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
 
-public interface ImplementationDependencyBucketMixIn extends ModelMixIn, HasImplementationDependencyBucket {
+public interface ImplementationDependencyBucketMixIn extends HasImplementationDependencyBucket {
 	@Override
 	@NestedObject
-	default DeclarableDependencyBucketSpec getImplementation() {
-		return mixedIn("implementation");
-	}
+	DeclarableDependencyBucketSpec getImplementation();
 
 	default void implementation(Dependency dependency) {
 		getImplementation().addDependency(dependency);
