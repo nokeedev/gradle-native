@@ -22,7 +22,7 @@ import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.type.ModelTypeUtils;
-import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.model.internal.names.TaskName;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;

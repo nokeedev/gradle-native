@@ -17,7 +17,7 @@ package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
-import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.utils.DeferUtils;
 import lombok.val;
 import org.gradle.api.Action;

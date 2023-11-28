@@ -19,7 +19,7 @@ import dev.nokee.language.base.HasSource;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;

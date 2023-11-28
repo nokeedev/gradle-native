@@ -17,7 +17,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Task;

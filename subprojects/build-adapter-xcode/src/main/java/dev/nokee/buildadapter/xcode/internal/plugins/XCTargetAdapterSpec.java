@@ -26,7 +26,7 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.xcode.XCTargetReference;
 import org.gradle.api.NamedDomainObjectProvider;

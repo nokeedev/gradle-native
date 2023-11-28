@@ -30,7 +30,7 @@ import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.XCDependenciesLoader;
 import dev.nokee.xcode.XCLoaders;
