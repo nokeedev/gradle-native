@@ -22,7 +22,6 @@ import dev.nokee.model.internal.decorators.ClassGenerationVisitor;
 import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.Decorator;
 import dev.nokee.model.internal.decorators.InjectService;
-import dev.nokee.model.internal.decorators.InjectServiceDecorator;
 import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.decorators.NestedObject;
@@ -167,51 +166,17 @@ public final class DefaultInstantiator implements Instantiator {
 		public ClassInspection inspectType(Class<?> type) {
 			Set<GeneratedMethod> result = new LinkedHashSet<>();
 
-			List<Constructor<?>> injectedConstructor = new ArrayList<>();
-
 			new SuperClassFirstClassVisitor(new MethodFieldVisitor(new NotPrivateOrStaticMethodsVisitor(new OnlyNestedOrInjectGetterMethod(new NestedOrInjectVisitor() {
-				Class<?> current;
-
 				@Override
-				public void visitClass(Class<?> type) {
-					current = type;
-				}
+				public void visitClass(Class<?> type) {}
 
 				@Override
 				public void visitInjectedConstructor(Constructor<?> constructor) {
-					if (constructor.getDeclaringClass().equals(type)) {
-						injectedConstructor.add(constructor);
-					}
+					// for now, do nothing
 				}
 
 				@Override
-				public void visitDecoratedProperty(Method method) {
-					assert current != null;
-					Class<? extends Decorator> decoratorType = method.getAnnotation(Decorate.class).value();
-					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), method.getAnnotations(), new BiConsumer<GeneratedMethod, MixIn>() {
-						@Override
-						public void accept(GeneratedMethod data, MixIn mixIn) {
-							// do nothing
-						}
-					}));
-				}
-
-				@Override
-				public void visitInjectedProperty(Method method) {
-					assert current != null;
-					Class<? extends Decorator> decoratorType = method.getAnnotation(InjectService.class).annotationType().getAnnotation(Decorate.class).value();
-					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), method.getAnnotations(), new BiConsumer<GeneratedMethod, MixIn>() {
-						@Override
-						public void accept(GeneratedMethod data, MixIn mixIn) {
-							mixIn.mixIn(InjectServiceDecorator.getService(data.returnType.getType()));
-						}
-					}));
-				}
-
-				@Override
-				public void visitNestedProperty(Method method) {
-					assert current != null;
-					Class<? extends Decorator> decoratorType = method.getAnnotation(NestedObject.class).annotationType().getAnnotation(Decorate.class).value();
+				public void visitDecoratedProperty(Class<? extends Decorator> decoratorType, Method method) {
 					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), method.getAnnotations(), new BiConsumer<GeneratedMethod, MixIn>() {
 						@Override
 						public void accept(GeneratedMethod data, MixIn mixIn) {
@@ -236,9 +201,7 @@ public final class DefaultInstantiator implements Instantiator {
 				}
 
 				@Override
-				public void visitEnd() {
-					current = null;
-				}
+				public void visitEnd() {}
 			})))).visitClass(type);
 
 			return new ClassInspection() {
@@ -526,11 +489,11 @@ public final class DefaultInstantiator implements Instantiator {
 		public void visitMethod(Method method) {
 			if (method.getName().startsWith("get") && method.getParameterCount() == 0) {
 				if (method.isAnnotationPresent(NestedObject.class)) {
-					visitor.visitNestedProperty(method);
+					visitor.visitDecoratedProperty(method.getAnnotation(NestedObject.class).annotationType().getAnnotation(Decorate.class).value(), method);
 				} else if (method.isAnnotationPresent(InjectService.class)) {
-					visitor.visitInjectedProperty(method);
+					visitor.visitDecoratedProperty(method.getAnnotation(InjectService.class).annotationType().getAnnotation(Decorate.class).value(), method);
 				} else if (method.isAnnotationPresent(Decorate.class)) {
-					visitor.visitDecoratedProperty(method);
+					visitor.visitDecoratedProperty(method.getAnnotation(Decorate.class).value(), method);
 				}
 			}
 		}
@@ -544,9 +507,7 @@ public final class DefaultInstantiator implements Instantiator {
 	private interface NestedOrInjectVisitor {
 		void visitClass(Class<?> type);
 		void visitInjectedConstructor(Constructor<?> constructor);
-		void visitDecoratedProperty(Method method);
-		void visitInjectedProperty(Method method);
-		void visitNestedProperty(Method method);
+		void visitDecoratedProperty(Class<? extends Decorator> decoratorType, Method method);
 		void visitEnd();
 	}
 
