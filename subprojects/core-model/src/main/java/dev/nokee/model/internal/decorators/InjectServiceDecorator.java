@@ -132,6 +132,11 @@ public /*final*/ class InjectServiceDecorator implements Decorator {
 			public Type getOwnerType() {
 				return null;
 			}
+
+			@Override
+			public String toString() {
+				return rawType.getCanonicalName() + "<" + firstTypeArgument + ">";
+			}
 		};
 	}
 }
