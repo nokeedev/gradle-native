@@ -56,6 +56,9 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 	}
 
 	@Override
+	public abstract DefaultNativeComponentDependencies getDependencies();
+
+	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
 	}

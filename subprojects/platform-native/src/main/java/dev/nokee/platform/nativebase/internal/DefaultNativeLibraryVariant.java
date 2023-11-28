@@ -77,6 +77,9 @@ public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant 
 	}
 
 	@Override
+	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
+
+	@Override
 	public DeclarableDependencyBucketSpec getApi() {
 		return (DeclarableDependencyBucketSpec) getExtensions().getByName("api");
 	}

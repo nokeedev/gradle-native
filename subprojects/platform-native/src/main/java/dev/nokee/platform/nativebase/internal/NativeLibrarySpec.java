@@ -54,6 +54,9 @@ public  /*final*/ abstract class NativeLibrarySpec extends ModelElementSupport i
 	}
 
 	@Override
+	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "native library";
 	}

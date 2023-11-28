@@ -61,6 +61,9 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	}
 
 	@Override
+	public abstract DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies();
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public Property<String> getBaseName() {
 		return (Property<String>) getExtensions().getByName("baseName");

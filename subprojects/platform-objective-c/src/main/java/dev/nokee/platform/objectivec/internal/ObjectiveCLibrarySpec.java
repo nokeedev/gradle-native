@@ -63,6 +63,9 @@ public  /*final*/ abstract class ObjectiveCLibrarySpec extends ModelElementSuppo
 	}
 
 	@Override
+	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "Objective-C library";
 	}

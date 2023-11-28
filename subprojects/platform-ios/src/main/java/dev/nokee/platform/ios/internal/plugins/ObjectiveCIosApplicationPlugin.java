@@ -128,6 +128,9 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		}
 
 		@Override
+		public abstract DefaultNativeComponentDependencies getDependencies();
+
+		@Override
 		protected String getTypeName() {
 			return "Objective-C iOS application";
 		}

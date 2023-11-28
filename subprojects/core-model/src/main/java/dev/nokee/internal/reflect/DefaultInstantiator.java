@@ -22,10 +22,7 @@ import dev.nokee.model.internal.decorators.ClassGenerationVisitor;
 import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.Decorator;
 import dev.nokee.model.internal.decorators.InjectService;
-import dev.nokee.model.internal.decorators.ModelDecorator;
-import dev.nokee.model.internal.decorators.MutableModelDecorator;
 import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.model.internal.decorators.NestedObjectDecorator;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeUtils;
 import lombok.EqualsAndHashCode;
@@ -51,15 +48,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,7 +62,6 @@ public final class DefaultInstantiator implements Instantiator {
 	private static final ThreadLocal<ServiceLookup> nextService = new ThreadLocal<>();
 	private final ObjectFactory objects;
 	private final ServiceLookup serviceLookup;
-	private final MutableModelDecorator decorator = new MutableModelDecorator();
 
 	// TODO: We should keep the decorated class globally across all projects, maybe use a BuildService
 	private final InjectorClassLoader classLoader = new InjectorClassLoader(DefaultInstantiator.class.getClassLoader());
@@ -87,13 +79,11 @@ public final class DefaultInstantiator implements Instantiator {
 	@SuppressWarnings("unchecked")
 	public <T> T newInstance(Class<? extends T> type, Object... parameters) throws ObjectInstantiationException {
 		// TODO: Inspect @Inject constructor and pass along Nokee build service
-		return (T) ModelDecorator.decorateUsing(decorator, () -> {
-			try {
-				return generateSubType(type).newInstance(serviceLookup, objects, parameters);
-			} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
-				throw new ObjectInstantiationException(type, e);
-			}
-		});
+		try {
+			return (T) generateSubType(type).newInstance(serviceLookup, objects, parameters);
+		} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+			throw new ObjectInstantiationException(type, e);
+		}
 	}
 
 	private <T> InstantiationStrategy generateSubType(Class<? extends T> type) {
@@ -103,29 +93,14 @@ public final class DefaultInstantiator implements Instantiator {
 		return new ClassInspector().inspectType(type).generateClass(classLoader);
 	}
 
-	public interface PropertyInit {
-		Object init(String propertyName);
-	}
-
-	private static final ThreadLocal<PropertyInit> nextPropInit = new ThreadLocal<>();
-
-	public static PropertyInit getNext() {
-		return Objects.requireNonNull(nextPropInit.get());
-	}
-
-	interface MixIn {
-		void mixIn(Object value);
-	}
-
 	@EqualsAndHashCode
 	static class GeneratedMethod {
 		private final ModelType<?> returnType;
 		private final String methodName;
 		private final String propertyName;
 		@EqualsAndHashCode.Exclude private final ClassGenerationVisitor visitor;
-		@EqualsAndHashCode.Exclude private final BiConsumer<? super GeneratedMethod, ? super MixIn> action;
 
-		GeneratedMethod(ModelType<?> returnType, String methodName, String propertyName, Decorator decorator, Annotation[] annotations, BiConsumer<? super GeneratedMethod, ? super MixIn> action) {
+		GeneratedMethod(ModelType<?> returnType, String methodName, String propertyName, Decorator decorator, Annotation[] annotations) {
 			this.returnType = returnType;
 			this.methodName = methodName;
 			this.propertyName = propertyName;
@@ -150,15 +125,6 @@ public final class DefaultInstantiator implements Instantiator {
 					return Arrays.stream(annotations);
 				}
 			});
-			this.action = action;
-		}
-
-		interface MixInProperty {
-			void mixIn(String propertyName, Object value);
-		}
-
-		void mixIn(MixInProperty mixIn) {
-			action.accept(this, (MixIn) value -> mixIn.mixIn(propertyName, value));
 		}
 	}
 
@@ -177,14 +143,7 @@ public final class DefaultInstantiator implements Instantiator {
 
 				@Override
 				public void visitDecoratedProperty(Class<? extends Decorator> decoratorType, Method method) {
-					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), method.getAnnotations(), new BiConsumer<GeneratedMethod, MixIn>() {
-						@Override
-						public void accept(GeneratedMethod data, MixIn mixIn) {
-							if (data.methodName.equals("getDependencies")) {
-								mixIn.mixIn(NestedObjectDecorator.create(null, data.returnType.getType()));
-							}
-						}
-					}));
+					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), method.getAnnotations()));
 				}
 
 				private ModelType<?> returnTypeOf(Method method) {
@@ -217,22 +176,7 @@ public final class DefaultInstantiator implements Instantiator {
 							try {
 								nextService.set(serviceLookup);
 
-								Map<String, Object> values = new LinkedHashMap<>();
-								for (GeneratedMethod generatedMethod : result) {
-									generatedMethod.mixIn(values::put);
-								}
-								PropertyInit previous = nextPropInit.get();
-								try {
-									nextPropInit.set(new PropertyInit() {
-										@Override
-										public Object init(String propertyName) {
-											return Objects.requireNonNull(values.get(propertyName), propertyName);
-										}
-									});
-									return objects.newInstance(typeToInstantiate, paramsOf(serviceLookup, typeToInstantiate, params));
-								} finally {
-									nextPropInit.set(previous);
-								}
+								return objects.newInstance(typeToInstantiate, paramsOf(serviceLookup, typeToInstantiate, params));
 							} finally {
 								nextService.set(previousService);
 							}

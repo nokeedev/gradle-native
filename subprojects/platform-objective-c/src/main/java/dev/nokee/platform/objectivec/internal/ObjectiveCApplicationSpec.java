@@ -63,6 +63,9 @@ public  /*final*/ abstract class ObjectiveCApplicationSpec extends ModelElementS
 	}
 
 	@Override
+	public abstract DefaultNativeApplicationComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "Objective-C application";
 	}

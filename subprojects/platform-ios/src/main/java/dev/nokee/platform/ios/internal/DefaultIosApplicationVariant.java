@@ -19,6 +19,7 @@ import dev.nokee.internal.Factory;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
@@ -28,7 +29,6 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketS
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariant;
@@ -59,6 +59,9 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		this.productBundleIdentifier = objects.property(String.class);
 	}
+
+	@Override
+	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {

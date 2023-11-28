@@ -59,6 +59,9 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	}
 
 	@Override
+	public abstract DefaultNativeComponentDependencies getDependencies();
+
+	@Override
 	public ConsumableDependencyBucketSpec getRuntimeElements() {
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
 	}

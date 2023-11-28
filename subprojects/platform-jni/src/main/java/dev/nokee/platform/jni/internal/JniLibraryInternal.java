@@ -76,6 +76,9 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	}
 
 	@Override
+	public abstract DefaultJavaNativeInterfaceNativeComponentDependencies getDependencies();
+
+	@Override
 	public abstract Property<String> getResourcePath();
 
 	public abstract ConfigurableFileCollection getNativeRuntimeFiles();

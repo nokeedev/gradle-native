@@ -63,6 +63,9 @@ public  /*final*/ abstract class CppLibrarySpec extends ModelElementSupport impl
 	}
 
 	@Override
+	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "C++ library";
 	}

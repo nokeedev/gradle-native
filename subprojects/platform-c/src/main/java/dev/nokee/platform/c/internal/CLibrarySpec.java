@@ -63,6 +63,9 @@ public  /*final*/ abstract class CLibrarySpec extends ModelElementSupport implem
 	}
 
 	@Override
+	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "C library";
 	}

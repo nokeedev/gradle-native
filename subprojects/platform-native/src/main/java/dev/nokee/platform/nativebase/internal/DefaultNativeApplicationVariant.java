@@ -59,6 +59,9 @@ public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVari
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 	}
 
+	@Override
+	public abstract DefaultNativeApplicationComponentDependencies getDependencies();
+
 	@SuppressWarnings("unchecked")
 	public NamedDomainObjectProvider<NativeExecutableBinarySpec> getExecutable() {
 		return (NamedDomainObjectProvider<NativeExecutableBinarySpec>) getExtensions().getByName("executable");

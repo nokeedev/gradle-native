@@ -63,6 +63,9 @@ public  /*final*/ abstract class ObjectiveCppApplicationSpec extends ModelElemen
 	}
 
 	@Override
+	public abstract DefaultNativeApplicationComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "Objective-C++ application";
 	}

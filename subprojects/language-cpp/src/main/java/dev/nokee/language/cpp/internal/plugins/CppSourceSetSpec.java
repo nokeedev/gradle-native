@@ -35,6 +35,9 @@ public /*final*/ abstract class CppSourceSetSpec extends ModelElementSupport imp
 	, HasHeaderSearchPaths
 {
 	@Override
+	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
+
+	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), getHeaders().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
 	}

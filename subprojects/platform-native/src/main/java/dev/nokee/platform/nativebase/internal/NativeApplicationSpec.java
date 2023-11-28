@@ -54,6 +54,9 @@ public abstract class NativeApplicationSpec extends ModelElementSupport implemen
 	}
 
 	@Override
+	public abstract DefaultNativeApplicationComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "native application";
 	}

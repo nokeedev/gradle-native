@@ -109,6 +109,9 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	}
 
 	@Override
+	public abstract DefaultNativeComponentDependencies getDependencies();
+
+	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return VariantAwareComponentMixIn.super.getBuildVariants();
 	}

@@ -107,6 +107,9 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		}
 
 		@Override
+		public abstract DefaultNativeComponentDependencies getDependencies();
+
+		@Override
 		protected String getTypeName() {
 			return "Swift iOS application";
 		}

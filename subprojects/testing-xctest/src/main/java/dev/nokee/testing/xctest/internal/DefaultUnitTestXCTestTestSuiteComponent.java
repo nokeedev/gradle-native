@@ -95,6 +95,9 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 	}
 
 	@Override
+	public abstract DefaultNativeComponentDependencies getDependencies();
+
+	@Override
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		super.onEachVariant(variant);
 		val variantIdentifier = (VariantIdentifier) variant.getIdentifier();

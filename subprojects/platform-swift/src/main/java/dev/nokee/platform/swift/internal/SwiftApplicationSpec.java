@@ -59,6 +59,9 @@ public  /*final*/ abstract class SwiftApplicationSpec extends ModelElementSuppor
 	}
 
 	@Override
+	public abstract DefaultNativeApplicationComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "Swift application";
 	}

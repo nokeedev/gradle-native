@@ -108,9 +108,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	}
 
 	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
-		return DependencyAwareComponentMixIn.super.getDependencies();
-	}
+	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {

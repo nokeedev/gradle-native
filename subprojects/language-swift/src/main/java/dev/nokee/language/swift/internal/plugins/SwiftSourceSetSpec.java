@@ -34,6 +34,9 @@ public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport i
 	, HasImportModules
 {
 	@Override
+	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
+
+	@Override
 	@NestedObject
 	public abstract ResolvableDependencyBucketSpec getImportModules();
 

@@ -59,6 +59,9 @@ public  /*final*/ abstract class SwiftLibrarySpec extends ModelElementSupport im
 	}
 
 	@Override
+	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "Swift library";
 	}

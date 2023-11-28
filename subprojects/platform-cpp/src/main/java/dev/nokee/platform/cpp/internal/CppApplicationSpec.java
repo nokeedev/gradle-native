@@ -61,6 +61,9 @@ public  /*final*/ abstract class CppApplicationSpec extends ModelElementSupport 
 	}
 
 	@Override
+	public abstract DefaultNativeApplicationComponentDependencies getDependencies();
+
+	@Override
 	protected String getTypeName() {
 		return "C++ application";
 	}
