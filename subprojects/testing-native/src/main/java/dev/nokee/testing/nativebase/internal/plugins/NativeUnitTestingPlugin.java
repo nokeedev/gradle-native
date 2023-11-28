@@ -15,9 +15,6 @@
  */
 package dev.nokee.testing.nativebase.internal.plugins;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
@@ -52,7 +49,6 @@ import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentSpec;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.reflect.TypeOf;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -92,7 +88,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeTestSuiteVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultNativeTestSuiteVariant.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultNativeTestSuiteVariant.class);
 		});
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
@@ -110,7 +106,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class, name -> {
-			return instantiator(project).newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultNativeTestSuiteComponent.class);
 		});
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {

@@ -25,7 +25,6 @@ import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
@@ -48,8 +47,6 @@ import dev.nokee.utils.TextCaseUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.toolchain.Clang;
@@ -83,7 +80,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCIosApplication.class, name -> {
-			return instantiator(project).newInstance(DefaultObjectiveCIosApplication.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultObjectiveCIosApplication.class);
 		});
 
 		final NamedDomainObjectProvider<DefaultObjectiveCIosApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultObjectiveCIosApplication.class).asProvider();
@@ -125,7 +122,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ObjectiveCSourcesMixIn
 		, PrivateHeadersMixIn
 	{
-		public DefaultObjectiveCIosApplication(ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
+		public DefaultObjectiveCIosApplication(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 			getExtensions().add("sources", sourcesFactory.create());
 			getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		}

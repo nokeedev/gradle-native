@@ -16,9 +16,6 @@
 package dev.nokee.testing.xctest.internal.plugins;
 
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -45,7 +42,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -73,7 +69,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultXCTestTestSuiteVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultXCTestTestSuiteVariant.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultXCTestTestSuiteVariant.class);
 		});
 
 		variants(project).withType(DefaultXCTestTestSuiteVariant.class).configureEach(variant -> {
@@ -121,10 +117,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultUnitTestXCTestTestSuiteComponent.class, name -> {
-				return instantiator(project).newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+				return instantiator(project).newInstance(DefaultUnitTestXCTestTestSuiteComponent.class);
 			});
 			model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultUiTestXCTestTestSuiteComponent.class, name -> {
-				return instantiator(project).newInstance(DefaultUiTestXCTestTestSuiteComponent.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+				return instantiator(project).newInstance(DefaultUiTestXCTestTestSuiteComponent.class);
 			});
 
 			BaseNativeComponent<?> application = (BaseNativeComponent<?>) project.getExtensions().getByType(ObjectiveCIosApplication.class);

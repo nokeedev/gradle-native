@@ -15,9 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -31,7 +28,6 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
 
@@ -61,7 +57,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(NativeApplicationSpec.class, name -> {
-			return instantiator(project).newInstance(NativeApplicationSpec.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(NativeApplicationSpec.class);
 		});
 
 		final NamedDomainObjectProvider<NativeApplicationSpec> componentProvider = model(project, registryOf(NativeApplicationSpec.class)).register(ProjectIdentifier.of(project).child(ofMain()), NativeApplicationSpec.class).asProvider();

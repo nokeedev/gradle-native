@@ -15,9 +15,6 @@
  */
 package dev.nokee.platform.swift.internal.plugins;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
@@ -32,7 +29,6 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 import javax.inject.Inject;
@@ -63,7 +59,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(SwiftLibrarySpec.class, name -> {
-			return instantiator(project).newInstance(SwiftLibrarySpec.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(SwiftLibrarySpec.class);
 		});
 
 		final NamedDomainObjectProvider<SwiftLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), SwiftLibrarySpec.class).asProvider();

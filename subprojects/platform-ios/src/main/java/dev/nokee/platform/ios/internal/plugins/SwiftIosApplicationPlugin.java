@@ -44,7 +44,6 @@ import dev.nokee.utils.TextCaseUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 import javax.inject.Inject;
@@ -71,7 +70,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultSwiftIosApplication.class, name -> {
-			return instantiator(project).newInstance(DefaultSwiftIosApplication.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultSwiftIosApplication.class);
 		});
 
 		final NamedDomainObjectProvider<DefaultSwiftIosApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultSwiftIosApplication.class).asProvider();
