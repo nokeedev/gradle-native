@@ -17,10 +17,9 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
-import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 
-public /*final*/ abstract class DefaultNativeSourceSetComponentDependencies extends ModelMixInSupport implements NativeSourceSetComponentDependencies
+public /*final*/ abstract class DefaultNativeSourceSetComponentDependencies implements NativeSourceSetComponentDependencies
 	, CompileOnlyDependencyBucketMixIn
 {
 }

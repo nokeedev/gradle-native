@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
-import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
@@ -23,7 +22,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.mixins.LinkOnlyDependencyBucketMixIn;
 import org.gradle.api.plugins.ExtensionAware;
 
-public /*final*/ abstract class DefaultNativeComponentDependencies extends ModelMixInSupport implements NativeComponentDependencies
+public /*final*/ abstract class DefaultNativeComponentDependencies implements NativeComponentDependencies
 	, CompileOnlyDependencyBucketMixIn
 	, ImplementationDependencyBucketMixIn
 	, RuntimeOnlyDependencyBucketMixIn

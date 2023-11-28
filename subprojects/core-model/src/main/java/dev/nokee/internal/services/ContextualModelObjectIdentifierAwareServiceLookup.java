@@ -18,7 +18,7 @@ package dev.nokee.internal.services;
 
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.decorators.ModelMixInSupport;
+import dev.nokee.model.internal.decorators.ModelObjectIdentifierSupport;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
@@ -42,7 +42,7 @@ public final class ContextualModelObjectIdentifierAwareServiceLookup implements 
 	}
 
 	private static ModelObjectIdentifier nextIdentifier() {
-		ModelObjectIdentifier result = ModelMixInSupport.nextIdentifier();
+		ModelObjectIdentifier result = ModelObjectIdentifierSupport.nextIdentifier();
 		if (result == null) {
 			result = ModelElementSupport.nextIdentifier();
 		}

@@ -193,14 +193,14 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 			if (registry != null) {
 				return registry.register(identifier, elementType).get();
 			} else {
-				return ModelMixInSupport.newInstance(identifier, () -> ((Instantiator) DefaultInstantiator.getNextService().find(Instantiator.class)).newInstance(elementType));
+				return ModelObjectIdentifierSupport.newInstance(identifier, () -> ((Instantiator) DefaultInstantiator.getNextService().find(Instantiator.class)).newInstance(elementType));
 			}
 		}
 	}
 
 	// TODO: Should get it from ServiceLookup
 	private static ModelObjectIdentifier nextIdentifier() {
-		ModelObjectIdentifier result = ModelMixInSupport.nextIdentifier();
+		ModelObjectIdentifier result = ModelObjectIdentifierSupport.nextIdentifier();
 		if (result == null) {
 			result = ModelElementSupport.nextIdentifier();
 		}

@@ -17,21 +17,10 @@
 package dev.nokee.model.internal.decorators;
 
 import dev.nokee.internal.Factory;
-import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 
-public abstract class ModelMixInSupport implements ModelMixIn {
+public final class ModelObjectIdentifierSupport {
 	private static final ThreadLocal<ModelObjectIdentifier> nextIdentifier = new ThreadLocal<>();
-	private final ModelObjectIdentifier identifier;
-
-	protected ModelMixInSupport() {
-		this.identifier = nextIdentifier.get();
-	}
-
-	@Override
-	public ModelObjectIdentifier getIdentifier() {
-		return identifier;
-	}
 
 	public static <T> T newInstance(ModelObjectIdentifier identifier, Factory<T> factory) {
 		final ModelObjectIdentifier previousIdentifier = nextIdentifier.get();

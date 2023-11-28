@@ -17,14 +17,14 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.internal.Factory;
-import dev.nokee.model.internal.decorators.ModelMixInSupport;
+import dev.nokee.model.internal.decorators.ModelObjectIdentifierSupport;
 import dev.nokee.model.internal.type.ModelTypeUtils;
 import org.gradle.api.plugins.ExtensionAware;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public abstract class ModelElementSupport extends ModelMixInSupport implements ModelElement, ExtensionAware {
+public abstract class ModelElementSupport implements ModelElement, ExtensionAware {
 	private static final ThreadLocal<ModelElement> nextIdentity = new ThreadLocal<>();
 	private final ModelElement delegate;
 
@@ -40,12 +40,7 @@ public abstract class ModelElementSupport extends ModelMixInSupport implements M
 
 	@Override
 	public ModelObjectIdentifier getIdentifier() {
-		// only while construction
-		if (delegate == null) {
-			return nextIdentity.get().getIdentifier();
-		} else {
-			return delegate.getIdentifier();
-		}
+		return delegate.getIdentifier();
 	}
 
 	// TODO: Get identifier should mark the element as single identifier else there is no way of knowing which overlapping you want
@@ -55,7 +50,7 @@ public abstract class ModelElementSupport extends ModelMixInSupport implements M
 		@Nullable final ModelElement currentIdentity = nextIdentity.get();
 		try {
 			nextIdentity.set(identifier);
-			return ModelMixInSupport.newInstance(identifier.getIdentifier(), factory);
+			return ModelObjectIdentifierSupport.newInstance(identifier.getIdentifier(), factory);
 		} finally {
 			nextIdentity.set(currentIdentity);
 		}

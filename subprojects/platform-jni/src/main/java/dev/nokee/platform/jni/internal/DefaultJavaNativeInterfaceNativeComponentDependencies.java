@@ -15,14 +15,13 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import org.gradle.api.plugins.ExtensionAware;
 
-public abstract class DefaultJavaNativeInterfaceNativeComponentDependencies extends ModelMixInSupport implements JavaNativeInterfaceNativeComponentDependencies
+public abstract class DefaultJavaNativeInterfaceNativeComponentDependencies implements JavaNativeInterfaceNativeComponentDependencies
 	, NativeImplementationDependencyBucketMixIn
 	, NativeLinkOnlyDependencyBucketMixIn
 	, NativeRuntimeOnlyDependencyBucketMixIn

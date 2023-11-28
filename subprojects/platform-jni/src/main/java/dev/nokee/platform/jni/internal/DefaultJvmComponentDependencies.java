@@ -16,13 +16,12 @@
 
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
 import org.gradle.api.plugins.ExtensionAware;
 
-public abstract class DefaultJvmComponentDependencies extends ModelMixInSupport implements ComponentDependencies
+public abstract class DefaultJvmComponentDependencies implements ComponentDependencies
 	, ImplementationDependencyBucketMixIn
 	, RuntimeOnlyDependencyBucketMixIn
 	, ExtensionAware

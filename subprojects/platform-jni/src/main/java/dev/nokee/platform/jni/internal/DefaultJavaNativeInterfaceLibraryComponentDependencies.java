@@ -15,11 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
@@ -27,9 +23,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import org.gradle.api.plugins.ExtensionAware;
 
-import javax.inject.Inject;
-
-public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies extends ModelMixInSupport implements JavaNativeInterfaceLibraryComponentDependencies
+public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies implements JavaNativeInterfaceLibraryComponentDependencies
 	, ApiDependencyBucketMixIn
 	, NativeImplementationDependencyBucketMixIn
 	, NativeLinkOnlyDependencyBucketMixIn
@@ -38,12 +32,6 @@ public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies ext
 	, JvmRuntimeOnlyDependencyBucketMixIn
 	, ExtensionAware
 {
-	@Inject
-	public DefaultJavaNativeInterfaceLibraryComponentDependencies(ModelObjectIdentifier identifier, ModelObjectRegistry<DependencyBucket> bucketRegistry) {
-		 getExtensions().add("apiElements", bucketRegistry.register(identifier.child("apiElements"), ConsumableDependencyBucketSpec.class).get());
-		 getExtensions().add("runtimeElements", bucketRegistry.register(identifier.child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
-	}
-
 	@NestedObject("native")
 	public abstract DefaultNativeComponentDependencies getNative();
 
@@ -75,11 +63,9 @@ public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies ext
 		return getNative().getRuntimeOnly();
 	}
 
-	public ConsumableDependencyBucketSpec getApiElements() {
-		return (ConsumableDependencyBucketSpec) getExtensions().getByName("apiElements");
-	}
+	@NestedObject
+	public abstract ConsumableDependencyBucketSpec getApiElements();
 
-	public ConsumableDependencyBucketSpec getRuntimeElements() {
-		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
-	}
+	@NestedObject
+	public abstract ConsumableDependencyBucketSpec getRuntimeElements();
 }
