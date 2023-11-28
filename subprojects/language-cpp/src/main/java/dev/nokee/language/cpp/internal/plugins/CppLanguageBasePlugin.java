@@ -28,7 +28,6 @@ import dev.nokee.language.nativebase.internal.UseConventionalLayout;
 import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.scripts.DefaultImporter;
 import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
@@ -52,7 +51,7 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(CppSourceSetSpec.class, name -> {
-			return instantiator(project).newInstance(CppSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
+			return instantiator(project).newInstance(CppSourceSetSpec.class);
 		});
 
 		DefaultImporter.forProject(project)

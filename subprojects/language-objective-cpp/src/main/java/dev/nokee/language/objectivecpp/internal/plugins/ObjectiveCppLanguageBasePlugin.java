@@ -28,7 +28,6 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.scripts.DefaultImporter;
 import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
@@ -52,7 +51,7 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(ObjectiveCppSourceSetSpec.class, name -> {
-			return instantiator(project).newInstance(ObjectiveCppSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
+			return instantiator(project).newInstance(ObjectiveCppSourceSetSpec.class);
 		});
 
 		DefaultImporter.forProject(project)

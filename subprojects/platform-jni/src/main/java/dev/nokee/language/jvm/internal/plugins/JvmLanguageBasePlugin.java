@@ -22,14 +22,12 @@ import dev.nokee.language.jvm.internal.JavaSourceSetSpec;
 import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.tasks.SourceSetContainer;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 
 public class JvmLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -38,13 +36,13 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 
 		project.getPlugins().withType(JavaBasePlugin.class, ignored -> {
 			model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(GroovySourceSetSpec.class, name -> {
-				return instantiator(project).newInstance(GroovySourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class), model(project, registryOf(Task.class)));
+				return instantiator(project).newInstance(GroovySourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class));
 			});
 			model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(JavaSourceSetSpec.class, name -> {
-				return instantiator(project).newInstance(JavaSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class), model(project, registryOf(Task.class)));
+				return instantiator(project).newInstance(JavaSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class));
 			});
 			model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(KotlinSourceSetSpec.class, name -> {
-				return instantiator(project).newInstance(KotlinSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class), model(project, registryOf(Task.class)));
+				return instantiator(project).newInstance(KotlinSourceSetSpec.class, project.getExtensions().getByType(SourceSetContainer.class));
 			});
 		});
 	}

@@ -48,6 +48,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -62,6 +63,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static dev.nokee.internal.reflect.SignatureUtils.getConstructorSignature;
 import static dev.nokee.internal.reflect.SignatureUtils.getterSignature;
@@ -340,7 +342,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 								ServiceLookup previousService = nextService.get();
 								try {
 									nextService.set(serviceLookup);
-									return objects.newInstance(typeToInstantiate, params);
+									return objects.newInstance(typeToInstantiate, paramsOf(serviceLookup, typeToInstantiate, params));
 								} finally {
 									nextService.set(previousService);
 								}
@@ -351,6 +353,35 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 					};
 				}
 			};
+		}
+	}
+
+	private static Object[] paramsOf(ServiceLookup serviceLookup, Class<?> type, Object[] params) {
+		List<TypeToken<?>> parameterTypes = null;
+		for (Constructor<?> declaredConstructor : type.getDeclaredConstructors()) {
+			if (declaredConstructor.isAnnotationPresent(Inject.class) && !Modifier.isPrivate(declaredConstructor.getModifiers())) {
+				parameterTypes = Arrays.stream(declaredConstructor.getGenericParameterTypes()).map(TypeToken::of).collect(Collectors.toList());
+			}
+		}
+
+		if (parameterTypes == null) {
+			return params;
+		} else {
+			List<Object> result = new ArrayList<>();
+			int iv = 0; // index in params
+			for (int i = 0; i < parameterTypes.size(); i++) {
+				if (iv < params.length && parameterTypes.get(i).getRawType().isInstance(params[iv])) {
+					result.add(params[iv]);
+					iv++; // parameter type is the same as params, consume the param
+				} else {
+					Object value = serviceLookup.find(parameterTypes.get(i).getType());
+					if (value != null) {
+						result.add(value);
+					}
+				}
+			}
+
+			return result.toArray(new Object[0]);
 		}
 	}
 

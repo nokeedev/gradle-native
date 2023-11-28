@@ -133,10 +133,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, name -> {
-			return instantiator(project).newInstance(ModelBackedJniJarBinary.class, model(project, registryOf(Task.class)));
+			return instantiator(project).newInstance(ModelBackedJniJarBinary.class);
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJvmJarBinary.class, name -> {
-			return instantiator(project).newInstance(ModelBackedJvmJarBinary.class, model(project, registryOf(Task.class)));
+			return instantiator(project).newInstance(ModelBackedJvmJarBinary.class);
 		});
 
 		components(project).withType(JniLibraryComponentInternal.class)

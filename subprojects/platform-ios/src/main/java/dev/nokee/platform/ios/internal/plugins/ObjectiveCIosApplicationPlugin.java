@@ -83,7 +83,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCIosApplication.class, name -> {
-			return instantiator(project).newInstance(DefaultObjectiveCIosApplication.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultObjectiveCIosApplication.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		final NamedDomainObjectProvider<DefaultObjectiveCIosApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultObjectiveCIosApplication.class).asProvider();

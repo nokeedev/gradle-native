@@ -38,7 +38,6 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
@@ -166,25 +165,25 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeSharedLibraryBinarySpec.class, name -> {
-			return instantiator(project).newInstance(NativeSharedLibraryBinarySpec.class, model(project, registryOf(DependencyBucket.class)));
+			return instantiator(project).newInstance(NativeSharedLibraryBinarySpec.class);
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeBundleBinarySpec.class, name -> {
-			return instantiator(project).newInstance(NativeBundleBinarySpec.class, model(project, registryOf(DependencyBucket.class)));
+			return instantiator(project).newInstance(NativeBundleBinarySpec.class);
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeExecutableBinarySpec.class, name -> {
-			return instantiator(project).newInstance(NativeExecutableBinarySpec.class, model(project, registryOf(DependencyBucket.class)));
+			return instantiator(project).newInstance(NativeExecutableBinarySpec.class);
 		});
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeStaticLibraryBinarySpec.class, name -> {
 			return instantiator(project).newInstance(NativeStaticLibraryBinarySpec.class);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultNativeApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultNativeApplicationVariant.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(result -> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibraryVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultNativeLibraryVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultNativeLibraryVariant.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(result -> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));

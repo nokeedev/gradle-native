@@ -25,7 +25,6 @@ import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.scripts.DefaultImporter;
 import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
@@ -50,7 +49,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(SwiftSourceSetSpec.class, name -> {
-			return instantiator(project).newInstance(SwiftSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
+			return instantiator(project).newInstance(SwiftSourceSetSpec.class);
 		});
 
 		DefaultImporter.forProject(project).defaultImport(SwiftSourceSet.class);

@@ -30,7 +30,6 @@ import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourc
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -52,7 +51,6 @@ import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
 import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentSpec;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 
@@ -94,7 +92,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeTestSuiteVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultNativeTestSuiteVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultNativeTestSuiteVariant.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
@@ -112,7 +110,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class, name -> {
-			return instantiator(project).newInstance(DefaultNativeTestSuiteComponent.class, model(project, registryOf(Task.class)), project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
+			return instantiator(project).newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(new TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}));
 		});
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {

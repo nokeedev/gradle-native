@@ -19,7 +19,6 @@ import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -35,7 +34,6 @@ import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -57,7 +55,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			return instantiator(project).newInstance(IosResourceSetSpec.class);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultIosApplicationVariant.class, model(project, registryOf(DependencyBucket.class)), model(project, registryOf(Task.class)), (Factory<ComponentSources>) () -> instantiator(project).newInstance(ComponentSources.class));
+			return instantiator(project).newInstance(DefaultIosApplicationVariant.class, (Factory<ComponentSources>) () -> instantiator(project).newInstance(ComponentSources.class));
 		});
 
 		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {

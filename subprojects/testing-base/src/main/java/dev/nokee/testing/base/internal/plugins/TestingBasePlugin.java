@@ -37,7 +37,6 @@ import static dev.nokee.model.internal.ModelElementActionAdapter.elementWith;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 
 public class TestingBasePlugin implements Plugin<Project> {
@@ -59,7 +58,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 		project.getPlugins().withType(ComponentModelBasePlugin.class).configureEach(__ -> {
 			components(project).withType(TestableComponentSpec.class).configureEach(elementWith((identifier, component) -> {
 				final Namer<Named> namer = new Named.Namer();
-				component.getExtensions().add(TestableComponentSpec.TEST_SUITES_EXTENSION_NAME, instantiator(project).newInstance(ContextualTestSuiteContainer.class, identifier, model(project, registryOf(TestSuiteComponent.class)), new ViewAdapter<>(TestSuiteComponent.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((TestSuiteComponent) it), testSuites(project), project.getProviders(), project.getObjects(), (Runnable) () -> {}, identifier))));
+				component.getExtensions().add(TestableComponentSpec.TEST_SUITES_EXTENSION_NAME, instantiator(project).newInstance(ContextualTestSuiteContainer.class, identifier, new ViewAdapter<>(TestSuiteComponent.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((TestSuiteComponent) it), testSuites(project), project.getProviders(), project.getObjects(), (Runnable) () -> {}, identifier))));
 			}));
 		});
 

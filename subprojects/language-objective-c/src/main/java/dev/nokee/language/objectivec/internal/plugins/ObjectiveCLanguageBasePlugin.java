@@ -28,7 +28,6 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivec.HasObjectiveCSources;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.scripts.DefaultImporter;
 import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
@@ -52,7 +51,7 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(ObjectiveCSourceSetSpec.class, name -> {
-			return instantiator(project).newInstance(ObjectiveCSourceSetSpec.class, model(project, registryOf(DependencyBucket.class)));
+			return instantiator(project).newInstance(ObjectiveCSourceSetSpec.class);
 		});
 
 		DefaultImporter.forProject(project)

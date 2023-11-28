@@ -69,12 +69,10 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -129,13 +127,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		});
 
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class, name -> {
-			return instantiator(project).newInstance(ConsumableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
+			return instantiator(project).newInstance(ConsumableDependencyBucketSpec.class);
 		});
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class, name -> {
-			return instantiator(project).newInstance(ResolvableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
+			return instantiator(project).newInstance(ResolvableDependencyBucketSpec.class);
 		});
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class, name -> {
-			return instantiator(project).newInstance(DeclarableDependencyBucketSpec.class, model(project, registryOf(Configuration.class)));
+			return instantiator(project).newInstance(DeclarableDependencyBucketSpec.class);
 		});
 
 		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ApiDependencyBucketMixIn>() {
@@ -267,14 +265,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 					identifier = identifier.child(context.getAnnotation().value());
 				}
 
-				final ModelObjectIdentifier id = identifier;
-				if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 0)) {
-					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type)));
-				} else if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 1)) {
-					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type, id)));
-				} else if (Arrays.stream(type.getConstructors()).anyMatch(it -> it.getParameterCount() == 2)) {
-					context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type, id, model(project, registryOf(DependencyBucket.class)))));
-				}
+				context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type)));
 			}
 		});
 		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Task.class))));
