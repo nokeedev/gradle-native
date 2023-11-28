@@ -16,17 +16,21 @@
 
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.NestedViewDecorator;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
@@ -38,6 +42,7 @@ public abstract class BaseNativeLibraryComponentSpec extends ModelElementSupport
 	, ExtensionAwareMixIn
 	, NativeComponentSpec
 	, NativeLibraryComponent
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
@@ -59,4 +64,7 @@ public abstract class BaseNativeLibraryComponentSpec extends ModelElementSupport
 
 	@Decorate(NestedViewDecorator.class)
 	public abstract BinaryView<Binary> getBinaries();
+
+	@Decorate(NestedViewDecorator.class)
+	public abstract SourceView<LanguageSourceSet> getSources();
 }

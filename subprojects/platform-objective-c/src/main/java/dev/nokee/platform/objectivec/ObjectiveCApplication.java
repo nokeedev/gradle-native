@@ -15,22 +15,11 @@
  */
 package dev.nokee.platform.objectivec;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.SourceAwareComponent;
-import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.NativeApplication;
-import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
-import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
-import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import dev.nokee.platform.nativebase.NativeApplicationExtension;
 
 /**
  * Configuration for an application written in Objective-C, defining the dependencies that make up the application plus other settings.
@@ -39,16 +28,9 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  *
  * @since 0.5
  */
-public interface ObjectiveCApplication extends Component
-	, DependencyAwareComponent<NativeApplicationComponentDependencies>
-	, VariantAwareComponent<NativeApplication>, HasDevelopmentVariant<NativeApplication>
-	, SourceAwareComponent<SourceView<LanguageSourceSet>>
-	, BinaryAwareComponent
-	, TaskAwareComponent
-	, TargetMachineAwareComponent
-	, TargetBuildTypeAwareComponent
+public interface ObjectiveCApplication extends NativeApplicationExtension
+	, VariantAwareComponent<NativeApplication>
 	, HasPrivateHeaders
 	, HasObjectiveCSources
-	, HasBaseName
 {
 }

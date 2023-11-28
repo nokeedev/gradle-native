@@ -16,6 +16,8 @@
 
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.NestedObject;
@@ -27,6 +29,7 @@ import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
@@ -38,6 +41,7 @@ public abstract class BaseNativeApplicationComponentSpec extends ModelElementSup
 	, ExtensionAwareMixIn
 	, NativeComponentSpec
 	, NativeApplicationComponent
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
@@ -59,4 +63,7 @@ public abstract class BaseNativeApplicationComponentSpec extends ModelElementSup
 
 	@Decorate(NestedViewDecorator.class)
 	public abstract BinaryView<Binary> getBinaries();
+
+	@Decorate(NestedViewDecorator.class)
+	public abstract SourceView<LanguageSourceSet> getSources();
 }

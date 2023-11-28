@@ -16,27 +16,15 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 
-import javax.inject.Inject;
-
 public abstract class NativeApplicationSpec extends BaseNativeApplicationComponentSpec implements NativeApplicationExtension
 	, VariantAwareComponentMixIn<NativeApplication>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, HasDevelopmentVariant<NativeApplication>
 {
-	@Inject
-	public NativeApplicationSpec(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("sources", sourcesFactory.create());
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "native application";

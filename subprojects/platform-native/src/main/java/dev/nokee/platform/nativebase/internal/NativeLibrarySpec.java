@@ -16,27 +16,13 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
-import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 
-import javax.inject.Inject;
-
 public  /*final*/ abstract class NativeLibrarySpec extends BaseNativeLibraryComponentSpec implements NativeLibraryExtension
 	, VariantAwareComponentMixIn<NativeLibrary>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
-	, HasDevelopmentVariant<NativeLibrary>
 {
-	@Inject
-	public NativeLibrarySpec(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("sources", sourcesFactory.create());
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "native library";

@@ -16,12 +16,8 @@
 
 package dev.nokee.platform.swift.internal;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
@@ -29,14 +25,12 @@ import dev.nokee.platform.swift.SwiftApplication;
 
 import javax.inject.Inject;
 
-public  /*final*/ abstract class SwiftApplicationSpec extends BaseNativeApplicationComponentSpec implements SwiftApplication
+public /*final*/ abstract class SwiftApplicationSpec extends BaseNativeApplicationComponentSpec implements SwiftApplication
 	, VariantAwareComponentMixIn<NativeApplication>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, SwiftSourcesMixIn
 {
 	@Inject
-	public SwiftApplicationSpec(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("sources", sourcesFactory.create());
+	public SwiftApplicationSpec() {
 		getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
 	}
 

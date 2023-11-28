@@ -15,22 +15,10 @@
  */
 package dev.nokee.platform.swift;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.language.swift.HasSwiftSources;
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.SourceAwareComponent;
-import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
-import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
-import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import dev.nokee.platform.nativebase.NativeLibraryExtension;
 
 /**
  * Configuration for a library written in Swift, defining the dependencies that make up the library plus other settings.
@@ -39,16 +27,8 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  *
  * @since 0.5
  */
-public interface SwiftLibrary extends Component
-	, DependencyAwareComponent<NativeLibraryComponentDependencies>
-	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>
-	, SourceAwareComponent<SourceView<LanguageSourceSet>>
-	, TaskAwareComponent
-	, BinaryAwareComponent
-	, TargetMachineAwareComponent
-	, TargetLinkageAwareComponent
-	, TargetBuildTypeAwareComponent
+public interface SwiftLibrary extends NativeLibraryExtension
+	, VariantAwareComponent<NativeLibrary>
 	, HasSwiftSources
-	, HasBaseName
 {
 }

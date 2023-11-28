@@ -16,14 +16,10 @@
 
 package dev.nokee.platform.objectivec.internal;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
@@ -33,14 +29,12 @@ import javax.inject.Inject;
 
 public  /*final*/ abstract class ObjectiveCApplicationSpec extends BaseNativeApplicationComponentSpec implements ObjectiveCApplication
 	, VariantAwareComponentMixIn<NativeApplication>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, HasDevelopmentVariant<NativeApplication>
 	, ObjectiveCSourcesMixIn
 	, PrivateHeadersMixIn
 {
 	@Inject
-	public ObjectiveCApplicationSpec(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("sources", sourcesFactory.create());
+	public ObjectiveCApplicationSpec() {
 		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 	}
 

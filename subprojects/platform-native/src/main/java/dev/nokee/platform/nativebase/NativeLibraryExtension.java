@@ -21,7 +21,7 @@ import dev.nokee.platform.base.*;
 
 public interface NativeLibraryExtension extends Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
-	, VariantAwareComponent<NativeLibrary>
+	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>
 	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent

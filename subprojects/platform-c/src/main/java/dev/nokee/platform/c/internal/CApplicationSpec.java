@@ -16,13 +16,9 @@
 
 package dev.nokee.platform.c.internal;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
 import dev.nokee.language.c.internal.CSourcesMixIn;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.c.CApplication;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -32,13 +28,11 @@ import javax.inject.Inject;
 
 public  /*final*/ abstract class CApplicationSpec extends BaseNativeApplicationComponentSpec implements CApplication
 	, VariantAwareComponentMixIn<NativeApplication>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, PrivateHeadersMixIn
 	, CSourcesMixIn
 {
 	@Inject
-	public CApplicationSpec(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("sources", sourcesFactory.create());
+	public CApplicationSpec() {
 		getExtensions().create("$cSupport", SupportCSourceSetTag.class);
 	}
 
