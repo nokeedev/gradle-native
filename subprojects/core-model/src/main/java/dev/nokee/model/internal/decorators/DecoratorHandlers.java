@@ -25,18 +25,11 @@ public interface DecoratorHandlers {
 
 	void nestedObject(Consumer<? super NestedObjectContext> action);
 
-	void injectService(Consumer<? super InjectServiceContext> action);
-
 	interface NestedObjectContext {
 		ModelObjectIdentifier getIdentifier();
 		ModelType<?> getNestedType();
 		void mixIn(Object value);
 		NestedObject getAnnotation();
 		String getPropertyName();
-	}
-
-	interface InjectServiceContext {
-		ModelType<?> getServiceType();
-		void mixIn(Object service);
 	}
 }

@@ -25,6 +25,7 @@ import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.Decorator;
 import dev.nokee.model.internal.decorators.DecoratorHandlers;
 import dev.nokee.model.internal.decorators.InjectService;
+import dev.nokee.model.internal.decorators.InjectServiceDecorator;
 import dev.nokee.model.internal.decorators.ModelDecorator;
 import dev.nokee.model.internal.decorators.ModelMixInSupport;
 import dev.nokee.model.internal.decorators.MutableModelDecorator;
@@ -34,12 +35,9 @@ import dev.nokee.model.internal.type.ModelTypeUtils;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.reflect.ObjectInstantiationException;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -69,7 +67,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static dev.nokee.internal.reflect.SignatureUtils.getConstructorSignature;
-import static dev.nokee.internal.reflect.SignatureUtils.getterSignature;
 
 public final class DefaultInstantiator implements Instantiator, DecoratorHandlers {
 	private static final ThreadLocal<ServiceLookup> nextService = new ThreadLocal<>();
@@ -77,7 +74,6 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 	private final ServiceLookup serviceLookup;
 	private final MutableModelDecorator decorator = new MutableModelDecorator();
 	private final List<Consumer<? super NestedObjectContext>> nestedObjects = new ArrayList<>();
-	private final List<Consumer<? super InjectServiceContext>> injectServices = new ArrayList<>();
 
 	// TODO: We should keep the decorated class globally across all projects, maybe use a BuildService
 	private final InjectorClassLoader classLoader = new InjectorClassLoader(DefaultInstantiator.class.getClassLoader());
@@ -114,11 +110,6 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 	@Override
 	public void nestedObject(Consumer<? super NestedObjectContext> action) {
 		nestedObjects.add(action);
-	}
-
-	@Override
-	public void injectService(Consumer<? super InjectServiceContext> action) {
-		injectServices.add(action);
 	}
 
 	public interface PropertyInit {
@@ -203,27 +194,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), new BiConsumer<GeneratedMethod, MixIn>() {
 						@Override
 						public void accept(GeneratedMethod data, MixIn mixIn) {
-							for (Consumer<? super InjectServiceContext> injectService : injectServices) {
-								injectService.accept(serviceContextFor(data, mixIn));
-							}
-						}
-
-						private InjectServiceContext serviceContextFor(GeneratedMethod data, MixIn mixIn) {
-							return new InjectServiceContext() {
-								@Override
-								public ModelType<?> getServiceType() {
-									return data.returnType;
-								}
-
-								public String getPropertyName() {
-									return data.propertyName;
-								}
-
-								@Override
-								public void mixIn(Object value) {
-									mixIn.mixIn(value);
-								}
-							};
+							mixIn.mixIn(InjectServiceDecorator.get(data.returnType.getType()));
 						}
 					}));
 				}
@@ -302,27 +273,28 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 						public Object newInstance(ServiceLookup serviceLookup, ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException {
 							Class<?> typeToInstantiate = classLoader.defineClass(Type.getInternalName(type) + "Subclass", generateSubclass(type, result));
 
-							Map<String, Object> values = new LinkedHashMap<>();
-							for (GeneratedMethod generatedMethod : result) {
-								generatedMethod.mixIn(values::put);
-							}
-							PropertyInit previous = nextPropInit.get();
+							ServiceLookup previousService = nextService.get();
 							try {
-								nextPropInit.set(new PropertyInit() {
-									@Override
-									public Object init(String propertyName) {
-										return Objects.requireNonNull(values.get(propertyName));
-									}
-								});
-								ServiceLookup previousService = nextService.get();
+								nextService.set(serviceLookup);
+
+								Map<String, Object> values = new LinkedHashMap<>();
+								for (GeneratedMethod generatedMethod : result) {
+									generatedMethod.mixIn(values::put);
+								}
+								PropertyInit previous = nextPropInit.get();
 								try {
-									nextService.set(serviceLookup);
+									nextPropInit.set(new PropertyInit() {
+										@Override
+										public Object init(String propertyName) {
+											return Objects.requireNonNull(values.get(propertyName));
+										}
+									});
 									return objects.newInstance(typeToInstantiate, paramsOf(serviceLookup, typeToInstantiate, params));
 								} finally {
-									nextService.set(previousService);
+									nextPropInit.set(previous);
 								}
 							} finally {
-								nextPropInit.set(previous);
+								nextService.set(previousService);
 							}
 						}
 					};
