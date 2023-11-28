@@ -20,43 +20,23 @@ import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
-import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 
 import javax.inject.Inject;
 
-public  /*final*/ abstract class NativeLibrarySpec extends ModelElementSupport implements NativeLibraryExtension
-	, NativeComponentSpec
-	, NativeLibraryComponent
-	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+public  /*final*/ abstract class NativeLibrarySpec extends BaseNativeLibraryComponentSpec implements NativeLibraryExtension
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-	, BinaryAwareComponentMixIn
-	, TaskAwareComponentMixIn
-	, AssembleTaskMixIn
 	, HasDevelopmentVariant<NativeLibrary>
-	, ObjectsTaskMixIn {
+{
 	@Inject
 	public NativeLibrarySpec(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().add("sources", sourcesFactory.create());
 	}
-
-	@Override
-	@NestedObject
-	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
 
 	@Override
 	protected String getTypeName() {

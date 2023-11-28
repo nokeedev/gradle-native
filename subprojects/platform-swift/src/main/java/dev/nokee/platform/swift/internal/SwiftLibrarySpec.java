@@ -22,46 +22,24 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
-import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
-import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
 import dev.nokee.platform.swift.SwiftLibrary;
 
 import javax.inject.Inject;
 
-public  /*final*/ abstract class SwiftLibrarySpec extends ModelElementSupport implements SwiftLibrary
-	, NativeComponentSpec
-	, NativeLibraryComponent
-	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+public  /*final*/ abstract class SwiftLibrarySpec extends BaseNativeLibraryComponentSpec implements SwiftLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-	, BinaryAwareComponentMixIn
-	, TaskAwareComponentMixIn
-	, AssembleTaskMixIn
 	, SwiftSourcesMixIn
-	, ObjectsTaskMixIn {
+{
 	@Inject
 	public SwiftLibrarySpec(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
 	}
-
-	@Override
-	@NestedObject
-	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
 
 	@Override
 	protected String getTypeName() {

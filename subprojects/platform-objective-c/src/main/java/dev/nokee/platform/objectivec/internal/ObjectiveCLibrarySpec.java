@@ -24,48 +24,26 @@ import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
-import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
-import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
+import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
 import dev.nokee.platform.objectivec.ObjectiveCLibrary;
 
 import javax.inject.Inject;
 
-public  /*final*/ abstract class ObjectiveCLibrarySpec extends ModelElementSupport implements ObjectiveCLibrary
-	, NativeComponentSpec
-	, NativeLibraryComponent
-	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+public  /*final*/ abstract class ObjectiveCLibrarySpec extends BaseNativeLibraryComponentSpec implements ObjectiveCLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-	, BinaryAwareComponentMixIn
-	, TaskAwareComponentMixIn
-	, AssembleTaskMixIn
 	, ObjectiveCSourcesMixIn
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn
-	, ObjectsTaskMixIn {
+{
 	@Inject
 	public ObjectiveCLibrarySpec(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 	}
-
-	@Override
-	@NestedObject
-	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
 
 	@Override
 	protected String getTypeName() {
