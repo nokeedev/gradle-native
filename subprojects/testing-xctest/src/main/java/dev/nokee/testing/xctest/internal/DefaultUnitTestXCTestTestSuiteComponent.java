@@ -25,10 +25,10 @@ import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
@@ -38,7 +38,6 @@ import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
@@ -186,11 +185,6 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 
 	@Override
 	public abstract Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant();
-
-	@Override
-	public VariantView<DefaultXCTestTestSuiteVariant> getVariants() {
-		return VariantAwareComponentMixIn.super.getVariants();
-	}
 
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {

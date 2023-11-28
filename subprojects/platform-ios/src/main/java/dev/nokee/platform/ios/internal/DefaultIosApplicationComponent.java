@@ -24,12 +24,12 @@ import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -39,7 +39,6 @@ import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask;
@@ -116,11 +115,6 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 
 	@Override
 	public abstract Property<IosApplication> getDevelopmentVariant();
-
-	@Override
-	public VariantView<IosApplication> getVariants() {
-		return VariantAwareComponentMixIn.super.getVariants();
-	}
 
 	@SuppressWarnings("unchecked")
 	protected void onEachVariant(KnownDomainObject<IosApplication> variant) {

@@ -15,15 +15,12 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.runtime.nativebase.TargetLinkageFactory;
 
-public interface TargetLinkageAwareComponentMixIn extends ModelMixIn, TargetLinkageAwareComponent {
+public interface TargetLinkageAwareComponentMixIn extends TargetLinkageAwareComponent {
 	@Override
 	@InjectService
-	default TargetLinkageFactory getLinkages() {
-		return mixedIn("linkages");
-	}
+	TargetLinkageFactory getLinkages();
 }

@@ -24,7 +24,6 @@ import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -72,9 +71,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 
 	@Override
 	public abstract Provider<Set<BuildVariant>> getBuildVariants();
-
-	@Override
-	public abstract VariantView<DefaultXCTestTestSuiteVariant> getVariants();
 
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		throw new UnsupportedOperationException("readd support for whenElementKnown");

@@ -33,11 +33,9 @@ import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -50,13 +48,12 @@ import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.testing.nativebase.NativeTestSuite;
@@ -122,16 +119,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 
 	@Override
 	public abstract Property<NativeTestSuiteVariant> getDevelopmentVariant();
-
-	@Override
-	public VariantView<NativeTestSuiteVariant> getVariants() {
-		return VariantAwareComponentMixIn.super.getVariants();
-	}
-
-	@Override
-	public BinaryView<Binary> getBinaries() {
-		return BinaryAwareComponentMixIn.super.getBinaries();
-	}
 
 	public void finalizeExtension(Project project) {
 		val checkTask = taskRegistry.register(ProjectIdentifier.of(project).child(TaskName.of("check")), Task.class).asProvider();

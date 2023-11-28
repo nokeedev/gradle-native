@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.mixins;
 
-import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.BuildVariant;
@@ -32,12 +31,10 @@ import org.gradle.api.provider.Provider;
 
 import java.util.Set;
 
-public interface VariantAwareComponentMixIn<T extends Variant> extends ModelMixIn, VariantAwareComponent<T>, VariantAwareComponentInternal<T> {
+public interface VariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T>, VariantAwareComponentInternal<T> {
 	@Override
 	@Decorate(NestedViewDecorator.class)
-	default VariantView<T> getVariants() {
-		return mixedIn("variants");
-	}
+	VariantView<T> getVariants();
 
 	@Override
 	default void variants(Action<? super VariantView<T>> action) {
