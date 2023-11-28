@@ -23,36 +23,25 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelMixIn;
-import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.tasks.TaskDependency;
 
-import javax.inject.Inject;
-
 public /*final*/ abstract class ObjectiveCSourceSetSpec extends ModelElementSupport implements ObjectiveCSourceSet
-	, ModelMixIn
 	, NativeCompileTaskMixIn<ObjectiveCCompile, ObjectiveCCompileTask>
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies, DefaultNativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
 {
-	@Inject
-	public ObjectiveCSourceSetSpec(ModelObjectRegistry<DependencyBucket> bucketRegistry) {
-		getExtensions().add("headerSearchPaths", bucketRegistry.register(getIdentifier().child("headerSearchPaths"), ResolvableDependencyBucketSpec.class).get());
-	}
-
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), getHeaders().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
 	}
 
 	@Override
-	public ResolvableDependencyBucketSpec getHeaderSearchPaths() {
-		return mixedIn("headerSearchPaths");
-	}
+	@NestedObject
+	public abstract ResolvableDependencyBucketSpec getHeaderSearchPaths();
 
 	@Override
 	protected String getTypeName() {
