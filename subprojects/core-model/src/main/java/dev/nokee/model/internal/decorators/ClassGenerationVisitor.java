@@ -16,14 +16,11 @@
 
 package dev.nokee.model.internal.decorators;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-@Decorate(NestedObjectDecorator.class)
-public @interface NestedObject {
-	String value() default "";
+public interface ClassGenerationVisitor {
+	void visitFieldsInitialization(String ownerInternalName, MethodVisitor mv);
+	void visitFields(ClassVisitor cw);
+	void visitMethods(ClassVisitor cw);
 }

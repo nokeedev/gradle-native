@@ -434,17 +434,17 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				((TargetLinkageAwareComponent) component).getTargetLinkages().convention(singletonList(TargetLinkages.SHARED));
 			}
 		});
-		project.getExtensions().getByType(DecoratorHandlers.class).injectService(context -> {
+		model(project).getExtensions().getByType(DecoratorHandlers.class).injectService(context -> {
 			if (context.getServiceType().getType().equals(TargetMachineFactory.class)) {
 				context.mixIn(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY);
 			}
 		});
-		project.getExtensions().getByType(DecoratorHandlers.class).injectService(context -> {
+		model(project).getExtensions().getByType(DecoratorHandlers.class).injectService(context -> {
 			if (context.getServiceType().getType().equals(TargetBuildTypeFactory.class)) {
 				context.mixIn(NativeRuntimeBasePlugin.TARGET_BUILD_TYPE_FACTORY);
 			}
 		});
-		project.getExtensions().getByType(DecoratorHandlers.class).injectService(context -> {
+		model(project).getExtensions().getByType(DecoratorHandlers.class).injectService(context -> {
 			if (context.getServiceType().getType().equals(TargetLinkageFactory.class)) {
 				context.mixIn(NativeRuntimeBasePlugin.TARGET_LINKAGE_FACTORY);
 			}

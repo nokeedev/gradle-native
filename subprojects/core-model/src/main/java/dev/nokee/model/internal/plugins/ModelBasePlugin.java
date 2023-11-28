@@ -61,7 +61,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
 		target.getExtensions().create("model", ModelExtension.class);
 		final ServiceLookup services = new ContextualModelObjectIdentifierAwareServiceLookup(new ExtensionBackedServiceLookup(model(target).getExtensions()));
-		target.getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
+		model(target).getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
 	}
 
 	private void applyToSettings(Settings settings) {
@@ -104,6 +104,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	}
 
 	public static Instantiator instantiator(Project project) {
-		return project.getExtensions().getByType(Instantiator.class);
+		return model(project).getExtensions().getByType(Instantiator.class);
 	}
 }

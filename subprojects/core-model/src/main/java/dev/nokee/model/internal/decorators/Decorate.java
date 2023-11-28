@@ -22,8 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-@Decorate(NestedObjectDecorator.class)
-public @interface NestedObject {
-	String value() default "";
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
+public @interface Decorate {
+	Class<? extends Decorator> value();
 }

@@ -20,6 +20,9 @@ import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.services.ServiceLookup;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.decorators.ClassGenerationVisitor;
+import dev.nokee.model.internal.decorators.Decorate;
+import dev.nokee.model.internal.decorators.Decorator;
 import dev.nokee.model.internal.decorators.DecoratorHandlers;
 import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.model.internal.decorators.ModelDecorator;
@@ -137,12 +140,29 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 		private final ModelType<?> returnType;
 		private final String methodName;
 		private final String propertyName;
+		@EqualsAndHashCode.Exclude private final ClassGenerationVisitor visitor;
 		@EqualsAndHashCode.Exclude private final BiConsumer<? super GeneratedMethod, ? super MixIn> action;
 
-		GeneratedMethod(ModelType<?> returnType, String methodName, String propertyName, BiConsumer<? super GeneratedMethod, ? super MixIn> action) {
+		GeneratedMethod(ModelType<?> returnType, String methodName, String propertyName, Decorator decorator, BiConsumer<? super GeneratedMethod, ? super MixIn> action) {
 			this.returnType = returnType;
 			this.methodName = methodName;
 			this.propertyName = propertyName;
+			this.visitor = decorator.applyTo(new Decorator.MethodMetadata() {
+				@Override
+				public String getName() {
+					return methodName;
+				}
+
+				@Override
+				public Class<?> getReturnType() {
+					return returnType.getRawType();
+				}
+
+				@Override
+				public java.lang.reflect.Type getGenericReturnType() {
+					return returnType.getType();
+				}
+			});
 			this.action = action;
 		}
 
@@ -226,7 +246,8 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 				@Override
 				public void visitInjectedProperty(Method method) {
 					assert current != null;
-					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), new BiConsumer<GeneratedMethod, MixIn>() {
+					Class<? extends Decorator> decoratorType = method.getAnnotation(InjectService.class).annotationType().getAnnotation(Decorate.class).value();
+					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), new BiConsumer<GeneratedMethod, MixIn>() {
 						@Override
 						public void accept(GeneratedMethod data, MixIn mixIn) {
 							for (Consumer<? super InjectServiceContext> injectService : injectServices) {
@@ -257,7 +278,8 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 				@Override
 				public void visitNestedProperty(Method method) {
 					assert current != null;
-					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), new BiConsumer<GeneratedMethod, MixIn>() {
+					Class<? extends Decorator> decoratorType = method.getAnnotation(NestedObject.class).annotationType().getAnnotation(Decorate.class).value();
+					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), new BiConsumer<GeneratedMethod, MixIn>() {
 						@Override
 						public void accept(GeneratedMethod data, MixIn mixIn) {
 							for (Consumer<? super NestedObjectContext> nestedObject : nestedObjects) {

@@ -16,14 +16,15 @@
 
 package dev.nokee.model.internal.decorators;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.reflect.Type;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-@Decorate(NestedObjectDecorator.class)
-public @interface NestedObject {
-	String value() default "";
+public interface Decorator {
+	// TODO: we should return a generator visitor
+	ClassGenerationVisitor applyTo(MethodMetadata method);
+
+	interface MethodMetadata {
+		String getName();
+		Class<?> getReturnType();
+		Type getGenericReturnType();
+	}
 }

@@ -23,5 +23,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Decorate(InjectServiceDecorator.class)
 public @interface InjectService {
 }

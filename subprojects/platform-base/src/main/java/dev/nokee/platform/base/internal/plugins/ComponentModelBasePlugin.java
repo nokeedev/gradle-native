@@ -177,7 +177,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
 
-		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
+		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
 			private final Factory<BinaryView<Binary>> binariesFactory = () -> {
 				Named.Namer namer = new Named.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
@@ -193,7 +193,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
+		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
 			private <T extends Task> TaskView<T> create(Class<T> elementType) {
 				Task.Namer namer = new Task.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
@@ -223,7 +223,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
+		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
 			private final VariantViewFactory variantsFactory = new VariantViewFactory() {
 				@Override
 				public <T extends Variant> VariantView<T> create(Class<T> elementType) {
@@ -243,7 +243,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
+		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new Consumer<DecoratorHandlers.NestedObjectContext>() {
 			private final DimensionPropertyRegistrationFactory dimensionPropertyFactory = new DimensionPropertyRegistrationFactory(project.getObjects());
 			private final Factory<DefaultVariantDimensions> dimensionsFactory = () -> {
 				return instantiator(project).newInstance(DefaultVariantDimensions.class, dimensionPropertyFactory);
@@ -257,7 +257,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(context -> {
+		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(context -> {
 			if (context.getNestedType().isSubtypeOf(ComponentDependencies.class)) {
 				final Class<?> type = context.getNestedType().getRawType();
 				ModelObjectIdentifier identifier = context.getIdentifier();
@@ -268,9 +268,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				context.mixIn(ModelMixInSupport.newInstance(identifier, () -> instantiator(project).newInstance(type)));
 			}
 		});
-		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Task.class))));
-		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(DependencyBucket.class))));
-		project.getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Artifact.class))));
+		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Task.class))));
+		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(DependencyBucket.class))));
+		model(project).getExtensions().getByType(DecoratorHandlers.class).nestedObject(new ModelObjectDecorator<>(model(project, registryOf(Artifact.class))));
 
 		model(project, objects()).configureEach(HasBaseName.class, new BaseNameConfigurationRule(project.getProviders()));
 		model(project, mapOf(Component.class)).configureEach(HasDevelopmentBinary.class, new DevelopmentBinaryConventionRule(project.getProviders()));
