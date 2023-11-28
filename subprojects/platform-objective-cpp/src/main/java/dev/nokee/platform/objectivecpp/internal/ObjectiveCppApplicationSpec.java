@@ -22,49 +22,27 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesMixIn;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
-import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeApplication;
-import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
-import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
-import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
+import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
 
 import javax.inject.Inject;
 
-public  /*final*/ abstract class ObjectiveCppApplicationSpec extends ModelElementSupport implements ObjectiveCppApplication
-	, NativeComponentSpec
-	, NativeApplicationComponent
-	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+public  /*final*/ abstract class ObjectiveCppApplicationSpec extends BaseNativeApplicationComponentSpec implements ObjectiveCppApplication
 	, VariantAwareComponentMixIn<NativeApplication>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
-	, BinaryAwareComponentMixIn
-	, TaskAwareComponentMixIn
 	, HasDevelopmentVariant<NativeApplication>
-	, AssembleTaskMixIn
 	, ObjectiveCppSourcesMixIn
 	, PrivateHeadersMixIn
-	, ObjectsTaskMixIn {
+{
 	@Inject
 	public ObjectiveCppApplicationSpec(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
 	}
-
-	@Override
-	@NestedObject
-	public abstract DefaultNativeApplicationComponentDependencies getDependencies();
 
 	@Override
 	protected String getTypeName() {
