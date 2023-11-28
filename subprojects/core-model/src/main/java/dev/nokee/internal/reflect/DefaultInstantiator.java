@@ -17,6 +17,7 @@
 package dev.nokee.internal.reflect;
 
 import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.services.ServiceLookup;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.decorators.DecoratorHandlers;
@@ -66,7 +67,9 @@ import static dev.nokee.internal.reflect.SignatureUtils.getConstructorSignature;
 import static dev.nokee.internal.reflect.SignatureUtils.getterSignature;
 
 public final class DefaultInstantiator implements Instantiator, DecoratorHandlers {
+	private static final ThreadLocal<ServiceLookup> nextService = new ThreadLocal<>();
 	private final ObjectFactory objects;
+	private final ServiceLookup serviceLookup;
 	private final MutableModelDecorator decorator = new MutableModelDecorator();
 	private final List<Consumer<? super NestedObjectContext>> nestedObjects = new ArrayList<>();
 	private final List<Consumer<? super InjectServiceContext>> injectServices = new ArrayList<>();
@@ -74,8 +77,13 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 	// TODO: We should keep the decorated class globally across all projects, maybe use a BuildService
 	private final InjectorClassLoader classLoader = new InjectorClassLoader(DefaultInstantiator.class.getClassLoader());
 
-	public DefaultInstantiator(ObjectFactory objects) {
+	public static ServiceLookup getNextService() {
+		return nextService.get();
+	}
+
+	public DefaultInstantiator(ObjectFactory objects, ServiceLookup serviceLookup) {
 		this.objects = objects;
+		this.serviceLookup = serviceLookup;
 	}
 
 	@Override
@@ -84,7 +92,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 		// TODO: Inspect @Inject constructor and pass along Nokee build service
 		return (T) ModelDecorator.decorateUsing(decorator, () -> {
 			try {
-				return generateSubType(type).newInstance(objects, parameters);
+				return generateSubType(type).newInstance(serviceLookup, objects, parameters);
 			} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
 				throw new ObjectInstantiationException(type, e);
 			}
@@ -314,7 +322,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 				public InstantiationStrategy generateClass(InjectorClassLoader classLoader) {
 					return new InstantiationStrategy() {
 						@Override
-						public Object newInstance(ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+						public Object newInstance(ServiceLookup serviceLookup, ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException {
 							Class<?> typeToInstantiate = classLoader.defineClass(Type.getInternalName(type) + "Subclass", generateSubclass(type, result));
 
 							Map<String, Object> values = new LinkedHashMap<>();
@@ -329,7 +337,13 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 										return Objects.requireNonNull(values.get(propertyName));
 									}
 								});
-								return objects.newInstance(typeToInstantiate, params);
+								ServiceLookup previousService = nextService.get();
+								try {
+									nextService.set(serviceLookup);
+									return objects.newInstance(typeToInstantiate, params);
+								} finally {
+									nextService.set(previousService);
+								}
 							} finally {
 								nextPropInit.set(previous);
 							}
@@ -341,7 +355,7 @@ public final class DefaultInstantiator implements Instantiator, DecoratorHandler
 	}
 
 	interface InstantiationStrategy {
-		Object newInstance(ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException;
+		Object newInstance(ServiceLookup serviceLookup, ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException;
 	}
 
 	public static byte[] generateSubclass(Class<?> superClass, Collection<GeneratedMethod> methods) {

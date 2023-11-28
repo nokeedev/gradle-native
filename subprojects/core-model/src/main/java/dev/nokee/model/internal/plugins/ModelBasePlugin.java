@@ -19,6 +19,9 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.reflect.DefaultInstantiator;
 import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.internal.services.ContextualModelObjectIdentifierAwareServiceLookup;
+import dev.nokee.internal.services.ExtensionBackedServiceLookup;
+import dev.nokee.internal.services.ServiceLookup;
 import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMap;
@@ -57,7 +60,8 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
 		target.getExtensions().create("model", ModelExtension.class);
-		target.getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects));
+		final ServiceLookup services = new ContextualModelObjectIdentifierAwareServiceLookup(new ExtensionBackedServiceLookup(model(target).getExtensions()));
+		target.getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
 	}
 
 	private void applyToSettings(Settings settings) {
