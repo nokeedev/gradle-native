@@ -24,6 +24,7 @@ import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
@@ -91,7 +92,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	public static /*final*/ abstract class DefaultSwiftIosApplication extends ModelElementSupport implements SwiftIosApplication
 		, NativeComponentSpec
 		, ExtensionAwareMixIn
-		, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
+		, DependencyAwareComponentMixIn<NativeComponentDependencies>
 		, VariantAwareComponentMixIn<IosApplication>
 		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, BinaryAwareComponentMixIn
@@ -107,6 +108,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		}
 
 		@Override
+		@NestedObject
 		public abstract DefaultNativeComponentDependencies getDependencies();
 
 		@Override

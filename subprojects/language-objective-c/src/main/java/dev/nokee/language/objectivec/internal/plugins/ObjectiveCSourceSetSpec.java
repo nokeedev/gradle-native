@@ -31,10 +31,11 @@ import org.gradle.api.tasks.TaskDependency;
 
 public /*final*/ abstract class ObjectiveCSourceSetSpec extends ModelElementSupport implements ObjectiveCSourceSet
 	, NativeCompileTaskMixIn<ObjectiveCCompile, ObjectiveCCompileTask>
-	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies, DefaultNativeSourceSetComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasHeaderSearchPaths
 {
 	@Override
+	@NestedObject
 	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
 
 	@Override

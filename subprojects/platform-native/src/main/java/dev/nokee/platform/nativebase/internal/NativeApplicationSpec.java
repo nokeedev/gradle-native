@@ -21,6 +21,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -40,7 +41,7 @@ public abstract class NativeApplicationSpec extends ModelElementSupport implemen
 	, NativeComponentSpec
 	, NativeApplicationComponent
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies, DefaultNativeApplicationComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, VariantAwareComponentMixIn<NativeApplication>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -54,6 +55,7 @@ public abstract class NativeApplicationSpec extends ModelElementSupport implemen
 	}
 
 	@Override
+	@NestedObject
 	public abstract DefaultNativeApplicationComponentDependencies getDependencies();
 
 	@Override

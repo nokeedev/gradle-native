@@ -25,6 +25,7 @@ import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
@@ -72,7 +73,7 @@ import java.util.stream.Collectors;
 public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements TestSuiteComponent
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, VariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -97,6 +98,7 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	}
 
 	@Override
+	@NestedObject
 	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	@Override

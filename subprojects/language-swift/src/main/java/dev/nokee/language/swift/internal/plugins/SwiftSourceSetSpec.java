@@ -30,10 +30,11 @@ import org.gradle.api.tasks.TaskDependency;
 
 public /*final*/ abstract class SwiftSourceSetSpec extends ModelElementSupport implements SwiftSourceSet
 	, NativeCompileTaskMixIn<SwiftCompile, SwiftCompileTask>
-	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies, DefaultNativeSourceSetComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
 	, HasImportModules
 {
 	@Override
+	@NestedObject
 	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
 
 	@Override

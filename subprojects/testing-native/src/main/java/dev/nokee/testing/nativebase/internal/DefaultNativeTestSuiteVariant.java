@@ -22,6 +22,8 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -31,7 +33,6 @@ import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
@@ -44,7 +45,7 @@ import javax.inject.Inject;
 public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVariant implements NativeTestSuiteVariant, VariantInternal
 	, NativeVariant
 	, NativeSourcesAware
-	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, TaskAwareComponentMixIn
@@ -59,6 +60,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	}
 
 	@Override
+	@NestedObject
 	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	@Override

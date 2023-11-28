@@ -24,6 +24,7 @@ import dev.nokee.language.cpp.internal.CppSourcesMixIn;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
@@ -45,7 +46,7 @@ public  /*final*/ abstract class CppApplicationSpec extends ModelElementSupport 
 	, NativeComponentSpec
 	, NativeApplicationComponent
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies, DefaultNativeApplicationComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, VariantAwareComponentMixIn<NativeApplication>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -61,6 +62,7 @@ public  /*final*/ abstract class CppApplicationSpec extends ModelElementSupport 
 	}
 
 	@Override
+	@NestedObject
 	public abstract DefaultNativeApplicationComponentDependencies getDependencies();
 
 	@Override

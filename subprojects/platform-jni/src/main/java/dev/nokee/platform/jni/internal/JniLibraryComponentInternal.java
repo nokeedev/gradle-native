@@ -17,6 +17,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentBinary;
@@ -44,7 +45,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, TargetedNativeComponentSpec
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies, DefaultJavaNativeInterfaceLibraryComponentDependencies>
+	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<JniLibrary>
 	, SourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources, JavaNativeInterfaceSourcesViewAdapter>
 	, BinaryAwareComponentMixIn
@@ -61,6 +62,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	}
 
 	@Override
+	@NestedObject
 	public abstract DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies();
 
 	@Override

@@ -25,6 +25,7 @@ import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
@@ -46,7 +47,7 @@ public  /*final*/ abstract class CLibrarySpec extends ModelElementSupport implem
 	, NativeComponentSpec
 	, NativeLibraryComponent
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies, DefaultNativeLibraryComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -63,6 +64,7 @@ public  /*final*/ abstract class CLibrarySpec extends ModelElementSupport implem
 	}
 
 	@Override
+	@NestedObject
 	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
 
 	@Override

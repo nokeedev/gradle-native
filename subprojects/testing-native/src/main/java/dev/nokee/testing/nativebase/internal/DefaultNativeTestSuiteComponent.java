@@ -33,6 +33,7 @@ import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentVariant;
@@ -88,7 +89,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, NativeTestSuiteComponentSpec
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, VariantAwareComponentMixIn<NativeTestSuiteVariant>
 	, HasDevelopmentVariant<NativeTestSuiteVariant>
@@ -108,6 +109,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	}
 
 	@Override
+	@NestedObject
 	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	@Override

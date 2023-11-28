@@ -23,6 +23,7 @@ import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
@@ -44,7 +45,7 @@ public  /*final*/ abstract class SwiftLibrarySpec extends ModelElementSupport im
 	, NativeComponentSpec
 	, NativeLibraryComponent
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies, DefaultNativeLibraryComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
@@ -59,6 +60,7 @@ public  /*final*/ abstract class SwiftLibrarySpec extends ModelElementSupport im
 	}
 
 	@Override
+	@NestedObject
 	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
 
 	@Override

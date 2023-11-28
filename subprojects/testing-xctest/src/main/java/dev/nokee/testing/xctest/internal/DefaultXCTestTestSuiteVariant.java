@@ -21,6 +21,7 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
@@ -42,7 +43,7 @@ import javax.inject.Inject;
 public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVariant implements IosApplication, VariantInternal
 	, NativeVariant
 	, NativeSourcesAware
-	, DependencyAwareComponentMixIn<NativeComponentDependencies, DefaultNativeComponentDependencies>
+	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
@@ -56,6 +57,7 @@ public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVarian
 	}
 
 	@Override
+	@NestedObject
 	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	@Override
