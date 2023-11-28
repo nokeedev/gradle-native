@@ -59,7 +59,7 @@ public /*final*/ class InjectServiceDecorator implements Decorator {
 					assert ((ParameterizedType) returnType.getType()).getActualTypeArguments().length == 1;
 					mv.visitLdcInsn(org.objectweb.asm.Type.getType((Class<?>) ((ParameterizedType) returnType.getType()).getRawType()));
 					mv.visitLdcInsn(org.objectweb.asm.Type.getType((Class<?>) ((ParameterizedType) returnType.getType()).getActualTypeArguments()[0]));
-					mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(InjectServiceDecorator.class), "typeOf", "(Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/reflectType;", false);
+					mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(InjectServiceDecorator.class), "typeOf", "(Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/reflect/Type;", false);
 				} else {
 					assert returnType.getType() instanceof Class;
 					mv.visitLdcInsn(org.objectweb.asm.Type.getType((Class<?>) returnType.getType()));
