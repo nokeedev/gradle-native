@@ -16,14 +16,11 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.decorators.NestedObject;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface ObjectsTaskMixIn extends ModelMixIn {
+public interface ObjectsTaskMixIn {
 	@NestedObject
-	default TaskProvider<Task> getObjectsTask() {
-		return mixedIn("objectsTask");
-	}
+	TaskProvider<Task> getObjectsTask();
 }

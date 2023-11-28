@@ -17,14 +17,11 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.model.internal.decorators.NestedObject;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface NativeCompileTaskMixIn<T extends SourceCompile, U extends T> extends ModelMixIn, HasCompileTask<T> {
+public interface NativeCompileTaskMixIn<T extends SourceCompile, U extends T> extends HasCompileTask<T> {
 	@Override
 	@NestedObject
-	default TaskProvider<U> getCompileTask() {
-		return mixedIn("compileTask");
-	}
+	TaskProvider<U> getCompileTask();
 }
