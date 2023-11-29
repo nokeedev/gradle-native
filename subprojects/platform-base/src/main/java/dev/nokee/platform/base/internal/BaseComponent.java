@@ -30,11 +30,11 @@ import java.util.Set;
 public abstract class BaseComponent<T extends Variant> extends ModelElementSupport implements Component {
 	public abstract Property<String> getBaseName();
 
-	public abstract Provider<T> getDevelopmentVariant();
+	public abstract Provider<? extends T> getDevelopmentVariant();
 
 	public abstract BinaryView<Binary> getBinaries();
 
-	public abstract VariantView<T> getVariants();
+	public abstract VariantView<? extends T> getVariants();
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
 	public abstract Provider<Set<BuildVariant>> getBuildVariants();

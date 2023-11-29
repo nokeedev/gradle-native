@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.base.internal;
 
-import dev.nokee.platform.nativebase.NativeLibraryExtension;
+import dev.nokee.model.internal.decorators.Decorate;
+import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.VariantView;
+import org.gradle.api.provider.Property;
 
-public  /*final*/ abstract class NativeLibrarySpec extends BaseNativeLibraryComponentSpec<DefaultNativeLibraryVariant> implements NativeLibraryExtension
-{
-	@Override
-	protected String getTypeName() {
-		return "native library";
-	}
+public interface VariantComponentSpec<T extends Variant/*Spec*/> {
+	@Decorate(NestedViewDecorator.class)
+	VariantView<T> getVariants();
+
+	Property<T> getDevelopmentVariant();
+
+	@NestedObject
+	DefaultVariantDimensions getDimensions();
 }

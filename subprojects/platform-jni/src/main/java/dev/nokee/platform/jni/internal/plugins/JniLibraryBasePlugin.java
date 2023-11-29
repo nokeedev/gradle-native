@@ -195,7 +195,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					{
 						val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
 						val values = project.getObjects().listProperty(PublishArtifact.class);
-						Provider<List<JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine()));
+						Provider<? extends List<? extends JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine()));
 						Provider<Iterable<? extends JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
 						val allArtifacts = project.getObjects().listProperty(PublishArtifact.class);
 						allArtifacts.set(allJniJars.flatMap(binaries -> {
@@ -304,10 +304,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", __ -> component.getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class));
 		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			component.getDevelopmentVariant().convention((Provider<? extends JniLibrary>) project.provider(new BuildableDevelopmentVariantConvention(() -> component.getVariants().getElements().get())));
+			component.getDevelopmentVariant().convention((Provider<? extends JniLibraryInternal>) project.provider(new BuildableDevelopmentVariantConvention(() -> component.getVariants().getElements().get())));
 		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			Provider<List<JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> v.getSharedLibrary().isBuildable());
+			Provider<? extends List<? extends JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> v.getSharedLibrary().isBuildable());
 			component.getAssembleTask().configure(configureDependsOn(component.getDevelopmentVariant().map(JniLibrary::getJavaNativeInterfaceJar).map(Collections::singletonList).orElse(Collections.emptyList())));
 			component.getAssembleTask().configure(task -> {
 				task.dependsOn((Callable<Object>) () -> {

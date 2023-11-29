@@ -36,14 +36,14 @@ public interface VariantAwareComponent<T extends Variant> {
 	 *
 	 * @return a {@link ComponentVariants}, never null.
 	 */
-	VariantView<T> getVariants();
+	VariantView<? extends T> getVariants();
 
 	/**
 	 * Configures the component variants using the specified configuration action.
 	 *
 	 * @param action  the configuration action, must not be null
 	 */
-	void variants(Action<? super VariantView<T>> action);
+	void variants(Action<? super VariantView<? extends T>> action);
 	void variants(@ClosureParams(value = SimpleType.class, options = "dev.nokee.platform.base.VariantView") @DelegatesTo(value = VariantView.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 
 	/**

@@ -19,15 +19,11 @@ package dev.nokee.platform.objectivec.internal;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
-import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.objectivec.ObjectiveCApplication;
 
-public  /*final*/ abstract class ObjectiveCApplicationSpec extends BaseNativeApplicationComponentSpec implements ObjectiveCApplication
-	, VariantAwareComponentMixIn<NativeApplication>
-	, HasDevelopmentVariant<NativeApplication>
+public  /*final*/ abstract class ObjectiveCApplicationSpec extends BaseNativeApplicationComponentSpec<DefaultNativeApplicationVariant> implements ObjectiveCApplication
 	, ObjectiveCSourcesMixIn
 	, PrivateHeadersMixIn
 	, SupportObjectiveCSourceSetTag

@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base;
 
-import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 
 /**
  * Represents something that carries development variant.
@@ -30,5 +30,5 @@ public interface HasDevelopmentVariant<T extends Variant> {
 	 *
 	 * @return a property for configuring the development variant, never null
 	 */
-	Property<T> getDevelopmentVariant();
+	Provider<? extends T> getDevelopmentVariant();
 }

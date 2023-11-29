@@ -18,13 +18,11 @@ package dev.nokee.platform.swift.internal;
 
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
-import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.swift.SwiftLibrary;
 
-public /*final*/ abstract class SwiftLibrarySpec extends BaseNativeLibraryComponentSpec implements SwiftLibrary
-	, VariantAwareComponentMixIn<NativeLibrary>
+public /*final*/ abstract class SwiftLibrarySpec extends BaseNativeLibraryComponentSpec<DefaultNativeLibraryVariant> implements SwiftLibrary
 	, SwiftSourcesMixIn
 	, SupportSwiftSourceSetTag
 {

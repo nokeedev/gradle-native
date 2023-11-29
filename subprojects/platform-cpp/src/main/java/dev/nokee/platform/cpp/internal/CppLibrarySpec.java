@@ -20,13 +20,11 @@ import dev.nokee.language.cpp.internal.CppSourcesMixIn;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
-import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.cpp.CppLibrary;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 
-public  /*final*/ abstract class CppLibrarySpec extends BaseNativeLibraryComponentSpec implements CppLibrary
-	, VariantAwareComponentMixIn<NativeLibrary>
+public  /*final*/ abstract class CppLibrarySpec extends BaseNativeLibraryComponentSpec<DefaultNativeLibraryVariant> implements CppLibrary
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn
 	, CppSourcesMixIn

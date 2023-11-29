@@ -22,6 +22,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
@@ -45,6 +46,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, TargetedNativeComponentSpec
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
+	, VariantComponentSpec<JniLibraryInternal>
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<JniLibrary>
 	, SourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
@@ -57,7 +59,6 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	public JniLibraryComponentInternal(ObjectFactory objects, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory) {
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
-		getExtensions().add("developmentVariant", objects.property(JniLibrary.class));
 		getExtensions().add("sources", sourcesFactory.create());
 	}
 
@@ -75,12 +76,6 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	@SuppressWarnings("unchecked")
 	public Property<Binary> getDevelopmentBinary() {
 		return (Property<Binary>) getExtensions().getByName("developmentBinary");
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public Property<JniLibrary> getDevelopmentVariant() {
-		return (Property<JniLibrary>) getExtensions().getByName("developmentVariant");
 	}
 
 	@Override

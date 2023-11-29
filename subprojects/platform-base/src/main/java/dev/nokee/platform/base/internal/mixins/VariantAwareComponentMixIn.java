@@ -15,14 +15,12 @@
  */
 package dev.nokee.platform.base.internal.mixins;
 
-import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
-import dev.nokee.platform.base.internal.NestedViewDecorator;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
@@ -33,11 +31,7 @@ import java.util.Set;
 
 public interface VariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T>, VariantAwareComponentInternal<T> {
 	@Override
-	@Decorate(NestedViewDecorator.class)
-	VariantView<T> getVariants();
-
-	@Override
-	default void variants(Action<? super VariantView<T>> action) {
+	default void variants(Action<? super VariantView<? extends T>> action) {
 		action.execute(getVariants());
 	}
 

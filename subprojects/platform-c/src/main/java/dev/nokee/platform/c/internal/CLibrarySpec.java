@@ -20,13 +20,11 @@ import dev.nokee.language.c.internal.CSourcesMixIn;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
-import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.c.CLibrary;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 
-public  /*final*/ abstract class CLibrarySpec extends BaseNativeLibraryComponentSpec implements CLibrary
-	, VariantAwareComponentMixIn<NativeLibrary>
+public  /*final*/ abstract class CLibrarySpec extends BaseNativeLibraryComponentSpec<DefaultNativeLibraryVariant> implements CLibrary
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn
 	, CSourcesMixIn

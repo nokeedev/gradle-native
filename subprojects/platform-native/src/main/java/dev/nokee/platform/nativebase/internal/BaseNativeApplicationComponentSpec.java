@@ -25,22 +25,27 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.NestedViewDecorator;
+import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
-public abstract class BaseNativeApplicationComponentSpec extends ModelElementSupport implements NativeApplicationExtension
+public abstract class BaseNativeApplicationComponentSpec<VariantType extends NativeApplication> extends ModelElementSupport implements NativeApplicationExtension
 	, ExtensionAwareMixIn
 	, NativeComponentSpec
 	, NativeApplicationComponent
+	, VariantComponentSpec<VariantType>
+	, VariantAwareComponentMixIn<NativeApplication>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, BinaryAwareComponentMixIn
