@@ -33,7 +33,7 @@ import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.NativeVariant;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import org.gradle.api.Task;
@@ -42,7 +42,7 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.inject.Inject;
 
 public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVariant implements NativeTestSuiteVariant, VariantInternal
-	, NativeVariant
+	, NativeVariantSpec
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn

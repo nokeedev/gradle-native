@@ -42,7 +42,7 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.inject.Inject;
 
 public /*final*/ abstract class DefaultNativeApplicationVariant extends BaseVariant implements NativeApplication, VariantInternal
-	, NativeVariant
+	, NativeVariantSpec
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>

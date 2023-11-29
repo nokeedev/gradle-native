@@ -48,7 +48,7 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.inject.Inject;
 
 public /*final*/ abstract class DefaultNativeLibraryVariant extends BaseVariant implements NativeLibrary, VariantInternal
-	, NativeVariant
+	, NativeVariantSpec
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>

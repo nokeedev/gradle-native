@@ -16,20 +16,15 @@
 
 package dev.nokee.platform.objectivecpp.internal;
 
-import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesMixIn;
-import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.nativebase.internal.NativeLibrarySpecEx;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibrary;
 
 public  /*final*/ abstract class ObjectiveCppLibrarySpec extends ModelElementSupport implements ObjectiveCppLibrary
 	, NativeLibrarySpecEx
-	, ObjectiveCppSourcesMixIn
-	, PrivateHeadersMixIn
+	, ObjectiveCppLanguageSupportSpec
 	, PublicHeadersMixIn
-	, SupportObjectiveCppSourceSetTag
 {
 	@Override
 	protected String getTypeName() {

@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.objectivec.internal;
+package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
-import dev.nokee.platform.objectivec.ObjectiveCApplication;
+import dev.nokee.platform.base.internal.VariantSpec;
 
-public /*final*/ abstract class ObjectiveCApplicationSpec extends ModelElementSupport implements ObjectiveCApplication
-	, NativeApplicationSpecEx
-	, ObjectiveCLanguageSupportSpec
-{
-	@Override
-	protected String getTypeName() {
-		return "Objective-C application";
-	}
+public interface NativeVariantSpec extends VariantSpec {
 }

@@ -38,7 +38,6 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.Variant;
@@ -73,7 +72,7 @@ import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinarySpec;
-import dev.nokee.platform.nativebase.internal.NativeVariant;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
@@ -260,7 +259,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		variants(project).withType(NativeVariant.class).configureEach(variant -> {
+		variants(project).withType(NativeVariantSpec.class).configureEach(variant -> {
 			val buildVariant = (BuildVariantInternal) variant.getBuildVariant();
 			val identifier = ((ModelElement) variant).getIdentifier();
 
@@ -367,14 +366,14 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 			}
 		});
-		variants(project).withType(NativeVariant.class).configureEach(variant -> {
+		variants(project).withType(NativeVariantSpec.class).configureEach(variant -> {
 			if (variant instanceof NativeApplicationComponent && variant instanceof HasRuntimeElementsDependencyBucket) {
 				new NativeApplicationOutgoingDependencies(((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project.getObjects()).getExportedBinary().convention(variant.getDevelopmentBinary());
 			}
 		});
-		variants(project).withType(NativeVariant.class).configureEach(new Action<NativeVariant>() {
+		variants(project).withType(NativeVariantSpec.class).configureEach(new Action<NativeVariantSpec>() {
 			@Override
-			public void execute(NativeVariant variant) {
+			public void execute(NativeVariantSpec variant) {
 				if (variant instanceof NativeLibraryComponent) {
 					final VariantIdentifier variantIdentifier = (VariantIdentifier) ((ModelElement) variant).getIdentifier();
 					final boolean hasSwift = model(project, objects()).parentsOf(variantIdentifier).anyMatch(it -> ((ExtensionAware) it.get()).getExtensions().findByType(SupportSwiftSourceSetTag.class) != null) || project.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null;

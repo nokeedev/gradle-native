@@ -19,11 +19,9 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IVariantOf;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.internal.mixins.ApiElementsDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.mixins.LinkElementsDependencyBucketMixIn;
@@ -38,8 +36,8 @@ import javax.inject.Inject;
 public abstract /*final*/ class DefaultNativeLibrary extends NativeLibrarySpec implements INativeComponentSpec<NativeLibrarySpec>
 	, VariantComponentSpec<DefaultNativeLibrary.Variant>
 {
-	public static abstract /*final*/ class Variant extends NativeLibrarySpec implements IVariantOf<NativeLibrarySpec>, VariantInternal
-		, NativeVariant
+	public static abstract /*final*/ class Variant extends NativeLibrarySpec implements IVariantOf<NativeLibrarySpec>
+		, NativeVariantSpec
 		, NativeSourcesAware
 		, ApiElementsDependencyBucketMixIn
 		, LinkElementsDependencyBucketMixIn
@@ -57,10 +55,6 @@ public abstract /*final*/ class DefaultNativeLibrary extends NativeLibrarySpec i
 
 		public VariantIdentifier getIdentifier() {
 			return (VariantIdentifier) super.getIdentifier();
-		}
-
-		public BuildVariantInternal getBuildVariant() {
-			return (BuildVariantInternal) getIdentifier().getBuildVariant();
 		}
 
 		@SuppressWarnings("unchecked")

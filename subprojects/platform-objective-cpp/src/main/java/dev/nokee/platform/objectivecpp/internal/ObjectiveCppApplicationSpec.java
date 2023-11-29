@@ -16,18 +16,13 @@
 
 package dev.nokee.platform.objectivecpp.internal;
 
-import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesMixIn;
-import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
 
 public  /*final*/ abstract class ObjectiveCppApplicationSpec extends ModelElementSupport implements ObjectiveCppApplication
 	, NativeApplicationSpecEx
-	, ObjectiveCppSourcesMixIn
-	, PrivateHeadersMixIn
-	, SupportObjectiveCppSourceSetTag
+	, ObjectiveCppLanguageSupportSpec
 {
 	@Override
 	protected String getTypeName() {

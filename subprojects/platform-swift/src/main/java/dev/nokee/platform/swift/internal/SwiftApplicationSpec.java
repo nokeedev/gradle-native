@@ -16,16 +16,13 @@
 
 package dev.nokee.platform.swift.internal;
 
-import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
-import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
 import dev.nokee.platform.swift.SwiftApplication;
 
 public /*final*/ abstract class SwiftApplicationSpec extends ModelElementSupport implements SwiftApplication
 	, NativeApplicationSpecEx
-	, SwiftSourcesMixIn
-	, SupportSwiftSourceSetTag
+	, SwiftLanguageSupportSpec
 {
 	@Override
 	protected String getTypeName() {

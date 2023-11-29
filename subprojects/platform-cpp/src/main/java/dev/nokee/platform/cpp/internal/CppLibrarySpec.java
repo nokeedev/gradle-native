@@ -16,9 +16,6 @@
 
 package dev.nokee.platform.cpp.internal;
 
-import dev.nokee.language.cpp.internal.CppSourcesMixIn;
-import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
-import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.cpp.CppLibrary;
@@ -26,10 +23,8 @@ import dev.nokee.platform.nativebase.internal.NativeLibrarySpecEx;
 
 public  /*final*/ abstract class CppLibrarySpec extends ModelElementSupport implements CppLibrary
 	, NativeLibrarySpecEx
-	, PrivateHeadersMixIn
+	, CppLanguageSupportSpec
 	, PublicHeadersMixIn
-	, CppSourcesMixIn
-	, SupportCppSourceSetTag
 {
 	@Override
 	protected String getTypeName() {

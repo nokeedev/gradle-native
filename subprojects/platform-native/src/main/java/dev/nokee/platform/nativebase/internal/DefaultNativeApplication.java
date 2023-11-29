@@ -19,11 +19,9 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IVariantOf;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.nativebase.internal.mixins.RuntimeElementsDependencyBucketMixIn;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
@@ -34,8 +32,8 @@ import javax.inject.Inject;
 public abstract /*final*/ class DefaultNativeApplication extends NativeApplicationSpec implements INativeComponentSpec<NativeApplicationSpec>
 	, VariantComponentSpec<DefaultNativeApplication.Variant>
 {
-	public static abstract /*final*/ class Variant extends NativeApplicationSpec implements IVariantOf<NativeApplicationSpec>, VariantInternal
-		, NativeVariant
+	public static abstract /*final*/ class Variant extends NativeApplicationSpec implements IVariantOf<NativeApplicationSpec>
+		, NativeVariantSpec
 		, NativeSourcesAware
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
@@ -47,10 +45,6 @@ public abstract /*final*/ class DefaultNativeApplication extends NativeApplicati
 
 		public VariantIdentifier getIdentifier() {
 			return (VariantIdentifier) super.getIdentifier();
-		}
-
-		public BuildVariantInternal getBuildVariant() {
-			return (BuildVariantInternal) getIdentifier().getBuildVariant();
 		}
 
 		@SuppressWarnings("unchecked")

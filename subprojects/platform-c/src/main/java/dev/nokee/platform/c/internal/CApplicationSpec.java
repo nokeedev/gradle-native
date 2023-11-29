@@ -16,18 +16,13 @@
 
 package dev.nokee.platform.c.internal;
 
-import dev.nokee.language.c.internal.CSourcesMixIn;
-import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
-import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.c.CApplication;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
 
 public /*final*/ abstract class CApplicationSpec extends ModelElementSupport implements CApplication
 	, NativeApplicationSpecEx
-	, PrivateHeadersMixIn
-	, CSourcesMixIn
-	, SupportCSourceSetTag
+	, CLanguageSupportSpec
 {
 	@Override
 	protected String getTypeName() {

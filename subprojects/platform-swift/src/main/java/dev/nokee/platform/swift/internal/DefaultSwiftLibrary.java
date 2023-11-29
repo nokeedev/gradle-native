@@ -19,15 +19,13 @@ package dev.nokee.platform.swift.internal;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IVariantOf;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.internal.HasBinaryLifecycleTask;
 import dev.nokee.platform.nativebase.internal.INativeComponentSpec;
-import dev.nokee.platform.nativebase.internal.NativeVariant;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.internal.mixins.ApiElementsDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.mixins.LinkElementsDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.mixins.RuntimeElementsDependencyBucketMixIn;
@@ -41,8 +39,8 @@ import javax.inject.Inject;
 public abstract /*final*/ class DefaultSwiftLibrary extends SwiftLibrarySpec implements INativeComponentSpec<SwiftLibrarySpec>
 	, VariantComponentSpec<DefaultSwiftLibrary.Variant>
 {
-	public static abstract /*final*/ class Variant extends SwiftLibrarySpec implements IVariantOf<SwiftLibrarySpec>, VariantInternal
-		, NativeVariant
+	public static abstract /*final*/ class Variant extends SwiftLibrarySpec implements IVariantOf<SwiftLibrarySpec>
+		, NativeVariantSpec
 		, NativeSourcesAware
 		, ApiElementsDependencyBucketMixIn
 		, LinkElementsDependencyBucketMixIn
@@ -60,10 +58,6 @@ public abstract /*final*/ class DefaultSwiftLibrary extends SwiftLibrarySpec imp
 
 		public VariantIdentifier getIdentifier() {
 			return (VariantIdentifier) super.getIdentifier();
-		}
-
-		public BuildVariantInternal getBuildVariant() {
-			return (BuildVariantInternal) getIdentifier().getBuildVariant();
 		}
 
 		@SuppressWarnings("unchecked")

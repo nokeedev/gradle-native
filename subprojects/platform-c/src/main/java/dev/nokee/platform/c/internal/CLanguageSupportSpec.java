@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.objectivec.internal;
+package dev.nokee.platform.c.internal;
 
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
-import dev.nokee.platform.objectivec.ObjectiveCApplication;
+import dev.nokee.language.c.internal.CSourcesMixIn;
+import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
+import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 
-public /*final*/ abstract class ObjectiveCApplicationSpec extends ModelElementSupport implements ObjectiveCApplication
-	, NativeApplicationSpecEx
-	, ObjectiveCLanguageSupportSpec
-{
-	@Override
-	protected String getTypeName() {
-		return "Objective-C application";
-	}
-}
+public interface CLanguageSupportSpec extends SupportCSourceSetTag, CSourcesMixIn, PrivateHeadersMixIn {}

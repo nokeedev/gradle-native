@@ -16,18 +16,13 @@
 
 package dev.nokee.platform.cpp.internal;
 
-import dev.nokee.language.cpp.internal.CppSourcesMixIn;
-import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
-import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
 
 public  /*final*/ abstract class CppApplicationSpec extends ModelElementSupport implements CppApplication
 	, NativeApplicationSpecEx
-	, PrivateHeadersMixIn
-	, CppSourcesMixIn
-	, SupportCppSourceSetTag
+	, CppLanguageSupportSpec
 {
 	@Override
 	protected String getTypeName() {

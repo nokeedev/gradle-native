@@ -19,15 +19,13 @@ package dev.nokee.platform.objectivec.internal;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IVariantOf;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.nativebase.internal.HasBinaryLifecycleTask;
 import dev.nokee.platform.nativebase.internal.INativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
-import dev.nokee.platform.nativebase.internal.NativeVariant;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.internal.mixins.RuntimeElementsDependencyBucketMixIn;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
@@ -38,8 +36,8 @@ import javax.inject.Inject;
 public /*final*/ abstract class DefaultObjectiveCApplication extends ObjectiveCApplicationSpec implements INativeComponentSpec<ObjectiveCApplicationSpec>
 	, VariantComponentSpec<DefaultObjectiveCApplication.Variant>
 {
-	public static abstract class Variant extends ObjectiveCApplicationSpec implements IVariantOf<ObjectiveCApplicationSpec>, VariantInternal
-		, NativeVariant
+	public static abstract class Variant extends ObjectiveCApplicationSpec implements IVariantOf<ObjectiveCApplicationSpec>
+		, NativeVariantSpec
 		, NativeSourcesAware
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
@@ -51,10 +49,6 @@ public /*final*/ abstract class DefaultObjectiveCApplication extends ObjectiveCA
 
 		public VariantIdentifier getIdentifier() {
 			return (VariantIdentifier) super.getIdentifier();
-		}
-
-		public BuildVariantInternal getBuildVariant() {
-			return (BuildVariantInternal) getIdentifier().getBuildVariant();
 		}
 
 		@SuppressWarnings("unchecked")

@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.platform.base.Variant;
 
-public interface NativeVariant extends Variant {
+public interface VariantSpec extends ModelElement, Variant, VariantInternal {
+	@Override
+	VariantIdentifier getIdentifier();
+
+	@Override
+	default BuildVariantInternal getBuildVariant() {
+		return (BuildVariantInternal) getIdentifier().getBuildVariant();
+	}
 }

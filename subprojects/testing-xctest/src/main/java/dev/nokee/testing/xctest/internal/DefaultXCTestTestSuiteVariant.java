@@ -33,7 +33,7 @@ import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.NativeVariant;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
@@ -41,7 +41,7 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.inject.Inject;
 
 public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVariant implements IosApplication, VariantInternal
-	, NativeVariant
+	, NativeVariantSpec
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn
