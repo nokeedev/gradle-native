@@ -18,9 +18,9 @@ package dev.nokee.platform.swift.internal.plugins;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.swift.SwiftApplication;
-import dev.nokee.platform.swift.internal.SwiftApplicationSpec;
+import dev.nokee.platform.swift.internal.DefaultSwiftApplication;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -58,14 +58,17 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(SwiftApplicationSpec.class, name -> {
-			return instantiator(project).newInstance(SwiftApplicationSpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultSwiftApplication.class, name -> {
+			return instantiator(project).newInstance(DefaultSwiftApplication.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultSwiftApplication.Variant.class, name -> {
+			return instantiator(project).newInstance(DefaultSwiftApplication.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<SwiftApplicationSpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), SwiftApplicationSpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultSwiftApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultSwiftApplication.class).asProvider();
 		componentProvider.configure(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(SwiftApplication.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }

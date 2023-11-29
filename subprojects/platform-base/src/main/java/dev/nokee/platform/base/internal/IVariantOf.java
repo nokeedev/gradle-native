@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.swift.internal;
+package dev.nokee.platform.base.internal;
 
-import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
-import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.nativebase.internal.NativeLibrarySpecEx;
-import dev.nokee.platform.swift.SwiftLibrary;
+import dev.nokee.platform.base.VariantOf;
 
-public /*final*/ abstract class SwiftLibrarySpec extends ModelElementSupport implements SwiftLibrary
-	, NativeLibrarySpecEx
-	, SwiftSourcesMixIn
-	, SupportSwiftSourceSetTag
-{
-	@Override
-	protected String getTypeName() {
-		return "Swift library";
-	}
+public interface IVariantOf<T> extends VariantOf<T> {
 }

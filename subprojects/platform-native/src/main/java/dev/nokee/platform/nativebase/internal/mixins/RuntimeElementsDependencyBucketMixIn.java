@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.swift.internal;
+package dev.nokee.platform.nativebase.internal.mixins;
 
-import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
-import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.nativebase.internal.NativeLibrarySpecEx;
-import dev.nokee.platform.swift.SwiftLibrary;
+import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
+import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 
-public /*final*/ abstract class SwiftLibrarySpec extends ModelElementSupport implements SwiftLibrary
-	, NativeLibrarySpecEx
-	, SwiftSourcesMixIn
-	, SupportSwiftSourceSetTag
-{
-	@Override
-	protected String getTypeName() {
-		return "Swift library";
-	}
+public interface RuntimeElementsDependencyBucketMixIn extends HasRuntimeElementsDependencyBucket {
+	@NestedObject
+	ConsumableDependencyBucketSpec getRuntimeElements();
 }

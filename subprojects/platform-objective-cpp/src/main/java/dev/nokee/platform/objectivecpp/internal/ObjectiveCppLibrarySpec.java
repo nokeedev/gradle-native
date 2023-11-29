@@ -20,17 +20,12 @@ import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesMixIn;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.VariantComponentSpec;
-import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.platform.nativebase.internal.NativeLibrarySpecEx;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibrary;
 
-public  /*final*/ abstract class ObjectiveCppLibrarySpec extends BaseNativeLibraryComponentSpec implements Component, ObjectiveCppLibrary
-	, VariantComponentSpec<DefaultNativeLibraryVariant>
-	, VariantAwareComponentMixIn<NativeLibrary>
+public  /*final*/ abstract class ObjectiveCppLibrarySpec extends ModelElementSupport implements ObjectiveCppLibrary
+	, NativeLibrarySpecEx
 	, ObjectiveCppSourcesMixIn
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn

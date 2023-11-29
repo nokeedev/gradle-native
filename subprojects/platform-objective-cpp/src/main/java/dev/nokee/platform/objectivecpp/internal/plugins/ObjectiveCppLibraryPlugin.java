@@ -19,9 +19,9 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.objectivecpp.ObjectiveCppLibrary;
-import dev.nokee.platform.objectivecpp.internal.ObjectiveCppLibrarySpec;
+import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppLibrary;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -57,14 +57,17 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(ObjectiveCppLibrarySpec.class, name -> {
-			return instantiator(project).newInstance(ObjectiveCppLibrarySpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCppLibrary.class, name -> {
+			return instantiator(project).newInstance(DefaultObjectiveCppLibrary.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultObjectiveCppLibrary.Variant.class, name -> {
+			return instantiator(project).newInstance(DefaultObjectiveCppLibrary.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<ObjectiveCppLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), ObjectiveCppLibrarySpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultObjectiveCppLibrary> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultObjectiveCppLibrary.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(ObjectiveCppLibrary.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }

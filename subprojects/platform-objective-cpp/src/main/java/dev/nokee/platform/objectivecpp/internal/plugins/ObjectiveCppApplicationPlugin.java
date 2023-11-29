@@ -19,9 +19,9 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
-import dev.nokee.platform.objectivecpp.internal.ObjectiveCppApplicationSpec;
+import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplication;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -57,14 +57,17 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(ObjectiveCppApplicationSpec.class, name -> {
-			return instantiator(project).newInstance(ObjectiveCppApplicationSpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCppApplication.class, name -> {
+			return instantiator(project).newInstance(DefaultObjectiveCppApplication.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultObjectiveCppApplication.Variant.class, name -> {
+			return instantiator(project).newInstance(DefaultObjectiveCppApplication.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<ObjectiveCppApplicationSpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), ObjectiveCppApplicationSpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultObjectiveCppApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultObjectiveCppApplication.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(ObjectiveCppApplication.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }

@@ -19,9 +19,9 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.objectivec.ObjectiveCApplication;
-import dev.nokee.platform.objectivec.internal.ObjectiveCApplicationSpec;
+import dev.nokee.platform.objectivec.internal.DefaultObjectiveCApplication;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -57,14 +57,17 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(ObjectiveCApplicationSpec.class, name -> {
-			return instantiator(project).newInstance(ObjectiveCApplicationSpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCApplication.class, name -> {
+			return instantiator(project).newInstance(DefaultObjectiveCApplication.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultObjectiveCApplication.Variant.class, name -> {
+			return instantiator(project).newInstance(DefaultObjectiveCApplication.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<ObjectiveCApplicationSpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), ObjectiveCApplicationSpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultObjectiveCApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultObjectiveCApplication.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(ObjectiveCApplication.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }

@@ -19,8 +19,8 @@ import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.cpp.CppLibrary;
-import dev.nokee.platform.cpp.internal.CppLibrarySpec;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.cpp.internal.DefaultCppLibrary;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -57,14 +57,17 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(CppLibrarySpec.class, name -> {
-			return instantiator(project).newInstance(CppLibrarySpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultCppLibrary.class, name -> {
+			return instantiator(project).newInstance(DefaultCppLibrary.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultCppLibrary.Variant.class, name -> {
+			return instantiator(project).newInstance(DefaultCppLibrary.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<CppLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), CppLibrarySpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultCppLibrary> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultCppLibrary.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(CppLibrary.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }

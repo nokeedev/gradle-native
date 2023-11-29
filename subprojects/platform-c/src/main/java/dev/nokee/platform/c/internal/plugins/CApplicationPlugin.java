@@ -19,8 +19,8 @@ import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.c.CApplication;
-import dev.nokee.platform.c.internal.CApplicationSpec;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.c.internal.DefaultCApplication;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -57,14 +57,17 @@ public class CApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(CApplicationSpec.class, name -> {
-			return instantiator(project).newInstance(CApplicationSpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultCApplication.class, name -> {
+			return instantiator(project).newInstance(DefaultCApplication.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultCApplication.Variant.class, name -> {
+			return instantiator(project).newInstance(DefaultCApplication.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<CApplicationSpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), CApplicationSpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultCApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultCApplication.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(CApplication.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }

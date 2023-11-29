@@ -19,8 +19,8 @@ import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.c.CLibrary;
-import dev.nokee.platform.c.internal.CLibrarySpec;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.c.internal.DefaultCLibrary;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -57,14 +57,17 @@ public class CLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(CLibrarySpec.class, name -> {
-			return instantiator(project).newInstance(CLibrarySpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultCLibrary.class, name -> {
+			return instantiator(project).newInstance(DefaultCLibrary.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultCLibrary.Variant.class, name -> {
+			return instantiator(project).newInstance(DefaultCLibrary.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<CLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), CLibrarySpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultCLibrary> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultCLibrary.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(CLibrary.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }

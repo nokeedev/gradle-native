@@ -19,17 +19,12 @@ package dev.nokee.platform.cpp.internal;
 import dev.nokee.language.cpp.internal.CppSourcesMixIn;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.VariantComponentSpec;
-import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.cpp.CppApplication;
-import dev.nokee.platform.nativebase.NativeApplication;
-import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
+import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
 
-public  /*final*/ abstract class CppApplicationSpec extends BaseNativeApplicationComponentSpec implements Component, CppApplication
-	, VariantComponentSpec<DefaultNativeApplicationVariant>
-	, VariantAwareComponentMixIn<NativeApplication>
+public  /*final*/ abstract class CppApplicationSpec extends ModelElementSupport implements CppApplication
+	, NativeApplicationSpecEx
 	, PrivateHeadersMixIn
 	, CppSourcesMixIn
 	, SupportCppSourceSetTag

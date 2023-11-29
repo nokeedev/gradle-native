@@ -18,9 +18,9 @@ package dev.nokee.platform.swift.internal.plugins;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.swift.SwiftLibrary;
-import dev.nokee.platform.swift.internal.SwiftLibrarySpec;
+import dev.nokee.platform.swift.internal.DefaultSwiftLibrary;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -58,14 +58,17 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(SwiftLibrarySpec.class, name -> {
-			return instantiator(project).newInstance(SwiftLibrarySpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultSwiftLibrary.class, name -> {
+			return instantiator(project).newInstance(DefaultSwiftLibrary.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultSwiftLibrary.Variant.class,name -> {
+			return instantiator(project).newInstance(DefaultSwiftLibrary.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<SwiftLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), SwiftLibrarySpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultSwiftLibrary> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultSwiftLibrary.class).asProvider();
 		componentProvider.configure(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(SwiftLibrary.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }
