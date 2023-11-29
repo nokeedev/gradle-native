@@ -16,8 +16,6 @@
 package dev.nokee.platform.swift;
 
 import dev.nokee.language.swift.HasSwiftSources;
-import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 
 /**
@@ -28,7 +26,6 @@ import dev.nokee.platform.nativebase.NativeLibraryExtension;
  * @since 0.5
  */
 public interface SwiftLibrary extends NativeLibraryExtension
-	, VariantAwareComponent<NativeLibrary>
 	, HasSwiftSources
 {
 }

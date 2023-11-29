@@ -18,8 +18,6 @@ package dev.nokee.platform.c;
 import dev.nokee.language.c.HasCSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
-import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 
 /**
@@ -30,7 +28,6 @@ import dev.nokee.platform.nativebase.NativeLibraryExtension;
  * @since 0.5
  */
 public interface CLibrary extends NativeLibraryExtension
-	, VariantAwareComponent<NativeLibrary>
 	, HasPrivateHeaders
 	, HasPublicHeaders
 	, HasCSources

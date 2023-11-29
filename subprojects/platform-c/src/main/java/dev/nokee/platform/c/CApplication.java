@@ -17,10 +17,7 @@ package dev.nokee.platform.c;
 
 import dev.nokee.language.c.HasCSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
-import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
-import org.gradle.api.provider.Property;
 
 /**
  * Configuration for an application written in C, defining the dependencies that make up the application plus other settings.
@@ -30,7 +27,6 @@ import org.gradle.api.provider.Property;
  * @since 0.5
  */
 public interface CApplication extends NativeApplicationExtension
-	, VariantAwareComponent<NativeApplication>
 	, HasPrivateHeaders
 	, HasCSources
 {

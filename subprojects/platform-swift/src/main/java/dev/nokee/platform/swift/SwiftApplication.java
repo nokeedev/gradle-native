@@ -16,8 +16,6 @@
 package dev.nokee.platform.swift;
 
 import dev.nokee.language.swift.HasSwiftSources;
-import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 
 /**
@@ -28,7 +26,6 @@ import dev.nokee.platform.nativebase.NativeApplicationExtension;
  * @since 0.5
  */
 public interface SwiftApplication extends NativeApplicationExtension
-	, VariantAwareComponent<NativeApplication>
 	, HasSwiftSources
 {
 }

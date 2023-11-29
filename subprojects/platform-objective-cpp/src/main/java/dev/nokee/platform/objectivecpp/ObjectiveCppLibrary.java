@@ -18,8 +18,6 @@ package dev.nokee.platform.objectivecpp;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
-import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 
 /**
@@ -30,7 +28,6 @@ import dev.nokee.platform.nativebase.NativeLibraryExtension;
  * @since 0.5
  */
 public interface ObjectiveCppLibrary extends NativeLibraryExtension
-	, VariantAwareComponent<NativeLibrary>
 	, HasPrivateHeaders
 	, HasPublicHeaders
 	, HasObjectiveCppSources

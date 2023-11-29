@@ -17,8 +17,6 @@ package dev.nokee.platform.objectivecpp;
 
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
-import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
 
 /**
@@ -29,7 +27,6 @@ import dev.nokee.platform.nativebase.NativeApplicationExtension;
  * @since 0.5
  */
 public interface ObjectiveCppApplication extends NativeApplicationExtension
-	, VariantAwareComponent<NativeApplication>
 	, HasPrivateHeaders
 	, HasObjectiveCppSources
 {
