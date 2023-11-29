@@ -22,15 +22,10 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivec.internal.DefaultObjectiveCLibrary;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.model.ObjectFactory;
-
-import javax.inject.Inject;
 
 import static dev.nokee.model.internal.names.ElementName.ofMain;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
@@ -42,12 +37,6 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 
 public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
-	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
-
-	@Inject
-	public ObjectiveCLibraryPlugin(ObjectFactory objects) {
-		this.objects = objects;
-	}
 
 	@Override
 	public void apply(Project project) {
