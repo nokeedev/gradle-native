@@ -45,12 +45,12 @@ public /*final*/ class BinaryViewAdapter<T extends Binary> implements BinaryView
 	}
 
 	@Override
-	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
+	public <S> void configureEach(Class<S> type, Action<? super S> action) {
 		delegate.configureEach(type, action);
 	}
 
 	@Override
-	public <S extends T> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
+	public <S> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		delegate.configureEach(type, closure);
 	}
 

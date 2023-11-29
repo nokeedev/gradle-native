@@ -59,12 +59,12 @@ public final class ViewAdapter<T> implements View<T> {
 	}
 
 	@Override
-	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
+	public <S> void configureEach(Class<S> type, Action<? super S> action) {
 		strategy.configureEach(type, action);
 	}
 
 	@Override
-	public <S extends T> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
+	public <S> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		strategy.configureEach(type, new ClosureWrappedConfigureAction<>(closure));
 	}
 

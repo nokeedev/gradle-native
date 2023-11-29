@@ -64,7 +64,7 @@ public interface View<T> {
 	 * @param <S> the base type of the element to configure.
 	 * @param action the action to execute on each element for configuration.
 	 */
-	<S extends T> void configureEach(Class<S> type, Action<? super S> action);
+	<S> void configureEach(Class<S> type, Action<? super S> action);
 
 	/**
 	 * Registers a closure to execute to configure each element in the view.
@@ -77,7 +77,7 @@ public interface View<T> {
 	 * @param <S> the base type of the element to configure.
 	 * @param closure the closure to execute on each element for configuration.
 	 */
-	default <S extends T> void configureEach(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
+	default <S> void configureEach(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		configureEach(type, ConfigureUtils.configureUsing(closure));
 	}
 

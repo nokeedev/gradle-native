@@ -46,12 +46,12 @@ public /*final*/ class TaskViewAdapter<T extends Task> implements TaskView<T> {
 	}
 
 	@Override
-	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
+	public <S> void configureEach(Class<S> type, Action<? super S> action) {
 		delegate.configureEach(type, action);
 	}
 
 	@Override
-	public <S extends T> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
+	public <S> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		delegate.configureEach(type, closure);
 	}
 

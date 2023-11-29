@@ -100,12 +100,12 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	@Override
-	public <S extends LanguageSourceSet> void configureEach(Class<S> type, Action<? super S> action) {
+	public <S> void configureEach(Class<S> type, Action<? super S> action) {
 		delegate.configureEach(type, action);
 	}
 
 	@Override
-	public <S extends LanguageSourceSet> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
+	public <S> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		delegate.configureEach(type, closure);
 	}
 

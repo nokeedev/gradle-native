@@ -50,7 +50,7 @@ public /*final*/ abstract class ContextualTestSuiteContainer implements TestSuit
 	}
 
 	@Override
-	public <S extends TestSuiteComponent> void configureEach(Class<S> type, Action<? super S> action) {
+	public <S> void configureEach(Class<S> type, Action<? super S> action) {
 		delegate.configureEach(type, action);
 	}
 

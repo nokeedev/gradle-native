@@ -78,7 +78,7 @@ public class SourceAwareComponentUtils {
 		}
 
 		@Override
-		public <S extends LanguageSourceSet> void configureEach(Class<S> type, Action<? super S> action) {
+		public <S> void configureEach(Class<S> type, Action<? super S> action) {
 			delegate.configureEach(type, action);
 		}
 
