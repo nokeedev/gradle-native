@@ -23,8 +23,6 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
@@ -53,10 +51,6 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 		getGroovy().configure(action);
 	}
 
-	public void groovy(@SuppressWarnings("rawtypes") Closure closure) {
-		groovy(ConfigureUtils.configureUsing(closure));
-	}
-
 	public NamedDomainObjectProvider<JavaSourceSet> getJava() {
 		try {
 			return named("java", JavaSourceSet.class);
@@ -67,10 +61,6 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 
 	public void java(Action<? super JavaSourceSet> action) {
 		getJava().configure(action);
-	}
-
-	public void java(@SuppressWarnings("rawtypes") Closure closure) {
-		java(ConfigureUtils.configureUsing(closure));
 	}
 
 	public NamedDomainObjectProvider<KotlinSourceSet> getKotlin() {
@@ -85,18 +75,9 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 		getKotlin().configure(action);
 	}
 
-	public void kotlin(@SuppressWarnings("rawtypes") Closure closure) {
-		kotlin(ConfigureUtils.configureUsing(closure));
-	}
-
 	@Override
 	public void configureEach(Action<? super LanguageSourceSet> action) {
 		delegate.configureEach(action);
-	}
-
-	@Override
-	public void configureEach(@SuppressWarnings("rawtypes") Closure closure) {
-		delegate.configureEach(closure);
 	}
 
 	@Override
@@ -105,18 +86,8 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	@Override
-	public <S> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		delegate.configureEach(type, closure);
-	}
-
-	@Override
 	public void configureEach(Spec<? super LanguageSourceSet> spec, Action<? super LanguageSourceSet> action) {
 		delegate.configureEach(spec, action);
-	}
-
-	@Override
-	public void configureEach(Spec<? super LanguageSourceSet> spec, @SuppressWarnings("rawtypes") Closure closure) {
-		delegate.configureEach(spec, closure);
 	}
 
 	@Override
@@ -150,17 +121,7 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	@Override
-	public void whenElementKnown(@SuppressWarnings("rawtypes") Closure closure) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, Action<? super KnownDomainObject<S>> action) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -170,18 +131,8 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	@Override
-	public void configure(String name, @SuppressWarnings("rawtypes") Closure closure) {
-		delegate.named(name, closure);
-	}
-
-	@Override
 	public <S extends LanguageSourceSet> void configure(String name, Class<S> type, Action<? super S> action) {
 		delegate.named(name, type, action);
-	}
-
-	@Override
-	public <S extends LanguageSourceSet> void configure(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		delegate.named(name, type, closure);
 	}
 
 	@Override

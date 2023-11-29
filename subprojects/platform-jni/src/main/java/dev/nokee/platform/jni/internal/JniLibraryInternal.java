@@ -40,8 +40,6 @@ import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
@@ -114,11 +112,6 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	@Override
 	public void sharedLibrary(Action<? super SharedLibraryBinary> action) {
 		action.execute(getSharedLibrary());
-	}
-
-	@Override
-	public void sharedLibrary(@SuppressWarnings("rawtypes") Closure closure) {
-		sharedLibrary(new ClosureWrappedConfigureAction<>(closure));
 	}
 
 	@SuppressWarnings("unchecked")

@@ -16,8 +16,6 @@
 package dev.nokee.language.objectivec.internal;
 
 import dev.nokee.language.objectivec.HasObjectiveCSources;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -25,10 +23,5 @@ public interface ObjectiveCSourcesMixIn extends HasObjectiveCSources {
 	@Override
 	default void objectiveCSources(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getObjectiveCSources());
-	}
-
-	@Override
-	default void objectiveCSources(@SuppressWarnings("rawtypes") Closure closure) {
-		objectiveCSources(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

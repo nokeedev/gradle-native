@@ -16,8 +16,6 @@
 package dev.nokee.language.cpp.internal;
 
 import dev.nokee.language.cpp.HasCppSources;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -28,10 +26,5 @@ public interface CppSourcesMixIn extends HasCppSources {
 	@Override
 	default void cppSources(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getCppSources());
-	}
-
-	@Override
-	default void cppSources(@SuppressWarnings("rawtypes") Closure closure) {
-		cppSources(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

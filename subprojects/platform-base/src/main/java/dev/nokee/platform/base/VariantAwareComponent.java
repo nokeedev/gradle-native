@@ -15,10 +15,6 @@
  */
 package dev.nokee.platform.base;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
 
@@ -44,7 +40,6 @@ public interface VariantAwareComponent<T extends Variant> {
 	 * @param action  the configuration action, must not be null
 	 */
 	void variants(Action<? super VariantView<? extends T>> action);
-	void variants(@ClosureParams(value = SimpleType.class, options = "dev.nokee.platform.base.VariantView") @DelegatesTo(value = VariantView.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 
 	/**
 	 * Returns the variant dimensions for this component.

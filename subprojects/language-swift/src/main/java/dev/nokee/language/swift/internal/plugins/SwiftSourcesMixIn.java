@@ -16,8 +16,6 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.swift.HasSwiftSources;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -25,10 +23,5 @@ public interface SwiftSourcesMixIn extends HasSwiftSources {
 	@Override
 	default void swiftSources(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getSwiftSources());
-	}
-
-	@Override
-	default void swiftSources(@SuppressWarnings("rawtypes") Closure closure) {
-		swiftSources(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

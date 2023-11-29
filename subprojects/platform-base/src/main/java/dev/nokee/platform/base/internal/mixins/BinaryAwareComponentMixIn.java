@@ -20,8 +20,6 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.NestedViewDecorator;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 
 public interface BinaryAwareComponentMixIn extends BinaryAwareComponent {
@@ -32,10 +30,5 @@ public interface BinaryAwareComponentMixIn extends BinaryAwareComponent {
 	@Override
 	default void binaries(Action<? super BinaryView<Binary>> action) {
 		action.execute(getBinaries());
-	}
-
-	@Override
-	default void binaries(@SuppressWarnings("rawtypes") Closure closure) {
-		binaries(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

@@ -22,8 +22,6 @@ import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
 
@@ -33,11 +31,6 @@ public interface VariantAwareComponentMixIn<T extends Variant> extends VariantAw
 	@Override
 	default void variants(Action<? super VariantView<? extends T>> action) {
 		action.execute(getVariants());
-	}
-
-	@Override
-	default void variants(@SuppressWarnings("rawtypes") Closure closure) {
-		variants(new ClosureWrappedConfigureAction<>(closure));
 	}
 
 	@Override

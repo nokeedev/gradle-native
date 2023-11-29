@@ -18,8 +18,6 @@ package dev.nokee.platform.base.internal.mixins;
 
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 
 public interface DependencyAwareComponentMixIn<T extends ComponentDependencies> extends DependencyAwareComponent<T> {
@@ -29,10 +27,5 @@ public interface DependencyAwareComponentMixIn<T extends ComponentDependencies> 
 	@Override
 	default void dependencies(Action<? super T> action) {
 		action.execute(getDependencies());
-	}
-
-	@Override
-	default void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

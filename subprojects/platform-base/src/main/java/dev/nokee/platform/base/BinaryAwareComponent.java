@@ -15,8 +15,6 @@
  */
 package dev.nokee.platform.base;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.platform.base.ComponentBinaries;
 
@@ -39,5 +37,4 @@ public interface BinaryAwareComponent {
 	 * @param action configuration action for {@link ComponentBinaries}.
 	 */
 	void binaries(Action<? super BinaryView<Binary>> action);
-	void binaries(@DelegatesTo(value = BinaryView.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

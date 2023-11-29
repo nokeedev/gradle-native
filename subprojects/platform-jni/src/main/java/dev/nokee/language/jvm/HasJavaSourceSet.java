@@ -16,10 +16,6 @@
 package dev.nokee.language.jvm;
 
 import dev.nokee.platform.base.ComponentSources;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 
@@ -45,5 +41,4 @@ public interface HasJavaSourceSet {
 	 * @see #getJava()
 	 */
 	void java(Action<? super JavaSourceSet> action);
-	void java(@ClosureParams(value = SimpleType.class, options = "dev.nokee.language.jvm.JavaSourceSet") @DelegatesTo(value = JavaSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

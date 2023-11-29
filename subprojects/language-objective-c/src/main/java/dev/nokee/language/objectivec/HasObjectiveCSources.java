@@ -15,8 +15,6 @@
  */
 package dev.nokee.language.objectivec;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -43,5 +41,4 @@ public interface HasObjectiveCSources {
 	 * @see #getObjectiveCSources()
 	 */
 	void objectiveCSources(Action<? super ConfigurableFileCollection> action);
-	void objectiveCSources(@DelegatesTo(value = ConfigurableFileCollection.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

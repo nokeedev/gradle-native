@@ -19,8 +19,6 @@ import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.NestedViewDecorator;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 
@@ -32,10 +30,5 @@ public interface TaskAwareComponentMixIn extends TaskAwareComponent {
 	@Override
 	default void tasks(Action<? super TaskView<Task>> action) {
 		action.execute(getTasks());
-	}
-
-	@Override
-	default void tasks(@SuppressWarnings("rawtypes") Closure closure) {
-		tasks(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

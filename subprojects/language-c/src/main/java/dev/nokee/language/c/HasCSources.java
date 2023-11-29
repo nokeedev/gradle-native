@@ -15,8 +15,6 @@
  */
 package dev.nokee.language.c;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -42,5 +40,4 @@ public interface HasCSources {
 	 * @see #getCSources()
 	 */
 	void cSources(Action<? super ConfigurableFileCollection> action);
-	void cSources(@DelegatesTo(value = ConfigurableFileCollection.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

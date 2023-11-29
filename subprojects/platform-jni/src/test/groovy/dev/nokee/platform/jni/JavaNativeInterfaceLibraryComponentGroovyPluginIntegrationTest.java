@@ -24,7 +24,6 @@ import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.HasGroovySourceSet;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,11 +75,6 @@ class JavaNativeInterfaceLibraryComponentGroovyPluginIntegrationTest extends Abs
 		@Override
 		public void configure(HasGroovySourceSet self, Action<? super GroovySourceSet> action) {
 			self.groovy(action);
-		}
-
-		@Override
-		public void configure(HasGroovySourceSet self, @SuppressWarnings("rawtypes") Closure closure) {
-			self.groovy(closure);
 		}
 	}
 }

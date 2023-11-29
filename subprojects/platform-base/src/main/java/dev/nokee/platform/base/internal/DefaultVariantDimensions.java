@@ -29,9 +29,7 @@ import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.CoordinateSpace;
 import dev.nokee.utils.Cast;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
 import dev.nokee.utils.TransformerUtils;
-import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
@@ -115,12 +113,6 @@ public /*final*/ abstract class DefaultVariantDimensions implements VariantDimen
 		DimensionPropertyRegistrationFactory.DimensionProperty<T> dimension = axisBuilder.build();
 		getElements().add(dimension);
 		return dimension.getProperty();
-	}
-
-	@Override
-	public <T> SetProperty<T> newAxis(Class<T> axisType, @SuppressWarnings("rawtypes") Closure closure) {
-		Objects.requireNonNull(closure);
-		return newAxis(axisType, new ClosureWrappedConfigureAction<>(closure));
 	}
 
 	private static final class ToCoordinateSet implements Transformer<Provider<CoordinateSet<?>>, DimensionPropertyRegistrationFactory.DimensionProperty<?>> {

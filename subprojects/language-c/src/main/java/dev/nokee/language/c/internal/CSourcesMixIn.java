@@ -16,8 +16,6 @@
 package dev.nokee.language.c.internal;
 
 import dev.nokee.language.c.HasCSources;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -30,10 +28,5 @@ public interface CSourcesMixIn extends HasCSources {
 	@Override
 	default void cSources(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getCSources());
-	}
-
-	@Override
-	default void cSources(@SuppressWarnings("rawtypes") Closure closure) {
-		cSources(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

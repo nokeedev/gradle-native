@@ -18,8 +18,6 @@ package dev.nokee.platform.base.internal.mixins;
 import dev.nokee.model.internal.ModelMixIn;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.SourceAwareComponent;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 
 public interface SourceAwareComponentMixIn<T extends ComponentSources> extends ModelMixIn, SourceAwareComponent<T> {
@@ -31,10 +29,5 @@ public interface SourceAwareComponentMixIn<T extends ComponentSources> extends M
 	@Override
 	default void sources(Action<? super T> action) {
 		action.execute(getSources());
-	}
-
-	@Override
-	default void sources(@SuppressWarnings("rawtypes") Closure closure) {
-		sources(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

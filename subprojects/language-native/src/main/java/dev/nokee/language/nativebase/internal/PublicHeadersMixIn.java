@@ -16,8 +16,6 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.nativebase.HasPublicHeaders;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -25,10 +23,5 @@ public interface PublicHeadersMixIn extends HasPublicHeaders {
 	@Override
 	default void publicHeaders(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getPublicHeaders());
-	}
-
-	@Override
-	default void publicHeaders(@SuppressWarnings("rawtypes") Closure closure) {
-		publicHeaders(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

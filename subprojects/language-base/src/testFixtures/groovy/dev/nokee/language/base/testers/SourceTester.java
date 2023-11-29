@@ -17,7 +17,6 @@ package dev.nokee.language.base.testers;
 
 import dev.nokee.internal.testing.testdoubles.TestClosure;
 import dev.nokee.language.base.LanguageSourceSet;
-import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -43,8 +42,6 @@ public interface SourceTester<T, U> {
 
 	NamedDomainObjectProvider<? extends LanguageSourceSet> get(T self);
 	void configure(T self, Action<? super U> action);
-	void configure(T self, @SuppressWarnings("rawtypes") Closure closure);
-
 
 	default LanguageSourceSet sourceSetUnderTest() {
 		return get(subject()).get();

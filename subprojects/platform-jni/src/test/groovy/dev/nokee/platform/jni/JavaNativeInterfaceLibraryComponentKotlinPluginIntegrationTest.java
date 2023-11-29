@@ -24,7 +24,6 @@ import dev.nokee.language.jvm.HasKotlinSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,11 +75,6 @@ class JavaNativeInterfaceLibraryComponentKotlinPluginIntegrationTest extends Abs
 		@Override
 		public void configure(HasKotlinSourceSet self, Action<? super KotlinSourceSet> action) {
 			self.kotlin(action);
-		}
-
-		@Override
-		public void configure(HasKotlinSourceSet self, @SuppressWarnings("rawtypes") Closure closure) {
-			self.kotlin(closure);
 		}
 	}
 }

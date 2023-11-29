@@ -48,7 +48,6 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -220,11 +219,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				subject().api(notation, action);
 			}
 
-			@Override
-			public void addDependency(JavaNativeInterfaceLibraryComponentDependencies self, Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-				subject().api(notation, closure);
-			}
-
 			@Test
 			void hasConfigurationWithProperName() {
 				assertThat(subject().getApi().getAsConfiguration(), named(variantName() + "Api"));
@@ -253,11 +247,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				subject().jvmImplementation(notation, action);
 			}
 
-			@Override
-			public void addDependency(JavaNativeInterfaceLibraryComponentDependencies self, Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-				subject().jvmImplementation(notation, closure);
-			}
-
 			@Test
 			void hasConfigurationWithProperName() {
 				assertThat(subject().getJvmImplementation().getAsConfiguration(), named(variantName() + "JvmImplementation"));
@@ -284,11 +273,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			@Override
 			public void addDependency(JavaNativeInterfaceLibraryComponentDependencies self, Object notation, Action<? super ModuleDependency> action) {
 				subject().jvmRuntimeOnly(notation, action);
-			}
-
-			@Override
-			public void addDependency(JavaNativeInterfaceLibraryComponentDependencies self, Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-				subject().jvmRuntimeOnly(notation, closure);
 			}
 
 			@Test

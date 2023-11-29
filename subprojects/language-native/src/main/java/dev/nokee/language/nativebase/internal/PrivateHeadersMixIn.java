@@ -16,8 +16,6 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.nativebase.HasPrivateHeaders;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -27,10 +25,5 @@ public interface PrivateHeadersMixIn extends HasPrivateHeaders {
 	@Override
 	default void privateHeaders(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getPrivateHeaders());
-	}
-
-	@Override
-	default void privateHeaders(@SuppressWarnings("rawtypes") Closure closure) {
-		privateHeaders(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

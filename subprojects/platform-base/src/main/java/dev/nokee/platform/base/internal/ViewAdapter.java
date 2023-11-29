@@ -18,8 +18,6 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
@@ -54,28 +52,13 @@ public final class ViewAdapter<T> implements View<T> {
 	}
 
 	@Override
-	public void configureEach(@SuppressWarnings("rawtypes") Closure closure) {
-		strategy.configureEach(elementType, new ClosureWrappedConfigureAction<>(closure));
-	}
-
-	@Override
 	public <S> void configureEach(Class<S> type, Action<? super S> action) {
 		strategy.configureEach(type, action);
 	}
 
 	@Override
-	public <S> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		strategy.configureEach(type, new ClosureWrappedConfigureAction<>(closure));
-	}
-
-	@Override
 	public void configureEach(Spec<? super T> spec, Action<? super T> action) {
 		strategy.configureEach(elementType, new SpecFilteringAction<>(spec, action));
-	}
-
-	@Override
-	public void configureEach(Spec<? super T> spec, @SuppressWarnings("rawtypes") Closure closure) {
-		strategy.configureEach(elementType, new SpecFilteringAction<>(spec, new ClosureWrappedConfigureAction<>(closure)));
 	}
 
 	@Override
@@ -112,16 +95,8 @@ public final class ViewAdapter<T> implements View<T> {
 		strategy.whenElementKnown(elementType, action);
 	}
 
-	public void whenElementKnown(@SuppressWarnings("rawtypes") Closure closure) {
-		strategy.whenElementKnown(elementType, new ClosureWrappedConfigureAction<>(closure));
-	}
-
 	public <S extends T> void whenElementKnown(Class<S> type, Action<? super KnownDomainObject<S>> action) {
 		strategy.whenElementKnown(type, action);
-	}
-
-	public <S extends T> void whenElementKnown(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		strategy.whenElementKnown(type, new ClosureWrappedConfigureAction<>(closure));
 	}
 
 	public NamedDomainObjectProvider<T> named(String name) {
@@ -134,12 +109,6 @@ public final class ViewAdapter<T> implements View<T> {
 		return result;
 	}
 
-	public NamedDomainObjectProvider<T> named(String name, @SuppressWarnings("rawtypes") Closure closure) {
-		val result = strategy.named(name, elementType);
-		result.configure(new ClosureWrappedConfigureAction<>(closure));
-		return result;
-	}
-
 	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
 		return strategy.named(name, type);
 	}
@@ -147,12 +116,6 @@ public final class ViewAdapter<T> implements View<T> {
 	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type, Action<? super S> action) {
 		val result = strategy.named(name, type);
 		result.configure(action);
-		return result;
-	}
-
-	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		val result = strategy.named(name, type);
-		result.configure(new ClosureWrappedConfigureAction<>(closure));
 		return result;
 	}
 

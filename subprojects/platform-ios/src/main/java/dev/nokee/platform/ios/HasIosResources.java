@@ -15,9 +15,6 @@
  */
 package dev.nokee.platform.ios;
 
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
@@ -48,15 +45,5 @@ public interface HasIosResources {
 	 */
 	default void resources(Action<? super IosResourceSet> action) {
 		sourceViewOf(this).named("resources", IosResourceSet.class).configure(action);
-	}
-
-	/**
-	 * Configures the iOS resources of this component using the specified configuration closure.
-	 *
-	 * @param closure  the configuration closure, must not be null
-	 * @see #getResources()
-	 */
-	default void resources(@DelegatesTo(value = IosResourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		resources(ConfigureUtils.configureUsing(closure));
 	}
 }

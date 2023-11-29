@@ -31,7 +31,6 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpe
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -131,11 +130,6 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 		@Override
 		public void configure(HasJavaSourceSet self, Action<? super JavaSourceSet> action) {
 			self.java(action);
-		}
-
-		@Override
-		public void configure(HasJavaSourceSet self, @SuppressWarnings("rawtypes") Closure closure) {
-			self.java(closure);
 		}
 	}
 

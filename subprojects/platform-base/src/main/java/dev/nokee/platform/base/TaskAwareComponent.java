@@ -15,8 +15,6 @@
  */
 package dev.nokee.platform.base;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 
@@ -39,5 +37,4 @@ public interface TaskAwareComponent {
 	 * @param action  the configuration action, must not be null
 	 */
 	void tasks(Action<? super TaskView<Task>> action);
-	void tasks(@DelegatesTo(value = TaskView.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

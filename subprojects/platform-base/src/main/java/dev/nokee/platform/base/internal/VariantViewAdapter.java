@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
@@ -40,28 +39,13 @@ public /*final*/ class VariantViewAdapter<T extends Variant> implements VariantV
 	}
 
 	@Override
-	public void configureEach(@SuppressWarnings("rawtypes") Closure closure) {
-		delegate.configureEach(closure);
-	}
-
-	@Override
 	public <S> void configureEach(Class<S> type, Action<? super S> action) {
 		delegate.configureEach(type, action);
 	}
 
 	@Override
-	public <S> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		delegate.configureEach(type, closure);
-	}
-
-	@Override
 	public void configureEach(Spec<? super T> spec, Action<? super T> action) {
 		delegate.configureEach(spec, action);
-	}
-
-	@Override
-	public void configureEach(Spec<? super T> spec, @SuppressWarnings("rawtypes") Closure closure) {
-		delegate.configureEach(spec, closure);
 	}
 
 	@Override

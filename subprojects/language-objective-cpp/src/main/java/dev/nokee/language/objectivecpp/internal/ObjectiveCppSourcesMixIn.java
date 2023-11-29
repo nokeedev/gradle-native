@@ -16,8 +16,6 @@
 package dev.nokee.language.objectivecpp.internal;
 
 import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -25,10 +23,5 @@ public interface ObjectiveCppSourcesMixIn extends HasObjectiveCppSources {
 	@Override
 	default void objectiveCppSources(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getObjectiveCppSources());
-	}
-
-	@Override
-	default void objectiveCppSources(@SuppressWarnings("rawtypes") Closure closure) {
-		objectiveCppSources(new ClosureWrappedConfigureAction<>(closure));
 	}
 }

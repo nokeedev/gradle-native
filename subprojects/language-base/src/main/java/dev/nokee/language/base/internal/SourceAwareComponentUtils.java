@@ -21,7 +21,6 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
-import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -123,17 +122,7 @@ public class SourceAwareComponentUtils {
 		}
 
 		@Override
-		public void whenElementKnown(@SuppressWarnings("rawtypes") Closure closure) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
 		public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, Action<? super KnownDomainObject<S>> action) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 			throw new UnsupportedOperationException();
 		}
 	}
