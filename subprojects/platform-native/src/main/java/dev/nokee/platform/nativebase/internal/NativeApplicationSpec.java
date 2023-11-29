@@ -16,15 +16,11 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.VariantComponentSpec;
-import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.nativebase.NativeApplication;
-import dev.nokee.platform.nativebase.NativeApplicationExtension;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.platform.nativebase.NativeApplicationEx;
 
-public abstract class NativeApplicationSpec extends BaseNativeApplicationComponentSpec implements Component, NativeApplicationExtension
-	, VariantComponentSpec<DefaultNativeApplicationVariant>
-	, VariantAwareComponentMixIn<NativeApplication>
+public abstract class NativeApplicationSpec extends ModelElementSupport implements NativeApplicationEx
+	, NativeApplicationSpecEx
 {
 	@Override
 	protected String getTypeName() {

@@ -19,8 +19,8 @@ import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.nativebase.NativeApplicationExtension;
-import dev.nokee.platform.nativebase.internal.NativeApplicationSpec;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplication;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -56,14 +56,17 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(NativeApplicationSpec.class, name -> {
-			return instantiator(project).newInstance(NativeApplicationSpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeApplication.class, name -> {
+			return instantiator(project).newInstance(DefaultNativeApplication.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplication.Variant.class, name -> {
+			return instantiator(project).newInstance(DefaultNativeApplication.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<NativeApplicationSpec> componentProvider = model(project, registryOf(NativeApplicationSpec.class)).register(ProjectIdentifier.of(project).child(ofMain()), NativeApplicationSpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultNativeApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultNativeApplication.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(NativeApplicationExtension.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }

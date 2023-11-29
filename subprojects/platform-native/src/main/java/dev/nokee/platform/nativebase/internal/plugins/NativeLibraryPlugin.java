@@ -19,8 +19,8 @@ import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.nativebase.NativeLibraryExtension;
-import dev.nokee.platform.nativebase.internal.NativeLibrarySpec;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibrary;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -56,14 +56,17 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(NativeLibrarySpec.class, name -> {
-			return instantiator(project).newInstance(NativeLibrarySpec.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeLibrary.class, name -> {
+			return instantiator(project).newInstance(DefaultNativeLibrary.class);
+		});
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibrary.Variant.class, name -> {
+			return instantiator(project).newInstance(DefaultNativeLibrary.Variant.class);
 		});
 
-		final NamedDomainObjectProvider<NativeLibrarySpec> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), NativeLibrarySpec.class).asProvider();
+		final NamedDomainObjectProvider<DefaultNativeLibrary> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultNativeLibrary.class).asProvider();
 		componentProvider.configure(baseName(convention(project.getName())));
 		val extension = componentProvider.get();
 
-		project.getExtensions().add(NativeLibraryExtension.class, EXTENSION_NAME, extension);
+		project.getExtensions().add(EXTENSION_NAME, extension);
 	}
 }
