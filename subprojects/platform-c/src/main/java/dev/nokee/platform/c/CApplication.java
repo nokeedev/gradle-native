@@ -17,7 +17,7 @@ package dev.nokee.platform.c;
 
 import dev.nokee.language.c.HasCSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
-import dev.nokee.platform.nativebase.NativeApplicationExtension;
+import dev.nokee.platform.nativebase.NativeApplicationEx;
 
 /**
  * Configuration for an application written in C, defining the dependencies that make up the application plus other settings.
@@ -26,7 +26,7 @@ import dev.nokee.platform.nativebase.NativeApplicationExtension;
  *
  * @since 0.5
  */
-public interface CApplication extends NativeApplicationExtension
+public interface CApplication extends NativeApplicationEx
 	, HasPrivateHeaders
 	, HasCSources
 {

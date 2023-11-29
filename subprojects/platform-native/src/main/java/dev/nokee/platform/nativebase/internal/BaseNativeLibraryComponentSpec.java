@@ -25,27 +25,22 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.NestedViewDecorator;
-import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
-public abstract class BaseNativeLibraryComponentSpec<VariantType extends NativeLibrary> extends ModelElementSupport implements NativeLibraryExtension
+public abstract class BaseNativeLibraryComponentSpec extends ModelElementSupport implements NativeLibraryExtension
 	, ExtensionAwareMixIn
 	, NativeComponentSpec
 	, NativeLibraryComponent
-	, VariantComponentSpec<VariantType>
-	, VariantAwareComponentMixIn<NativeLibrary>
 	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 	, BinaryAwareComponentMixIn

@@ -20,11 +20,17 @@ import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.internal.VariantComponentSpec;
+import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.objectivec.ObjectiveCLibrary;
 
-public  /*final*/ abstract class ObjectiveCLibrarySpec extends BaseNativeLibraryComponentSpec<DefaultNativeLibraryVariant> implements ObjectiveCLibrary
+public  /*final*/ abstract class ObjectiveCLibrarySpec extends BaseNativeLibraryComponentSpec implements Component, ObjectiveCLibrary
+	, VariantComponentSpec<DefaultNativeLibraryVariant>
+	, VariantAwareComponentMixIn<NativeLibrary>
 	, ObjectiveCSourcesMixIn
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn

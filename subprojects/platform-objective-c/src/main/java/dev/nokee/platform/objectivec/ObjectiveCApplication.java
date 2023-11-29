@@ -17,7 +17,7 @@ package dev.nokee.platform.objectivec;
 
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
-import dev.nokee.platform.nativebase.NativeApplicationExtension;
+import dev.nokee.platform.nativebase.NativeApplicationEx;
 
 /**
  * Configuration for an application written in Objective-C, defining the dependencies that make up the application plus other settings.
@@ -26,7 +26,7 @@ import dev.nokee.platform.nativebase.NativeApplicationExtension;
  *
  * @since 0.5
  */
-public interface ObjectiveCApplication extends NativeApplicationExtension
+public interface ObjectiveCApplication extends NativeApplicationEx
 	, HasPrivateHeaders
 	, HasObjectiveCSources
 {

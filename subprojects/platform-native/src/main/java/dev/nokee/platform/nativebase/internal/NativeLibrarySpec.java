@@ -16,9 +16,15 @@
 
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.internal.VariantComponentSpec;
+import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
 
-public  /*final*/ abstract class NativeLibrarySpec extends BaseNativeLibraryComponentSpec<DefaultNativeLibraryVariant> implements NativeLibraryExtension
+public  /*final*/ abstract class NativeLibrarySpec extends BaseNativeLibraryComponentSpec implements Component, NativeLibraryExtension
+	, VariantComponentSpec<DefaultNativeLibraryVariant>
+	, VariantAwareComponentMixIn<NativeLibrary>
 {
 	@Override
 	protected String getTypeName() {

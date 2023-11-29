@@ -19,11 +19,17 @@ package dev.nokee.platform.objectivecpp.internal;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesMixIn;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.internal.VariantComponentSpec;
+import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
 
-public  /*final*/ abstract class ObjectiveCppApplicationSpec extends BaseNativeApplicationComponentSpec<DefaultNativeApplicationVariant> implements ObjectiveCppApplication
+public  /*final*/ abstract class ObjectiveCppApplicationSpec extends BaseNativeApplicationComponentSpec implements Component, ObjectiveCppApplication
+	, VariantComponentSpec<DefaultNativeApplicationVariant>
+	, VariantAwareComponentMixIn<NativeApplication>
 	, ObjectiveCppSourcesMixIn
 	, PrivateHeadersMixIn
 	, SupportObjectiveCppSourceSetTag

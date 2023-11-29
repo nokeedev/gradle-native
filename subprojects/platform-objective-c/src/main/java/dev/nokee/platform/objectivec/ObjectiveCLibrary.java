@@ -18,7 +18,7 @@ package dev.nokee.platform.objectivec;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
-import dev.nokee.platform.nativebase.NativeLibraryExtension;
+import dev.nokee.platform.nativebase.NativeLibraryEx;
 
 /**
  * Configuration for a library written in Objective-C, defining the dependencies that make up the library plus other settings.
@@ -27,7 +27,7 @@ import dev.nokee.platform.nativebase.NativeLibraryExtension;
  *
  * @since 0.5
  */
-public interface ObjectiveCLibrary extends NativeLibraryExtension
+public interface ObjectiveCLibrary extends NativeLibraryEx
 	, HasPrivateHeaders
 	, HasPublicHeaders
 	, HasObjectiveCSources

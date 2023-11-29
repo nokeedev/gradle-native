@@ -33,6 +33,7 @@ import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
@@ -43,6 +44,7 @@ import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
@@ -58,8 +60,6 @@ import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
-import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
-import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
@@ -464,10 +464,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		});
 
 		project.afterEvaluate(__ -> {
-			components(project).withType(BaseNativeApplicationComponentSpec.class)
-				.configureEach(new RegisterVariants<>(model(project, registryOf(Variant.class))));
-			components(project).withType(BaseNativeLibraryComponentSpec.class)
-				.configureEach(new RegisterVariants<>(model(project, registryOf(Variant.class))));
+			model(project, mapOf(Component.class))
+				.configureEach(VariantComponentSpec.class, new RegisterVariants<>(model(project, registryOf(Variant.class))));
 		});
 
 		// TODO: Should be part of native-application-base plugin
@@ -493,11 +491,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		components(project).withType(BaseNativeApplicationComponentSpec.class).configureEach(component -> {
-			final VariantView<?> variants = ((VariantAwareComponent<?>) component).getVariants();
-			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) variants.map(VariantInternal.class::cast).get())));
-		});
-		components(project).withType(BaseNativeLibraryComponentSpec.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(VariantComponentSpec.class, component -> {
 			final VariantView<?> variants = ((VariantAwareComponent<?>) component).getVariants();
 			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) variants.map(VariantInternal.class::cast).get())));
 		});

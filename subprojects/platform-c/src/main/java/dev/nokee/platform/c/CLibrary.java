@@ -18,7 +18,7 @@ package dev.nokee.platform.c;
 import dev.nokee.language.c.HasCSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
-import dev.nokee.platform.nativebase.NativeLibraryExtension;
+import dev.nokee.platform.nativebase.NativeLibraryEx;
 
 /**
  * Configuration for a library written in C, defining the dependencies that make up the library plus other settings.
@@ -27,7 +27,7 @@ import dev.nokee.platform.nativebase.NativeLibraryExtension;
  *
  * @since 0.5
  */
-public interface CLibrary extends NativeLibraryExtension
+public interface CLibrary extends NativeLibraryEx
 	, HasPrivateHeaders
 	, HasPublicHeaders
 	, HasCSources

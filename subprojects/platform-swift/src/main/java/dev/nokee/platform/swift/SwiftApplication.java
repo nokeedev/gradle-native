@@ -16,7 +16,7 @@
 package dev.nokee.platform.swift;
 
 import dev.nokee.language.swift.HasSwiftSources;
-import dev.nokee.platform.nativebase.NativeApplicationExtension;
+import dev.nokee.platform.nativebase.NativeApplicationEx;
 
 /**
  * Configuration for an application written in Swift, defining the dependencies that make up the application plus other settings.
@@ -25,7 +25,7 @@ import dev.nokee.platform.nativebase.NativeApplicationExtension;
  *
  * @since 0.5
  */
-public interface SwiftApplication extends NativeApplicationExtension
+public interface SwiftApplication extends NativeApplicationEx
 	, HasSwiftSources
 {
 }
