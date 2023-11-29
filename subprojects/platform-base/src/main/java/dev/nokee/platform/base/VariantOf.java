@@ -16,5 +16,8 @@
 
 package dev.nokee.platform.base;
 
+import org.gradle.api.Action;
+
 public interface VariantOf<T> extends Variant {
+	void configure(Action<? super T> configureAction);
 }

@@ -17,6 +17,13 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.platform.base.VariantOf;
+import org.gradle.api.Action;
 
-public interface IVariantOf<T> extends VariantOf<T> {
+// Contract: must implements/extends from T
+public interface IVariantOf<T> extends VariantOf<T>/*, T*/ {
+	@Override
+	@SuppressWarnings("unchecked")
+	default void configure(Action<? super T> configureAction) {
+		configureAction.execute((T) this);
+	}
 }

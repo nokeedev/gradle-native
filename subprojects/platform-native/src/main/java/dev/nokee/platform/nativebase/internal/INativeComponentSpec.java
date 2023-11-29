@@ -24,7 +24,8 @@ import org.gradle.api.Action;
 // Internal implementation of NativeComponentOf<Component/Variant>
 //   Use ModelMap#configureEach(CApplication) instead of DomainObjectCollection.withType(...).configureEach { ... }
 //   Else you would have to use something like DomainObjectCollection.configureEach(withType(CApplication) {...})
-public interface INativeComponentSpec<T /*extends ModelElement*/> extends NativeComponentOf<T>
+// Contract: must implements/extends from T
+public interface INativeComponentSpec<T /*extends ModelElement*/> extends NativeComponentOf<T>/*, T*/
 	, VariantAwareComponentMixIn<VariantOf<T>>
 	, NativeComponentSpec, TargetedNativeComponentSpec
 {
