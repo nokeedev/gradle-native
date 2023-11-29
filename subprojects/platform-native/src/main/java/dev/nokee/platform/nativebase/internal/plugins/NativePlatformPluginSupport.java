@@ -53,7 +53,7 @@ public class NativePlatformPluginSupport<T extends Component> implements Action<
 		return (NativePlatformPluginSupport<U>) this;
 	}
 
-	public NativePlatformPluginSupport<T> registerVariant(Class<? extends Variant> variantType) {
+	public <U extends Variant & VariantOf<T>> NativePlatformPluginSupport<T> registerVariant(Class<? extends U> variantType) {
 		this.variantType = variantType;
 		return this;
 	}
@@ -73,6 +73,8 @@ public class NativePlatformPluginSupport<T extends Component> implements Action<
 		}
 		return this;
 	}
+
+	public interface VariantOf<T extends Component> {}
 
 	@Override
 	public void execute(Project project) {

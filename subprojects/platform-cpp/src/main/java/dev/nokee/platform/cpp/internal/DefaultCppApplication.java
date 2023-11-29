@@ -27,6 +27,7 @@ import dev.nokee.platform.nativebase.internal.INativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.internal.mixins.RuntimeElementsDependencyBucketMixIn;
+import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
@@ -41,6 +42,7 @@ public /*final*/ abstract class DefaultCppApplication extends CppApplicationSpec
 		, NativeSourcesAware
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
+		, NativePlatformPluginSupport.VariantOf<DefaultCppApplication>
 	{
 		@Inject
 		public Variant(ModelObjectRegistry<Task> taskRegistry) {

@@ -29,6 +29,7 @@ import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.internal.mixins.ApiElementsDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.mixins.LinkElementsDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.mixins.RuntimeElementsDependencyBucketMixIn;
+import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
@@ -46,6 +47,7 @@ public abstract /*final*/ class DefaultObjectiveCLibrary extends ObjectiveCLibra
 		, LinkElementsDependencyBucketMixIn
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
+		, NativePlatformPluginSupport.VariantOf<DefaultObjectiveCLibrary>
 	{
 		@Inject
 		public Variant(ModelObjectRegistry<Task> taskRegistry) {

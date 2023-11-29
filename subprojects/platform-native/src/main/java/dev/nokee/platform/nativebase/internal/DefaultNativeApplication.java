@@ -23,6 +23,7 @@ import dev.nokee.platform.base.internal.IVariantOf;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.nativebase.internal.mixins.RuntimeElementsDependencyBucketMixIn;
+import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
@@ -37,6 +38,7 @@ public abstract /*final*/ class DefaultNativeApplication extends NativeApplicati
 		, NativeSourcesAware
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
+		, NativePlatformPluginSupport.VariantOf<DefaultNativeApplication>
 	{
 		@Inject
 		public Variant(ModelObjectRegistry<Task> taskRegistry) {
