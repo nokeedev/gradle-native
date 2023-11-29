@@ -30,7 +30,7 @@ gradlePlugin {
 		api project(':languageBase')
 		implementation project(':coreScript')
 		implementation project(':coreUtils')
-		implementation project(':languageNative')
+		api project(':languageNative')
 		implementation project(':platformBase')
 		implementation project(':coreExec')
 		implementation project(':runtimeNative')

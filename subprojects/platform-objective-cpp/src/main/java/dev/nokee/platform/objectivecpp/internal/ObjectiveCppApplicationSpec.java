@@ -25,19 +25,13 @@ import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
 
-import javax.inject.Inject;
-
 public  /*final*/ abstract class ObjectiveCppApplicationSpec extends BaseNativeApplicationComponentSpec implements ObjectiveCppApplication
 	, VariantAwareComponentMixIn<NativeApplication>
 	, HasDevelopmentVariant<NativeApplication>
 	, ObjectiveCppSourcesMixIn
 	, PrivateHeadersMixIn
+	, SupportObjectiveCppSourceSetTag
 {
-	@Inject
-	public ObjectiveCppApplicationSpec() {
-		getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "Objective-C++ application";

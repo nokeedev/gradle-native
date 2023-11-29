@@ -25,19 +25,13 @@ import dev.nokee.platform.c.CLibrary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
 
-import javax.inject.Inject;
-
 public  /*final*/ abstract class CLibrarySpec extends BaseNativeLibraryComponentSpec implements CLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn
 	, CSourcesMixIn
+	, SupportCSourceSetTag
 {
-	@Inject
-	public CLibrarySpec() {
-		getExtensions().create("$cSupport", SupportCSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "C library";

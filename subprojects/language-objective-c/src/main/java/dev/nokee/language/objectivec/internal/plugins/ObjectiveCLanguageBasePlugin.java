@@ -77,7 +77,7 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 				final ElementName name = ElementName.of("objectiveC");
 				final Class<? extends LanguageSourceSet> sourceSetType = ObjectiveCSourceSetSpec.class;
 
-				if (identifier.getParents().flatMap(it -> Optionals.stream(it.getAsOptional().map(safeAs(ExtensionAware.class)))).anyMatch(it -> it.getExtensions().findByType(sourceSetTag) != null) || project.getExtensions().findByType(sourceSetTag) != null) {
+				if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || Optionals.stream(t.getAsOptional().map(safeAs(ExtensionAware.class))).anyMatch(it -> it.getExtensions().findByType(sourceSetTag) != null)) || project.getExtensions().findByType(sourceSetTag) != null) {
 					model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
 				}
 			}

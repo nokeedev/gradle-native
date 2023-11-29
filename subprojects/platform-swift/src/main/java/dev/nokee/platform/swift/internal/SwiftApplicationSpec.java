@@ -23,17 +23,11 @@ import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
 import dev.nokee.platform.swift.SwiftApplication;
 
-import javax.inject.Inject;
-
 public /*final*/ abstract class SwiftApplicationSpec extends BaseNativeApplicationComponentSpec implements SwiftApplication
 	, VariantAwareComponentMixIn<NativeApplication>
 	, SwiftSourcesMixIn
+	, SupportSwiftSourceSetTag
 {
-	@Inject
-	public SwiftApplicationSpec() {
-		getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "Swift application";

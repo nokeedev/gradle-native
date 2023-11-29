@@ -25,19 +25,13 @@ import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
 import dev.nokee.platform.objectivec.ObjectiveCLibrary;
 
-import javax.inject.Inject;
-
 public  /*final*/ abstract class ObjectiveCLibrarySpec extends BaseNativeLibraryComponentSpec implements ObjectiveCLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, ObjectiveCSourcesMixIn
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn
+	, SupportObjectiveCSourceSetTag
 {
-	@Inject
-	public ObjectiveCLibrarySpec() {
-		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "Objective-C library";

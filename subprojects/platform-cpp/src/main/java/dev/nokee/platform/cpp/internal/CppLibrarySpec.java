@@ -25,19 +25,13 @@ import dev.nokee.platform.cpp.CppLibrary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
 
-import javax.inject.Inject;
-
 public  /*final*/ abstract class CppLibrarySpec extends BaseNativeLibraryComponentSpec implements CppLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn
 	, CppSourcesMixIn
+	, SupportCppSourceSetTag
 {
-	@Inject
-	public CppLibrarySpec() {
-		getExtensions().create("$cppSupport", SupportCppSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "C++ library";

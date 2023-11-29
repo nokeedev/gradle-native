@@ -24,18 +24,12 @@ import dev.nokee.platform.c.CApplication;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
 
-import javax.inject.Inject;
-
 public  /*final*/ abstract class CApplicationSpec extends BaseNativeApplicationComponentSpec implements CApplication
 	, VariantAwareComponentMixIn<NativeApplication>
 	, PrivateHeadersMixIn
 	, CSourcesMixIn
+	, SupportCSourceSetTag
 {
-	@Inject
-	public CApplicationSpec() {
-		getExtensions().create("$cSupport", SupportCSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "C application";

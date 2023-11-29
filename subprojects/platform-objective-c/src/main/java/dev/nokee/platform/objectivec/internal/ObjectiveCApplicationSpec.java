@@ -25,19 +25,13 @@ import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
 import dev.nokee.platform.objectivec.ObjectiveCApplication;
 
-import javax.inject.Inject;
-
 public  /*final*/ abstract class ObjectiveCApplicationSpec extends BaseNativeApplicationComponentSpec implements ObjectiveCApplication
 	, VariantAwareComponentMixIn<NativeApplication>
 	, HasDevelopmentVariant<NativeApplication>
 	, ObjectiveCSourcesMixIn
 	, PrivateHeadersMixIn
+	, SupportObjectiveCSourceSetTag
 {
-	@Inject
-	public ObjectiveCApplicationSpec() {
-		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "Objective-C application";

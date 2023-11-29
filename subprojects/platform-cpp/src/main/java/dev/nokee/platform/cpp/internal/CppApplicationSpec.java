@@ -24,18 +24,12 @@ import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.BaseNativeApplicationComponentSpec;
 
-import javax.inject.Inject;
-
 public  /*final*/ abstract class CppApplicationSpec extends BaseNativeApplicationComponentSpec implements CppApplication
 	, VariantAwareComponentMixIn<NativeApplication>
 	, PrivateHeadersMixIn
 	, CppSourcesMixIn
+	, SupportCppSourceSetTag
 {
-	@Inject
-	public CppApplicationSpec() {
-		getExtensions().create("$cppSupport", SupportCppSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "C++ application";

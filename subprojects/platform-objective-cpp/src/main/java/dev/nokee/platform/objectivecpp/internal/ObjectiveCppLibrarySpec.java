@@ -25,19 +25,13 @@ import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibrary;
 
-import javax.inject.Inject;
-
 public  /*final*/ abstract class ObjectiveCppLibrarySpec extends BaseNativeLibraryComponentSpec implements ObjectiveCppLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, ObjectiveCppSourcesMixIn
 	, PrivateHeadersMixIn
 	, PublicHeadersMixIn
+	, SupportObjectiveCppSourceSetTag
 {
-	@Inject
-	public ObjectiveCppLibrarySpec() {
-		getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "Objective-C++ library";

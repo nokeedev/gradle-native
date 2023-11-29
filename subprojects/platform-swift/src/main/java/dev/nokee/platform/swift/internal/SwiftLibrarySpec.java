@@ -23,17 +23,11 @@ import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.BaseNativeLibraryComponentSpec;
 import dev.nokee.platform.swift.SwiftLibrary;
 
-import javax.inject.Inject;
-
 public /*final*/ abstract class SwiftLibrarySpec extends BaseNativeLibraryComponentSpec implements SwiftLibrary
 	, VariantAwareComponentMixIn<NativeLibrary>
 	, SwiftSourcesMixIn
+	, SupportSwiftSourceSetTag
 {
-	@Inject
-	public SwiftLibrarySpec() {
-		getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
-	}
-
 	@Override
 	protected String getTypeName() {
 		return "Swift library";
