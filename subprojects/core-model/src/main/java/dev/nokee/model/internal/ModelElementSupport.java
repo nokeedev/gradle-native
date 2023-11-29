@@ -87,9 +87,13 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 		return ModelTypeUtils.toUndecoratedType(getClass()).getSimpleName();
 	}
 
-	@Override
-	public final String toString() {
+	public String getDisplayName() {
 		// TODO: Add support to include project path in the name
 		return getTypeName() + " ':" + getName() + "'";
+	}
+
+	@Override
+	public final String toString() {
+		return getDisplayName();
 	}
 }
