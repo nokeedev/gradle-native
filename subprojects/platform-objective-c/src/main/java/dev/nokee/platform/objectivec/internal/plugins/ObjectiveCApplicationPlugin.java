@@ -16,47 +16,25 @@
 package dev.nokee.platform.objectivec.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
 import dev.nokee.platform.objectivec.internal.DefaultObjectiveCApplication;
-import lombok.val;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import static dev.nokee.model.internal.names.ElementName.ofMain;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 
 public class ObjectiveCApplicationPlugin implements Plugin<Project> {
-	private static final String EXTENSION_NAME = "application";
-
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		// Create the component
-		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
-
-		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCApplication.class, name -> {
-			return instantiator(project).newInstance(DefaultObjectiveCApplication.class);
-		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultObjectiveCApplication.Variant.class, name -> {
-			return instantiator(project).newInstance(DefaultObjectiveCApplication.Variant.class);
-		});
-
-		final NamedDomainObjectProvider<DefaultObjectiveCApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultObjectiveCApplication.class).asProvider();
-		componentProvider.configure(baseName(convention(project.getName())));
-		val extension = componentProvider.get();
-
-		project.getExtensions().add(EXTENSION_NAME, extension);
+		new NativePlatformPluginSupport<>()
+			.useLanguagePlugin(ObjectiveCApplicationPlugin.class)
+			.registerComponent(DefaultObjectiveCApplication.class)
+			.registerVariant(DefaultObjectiveCApplication.Variant.class)
+			.registerAsMainComponent(baseName(convention(project.getName())))
+			.mountAsExtension()
+			.execute(project);
 	}
 }

@@ -16,48 +16,27 @@
 package dev.nokee.platform.swift.internal.plugins;
 
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
 import dev.nokee.platform.swift.internal.DefaultSwiftLibrary;
 import dev.nokee.utils.TextCaseUtils;
-import lombok.val;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
-import static dev.nokee.model.internal.names.ElementName.ofMain;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 
 public class SwiftLibraryPlugin implements Plugin<Project> {
-	private static final String EXTENSION_NAME = "library";
-
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 
-		// Create the component
-		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
-
-		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultSwiftLibrary.class, name -> {
-			return instantiator(project).newInstance(DefaultSwiftLibrary.class);
-		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultSwiftLibrary.Variant.class,name -> {
-			return instantiator(project).newInstance(DefaultSwiftLibrary.Variant.class);
-		});
-
-		final NamedDomainObjectProvider<DefaultSwiftLibrary> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultSwiftLibrary.class).asProvider();
-		componentProvider.configure(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))));
-		val extension = componentProvider.get();
-
-		project.getExtensions().add(EXTENSION_NAME, extension);
+		new NativePlatformPluginSupport<>()
+			.useLanguagePlugin(SwiftLanguageBasePlugin.class)
+			.registerComponent(DefaultSwiftLibrary.class)
+			.registerVariant(DefaultSwiftLibrary.Variant.class)
+			.registerAsMainComponent(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))))
+			.mountAsExtension()
+			.execute(project);
 	}
 }
