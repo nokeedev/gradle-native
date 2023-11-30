@@ -70,7 +70,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), NativeSharedLibraryBinarySpec.class).asProvider());
-		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), ModelBackedJniJarBinary.class).asProvider());
+		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), JniJarBinarySpec.class).asProvider());
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	@Override
 	@SuppressWarnings("unchecked")
 	public JniJarBinary getJavaNativeInterfaceJar() {
-		return ((NamedDomainObjectProvider<ModelBackedJniJarBinary>) getExtensions().getByName("jniJar")).get();
+		return ((NamedDomainObjectProvider<JniJarBinarySpec>) getExtensions().getByName("jniJar")).get();
 	}
 
 	public JniJarBinary getJar() {

@@ -20,7 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
+import dev.nokee.platform.jni.internal.JvmJarBinarySpec;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.bundling.Jar;
@@ -49,7 +49,7 @@ class JvmJarBinaryIntegrationTest extends AbstractPluginTest {
 	@BeforeEach
 	void createSubject() {
 		val componentIdentifier = ComponentIdentifier.of("rina", ProjectIdentifier.of(project));
-		subject = model(project, registryOf(Artifact.class)).register(componentIdentifier.child("wuke"), ModelBackedJvmJarBinary.class).get();
+		subject = model(project, registryOf(Artifact.class)).register(componentIdentifier.child("wuke"), JvmJarBinarySpec.class).get();
 	}
 
 	@Nested

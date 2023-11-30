@@ -53,8 +53,8 @@ import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceLibraryComponen
 import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
-import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
-import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
+import dev.nokee.platform.jni.internal.JniJarBinarySpec;
+import dev.nokee.platform.jni.internal.JvmJarBinarySpec;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
@@ -129,11 +129,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJniJarBinary.class, name -> {
-			return instantiator(project).newInstance(ModelBackedJniJarBinary.class);
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JniJarBinarySpec.class, name -> {
+			return instantiator(project).newInstance(JniJarBinarySpec.class);
 		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(ModelBackedJvmJarBinary.class, name -> {
-			return instantiator(project).newInstance(ModelBackedJvmJarBinary.class);
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JvmJarBinarySpec.class, name -> {
+			return instantiator(project).newInstance(JvmJarBinarySpec.class);
 		});
 
 		components(project).withType(JniLibraryComponentInternal.class)
@@ -332,22 +332,22 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			component.getBinaries().configureEach(ModelBackedJvmJarBinary.class, binary -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).map(it -> it.getCompileTask().get())::get));
 			});
 		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			component.getBinaries().configureEach(ModelBackedJvmJarBinary.class, binary -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(GroovySourceSetSpec.class).map(it -> it.getCompileTask().get())::get));
 			});
 		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			component.getBinaries().configureEach(ModelBackedJvmJarBinary.class, binary -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(KotlinSourceSetSpec.class).map(it -> it.getCompileTask().get())::get));
 			});
 		});
 
-		artifacts(project).withType(ModelBackedJniJarBinary.class).configureEach(binary -> {
+		artifacts(project).withType(JniJarBinarySpec.class).configureEach(binary -> {
 			binary.getJarTask().configure(configureBuildGroup());
 			binary.getJarTask().configure(task -> {
 				task.getDestinationDirectory().convention(project.getLayout().getBuildDirectory().dir("libs"));
@@ -362,7 +362,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		artifacts(project).withType(ModelBackedJvmJarBinary.class).configureEach(binary -> {
+		artifacts(project).withType(JvmJarBinarySpec.class).configureEach(binary -> {
 			binary.getJarTask().configure(configureBuildGroup());
 			binary.getJarTask().configure(task -> {
 				task.getDestinationDirectory().convention(project.getLayout().getBuildDirectory().dir("libs"));
@@ -379,7 +379,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			component.getBinaries().configureEach(ModelBackedJvmJarBinary.class, binary -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(task -> {
 					if (component.getBuildVariants().get().size() == 1) {
 						task.setDescription(String.format("Assembles a JAR archive containing the classes and shared library for %s.", binary));
@@ -389,7 +389,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		});
 
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			component.getBinaries().configureEach(ModelBackedJvmJarBinary.class, binary -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(task -> task.getArchiveBaseName().set(component.getBaseName()));
 			});
 		});
@@ -397,7 +397,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			@Override
 			public void execute(AppliedPlugin ignored) {
 				components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-					model(project, registryOf(Artifact.class)).register(component.getIdentifier().child(ElementName.ofMain("jvmJar")), ModelBackedJvmJarBinary.class);
+					model(project, registryOf(Artifact.class)).register(component.getIdentifier().child(ElementName.ofMain("jvmJar")), JvmJarBinarySpec.class);
 				});
 			}
 		};
@@ -405,7 +405,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		// Assemble task configuration
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			component.getAssembleTask().configure(configureDependsOn((Callable<Object>) component.getBinaries().filter(it -> it instanceof ModelBackedJvmJarBinary)::get));
+			component.getAssembleTask().configure(configureDependsOn((Callable<Object>) component.getBinaries().filter(it -> it instanceof JvmJarBinarySpec)::get));
 		});
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
@@ -416,7 +416,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), ignored -> {
 			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 				component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
-					variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) component.getBinaries().filter(it -> it instanceof ModelBackedJvmJarBinary)::get));
+					variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) component.getBinaries().filter(it -> it instanceof JvmJarBinarySpec)::get));
 				});
 			});
 		}).execute(project);
@@ -452,7 +452,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			variant.getDevelopmentBinary().convention(variant.getJavaNativeInterfaceJar());
 		});
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
-			variant.getBinaries().configureEach(ModelBackedJniJarBinary.class, binary -> {
+			variant.getBinaries().configureEach(JniJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(task -> task.getArchiveBaseName()
 					.set(variant.getBaseName().map(baseName -> baseName + variant.getIdentifier().getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse(""))));
 			});

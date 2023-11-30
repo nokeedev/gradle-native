@@ -28,9 +28,9 @@ import org.gradle.api.tasks.bundling.Jar;
 
 import javax.inject.Inject;
 
-public /*final*/ abstract class ModelBackedJvmJarBinary extends ModelElementSupport implements JvmJarBinary, Buildable {
+public /*final*/ abstract class JvmJarBinarySpec extends ModelElementSupport implements JvmJarBinary, Buildable {
 	@Inject
-	public ModelBackedJvmJarBinary(ModelObjectRegistry<Task> taskRegistry) {
+	public JvmJarBinarySpec(ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().add("jarTask", taskRegistry.register(getIdentifier().child(TaskName.of("jar")), Jar.class).asProvider());
 	}
 
