@@ -20,6 +20,11 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketS
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
+import dev.nokee.platform.jni.internal.mixins.JvmImplementationDependencyBucketMixIn;
+import dev.nokee.platform.jni.internal.mixins.JvmRuntimeOnlyDependencyBucketMixIn;
+import dev.nokee.platform.jni.internal.mixins.NativeImplementationDependencyBucketMixIn;
+import dev.nokee.platform.jni.internal.mixins.NativeLinkOnlyDependencyBucketMixIn;
+import dev.nokee.platform.jni.internal.mixins.NativeRuntimeOnlyDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import org.gradle.api.plugins.ExtensionAware;
 

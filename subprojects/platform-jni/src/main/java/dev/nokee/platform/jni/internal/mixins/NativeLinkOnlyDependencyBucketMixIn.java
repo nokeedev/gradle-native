@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.jni.internal;
+package dev.nokee.platform.jni.internal.mixins;
 
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import org.gradle.api.Action;
