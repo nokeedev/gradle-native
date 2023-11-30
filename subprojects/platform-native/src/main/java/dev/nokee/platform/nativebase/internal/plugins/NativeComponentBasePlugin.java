@@ -63,12 +63,11 @@ import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRul
 import dev.nokee.platform.nativebase.internal.HasBinaryLifecycleTask;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
 import dev.nokee.platform.nativebase.internal.NativeBundleBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpecEx;
 import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.NativeLibrarySpecEx;
 import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
@@ -166,10 +165,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeBundleBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeExecutableBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeStaticLibraryBinarySpec.class);
-		model(project, mapOf(Variant.class)).configureEach(result -> {
-			if (result instanceof NativeLibrarySpecEx || result instanceof NativeApplicationSpecEx) {
-				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(((VariantInternal) result).getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
-			}
+		model(project, mapOf(Variant.class)).configureEach(NativeComponentSpecEx.class, result -> {
+			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(((VariantInternal) result).getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 
 

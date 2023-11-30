@@ -16,27 +16,17 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
-import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.DependentComponentSpec;
-import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationEx;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicationComponentDependencies;
 
 // Internal implementation of what a native application would be
 public interface NativeApplicationSpecEx extends NativeApplicationEx
-	, ExtensionAwareMixIn
+	, NativeComponentSpecEx
 	, NativeApplicationComponent
-	, SourceComponentSpec
 	, DependentComponentSpec<NativeApplicationComponentDependencies>
-	, BinaryAwareComponentMixIn
-	, TaskAwareComponentMixIn
-	, ObjectsTaskMixIn
-	, AssembleTaskMixIn
 {
 	@NestedObject
 	DefaultNativeApplicationComponentDependencies getDependencies();
