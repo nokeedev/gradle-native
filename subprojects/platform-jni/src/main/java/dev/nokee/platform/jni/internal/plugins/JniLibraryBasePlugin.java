@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.jni.internal.plugins;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import dev.nokee.language.base.HasCompileTask;
@@ -42,9 +41,7 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
@@ -324,14 +321,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		// TODO: We should discover the variant instead of gating them
 		project.afterEvaluate(__ -> {
 			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-				for (BuildVariant it : component.getBuildVariants().get()) {
-					BuildVariantInternal buildVariant = (BuildVariantInternal) it;
-					Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
-
-					final VariantIdentifier variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-					model(project, registryOf(Variant.class)).register(variantIdentifier, JniLibraryInternal.class);
-				}
-
 				// See https://github.com/nokeedev/gradle-native/issues/543
 				if (component.getBuildVariants().get().size() > 1) {
 					component.getVariants().configureEach(JniLibraryInternal.class, it -> {
