@@ -16,11 +16,12 @@
 
 package dev.nokee.platform.base.internal.mixins;
 
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import org.gradle.api.Action;
 
-public interface DependentComponentSpec<T extends ComponentDependencies> extends DependencyAwareComponent<T> {
+public interface DependentComponentSpec<T extends ComponentDependencies> extends ModelElement, DependencyAwareComponent<T> {
 	@Override
 	T getDependencies();
 

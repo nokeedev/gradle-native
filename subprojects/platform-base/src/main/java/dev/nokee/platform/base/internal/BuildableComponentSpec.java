@@ -16,10 +16,11 @@
 
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.ModelElement;
 import org.gradle.api.Buildable;
 import org.gradle.api.tasks.Nested;
 
-public interface BuildableComponentSpec extends Buildable {
+public interface BuildableComponentSpec extends Buildable, ModelElement {
 	@Nested
 	TaskDependencyProperty getBuildDependencies();
 }
