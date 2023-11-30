@@ -31,7 +31,6 @@ public interface HasObjectiveCppSourcesTester {
 	@Test
 	default void canConfigureObjectiveCppSources() {
 		ConfigureMethodTester.of(subject(), HasObjectiveCppSources::getObjectiveCppSources)
-			.testAction(HasObjectiveCppSources::objectiveCppSources)
-			.testClosure(HasObjectiveCppSources::objectiveCppSources);
+			.testAction((a, b) -> a.objectiveCppSources(b));
 	}
 }

@@ -23,12 +23,14 @@ import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 
 public /*final*/ class BinaryViewAdapter<T extends Binary> implements BinaryView<T> {
 	private final View<T> delegate;
 
+	@Inject
 	public BinaryViewAdapter(View<T> delegate) {
 		this.delegate = delegate;
 	}

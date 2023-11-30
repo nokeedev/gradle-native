@@ -31,7 +31,6 @@ public interface HasObjectiveCSourcesTester {
 	@Test
 	default void canConfigureObjectiveCSources() {
 		ConfigureMethodTester.of(subject(), HasObjectiveCSources::getObjectiveCSources)
-			.testAction(HasObjectiveCSources::objectiveCSources)
-			.testClosure(HasObjectiveCSources::objectiveCSources);
+			.testAction((a, b) -> a.objectiveCSources(b));
 	}
 }

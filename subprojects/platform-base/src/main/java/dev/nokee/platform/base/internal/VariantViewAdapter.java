@@ -23,12 +23,14 @@ import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 
 public /*final*/ class VariantViewAdapter<T extends Variant> implements VariantView<T> {
 	private final View<T> delegate;
 
+	@Inject
 	public VariantViewAdapter(View<T> delegate) {
 		this.delegate = delegate;
 	}

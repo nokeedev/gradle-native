@@ -41,7 +41,6 @@ public interface BinaryAwareComponentTester<T extends ComponentBinaries> {
 	@Test
 	default void canConfigureComponentBinaries() {
 		ConfigureMethodTester.of(subject(), BinaryAwareComponent::getBinaries)
-			.testAction(BinaryAwareComponent::binaries)
-			.testClosure(BinaryAwareComponent::binaries);
+			.testAction((a, b) -> a.binaries(b));
 	}
 }

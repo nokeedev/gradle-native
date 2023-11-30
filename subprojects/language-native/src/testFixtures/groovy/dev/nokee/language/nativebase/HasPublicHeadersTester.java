@@ -31,7 +31,6 @@ public interface HasPublicHeadersTester {
 	@Test
 	default void canConfigurePublicHeaders() {
 		ConfigureMethodTester.of(subject(), HasPublicHeaders::getPublicHeaders)
-			.testAction(HasPublicHeaders::publicHeaders)
-			.testClosure(HasPublicHeaders::publicHeaders);
+			.testAction((a, b) -> a.publicHeaders(b));
 	}
 }

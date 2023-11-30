@@ -16,13 +16,11 @@
 package dev.nokee.platform.base.testers;
 
 import com.google.common.reflect.TypeToken;
-import dev.nokee.internal.testing.testdoubles.TestClosure;
 import dev.nokee.internal.testing.testdoubles.TestDouble;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantDimensionBuilder;
 import dev.nokee.utils.ActionTestUtils;
-import groovy.lang.Closure;
 import lombok.Value;
 import lombok.val;
 import org.gradle.api.Action;
@@ -40,16 +38,10 @@ import static com.google.common.collect.ImmutableSet.of;
 import static dev.nokee.internal.testing.GradleProviderMatchers.finalizedValue;
 import static dev.nokee.internal.testing.GradleProviderMatchers.hasNoValue;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnce;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
-import static dev.nokee.internal.testing.invocations.InvocationMatchers.withClosureArguments;
-import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateFirstStrategy;
-import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateOf;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
-import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newSpy;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
-import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -81,25 +73,10 @@ public abstract class VariantDimensionsIntegrationTester {
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
-	void throwsExceptionWhenCreatingNewAxisWithNullClosure() {
-		assertThrows(NullPointerException.class, () -> subject().getDimensions().newAxis(MyAxis.class, (Closure)  null));
-	}
-
-	@Test
 	void callsActionWithBuilder() {
 		TestDouble<Action<VariantDimensionBuilder<MyAxis>>> action = newMock(ofAction(ofType(VariantDimensionBuilder.class, MyAxis.class)));
 		subject().getDimensions().newAxis(MyAxis.class, action.instance());
 		assertThat(action.to(method(Action<VariantDimensionBuilder<MyAxis>>::execute)), calledOnceWith(isA(VariantDimensionBuilder.class)));
-	}
-
-	@Test
-	@SuppressWarnings("rawtypes")
-	void callsClosureWithBuilder() {
-		val closure = newSpy(ofClosure(VariantDimensionBuilder.class));
-		subject().getDimensions().newAxis(MyAxis.class, closure.instance());
-		assertThat(closure.to(method(TestClosure<Object, VariantDimensionBuilder>::execute)), calledOnce(withClosureArguments(isA(VariantDimensionBuilder.class))));
-		assertThat(closure.to(method(TestClosure<Object, VariantDimensionBuilder>::execute)), calledOnce(allOf(withDelegateFirstStrategy(), withDelegateOf(isA(VariantDimensionBuilder.class)))));
 	}
 
 	abstract class NewAxisTester<T extends Named> {

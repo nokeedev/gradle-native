@@ -167,7 +167,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			Named.Namer namer = new Named.Namer();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 			Runnable realizeNow = () -> {};
-			return new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+			return instantiator(project).newInstance(BinaryViewAdapter.class, new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 		});
 
 		model(project).getExtensions().add(TaskViewFactory.class, "__nokeeService_taskViewFactory", new TaskViewFactory() {
@@ -189,7 +189,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 						}
 					}
 				};
-				return new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+				return instantiator(project).newInstance(TaskViewAdapter.class, new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 			}
 		});
 
@@ -199,7 +199,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				Named.Namer namer = new Named.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 				Runnable realizeNow = () -> {};
-				return new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+				return instantiator(project).newInstance(VariantViewAdapter.class, new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
 			}
 		});
 

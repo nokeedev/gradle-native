@@ -31,7 +31,6 @@ public interface HasCppSourcesTester {
 	@Test
 	default void canConfigureCppSources() {
 		ConfigureMethodTester.of(subject(), HasCppSources::getCppSources)
-			.testAction(HasCppSources::cppSources)
-			.testClosure(HasCppSources::cppSources);
+			.testAction((a, b) -> a.cppSources(b));
 	}
 }

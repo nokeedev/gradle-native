@@ -40,7 +40,6 @@ public interface TaskAwareComponentTester<T extends ComponentTasks> {
 	@Test
 	default void canConfigureComponentTasks() {
 		ConfigureMethodTester.of(subject(), TaskAwareComponent::getTasks)
-			.testAction(TaskAwareComponent::tasks)
-			.testClosure(TaskAwareComponent::tasks);
+			.testAction((a, b) -> a.tasks(b));
 	}
 }

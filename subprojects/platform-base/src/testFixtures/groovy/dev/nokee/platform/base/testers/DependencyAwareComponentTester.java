@@ -41,7 +41,6 @@ public interface DependencyAwareComponentTester<T extends ComponentDependencies>
 	@Test
 	default void canConfigureComponentDependencies() {
 		ConfigureMethodTester.of(subject(), DependencyAwareComponent::getDependencies)
-			.testAction(DependencyAwareComponent::dependencies)
-			.testClosure(DependencyAwareComponent::dependencies);
+			.testAction(DependencyAwareComponent::dependencies);
 	}
 }

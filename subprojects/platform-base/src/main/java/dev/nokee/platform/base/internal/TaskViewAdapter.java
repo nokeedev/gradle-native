@@ -24,12 +24,14 @@ import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 
 public /*final*/ class TaskViewAdapter<T extends Task> implements TaskView<T> {
 	private final View<T> delegate;
 
+	@Inject
 	public TaskViewAdapter(View<T> delegate) {
 		this.delegate = delegate;
 	}
