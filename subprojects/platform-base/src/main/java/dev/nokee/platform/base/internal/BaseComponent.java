@@ -19,7 +19,6 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantView;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
@@ -29,8 +28,6 @@ public abstract class BaseComponent<T extends Variant> extends ModelElementSuppo
 	public abstract Property<String> getBaseName();
 
 	public abstract Provider<? extends T> getDevelopmentVariant();
-
-	public abstract VariantView<? extends T> getVariants();
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
 	public abstract Provider<Set<BuildVariant>> getBuildVariants();

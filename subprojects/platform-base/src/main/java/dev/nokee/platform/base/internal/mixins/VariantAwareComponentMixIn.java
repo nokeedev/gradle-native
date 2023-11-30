@@ -19,7 +19,7 @@ import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.DefaultVariantDimensions;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import org.gradle.api.Action;
@@ -29,7 +29,7 @@ import java.util.Set;
 
 public interface VariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T>, VariantAwareComponentInternal<T> {
 	@Override
-	default void variants(Action<? super VariantView<? extends T>> action) {
+	default void variants(Action<? super View<? extends T>> action) {
 		action.execute(getVariants());
 	}
 

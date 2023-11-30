@@ -19,12 +19,12 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.View;
 import org.gradle.api.provider.Property;
 
 public interface VariantComponentSpec<T extends Variant/*Spec*/> {
 	@Decorate(NestedViewDecorator.class)
-	VariantView<T> getVariants();
+	View<T> getVariants();
 
 	Property<T> getDevelopmentVariant();
 

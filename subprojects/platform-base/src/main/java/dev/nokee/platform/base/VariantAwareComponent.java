@@ -30,16 +30,16 @@ public interface VariantAwareComponent<T extends Variant> {
 	/**
 	 * Configure the variants of this component.
 	 *
-	 * @return a {@link ComponentVariants}, never null.
+	 * @return a component variants, never null.
 	 */
-	VariantView<? extends T> getVariants();
+	View<? extends T> getVariants();
 
 	/**
 	 * Configures the component variants using the specified configuration action.
 	 *
 	 * @param action  the configuration action, must not be null
 	 */
-	void variants(Action<? super VariantView<? extends T>> action);
+	void variants(Action<? super View<? extends T>> action);
 
 	/**
 	 * Returns the variant dimensions for this component.

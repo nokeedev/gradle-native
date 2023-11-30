@@ -20,7 +20,6 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
@@ -50,7 +49,7 @@ import static org.hamcrest.Matchers.hasItem;
 class NativeLibraryComponentTest implements ComponentTester<NativeLibraryExtension>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeLibraryComponentDependencies>
-	, VariantAwareComponentTester<VariantView<NativeLibrary>>
+	, VariantAwareComponentTester<View<NativeLibrary>>
 	, BinaryAwareComponentTester<View<Binary>>
 	, TaskAwareComponentTester<View<Task>>
 {

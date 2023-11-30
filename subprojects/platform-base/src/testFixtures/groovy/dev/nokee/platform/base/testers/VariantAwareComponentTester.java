@@ -18,10 +18,10 @@ package dev.nokee.platform.base.testers;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.testing.testers.ConfigureMethodTester;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.ComponentVariants;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantDimensions;
+import dev.nokee.platform.base.View;
 import lombok.val;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Test;
@@ -34,12 +34,12 @@ import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 
-public interface VariantAwareComponentTester<T extends ComponentVariants> {
+public interface VariantAwareComponentTester<T extends View<? extends Variant>> {
 	VariantAwareComponent<? extends Variant> subject();
 
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
-	default Class<? extends ComponentVariants> getComponentVariantsType() {
-		return (Class<? extends ComponentVariants>) new TypeToken<T>(getClass()) {}.getRawType();
+	default Class<? extends View<? extends Variant>> getComponentVariantsType() {
+		return (Class<? extends View<? extends Variant>>) new TypeToken<T>(getClass()) {}.getRawType();
 	}
 
 	@Test

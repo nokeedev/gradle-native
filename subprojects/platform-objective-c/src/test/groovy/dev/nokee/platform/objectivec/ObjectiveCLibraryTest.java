@@ -23,7 +23,6 @@ import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
@@ -59,7 +58,7 @@ import static org.hamcrest.Matchers.hasItem;
 class ObjectiveCLibraryTest implements ComponentTester<ObjectiveCLibrary>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeLibraryComponentDependencies>
-	, VariantAwareComponentTester<VariantView<NativeLibrary>>
+	, VariantAwareComponentTester<View<NativeLibrary>>
 	, BinaryAwareComponentTester<View<Binary>>
 	, TaskAwareComponentTester<View<Task>>
 	, HasObjectiveCSourcesTester

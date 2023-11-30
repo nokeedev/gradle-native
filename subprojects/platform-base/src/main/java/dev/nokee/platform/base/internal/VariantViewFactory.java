@@ -17,8 +17,8 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.View;
 
 public interface VariantViewFactory {
-	<T extends Variant> VariantView<T> create(Class<T> variantType);
+	<T extends Variant> View<T> create(Class<T> variantType);
 }

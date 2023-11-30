@@ -22,7 +22,6 @@ import dev.nokee.language.objectivecpp.HasObjectiveCppSourcesTester;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
@@ -57,7 +56,7 @@ import static org.hamcrest.Matchers.hasItem;
 class ObjectiveCppApplicationTest implements ComponentTester<ObjectiveCppApplication>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeApplicationComponentDependencies>
-	, VariantAwareComponentTester<VariantView<NativeApplication>>
+	, VariantAwareComponentTester<View<NativeApplication>>
 	, BinaryAwareComponentTester<View<Binary>>
 	, TaskAwareComponentTester<View<Task>>
 	, HasObjectiveCppSourcesTester

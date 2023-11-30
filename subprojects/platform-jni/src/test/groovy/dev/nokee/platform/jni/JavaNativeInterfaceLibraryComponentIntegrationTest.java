@@ -30,7 +30,6 @@ import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
@@ -100,7 +99,7 @@ import static org.hamcrest.Matchers.startsWith;
 @PluginRequirement.Require(type = JvmLanguageBasePlugin.class)
 class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginTest implements ComponentTester<JavaNativeInterfaceLibrary>
 	, DependencyAwareComponentTester<JavaNativeInterfaceLibraryComponentDependencies>
-	, VariantAwareComponentTester<VariantView<NativeLibrary>>
+	, VariantAwareComponentTester<View<NativeLibrary>>
 	, BinaryAwareComponentTester<View<Binary>>
 	, TaskAwareComponentTester<View<Task>>
 	, TargetMachineAwareComponentTester

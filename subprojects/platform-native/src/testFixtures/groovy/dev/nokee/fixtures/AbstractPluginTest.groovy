@@ -93,7 +93,7 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 		extensionUnderTest instanceof VariantAwareComponent
 
 		and: 'variant getter is of the expected type'
-		extensionUnderTest.variants instanceof VariantView
+		extensionUnderTest.variants instanceof View
 	}
 
 	def "extensions has binary view"() {

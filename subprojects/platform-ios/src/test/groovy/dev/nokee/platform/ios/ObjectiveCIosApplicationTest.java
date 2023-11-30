@@ -24,7 +24,6 @@ import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
@@ -64,7 +63,7 @@ import static org.hamcrest.Matchers.startsWith;
 class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosApplication>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeComponentDependencies>
-	, VariantAwareComponentTester<VariantView<NativeApplication>>
+	, VariantAwareComponentTester<View<NativeApplication>>
 	, BinaryAwareComponentTester<View<Binary>>
 	, TaskAwareComponentTester<View<Task>>
 	, HasObjectiveCSourcesTester
@@ -248,7 +247,7 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 
 	@Nested
 	class ComponentVariantsTest {
-		public VariantView<IosApplication> subject() {
+		public View<IosApplication> subject() {
 			return subject.getVariants();
 		}
 

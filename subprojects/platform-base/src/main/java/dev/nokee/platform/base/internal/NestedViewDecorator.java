@@ -25,7 +25,6 @@ import dev.nokee.model.internal.decorators.Decorator;
 import dev.nokee.model.internal.decorators.InjectServiceDecorator;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantView;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Task;
 import org.objectweb.asm.ClassVisitor;
@@ -133,7 +132,7 @@ public /*final*/ class NestedViewDecorator implements Decorator {
 			Class<?> elementType = (Class<?>) ((ParameterizedType) objectType).getActualTypeArguments()[0];
 			if (Task.class.isAssignableFrom(elementType)) {
 				return ((TaskViewFactory) DefaultInstantiator.getNextService().find(TaskViewFactory.class)).create((Class<? extends Task>) elementType);
-			} else if (VariantView.class.isAssignableFrom((Class<?>) rawType)) {
+			} else if (Variant.class.isAssignableFrom(elementType)) {
 				return ((VariantViewFactory) DefaultInstantiator.getNextService().find(VariantViewFactory.class)).create((Class<? extends Variant>) elementType);
 			} else {
 				Factory<?> factory = (Factory<?>) DefaultInstantiator.getNextService().find(factoryOf(TypeToken.of(objectType)));

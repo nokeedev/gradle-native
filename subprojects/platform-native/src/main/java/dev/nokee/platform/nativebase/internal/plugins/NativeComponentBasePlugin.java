@@ -42,7 +42,6 @@ import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
@@ -492,7 +491,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 
 		model(project, mapOf(Component.class)).configureEach(VariantComponentSpec.class, component -> {
-			final VariantView<?> variants = ((VariantAwareComponent<?>) component).getVariants();
+			final View<?> variants = ((VariantAwareComponent<?>) component).getVariants();
 			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) variants.map(VariantInternal.class::cast).get())));
 		});
 		variants(project).configureEach(elementWith((identifier, variant) -> {

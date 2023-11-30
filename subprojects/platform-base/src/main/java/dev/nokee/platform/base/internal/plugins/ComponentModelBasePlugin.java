@@ -30,12 +30,10 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.TaskViewFactory;
-import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskCapabilityPlugin;
@@ -192,11 +190,11 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		model(project).getExtensions().add(VariantViewFactory.class, "__nokeeService_variantViewFactory", new VariantViewFactory() {
 			@Override
-			public <T extends Variant> VariantView<T> create(Class<T> elementType) {
+			public <T extends Variant> View<T> create(Class<T> elementType) {
 				Named.Namer namer = new Named.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 				Runnable realizeNow = () -> {};
-				return instantiator(project).newInstance(VariantViewAdapter.class, new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier));
 			}
 		});
 
