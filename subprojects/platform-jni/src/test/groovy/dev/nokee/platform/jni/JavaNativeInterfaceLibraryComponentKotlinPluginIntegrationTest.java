@@ -18,16 +18,10 @@ package dev.nokee.platform.jni;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.testers.SourceTester;
-import dev.nokee.language.jvm.HasKotlinSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
@@ -59,22 +53,4 @@ class JavaNativeInterfaceLibraryComponentKotlinPluginIntegrationTest extends Abs
 	}
 
 	// TODO: Test Jar task doesn't have JVM jar binary name
-
-	@Nested
-	class KotlinComponentSourcesTest implements SourceTester<HasKotlinSourceSet, KotlinSourceSet> {
-		@Override
-		public HasKotlinSourceSet subject() {
-			return subject.getSources();
-		}
-
-		@Override
-		public NamedDomainObjectProvider<? extends LanguageSourceSet> get(HasKotlinSourceSet self) {
-			return self.getKotlin();
-		}
-
-		@Override
-		public void configure(HasKotlinSourceSet self, Action<? super KotlinSourceSet> action) {
-			self.kotlin(action);
-		}
-	}
 }

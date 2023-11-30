@@ -15,13 +15,16 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.internal.Factory;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.NestedViewDecorator;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -32,7 +35,6 @@ import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
-import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.TargetedNativeComponentSpec;
 import org.gradle.api.model.ObjectFactory;
@@ -49,22 +51,24 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, VariantComponentSpec<JniLibraryInternal>
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<JniLibrary>
-	, SourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
+	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, HasDevelopmentBinary
 	, AssembleTaskMixIn
 {
 	@Inject
-	public JniLibraryComponentInternal(ObjectFactory objects, Factory<JavaNativeInterfaceLibrarySources> sourcesFactory) {
+	public JniLibraryComponentInternal(ObjectFactory objects) {
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
-		getExtensions().add("sources", sourcesFactory.create());
 	}
 
 	@Override
 	@NestedObject
 	public abstract DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies();
+
+	@Decorate(NestedViewDecorator.class)
+	public abstract SourceView<LanguageSourceSet> getSources();
 
 	@Override
 	@SuppressWarnings("unchecked")

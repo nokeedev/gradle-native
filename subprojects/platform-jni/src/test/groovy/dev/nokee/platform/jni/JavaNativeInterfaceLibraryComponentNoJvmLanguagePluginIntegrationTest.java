@@ -22,18 +22,14 @@ import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 class JavaNativeInterfaceLibraryComponentNoJvmLanguagePluginIntegrationTest extends AbstractPluginTest {
@@ -63,30 +59,5 @@ class JavaNativeInterfaceLibraryComponentNoJvmLanguagePluginIntegrationTest exte
 	@Test
 	void noJvmJarBinaryWhenJvmLanguagePluginNotApplied() {
 		assertThat(subject.getBinaries().get(), not(hasItem(isA(JvmJarBinary.class))));
-	}
-
-	@Nested
-	class ComponentSourcesTest {
-		public JavaNativeInterfaceLibrarySources subject() {
-			return subject.getSources();
-		}
-
-		@Test
-		void throwsSensibleErrorMessageWhenAccessingJavaSourceSetWithoutJavaPluginApplied() {
-			val ex = assertThrows(RuntimeException.class, () -> subject().getJava());
-			assertThat(ex.getMessage(), equalTo("Please apply 'java' plugin to access Java source set."));
-		}
-
-		@Test
-		void throwsSensibleErrorMessageWhenAccessingGroovySourceSetWithoutGroovyPluginApplied() {
-			val ex = assertThrows(RuntimeException.class, () -> subject().getGroovy());
-			assertThat(ex.getMessage(), equalTo("Please apply 'groovy' plugin to access Groovy source set."));
-		}
-
-		@Test
-		void throwsSensibleErrorMessageWhenAccessingKotlinSourceSetWithoutKotlinPluginApplied() {
-			val ex = assertThrows(RuntimeException.class, () -> subject().getKotlin());
-			assertThat(ex.getMessage(), equalTo("Please apply 'org.jetbrains.kotlin.jvm' plugin to access Kotlin source set."));
-		}
 	}
 }

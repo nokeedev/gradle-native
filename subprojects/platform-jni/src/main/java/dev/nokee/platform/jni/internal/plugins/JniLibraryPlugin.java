@@ -17,28 +17,21 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguagePlugin;
 import dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
-import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseVariant;
-import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
-import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
-import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.IncompatiblePluginUsage;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceSourcesViewAdapter;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
@@ -46,7 +39,6 @@ import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -68,7 +60,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -121,12 +112,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 
 		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, name -> {
-			return instantiator(project).newInstance(JniLibraryComponentInternal.class, (Factory<JavaNativeInterfaceLibrarySources>) () -> {
-					Named.Namer namer = new Named.Namer();
-					ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-					Runnable realizeNow = () -> {};
-					return new JavaNativeInterfaceSourcesViewAdapter(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
-				});
+			return instantiator(project).newInstance(JniLibraryComponentInternal.class);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, name -> {
 			return instantiator(project).newInstance(JniLibraryInternal.class);

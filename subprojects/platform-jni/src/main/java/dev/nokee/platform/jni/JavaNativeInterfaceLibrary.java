@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.jni;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
@@ -35,7 +37,7 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 public interface JavaNativeInterfaceLibrary extends Component
 	, DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponent<JniLibrary>
-	, SourceAwareComponent<JavaNativeInterfaceLibrarySources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, TargetMachineAwareComponent
