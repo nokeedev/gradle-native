@@ -61,15 +61,15 @@ import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.HasBinaryLifecycleTask;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
 import dev.nokee.platform.nativebase.internal.NativeBundleBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
 import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.NativeLibrarySpecEx;
 import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
@@ -176,20 +176,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeStaticLibraryBinarySpec.class, name -> {
 			return instantiator(project).newInstance(NativeStaticLibraryBinarySpec.class);
 		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplicationVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultNativeApplicationVariant.class);
-		});
-		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(result -> {
-			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
-		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibraryVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultNativeLibraryVariant.class);
-		});
-		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(result -> {
-			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
-		});
-		variants(project).configureEach(result -> {
-			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(((BuildVariantInternal) result.getBuildVariant()).getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+		model(project, mapOf(Variant.class)).configureEach(result -> {
+			if (result instanceof NativeLibrarySpecEx || result instanceof NativeApplicationSpecEx) {
+				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(((VariantInternal) result).getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
+			}
 		});
 
 
@@ -260,7 +250,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		});
 
 		variants(project).withType(NativeVariantSpec.class).configureEach(variant -> {
-			val buildVariant = (BuildVariantInternal) variant.getBuildVariant();
+			val buildVariant = variant.getBuildVariant();
 			val identifier = ((ModelElement) variant).getIdentifier();
 
 			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
@@ -479,29 +469,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				.configureEach(VariantComponentSpec.class, new RegisterVariants<>(model(project, registryOf(Variant.class))));
 		});
 
-		// TODO: Should be part of native-application-base plugin
-		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(variant -> {
-			variant.getBinaryLifecycleTask().configure(configureBuildGroup());
-			variant.getBinaryLifecycleTask().configure(task -> {
-				task.setDescription(String.format("Assembles a executable binary containing the objects files of %s.", "executable binary '" + variant.getExecutable().getName() + "'"));
-				task.dependsOn((Callable<Object>) variant.getExecutable()::get);
-			});
-		});
-
-		// TODO: Should be part of native-library-base plugin
-		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(variant -> {
-			variant.getBinaryLifecycleTask().configure(configureBuildGroup());
-			variant.getBinaryLifecycleTask().configure(task -> {
-				if (variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).isShared()) {
-					task.setDescription(String.format("Assembles a shared library binary containing the objects files of %s.", "shared library binary '" + variant.getSharedOrStaticLibraryBinary().getName() + "'"));
-				} else {
-					task.setDescription(String.format("Assembles a static library binary containing the objects files of %s.", "static library binary '" + variant.getSharedOrStaticLibraryBinary().getName() + "'"));
-				}
-
-				task.dependsOn((Callable<Object>) variant.getSharedOrStaticLibraryBinary()::get);
-			});
-		});
-
+		// TODO: Should be part of native-library-base/native-application-base plugin
 		variants(project).configureEach(elementWith((identifier, variant) -> {
 			if (variant instanceof HasBinaryLifecycleTask) {
 				((HasBinaryLifecycleTask) variant).getBinaryLifecycleTask().configure(configureBuildGroup());
@@ -527,16 +495,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			final VariantView<?> variants = ((VariantAwareComponent<?>) component).getVariants();
 			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) variants.map(VariantInternal.class::cast).get())));
 		});
-		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(variant -> {
-			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
-				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
-			}
-		});
-		variants(project).withType(DefaultNativeApplicationVariant.class).configureEach(variant -> {
-			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
-				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
-			}
-		});
 		variants(project).configureEach(elementWith((identifier, variant) -> {
 			if (variant instanceof HasAssembleTask) {
 				if (!((VariantIdentifier) identifier).getUnambiguousName().isEmpty()) {
@@ -551,17 +509,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				}
 			}
 		}));
-
-		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(variant -> {
-			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
-				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
-			}
-		});
-		variants(project).withType(DefaultNativeLibraryVariant.class).configureEach(variant -> {
-			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
-				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
-			}
-		});
 
 		// TODO: Restrict this rule
 		components(project).configureEach(component -> {
