@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase.internal.plugins;
 
 import com.google.common.base.Preconditions;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.language.nativebase.internal.HasApiElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
@@ -39,7 +40,6 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
@@ -205,8 +205,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		variants(project).configureEach(new RuntimeLibrariesExtendsFromParentDependencyBucketAction<>());
 
 		variants(project).configureEach(variant -> {
-			if (variant instanceof SourceAwareComponent && ((SourceAwareComponent<?>) variant).getSources() instanceof View) {
-				final View<LanguageSourceSet> sources = (View<LanguageSourceSet>) ((SourceAwareComponent<?>) variant).getSources();
+			if (variant instanceof SourceAwareComponent) {
+				final View<LanguageSourceSet> sources = ((SourceAwareComponent) variant).getSources();
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaderSearchPaths) {
 						final Configuration headerSearchPaths = ((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().getAsConfiguration();
@@ -218,8 +218,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		});
 
 		variants(project).configureEach(variant -> {
-			if (variant instanceof SourceAwareComponent && ((SourceAwareComponent<?>) variant).getSources() instanceof View) {
-				final View<LanguageSourceSet> sources = (View<LanguageSourceSet>) ((SourceAwareComponent<?>) variant).getSources();
+			if (variant instanceof SourceAwareComponent) {
+				final View<LanguageSourceSet> sources = ((SourceAwareComponent) variant).getSources();
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasImportModules) {
 						final Configuration importModules = ((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().getAsConfiguration();

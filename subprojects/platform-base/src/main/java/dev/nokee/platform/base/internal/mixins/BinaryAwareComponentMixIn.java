@@ -18,17 +18,16 @@ package dev.nokee.platform.base.internal.mixins;
 import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.NestedViewDecorator;
 import org.gradle.api.Action;
 
 public interface BinaryAwareComponentMixIn extends BinaryAwareComponent {
-	@Override
 	@Decorate(NestedViewDecorator.class)
-	BinaryView<Binary> getBinaries();
+	View<Binary> getBinaries();
 
 	@Override
-	default void binaries(Action<? super BinaryView<Binary>> action) {
+	default void binaries(Action<? super View<Binary>> action) {
 		action.execute(getBinaries());
 	}
 }

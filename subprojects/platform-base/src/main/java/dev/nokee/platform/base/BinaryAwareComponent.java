@@ -16,7 +16,6 @@
 package dev.nokee.platform.base;
 
 import org.gradle.api.Action;
-import org.gradle.platform.base.ComponentBinaries;
 
 /**
  * A component with binaries.
@@ -27,14 +26,14 @@ public interface BinaryAwareComponent {
 	/**
 	 * Returns the binaries for this component.
 	 *
-	 * @return a {@link BinaryView} for configuring each binary, never null.
+	 * @return a {@link View} for configuring each binary, never null.
 	 */
-	BinaryView<Binary> getBinaries();
+	View<Binary> getBinaries();
 
 	/**
 	 * Configure the binaries of this component.
 	 *
-	 * @param action configuration action for {@link ComponentBinaries}.
+	 * @param action configuration action for component binaries.
 	 */
-	void binaries(Action<? super BinaryView<Binary>> action);
+	void binaries(Action<? super View<Binary>> action);
 }

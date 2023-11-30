@@ -21,10 +21,10 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
@@ -64,7 +64,7 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeApplication>>
-	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, BinaryAwareComponentTester<View<Binary>>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasSwiftSourcesTester
 {
@@ -222,7 +222,7 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 
 	@Nested
 	class ComponentBinariesTest {
-		public BinaryView<Binary> subject() {
+		public View<Binary> subject() {
 			return subject.getBinaries();
 		}
 

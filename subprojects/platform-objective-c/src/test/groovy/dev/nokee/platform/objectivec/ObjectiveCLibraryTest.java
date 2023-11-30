@@ -22,10 +22,10 @@ import dev.nokee.language.nativebase.HasPublicHeadersTester;
 import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
@@ -61,7 +61,7 @@ class ObjectiveCLibraryTest implements ComponentTester<ObjectiveCLibrary>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeLibraryComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeLibrary>>
-	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, BinaryAwareComponentTester<View<Binary>>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasObjectiveCSourcesTester
 	, HasPrivateHeadersTester

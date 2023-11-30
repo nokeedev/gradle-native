@@ -21,7 +21,7 @@ package dev.nokee.platform.jni;
  * It's only present if the library generate multiple variants.
  * If the JNI library has only a single variant, the shared library binary is included inside the {@link JvmJarBinary}.
  *
- * The binaries are accessible via the library's {@link dev.nokee.platform.base.BinaryView} containing all the binary instance of a library:
+ * The binaries are accessible via the library's binaries property containing all the binary instance of a library:
  * <pre class="autoTested">
  * plugins {
  *     id 'dev.nokee.jni-library'
@@ -38,7 +38,7 @@ package dev.nokee.platform.jni;
  * }
  * </pre>
  *
- * The binary of a specific variant is also accessible via the variant's {@link dev.nokee.platform.base.BinaryView}:
+ * The binary of a specific variant is also accessible via the variant's binaries property:
  * <pre class="autoTested">
  * plugins {
  *     id 'dev.nokee.jni-library'

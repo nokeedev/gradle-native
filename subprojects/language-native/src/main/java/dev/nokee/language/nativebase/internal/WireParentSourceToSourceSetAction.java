@@ -39,9 +39,8 @@ public final class WireParentSourceToSourceSetAction<T> implements Action<T> {
 	@Override
 	public void execute(T t) {
 		// TODO: check if it's a native variant?
-		if (t instanceof SourceAwareComponent && ((SourceAwareComponent<?>) t).getSources() instanceof View) {
-			@SuppressWarnings("unchecked")
-			final View<LanguageSourceSet> sources = (View<LanguageSourceSet>) ((SourceAwareComponent<?>) t).getSources();
+		if (t instanceof SourceAwareComponent) {
+			final View<LanguageSourceSet> sources = ((SourceAwareComponent) t).getSources();
 			sources.configureEach(sourceSet -> {
 				if (sourceType.isInstance(sourceSet) && sourceSet instanceof HasSource) {
 					((HasSource) sourceSet).getSource().from((Callable<Object>) () -> {

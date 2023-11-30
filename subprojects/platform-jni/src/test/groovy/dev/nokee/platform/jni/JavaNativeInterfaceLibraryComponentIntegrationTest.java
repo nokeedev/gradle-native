@@ -28,11 +28,11 @@ import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
@@ -102,7 +102,7 @@ import static org.hamcrest.Matchers.startsWith;
 class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginTest implements ComponentTester<JavaNativeInterfaceLibrary>
 	, DependencyAwareComponentTester<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeLibrary>>
-	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, BinaryAwareComponentTester<View<Binary>>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, TargetMachineAwareComponentTester
 	, HasBaseNameTester
@@ -807,7 +807,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 		@Nested
 		class ComponentComponentBinaries {
-			public BinaryView<Binary> subject() {
+			public View<Binary> subject() {
 				return subject.getBinaries();
 			}
 

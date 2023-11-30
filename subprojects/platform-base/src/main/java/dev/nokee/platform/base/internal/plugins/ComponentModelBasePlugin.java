@@ -24,7 +24,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
@@ -33,7 +32,7 @@ import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BinaryViewAdapter;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
@@ -163,11 +162,11 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
 
-		model(project).getExtensions().add(new TypeOf<Factory<BinaryView<Binary>>>() {}, "__nokeeService_binaryFactory", (Factory<BinaryView<Binary>>) () -> {
+		model(project).getExtensions().add(new TypeOf<Factory<View<Binary>>>() {}, "__nokeeService_binaryFactory", (Factory<View<Binary>>) () -> {
 			Named.Namer namer = new Named.Namer();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 			Runnable realizeNow = () -> {};
-			return instantiator(project).newInstance(BinaryViewAdapter.class, new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+			return instantiator(project).newInstance(ViewAdapter.class, Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier));
 		});
 
 		model(project).getExtensions().add(TaskViewFactory.class, "__nokeeService_taskViewFactory", new TaskViewFactory() {

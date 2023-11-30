@@ -22,9 +22,9 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -148,7 +148,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 	@Nested
 	class ComponentBinariesTest {
-		public BinaryView<Binary> subject() {
+		public View<Binary> subject() {
 			return subject.getBinaries();
 		}
 

@@ -24,8 +24,6 @@ import dev.nokee.model.internal.decorators.ClassGenerationVisitor;
 import dev.nokee.model.internal.decorators.Decorator;
 import dev.nokee.model.internal.decorators.InjectServiceDecorator;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
@@ -133,9 +131,7 @@ public /*final*/ class NestedViewDecorator implements Decorator {
 		if (objectType instanceof ParameterizedType) {
 			Type rawType = ((ParameterizedType) objectType).getRawType();
 			assert rawType instanceof Class;
-			if (BinaryView.class.isAssignableFrom((Class<?>) rawType)) {
-				return ((Factory<?>) DefaultInstantiator.getNextService().find(new TypeToken<Factory<BinaryView<Binary>>>() {}.getType())).create();
-			} else if (TaskView.class.isAssignableFrom((Class<?>) rawType)) {
+			if (TaskView.class.isAssignableFrom((Class<?>) rawType)) {
 				Class<? extends Task> elementType = (Class<? extends Task>) ((ParameterizedType) objectType).getActualTypeArguments()[0];
 				return ((TaskViewFactory) DefaultInstantiator.getNextService().find(TaskViewFactory.class)).create(elementType);
 			} else if (VariantView.class.isAssignableFrom((Class<?>) rawType)) {

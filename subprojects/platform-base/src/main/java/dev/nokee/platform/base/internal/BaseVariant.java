@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import org.gradle.api.provider.Property;
 
 public abstract class BaseVariant extends ModelElementSupport {
@@ -28,8 +27,6 @@ public abstract class BaseVariant extends ModelElementSupport {
 	public BuildVariantInternal getBuildVariant() {
 		return (BuildVariantInternal) getIdentifier().getBuildVariant();
 	}
-
-	public abstract BinaryView<Binary> getBinaries();
 
 	public abstract Property<Binary> getDevelopmentBinary();
 }

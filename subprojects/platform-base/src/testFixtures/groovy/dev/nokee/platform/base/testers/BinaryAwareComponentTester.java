@@ -17,19 +17,20 @@ package dev.nokee.platform.base.testers;
 
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.testing.testers.ConfigureMethodTester;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.ComponentBinaries;
+import dev.nokee.platform.base.View;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
-public interface BinaryAwareComponentTester<T extends ComponentBinaries> {
+public interface BinaryAwareComponentTester<T extends View<Binary>> {
 	BinaryAwareComponent subject();
 
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
-	default Class<? extends ComponentBinaries> getComponentBinariesType() {
-		return (Class<? extends ComponentBinaries>) new TypeToken<T>(getClass()) {}.getRawType();
+	default Class<? extends View<Binary>> getComponentBinariesType() {
+		return (Class<? extends View<Binary>>) new TypeToken<T>(getClass()) {}.getRawType();
 	}
 
 	@Test

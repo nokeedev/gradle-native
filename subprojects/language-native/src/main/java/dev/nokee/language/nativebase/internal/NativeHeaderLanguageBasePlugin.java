@@ -16,12 +16,12 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -52,9 +52,8 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 
 		variants(project).configureEach(variant -> {
 			// TODO: check if it's a native variant?
-			if (variant instanceof SourceAwareComponent && ((SourceAwareComponent<?>) variant).getSources() instanceof View) {
-				@SuppressWarnings("unchecked")
-				final View<LanguageSourceSet> sources = (View<LanguageSourceSet>) ((SourceAwareComponent<?>) variant).getSources();
+			if (variant instanceof SourceAwareComponent) {
+				final View<LanguageSourceSet> sources = ((SourceAwareComponent) variant).getSources();
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
@@ -80,9 +79,8 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("publicHeaders"));
 		components(project).configureEach(variant -> {
 			// TODO: check if it's a native variant?
-			if (variant instanceof SourceAwareComponent && ((SourceAwareComponent<?>) variant).getSources() instanceof View) {
-				@SuppressWarnings("unchecked")
-				final View<LanguageSourceSet> sources = (View<LanguageSourceSet>) ((SourceAwareComponent<?>) variant).getSources();
+			if (variant instanceof SourceAwareComponent) {
+				final View<LanguageSourceSet> sources = ((SourceAwareComponent) variant).getSources();
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {

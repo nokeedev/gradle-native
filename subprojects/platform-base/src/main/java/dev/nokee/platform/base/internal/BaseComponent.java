@@ -16,8 +16,6 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
@@ -31,8 +29,6 @@ public abstract class BaseComponent<T extends Variant> extends ModelElementSuppo
 	public abstract Property<String> getBaseName();
 
 	public abstract Provider<? extends T> getDevelopmentVariant();
-
-	public abstract BinaryView<Binary> getBinaries();
 
 	public abstract VariantView<? extends T> getVariants();
 
