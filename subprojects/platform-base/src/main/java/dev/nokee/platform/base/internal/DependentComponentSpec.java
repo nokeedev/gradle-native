@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.base.internal.mixins;
+package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.platform.base.ComponentDependencies;
