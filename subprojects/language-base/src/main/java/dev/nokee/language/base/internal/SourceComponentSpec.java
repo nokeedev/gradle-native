@@ -22,7 +22,7 @@ import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.NestedViewDecorator;
 import org.gradle.api.Action;
 
-public interface SourceAwareComponentMixIn extends SourceAwareComponent {
+public interface SourceComponentSpec extends SourceAwareComponent {
 	@Decorate(NestedViewDecorator.class)
 	View<LanguageSourceSet> getSources();
 

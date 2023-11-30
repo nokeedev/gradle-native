@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
@@ -39,7 +39,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends ModelElement
 	, VariantComponentSpec<JniLibraryInternal>
 	, DependentComponentSpec<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<JniLibrary>
-	, SourceAwareComponentMixIn
+	, SourceComponentSpec
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, HasDevelopmentBinary

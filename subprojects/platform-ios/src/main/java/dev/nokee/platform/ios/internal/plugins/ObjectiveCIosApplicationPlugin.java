@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
@@ -108,7 +108,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ExtensionAwareMixIn
 		, DependentComponentSpec<NativeComponentDependencies>
 		, VariantAwareComponentMixIn<IosApplication>
-		, SourceAwareComponentMixIn
+		, SourceComponentSpec
 		, BinaryAwareComponentMixIn
 		, TaskAwareComponentMixIn
 		, AssembleTaskMixIn

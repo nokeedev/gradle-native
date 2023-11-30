@@ -16,7 +16,7 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
@@ -31,7 +31,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeApplicat
 public interface NativeApplicationSpecEx extends NativeApplicationEx
 	, ExtensionAwareMixIn
 	, NativeApplicationComponent
-	, SourceAwareComponentMixIn
+	, SourceComponentSpec
 	, DependentComponentSpec<NativeApplicationComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn

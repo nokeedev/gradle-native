@@ -17,7 +17,7 @@ package dev.nokee.testing.xctest.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.KnownDomainObject;
@@ -25,7 +25,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.DependentComponentSpec;
@@ -62,7 +61,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements TestSuiteComponent
@@ -70,7 +68,7 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	, ExtensionAwareMixIn
 	, DependentComponentSpec<NativeComponentDependencies>
 	, VariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
-	, SourceAwareComponentMixIn
+	, SourceComponentSpec
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn

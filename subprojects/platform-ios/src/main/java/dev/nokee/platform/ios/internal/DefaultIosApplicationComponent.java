@@ -18,7 +18,7 @@ package dev.nokee.platform.ios.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
@@ -77,7 +77,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependentComponentSpec<NativeComponentDependencies>
-	, SourceAwareComponentMixIn
+	, SourceComponentSpec
 	, VariantAwareComponentMixIn<IosApplication>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn

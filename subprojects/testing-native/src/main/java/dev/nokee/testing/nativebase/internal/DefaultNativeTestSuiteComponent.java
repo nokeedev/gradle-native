@@ -16,7 +16,7 @@
 package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
@@ -32,7 +32,6 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -72,7 +71,6 @@ import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -86,7 +84,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependentComponentSpec<NativeComponentDependencies>
-	, SourceAwareComponentMixIn
+	, SourceComponentSpec
 	, VariantAwareComponentMixIn<NativeTestSuiteVariant>
 	, HasDevelopmentVariant<NativeTestSuiteVariant>
 	, BinaryAwareComponentMixIn

@@ -15,7 +15,7 @@
  */
 package dev.nokee.testing.nativebase.internal;
 
-import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -43,7 +43,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	, NativeSourcesAware
 	, DependentComponentSpec<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn
-	, SourceAwareComponentMixIn
+	, SourceComponentSpec
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasRuntimeElementsDependencyBucket

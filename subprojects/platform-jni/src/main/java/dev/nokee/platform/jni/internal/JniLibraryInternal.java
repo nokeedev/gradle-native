@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
@@ -52,7 +52,7 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 public /*final*/ abstract class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal
 	, NativeSourcesAware
 	, TaskAwareComponentMixIn
-	, SourceAwareComponentMixIn
+	, SourceComponentSpec
 	, DependentComponentSpec<JavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, HasBaseName

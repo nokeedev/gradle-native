@@ -17,7 +17,7 @@ package dev.nokee.testing.xctest.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.KnownDomainObject;
@@ -66,7 +66,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 	, ExtensionAwareMixIn
 	, DependentComponentSpec<NativeComponentDependencies>
 	, VariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
-	, SourceAwareComponentMixIn
+	, SourceComponentSpec
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
