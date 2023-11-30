@@ -37,7 +37,6 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
@@ -49,12 +48,8 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 
-		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(IosResourceSetSpec.class, name -> {
-			return instantiator(project).newInstance(IosResourceSetSpec.class);
-		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultIosApplicationVariant.class);
-		});
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(IosResourceSetSpec.class);
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class);
 
 		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {
 			component.getVariants().configureEach(DefaultIosApplicationVariant.class, variant -> {

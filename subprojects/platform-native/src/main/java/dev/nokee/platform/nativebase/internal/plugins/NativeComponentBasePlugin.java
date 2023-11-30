@@ -128,7 +128,6 @@ import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.source
 import static dev.nokee.model.internal.ModelElementActionAdapter.elementWith;
 import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
@@ -163,18 +162,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeSharedLibraryBinarySpec.class, name -> {
-			return instantiator(project).newInstance(NativeSharedLibraryBinarySpec.class);
-		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeBundleBinarySpec.class, name -> {
-			return instantiator(project).newInstance(NativeBundleBinarySpec.class);
-		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeExecutableBinarySpec.class, name -> {
-			return instantiator(project).newInstance(NativeExecutableBinarySpec.class);
-		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeStaticLibraryBinarySpec.class, name -> {
-			return instantiator(project).newInstance(NativeStaticLibraryBinarySpec.class);
-		});
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeSharedLibraryBinarySpec.class);
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeBundleBinarySpec.class);
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeExecutableBinarySpec.class);
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeStaticLibraryBinarySpec.class);
 		model(project, mapOf(Variant.class)).configureEach(result -> {
 			if (result instanceof NativeLibrarySpecEx || result instanceof NativeApplicationSpecEx) {
 				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(((VariantInternal) result).getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));

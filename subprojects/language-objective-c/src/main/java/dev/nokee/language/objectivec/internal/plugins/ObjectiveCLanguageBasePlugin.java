@@ -35,7 +35,6 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
@@ -50,9 +49,7 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(ObjectiveCSourceSetSpec.class, name -> {
-			return instantiator(project).newInstance(ObjectiveCSourceSetSpec.class);
-		});
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(ObjectiveCSourceSetSpec.class);
 
 		DefaultImporter.forProject(project)
 			.defaultImport(ObjectiveCSourceSet.class);

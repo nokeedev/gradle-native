@@ -61,7 +61,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.CURRENT_MODEL_PLUGIN_IDS;
@@ -111,12 +110,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 
-		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class, name -> {
-			return instantiator(project).newInstance(JniLibraryComponentInternal.class);
-		});
-		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class, name -> {
-			return instantiator(project).newInstance(JniLibraryInternal.class);
-		});
+		model(project, factoryRegistryOf(Component.class)).registerFactory(JniLibraryComponentInternal.class);
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(JniLibraryInternal.class);
 
 		val extension = registerExtension(project);
 

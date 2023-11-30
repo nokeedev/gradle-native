@@ -51,9 +51,9 @@ import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.platform.jni.internal.ConfigureJniHeaderDirectoryOnJavaCompileAction;
 import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceNativeComponentDependencies;
+import dev.nokee.platform.jni.internal.JniJarBinarySpec;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
-import dev.nokee.platform.jni.internal.JniJarBinarySpec;
 import dev.nokee.platform.jni.internal.JvmJarBinarySpec;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
@@ -99,7 +99,6 @@ import java.util.function.Consumer;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
@@ -129,12 +128,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JniJarBinarySpec.class, name -> {
-			return instantiator(project).newInstance(JniJarBinarySpec.class);
-		});
-		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JvmJarBinarySpec.class, name -> {
-			return instantiator(project).newInstance(JvmJarBinarySpec.class);
-		});
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JniJarBinarySpec.class);
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JvmJarBinarySpec.class);
 
 		components(project).withType(JniLibraryComponentInternal.class)
 			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
