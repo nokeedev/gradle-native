@@ -27,7 +27,7 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
@@ -41,7 +41,7 @@ import javax.inject.Inject;
 public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVariant implements NativeTestSuiteVariant, VariantInternal
 	, NativeVariantSpec
 	, NativeSourcesAware
-	, DependencyAwareComponentMixIn<NativeComponentDependencies>
+	, DependentComponentSpec<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, SourceAwareComponentMixIn
 	, TaskAwareComponentMixIn

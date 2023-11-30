@@ -20,7 +20,7 @@ import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import org.gradle.api.Action;
 
-public interface DependencyAwareComponentMixIn<T extends ComponentDependencies> extends DependencyAwareComponent<T> {
+public interface DependentComponentSpec<T extends ComponentDependencies> extends DependencyAwareComponent<T> {
 	@Override
 	T getDependencies();
 

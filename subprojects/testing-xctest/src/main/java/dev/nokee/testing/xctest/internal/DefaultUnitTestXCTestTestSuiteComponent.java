@@ -32,7 +32,7 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements TestSuiteComponent
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeComponentDependencies>
+	, DependentComponentSpec<NativeComponentDependencies>
 	, VariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
 	, SourceAwareComponentMixIn
 	, BinaryAwareComponentMixIn

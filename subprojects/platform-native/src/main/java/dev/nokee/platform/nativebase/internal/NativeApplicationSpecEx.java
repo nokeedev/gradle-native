@@ -21,7 +21,7 @@ import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationEx;
@@ -32,7 +32,7 @@ public interface NativeApplicationSpecEx extends NativeApplicationEx
 	, ExtensionAwareMixIn
 	, NativeApplicationComponent
 	, SourceAwareComponentMixIn
-	, DependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+	, DependentComponentSpec<NativeApplicationComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, ObjectsTaskMixIn

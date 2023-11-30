@@ -21,10 +21,10 @@ import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.BuildableComponentSpec;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.DependentComponentSpec;
 
 public abstract class BaseNativeSourceSetSpec extends ModelElementSupport implements NativeSourceSet
-	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
+	, DependentComponentSpec<NativeSourceSetComponentDependencies>
 	, BuildableComponentSpec
 {
 	@NestedObject

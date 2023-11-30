@@ -43,7 +43,7 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
@@ -85,7 +85,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, NativeTestSuiteComponentSpec
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
-	, DependencyAwareComponentMixIn<NativeComponentDependencies>
+	, DependentComponentSpec<NativeComponentDependencies>
 	, SourceAwareComponentMixIn
 	, VariantAwareComponentMixIn<NativeTestSuiteVariant>
 	, HasDevelopmentVariant<NativeTestSuiteVariant>

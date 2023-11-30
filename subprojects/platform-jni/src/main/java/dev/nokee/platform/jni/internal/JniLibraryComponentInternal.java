@@ -26,7 +26,7 @@ import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
@@ -45,7 +45,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, VariantComponentSpec<JniLibraryInternal>
-	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
+	, DependentComponentSpec<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<JniLibrary>
 	, SourceAwareComponentMixIn
 	, BinaryAwareComponentMixIn
