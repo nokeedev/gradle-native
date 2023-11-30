@@ -422,18 +422,14 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project).getExtensions().add("__nokeeService_targetBuildTypeFactory", NativeRuntimeBasePlugin.TARGET_BUILD_TYPE_FACTORY);
 		model(project).getExtensions().add("__nokeeService_targetLinkageFactory", NativeRuntimeBasePlugin.TARGET_LINKAGE_FACTORY);
 
-		project.afterEvaluate(__ -> {
-			components(project).configureEach(component -> {
-				if (component instanceof TargetMachineAwareComponent) {
-					((TargetMachineAwareComponent) component).getTargetMachines().disallowChanges();
-				}
-				if (component instanceof TargetLinkageAwareComponent) {
-					((TargetLinkageAwareComponent) component).getTargetLinkages().disallowChanges();
-				}
-				if (component instanceof TargetBuildTypeAwareComponent) {
-					((TargetBuildTypeAwareComponent) component).getTargetBuildTypes().disallowChanges();
-				}
-			});
+		model(project, mapOf(Component.class)).whenElementFinalized(TargetMachineAwareComponent.class, component -> {
+			component.getTargetMachines().disallowChanges();
+		});
+		model(project, mapOf(Component.class)).whenElementFinalized(TargetLinkageAwareComponent.class, component -> {
+			component.getTargetLinkages().disallowChanges();
+		});
+		model(project, mapOf(Component.class)).whenElementFinalized(TargetBuildTypeAwareComponent.class, component -> {
+			component.getTargetBuildTypes().disallowChanges();
 		});
 
 		val unbuildableWarningService = forUseAtConfigurationTime(registerBuildServiceIfAbsent(project, UnbuildableWarningService.class));
@@ -451,10 +447,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		project.afterEvaluate(__ -> {
-			model(project, mapOf(Component.class))
-				.configureEach(VariantComponentSpec.class, new RegisterVariants<>(model(project, registryOf(Variant.class))));
-		});
+		model(project, mapOf(Component.class))
+			.whenElementFinalized(VariantComponentSpec.class, new RegisterVariants<>(model(project, registryOf(Variant.class))));
 
 		// TODO: Should be part of native-library-base/native-application-base plugin
 		variants(project).configureEach(elementWith((identifier, variant) -> {

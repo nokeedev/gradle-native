@@ -24,4 +24,7 @@ public interface ModelMap<ElementType> {
 	<U> void configureEach(Class<U> type, Action<? super U> configureAction);
 
 	void whenElementKnow(Action<? super ModelMapAdapters.ModelElementIdentity> configureAction);
+
+	void whenElementFinalized(Action<? super ElementType> finalizeAction);
+	<U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction);
 }

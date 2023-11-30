@@ -28,6 +28,7 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Namer;
 import org.gradle.api.PolymorphicDomainObjectContainer;
+import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -39,6 +40,7 @@ import javax.inject.Inject;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -116,11 +118,13 @@ public final class ModelMapAdapters {
 	public static /*final*/ class ForConfigurationContainer implements ForNamedDomainObjectContainer<Configuration>, HasPublicType {
 		private final KnownElements knownElements;
 		private final ConfigurationContainer delegate;
+		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, ObjectFactory objects) {
+		public ForConfigurationContainer(ConfigurationContainer delegate, ObjectFactory objects, Project project) {
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
+			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
 			knownElements.forEach(it -> {
 				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
@@ -177,6 +181,20 @@ public final class ModelMapAdapters {
 			knownElements.forEach(configureAction);
 		}
 
+		@Override
+		public void whenElementFinalized(Action<? super Configuration> finalizeAction) {
+			onFinalize.accept(() -> {
+				configureEach(finalizeAction);
+			});
+		}
+
+		@Override
+		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
+			onFinalize.accept(() -> {
+				configureEach(type, finalizeAction);
+			});
+		}
+
 		private static final class DefaultRegistrableType implements RegistrableTypes {
 			private final SupportedType registrableType;
 
@@ -199,12 +217,14 @@ public final class ModelMapAdapters {
 		private final Class<Task> elementType;
 		private final KnownElements knownElements;
 		private final PolymorphicDomainObjectContainer<Task> delegate;
+		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, ObjectFactory objects) {
+		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, ObjectFactory objects, Project project) {
 			this.elementType = Task.class;
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
+			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
 			knownElements.forEach(it -> {
 				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
@@ -259,6 +279,20 @@ public final class ModelMapAdapters {
 			knownElements.forEach(configureAction);
 		}
 
+		@Override
+		public void whenElementFinalized(Action<? super Task> finalizeAction) {
+			onFinalize.accept(() -> {
+				configureEach(finalizeAction);
+			});
+		}
+
+		@Override
+		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
+			onFinalize.accept(() -> {
+				configureEach(type, finalizeAction);
+			});
+		}
+
 		private static final class TaskContainerRegistrableTypes implements RegistrableTypes {
 			private final SupportedType registrableTypes = SupportedTypes.anySubtypeOf(Task.class);
 
@@ -277,14 +311,16 @@ public final class ModelMapAdapters {
 		private final Set<Class<? extends ElementType>> creatableTypes = new LinkedHashSet<>();
 		private final ManagedFactoryProvider managedFactory;
 		private final ProjectIdentifier projectIdentifier;
+		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ProjectIdentifier projectIdentifier, Instantiator instantiator) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ProjectIdentifier projectIdentifier, Instantiator instantiator, Project project) {
 			this.elementType = elementType;
 			this.knownElements = new KnownElements(objects);
 			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.projectIdentifier = projectIdentifier;
+			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
 			knownElements.forEach(it -> {
 				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
@@ -341,6 +377,20 @@ public final class ModelMapAdapters {
 		@Override
 		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.forEach(configureAction);
+		}
+
+		@Override
+		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
+			onFinalize.accept(() -> {
+				configureEach(finalizeAction);
+			});
+		}
+
+		@Override
+		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
+			onFinalize.accept(() -> {
+				configureEach(type, finalizeAction);
+			});
 		}
 
 		private final class DefaultRegistrableTypes implements RegistrableTypes {

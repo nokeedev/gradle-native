@@ -75,8 +75,8 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		applyToAllTarget(project);
 
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
-		objects.register(model(project).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations()));
-		objects.register(model(project).getExtensions().create("$tasks", ModelMapAdapters.ForTaskContainer.class, project.getTasks()));
+		objects.register(model(project).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations(), project));
+		objects.register(model(project).getExtensions().create("$tasks", ModelMapAdapters.ForTaskContainer.class, project.getTasks(), project));
 	}
 
 	public static ModelExtension model(ExtensionAware target) {
