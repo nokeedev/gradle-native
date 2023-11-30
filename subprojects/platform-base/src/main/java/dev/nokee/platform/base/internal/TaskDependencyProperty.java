@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.nokee.language.nativebase.internal;
+package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableSet;
 import org.gradle.api.Task;

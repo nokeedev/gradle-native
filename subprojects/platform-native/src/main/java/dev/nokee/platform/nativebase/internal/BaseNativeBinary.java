@@ -18,16 +18,14 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.internal.BuildableComponentSpec;
 import dev.nokee.platform.nativebase.NativeBinary;
-import dev.nokee.util.ProviderOfIterableTransformer;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
-import org.gradle.api.Buildable;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskDependency;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.nativeplatform.platform.NativePlatform;
@@ -47,7 +45,7 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 public abstract class BaseNativeBinary extends ModelElementSupport implements Binary, NativeBinary
 	, HasHeaderSearchPaths
 	, HasObjectFilesToBinaryTask
-	, Buildable
+	, BuildableComponentSpec
 {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
@@ -55,6 +53,7 @@ public abstract class BaseNativeBinary extends ModelElementSupport implements Bi
 	public BaseNativeBinary(ObjectFactory objects, ProviderFactory providers) {
 		this.objects = objects;
 		this.providers = providers;
+		getBuildDependencies().add(TaskDependencyUtils.of(getCreateOrLinkTask()));
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
@@ -118,10 +117,5 @@ public abstract class BaseNativeBinary extends ModelElementSupport implements Bi
 		NativePlatformInternal platformInternal = (NativePlatformInternal)platform;
 		PlatformToolProvider toolProvider = toolchainInternal.select(platformInternal);
 		return toolProvider.isAvailable();
-	}
-
-	@Override
-	public final TaskDependency getBuildDependencies() {
-		return TaskDependencyUtils.of(getCreateOrLinkTask());
 	}
 }

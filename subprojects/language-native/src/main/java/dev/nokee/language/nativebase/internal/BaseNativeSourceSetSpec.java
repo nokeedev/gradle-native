@@ -20,15 +20,13 @@ import dev.nokee.language.nativebase.NativeSourceSet;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.platform.base.internal.BuildableComponentSpec;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import org.gradle.api.tasks.Nested;
 
 public abstract class BaseNativeSourceSetSpec extends ModelElementSupport implements NativeSourceSet
 	, DependencyAwareComponentMixIn<NativeSourceSetComponentDependencies>
+	, BuildableComponentSpec
 {
-	@Nested
-	public abstract TaskDependencyProperty getBuildDependencies();
-
 	@NestedObject
 	public abstract DefaultNativeSourceSetComponentDependencies getDependencies();
 }
