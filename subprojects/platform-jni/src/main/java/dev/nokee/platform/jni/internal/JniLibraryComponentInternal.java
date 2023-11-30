@@ -17,30 +17,22 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentBinary;
-import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.TargetedNativeComponentSpec;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 
-import javax.inject.Inject;
-import java.util.Set;
-
-public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
+public /*final*/ abstract class JniLibraryComponentInternal extends ModelElementSupport implements JavaNativeInterfaceLibrary
 	, TargetedNativeComponentSpec
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
@@ -53,32 +45,9 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, HasDevelopmentBinary
 	, AssembleTaskMixIn
 {
-	@Inject
-	public JniLibraryComponentInternal(ObjectFactory objects) {
-		getExtensions().add("baseName", objects.property(String.class));
-		getExtensions().add("developmentBinary", objects.property(Binary.class));
-	}
-
 	@Override
 	@NestedObject
 	public abstract DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies();
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public Property<String> getBaseName() {
-		return (Property<String>) getExtensions().getByName("baseName");
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public Property<Binary> getDevelopmentBinary() {
-		return (Property<Binary>) getExtensions().getByName("developmentBinary");
-	}
-
-	@Override
-	public Provider<Set<BuildVariant>> getBuildVariants() {
-		return VariantAwareComponentMixIn.super.getBuildVariants();
-	}
 
 	@Override
 	protected String getTypeName() {

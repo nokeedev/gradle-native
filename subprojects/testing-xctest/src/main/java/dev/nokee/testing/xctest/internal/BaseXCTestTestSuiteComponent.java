@@ -21,7 +21,6 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.internal.GroupId;
@@ -42,8 +41,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.nativeplatform.toolchain.Swiftc;
-
-import java.util.Set;
 
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.getSdkPlatformPath;
@@ -68,9 +65,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
 		this.taskRegistry = taskRegistry;
 	}
-
-	@Override
-	public abstract Provider<Set<BuildVariant>> getBuildVariants();
 
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		throw new UnsupportedOperationException("readd support for whenElementKnown");

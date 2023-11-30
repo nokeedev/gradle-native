@@ -25,14 +25,13 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseNameUtils;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
@@ -52,7 +51,6 @@ import org.apache.commons.io.IOUtils;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
@@ -61,7 +59,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements TestSuiteComponent
@@ -181,14 +178,6 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 		} catch (InterruptedException | IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override
-	public abstract Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant();
-
-	@Override
-	public Provider<Set<BuildVariant>> getBuildVariants() {
-		return VariantAwareComponentMixIn.super.getBuildVariants();
 	}
 
 	@Override

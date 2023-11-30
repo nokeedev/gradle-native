@@ -33,17 +33,18 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
@@ -62,7 +63,6 @@ import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
@@ -91,6 +91,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, HasDevelopmentVariant<NativeTestSuiteVariant>
 	, BinaryAwareComponentMixIn
 	, AssembleTaskMixIn
+	, HasBaseName
 {
 	private final ObjectFactory objects;
 	private final ModelObjectRegistry<Task> taskRegistry;
@@ -106,14 +107,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	@Override
 	@NestedObject
 	public abstract DefaultNativeComponentDependencies getDependencies();
-
-	@Override
-	public Provider<Set<BuildVariant>> getBuildVariants() {
-		return VariantAwareComponentMixIn.super.getBuildVariants();
-	}
-
-	@Override
-	public abstract Property<NativeTestSuiteVariant> getDevelopmentVariant();
 
 	public void finalizeExtension(Project project) {
 		val checkTask = taskRegistry.register(ProjectIdentifier.of(project).child(TaskName.of("check")), Task.class).asProvider();
@@ -176,6 +169,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 			}
 			getVariants().configureEach(variant -> {
 				variant.getBinaries().configureEach(NativeExecutableBinarySpec.class, binary -> {
+					// TODO: Replace with object dependencies
 					Provider<List<? extends FileTree>> componentObjects = component.getVariants().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS).equals(((VariantInternal) variant).getBuildVariant().withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS))).map(it -> {
 						ImmutableList.Builder<FileTree> result = ImmutableList.builder();
 						it.stream().flatMap(v -> v.getBinaries().withType(NativeBinary.class).get().stream()).forEach(testedBinary -> {

@@ -27,15 +27,14 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseNameUtils;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
@@ -69,7 +68,6 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
-import java.util.Set;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
@@ -109,14 +107,6 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	@Override
 	@NestedObject
 	public abstract DefaultNativeComponentDependencies getDependencies();
-
-	@Override
-	public Provider<Set<BuildVariant>> getBuildVariants() {
-		return VariantAwareComponentMixIn.super.getBuildVariants();
-	}
-
-	@Override
-	public abstract Property<IosApplication> getDevelopmentVariant();
 
 	@SuppressWarnings("unchecked")
 	protected void onEachVariant(KnownDomainObject<IosApplication> variant) {

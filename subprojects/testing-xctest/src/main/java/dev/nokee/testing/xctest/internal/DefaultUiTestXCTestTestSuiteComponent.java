@@ -28,11 +28,11 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseNameUtils;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
@@ -53,7 +53,6 @@ import org.apache.commons.io.IOUtils;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.Sync;
@@ -205,14 +204,6 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 		return providers.provider(() -> {
 			return new File(getSdkPlatformPath(), "Developer/Library/Xcode/Agents/XCTRunner.app/XCTRunner");
 		});
-	}
-
-	@Override
-	public abstract Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant();
-
-	@Override
-	public Provider<Set<BuildVariant>> getBuildVariants() {
-		return VariantAwareComponentMixIn.super.getBuildVariants();
 	}
 
 	@Override
