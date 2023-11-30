@@ -17,7 +17,7 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.View;
 
 public interface NativeBinary extends Binary {
 	/**
@@ -25,7 +25,7 @@ public interface NativeBinary extends Binary {
 	 *
 	 * @return a view of {@link SourceCompile} tasks, never null.
 	 */
-	TaskView<SourceCompile> getCompileTasks();
+	View<SourceCompile> getCompileTasks();
 
 	/**
 	 * Returns whether this binary can be built in the current environment.

@@ -22,7 +22,6 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -114,7 +113,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 	@Nested
 	class ComponentTasksTest {
-		public TaskView<Task> subject() {
+		public View<Task> subject() {
 			return subject.getTasks();
 		}
 

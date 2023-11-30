@@ -29,7 +29,6 @@ import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
@@ -103,7 +102,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	, DependencyAwareComponentTester<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeLibrary>>
 	, BinaryAwareComponentTester<View<Binary>>
-	, TaskAwareComponentTester<TaskView<Task>>
+	, TaskAwareComponentTester<View<Task>>
 	, TargetMachineAwareComponentTester
 	, HasBaseNameTester
 	, HasDevelopmentVariantTester
@@ -175,7 +174,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 	@Nested
 	class ComponentTasksTest {
-		public TaskView<Task> subject() {
+		public View<Task> subject() {
 			return subject.getTasks();
 		}
 

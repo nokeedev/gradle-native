@@ -17,18 +17,20 @@ package dev.nokee.platform.base.testers;
 
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.testing.testers.ConfigureMethodTester;
-import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.TaskAwareComponent;
+import dev.nokee.platform.base.View;
+import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
-public interface TaskAwareComponentTester<T extends ComponentTasks> {
+public interface TaskAwareComponentTester<T extends View<Task>> {
 	TaskAwareComponent subject();
 
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
-	default Class<? extends ComponentTasks> getComponentTasksType() {
-		return (Class<? extends ComponentTasks>) new TypeToken<T>(getClass()) {}.getRawType();
+	default Class<? extends View<Task>> getComponentTasksType() {
+		return (Class<? extends View<Task>>) new TypeToken<T>(getClass()) {}.getRawType();
 	}
 
 	@Test

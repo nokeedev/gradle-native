@@ -21,7 +21,6 @@ import dev.nokee.language.cpp.HasCppSourcesTester;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
@@ -60,7 +59,7 @@ class CppApplicationTest implements ComponentTester<CppApplication>
 	, DependencyAwareComponentTester<NativeApplicationComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeApplication>>
 	, BinaryAwareComponentTester<View<Binary>>
-	, TaskAwareComponentTester<TaskView<Task>>
+	, TaskAwareComponentTester<View<Task>>
 	, HasCppSourcesTester
 	, HasPrivateHeadersTester
 	, HasDevelopmentVariantTester
@@ -96,7 +95,7 @@ class CppApplicationTest implements ComponentTester<CppApplication>
 
 	@Nested
 	class ComponentTasksTest {
-		public TaskView<Task> subject() {
+		public View<Task> subject() {
 			return subject.getTasks();
 		}
 

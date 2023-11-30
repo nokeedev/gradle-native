@@ -16,9 +16,9 @@
 
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.View;
 import org.gradle.api.Task;
 
 public interface TaskViewFactory {
-	<T extends Task> TaskView<T> create(Class<T> elementType);
+	<T extends Task> View<T> create(Class<T> elementType);
 }

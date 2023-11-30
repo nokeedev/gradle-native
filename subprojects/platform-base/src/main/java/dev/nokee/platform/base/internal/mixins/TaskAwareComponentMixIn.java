@@ -17,18 +17,17 @@ package dev.nokee.platform.base.internal.mixins;
 
 import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.platform.base.TaskAwareComponent;
-import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.NestedViewDecorator;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 
 public interface TaskAwareComponentMixIn extends TaskAwareComponent {
-	@Override
 	@Decorate(NestedViewDecorator.class)
-	TaskView<Task> getTasks();
+	View<Task> getTasks();
 
 	@Override
-	default void tasks(Action<? super TaskView<Task>> action) {
+	default void tasks(Action<? super View<Task>> action) {
 		action.execute(getTasks());
 	}
 }

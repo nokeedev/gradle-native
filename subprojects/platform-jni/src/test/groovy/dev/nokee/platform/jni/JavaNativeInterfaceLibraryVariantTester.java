@@ -17,7 +17,6 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.internal.testing.testers.ConfigureMethodTester;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
@@ -33,7 +32,7 @@ import static org.hamcrest.Matchers.notNullValue;
 public interface JavaNativeInterfaceLibraryVariantTester extends VariantTester<JniLibrary>
 	, DependencyAwareComponentTester<JavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponentTester<View<Binary>>
-	, TaskAwareComponentTester<TaskView<Task>>
+	, TaskAwareComponentTester<View<Task>>
 	, HasBaseNameTester
 {
 	@Test

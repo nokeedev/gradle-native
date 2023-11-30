@@ -16,7 +16,6 @@
 package dev.nokee.platform.nativebase.internal.rules
 
 import dev.nokee.platform.base.Binary
-import dev.nokee.platform.base.TaskView
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.nativebase.NativeBinary
 import dev.nokee.utils.ProviderUtils
@@ -48,7 +47,7 @@ class ToBinariesCompileTasksTransformerTest extends Specification {
 	def "returns provider to binary's compile tasks when development binary is a native binary"() {
 		given:
 		def taskViewElements = Stub(Provider)
-		def taskView = Mock(TaskView)
+		def taskView = Mock(View)
 		def binary = Mock(NativeBinary)
 		def variant = Stub(Variant) {
 			getDevelopmentBinary() >> ProviderUtils.fixed(binary)

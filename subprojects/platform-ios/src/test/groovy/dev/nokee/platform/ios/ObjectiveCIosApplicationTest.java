@@ -23,7 +23,6 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
@@ -67,7 +66,7 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 	, DependencyAwareComponentTester<NativeComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeApplication>>
 	, BinaryAwareComponentTester<View<Binary>>
-	, TaskAwareComponentTester<TaskView<Task>>
+	, TaskAwareComponentTester<View<Task>>
 	, HasObjectiveCSourcesTester
 	, HasPrivateHeadersTester
 {
@@ -103,7 +102,7 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 
 	@Nested
 	class ComponentTasksTest {
-		public TaskView<Task> subject() {
+		public View<Task> subject() {
 			return subject.getTasks();
 		}
 

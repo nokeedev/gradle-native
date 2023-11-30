@@ -29,12 +29,12 @@ public interface TaskAwareComponent {
 	 *
 	 * @return the component tasks of this component, never null
 	 */
-	TaskView<Task> getTasks();
+	View<Task> getTasks();
 
 	/**
 	 * Configures the component tasks using the specified configuration action.
 	 *
 	 * @param action  the configuration action, must not be null
 	 */
-	void tasks(Action<? super TaskView<Task>> action);
+	void tasks(Action<? super View<Task>> action);
 }

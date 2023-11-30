@@ -29,13 +29,11 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
-import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.TaskViewFactory;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewFactory;
@@ -171,7 +169,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		model(project).getExtensions().add(TaskViewFactory.class, "__nokeeService_taskViewFactory", new TaskViewFactory() {
 			@Override
-			public <T extends Task> TaskView<T> create(Class<T> elementType) {
+			public <T extends Task> View<T> create(Class<T> elementType) {
 				Task.Namer namer = new Task.Namer();
 				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 				Runnable realizeNow = () -> {
@@ -188,7 +186,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 						}
 					}
 				};
-				return instantiator(project).newInstance(TaskViewAdapter.class, new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier));
 			}
 		});
 

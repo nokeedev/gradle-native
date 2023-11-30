@@ -22,7 +22,6 @@ import dev.nokee.language.nativebase.HasPublicHeadersTester;
 import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.View;
@@ -62,7 +61,7 @@ class ObjectiveCLibraryTest implements ComponentTester<ObjectiveCLibrary>
 	, DependencyAwareComponentTester<NativeLibraryComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeLibrary>>
 	, BinaryAwareComponentTester<View<Binary>>
-	, TaskAwareComponentTester<TaskView<Task>>
+	, TaskAwareComponentTester<View<Task>>
 	, HasObjectiveCSourcesTester
 	, HasPrivateHeadersTester
 	, HasPublicHeadersTester
@@ -100,7 +99,7 @@ class ObjectiveCLibraryTest implements ComponentTester<ObjectiveCLibrary>
 
 	@Nested
 	class ComponentTasksTest {
-		public TaskView<Task> subject() {
+		public View<Task> subject() {
 			return subject.getTasks();
 		}
 
