@@ -15,12 +15,10 @@
  */
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.TaskAwareComponent;
 
 /**
@@ -28,5 +26,5 @@ import dev.nokee.platform.base.TaskAwareComponent;
  *
  * @since 1.0
  */
-public interface NativeApplicationEx extends DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, TaskAwareComponent, SourceAwareComponent<SourceView<LanguageSourceSet>>, HasBaseName {
+public interface NativeApplicationEx extends DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, TaskAwareComponent, SourceAwareComponent, HasBaseName {
 }

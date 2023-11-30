@@ -15,13 +15,11 @@
  */
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.internal.Factory;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
-import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -54,9 +52,8 @@ public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
-	public DefaultIosApplicationVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects, Factory<ComponentSources> sourcesFactory) {
+	public DefaultIosApplicationVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects) {
 		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
-		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		this.productBundleIdentifier = objects.property(String.class);
 	}

@@ -15,9 +15,7 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
@@ -30,7 +28,6 @@ import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
@@ -93,7 +90,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies>
 		, VariantAwareComponentMixIn<IosApplication>
-		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
+		, SourceAwareComponentMixIn
 		, BinaryAwareComponentMixIn
 		, TaskAwareComponentMixIn
 		, AssembleTaskMixIn
@@ -101,8 +98,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, SwiftSourcesMixIn
 	{
 		@Inject
-		public DefaultSwiftIosApplication(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-			getExtensions().add("sources", sourcesFactory.create());
+		public DefaultSwiftIosApplication() {
 			getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
 		}
 

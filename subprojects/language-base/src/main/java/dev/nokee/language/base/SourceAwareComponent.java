@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base;
+package dev.nokee.language.base;
 
+import dev.nokee.platform.base.View;
 import org.gradle.api.Action;
 
 /**
@@ -23,18 +24,18 @@ import org.gradle.api.Action;
  * @param <T>  the component sources type
  * @since 0.5
  */
-public interface SourceAwareComponent<T extends ComponentSources> {
+public interface SourceAwareComponent {
 	/**
 	 * Returns the component sources of this component.
 	 *
 	 * @return the component sources of this component, never null
 	 */
-	T getSources();
+	View<LanguageSourceSet> getSources();
 
 	/**
 	 * Configures the component sources using the specified configuration action.
 	 *
 	 * @param action  the configuration action, must not be null
 	 */
-	void sources(Action<? super T> action);
+	void sources(Action<? super View<LanguageSourceSet>> action);
 }

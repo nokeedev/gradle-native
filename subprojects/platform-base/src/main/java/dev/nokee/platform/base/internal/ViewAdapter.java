@@ -26,6 +26,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -36,10 +37,11 @@ import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 @EqualsAndHashCode
-public final class ViewAdapter<T> implements View<T> {
+public class ViewAdapter<T> implements View<T> {
 	private final Class<T> elementType;
 	private final Strategy strategy;
 
+	@Inject
 	public ViewAdapter(Class<T> elementType, Strategy strategy) {
 		this.elementType = elementType;
 		this.strategy = strategy;

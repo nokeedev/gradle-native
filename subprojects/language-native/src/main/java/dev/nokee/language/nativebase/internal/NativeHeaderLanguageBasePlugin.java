@@ -21,7 +21,7 @@ import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.SourceAwareComponent;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

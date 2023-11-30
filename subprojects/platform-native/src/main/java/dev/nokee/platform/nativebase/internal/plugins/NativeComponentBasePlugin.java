@@ -39,7 +39,7 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.SourceAwareComponent;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;

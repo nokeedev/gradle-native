@@ -15,9 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
@@ -32,7 +30,6 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
@@ -55,7 +52,7 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 public /*final*/ abstract class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal
 	, NativeSourcesAware
 	, TaskAwareComponentMixIn
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
+	, SourceAwareComponentMixIn
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, HasBaseName
@@ -63,12 +60,11 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	, AssembleTaskMixIn
 {
 	@Inject
-	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
+	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {
 		getExtensions().add("developmentBinary", objects.property(Binary.class));
 		getExtensions().add("baseName", objects.property(String.class));
 		getExtensions().add("sharedLibraryTask", taskRegistry.register(getIdentifier().child(TaskName.of("sharedLibrary")), Task.class).asProvider());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
-		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), NativeSharedLibraryBinarySpec.class).asProvider());
 		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), JniJarBinarySpec.class).asProvider());
 	}

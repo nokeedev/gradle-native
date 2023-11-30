@@ -15,9 +15,7 @@
  */
 package dev.nokee.testing.nativebase.internal;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -30,7 +28,6 @@ import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
@@ -46,15 +43,14 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	, NativeSourcesAware
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, BinaryAwareComponentMixIn
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
+	, SourceAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasRuntimeElementsDependencyBucket
 {
 	@Inject
-	public DefaultNativeTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
+	public DefaultNativeTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
 		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
-		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 	}
 

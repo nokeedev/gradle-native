@@ -17,13 +17,12 @@ package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.scripts.DefaultImporter;
@@ -53,12 +52,12 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 
-		final Factory<SourceView<LanguageSourceSet>> sourcesFactory = () -> {
+		final Factory<View<LanguageSourceSet>> sourcesFactory = () -> {
 			Named.Namer namer = new Named.Namer();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
 			Runnable realizeNow = () -> {};
-			return new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier)));
+			return instantiator(project).newInstance(ViewAdapter.class, LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier));
 		};
-		model(project).getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<SourceView<LanguageSourceSet>>>() {}, "__nokee_sourcesFactory", sourcesFactory);
+		model(project).getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<View<LanguageSourceSet>>>() {}, "__nokee_sourcesFactory", sourcesFactory);
 	}
 }

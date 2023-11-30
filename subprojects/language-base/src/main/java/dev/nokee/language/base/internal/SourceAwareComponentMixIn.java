@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal.mixins;
+package dev.nokee.language.base.internal;
 
-import dev.nokee.model.internal.ModelMixIn;
-import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.SourceAwareComponent;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceAwareComponent;
+import dev.nokee.model.internal.decorators.Decorate;
+import dev.nokee.platform.base.View;
+import dev.nokee.platform.base.internal.NestedViewDecorator;
 import org.gradle.api.Action;
 
-public interface SourceAwareComponentMixIn<T extends ComponentSources> extends ModelMixIn, SourceAwareComponent<T> {
-	@Override
-	default T getSources() {
-		return mixedIn("sources");
-	}
+public interface SourceAwareComponentMixIn extends SourceAwareComponent {
+	@Decorate(NestedViewDecorator.class)
+	View<LanguageSourceSet> getSources();
 
 	@Override
-	default void sources(Action<? super T> action) {
+	default void sources(Action<? super View<LanguageSourceSet>> action) {
 		action.execute(getSources());
 	}
 }

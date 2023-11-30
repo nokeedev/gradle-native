@@ -15,10 +15,8 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -55,7 +53,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			return instantiator(project).newInstance(IosResourceSetSpec.class);
 		});
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class, name -> {
-			return instantiator(project).newInstance(DefaultIosApplicationVariant.class, (Factory<ComponentSources>) () -> instantiator(project).newInstance(ComponentSources.class));
+			return instantiator(project).newInstance(DefaultIosApplicationVariant.class);
 		});
 
 		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {

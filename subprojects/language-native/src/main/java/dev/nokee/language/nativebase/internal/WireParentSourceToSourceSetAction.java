@@ -18,7 +18,7 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.platform.base.SourceAwareComponent;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
 import org.gradle.api.Action;
 import org.gradle.api.plugins.ExtensionAware;

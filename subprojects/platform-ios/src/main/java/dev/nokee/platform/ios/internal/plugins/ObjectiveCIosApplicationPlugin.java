@@ -15,9 +15,7 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
@@ -32,7 +30,6 @@ import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
@@ -114,7 +111,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ExtensionAwareMixIn
 		, DependencyAwareComponentMixIn<NativeComponentDependencies>
 		, VariantAwareComponentMixIn<IosApplication>
-		, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
+		, SourceAwareComponentMixIn
 		, BinaryAwareComponentMixIn
 		, TaskAwareComponentMixIn
 		, AssembleTaskMixIn
@@ -122,8 +119,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ObjectiveCSourcesMixIn
 		, PrivateHeadersMixIn
 	{
-		public DefaultObjectiveCIosApplication(Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-			getExtensions().add("sources", sourcesFactory.create());
+		public DefaultObjectiveCIosApplication() {
 			getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		}
 

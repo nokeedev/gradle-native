@@ -16,16 +16,12 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
-import dev.nokee.model.internal.decorators.Decorate;
+import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.platform.base.internal.NestedViewDecorator;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryEx;
@@ -34,7 +30,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryC
 public interface NativeLibrarySpecEx extends NativeLibraryEx
 	, ExtensionAwareMixIn
 	, NativeLibraryComponent
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
+	, SourceAwareComponentMixIn
 	, DependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
@@ -42,8 +38,5 @@ public interface NativeLibrarySpecEx extends NativeLibraryEx
 	, AssembleTaskMixIn
 {
 	@NestedObject
-	public abstract DefaultNativeLibraryComponentDependencies getDependencies();
-
-	@Decorate(NestedViewDecorator.class)
-	public abstract SourceView<LanguageSourceSet> getSources();
+	DefaultNativeLibraryComponentDependencies getDependencies();
 }

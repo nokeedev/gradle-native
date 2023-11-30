@@ -17,9 +17,7 @@ package dev.nokee.testing.xctest.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.KnownDomainObject;
@@ -35,7 +33,6 @@ import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
@@ -72,7 +69,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
 	, VariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
+	, SourceAwareComponentMixIn
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
@@ -84,9 +81,8 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 	private final ModelObjectRegistry<Artifact> artifactRegistry;
 
 	@Inject
-	public DefaultUnitTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory, ModelObjectRegistry<Artifact> artifactRegistry) {
+	public DefaultUnitTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {
 		super(objects, providers, layout, taskRegistry);
-		getExtensions().add("sources", sourcesFactory.create());
 		getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		this.taskRegistry = taskRegistry;
 		this.artifactRegistry = artifactRegistry;

@@ -15,22 +15,18 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
-import dev.nokee.model.internal.decorators.Decorate;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.NestedViewDecorator;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
@@ -51,7 +47,7 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	, VariantComponentSpec<JniLibraryInternal>
 	, DependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentMixIn<JniLibrary>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
+	, SourceAwareComponentMixIn
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
 	, HasDevelopmentBinary
@@ -66,9 +62,6 @@ public /*final*/ abstract class JniLibraryComponentInternal extends BaseComponen
 	@Override
 	@NestedObject
 	public abstract DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies();
-
-	@Decorate(NestedViewDecorator.class)
-	public abstract SourceView<LanguageSourceSet> getSources();
 
 	@Override
 	@SuppressWarnings("unchecked")

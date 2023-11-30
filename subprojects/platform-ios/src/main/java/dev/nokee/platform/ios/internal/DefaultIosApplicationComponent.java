@@ -18,7 +18,7 @@ package dev.nokee.platform.ios.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.internal.Factory;
+import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
@@ -29,7 +29,6 @@ import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.GroupId;
@@ -37,7 +36,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
@@ -81,7 +79,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
-	, SourceAwareComponentMixIn<ComponentSources>
+	, SourceAwareComponentMixIn
 	, VariantAwareComponentMixIn<IosApplication>
 	, BinaryAwareComponentMixIn
 	, TaskAwareComponentMixIn
@@ -97,8 +95,7 @@ public /*final*/ abstract class DefaultIosApplicationComponent extends BaseNativ
 	private final ModelObjectRegistry<Artifact> artifactRegistry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, Factory<ComponentSources> sourcesFactory, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {
-		getExtensions().add("sources", sourcesFactory.create());
+	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {
 		this.artifactRegistry = artifactRegistry;
 		this.taskRegistry = taskRegistry;
 		this.providers = providers;

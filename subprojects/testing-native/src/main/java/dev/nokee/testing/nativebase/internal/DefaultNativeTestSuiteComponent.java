@@ -16,9 +16,7 @@
 package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceAwareComponentMixIn;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
@@ -46,7 +44,6 @@ import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.DependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.mixins.SourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
@@ -89,7 +86,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependencyAwareComponentMixIn<NativeComponentDependencies>
-	, SourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
+	, SourceAwareComponentMixIn
 	, VariantAwareComponentMixIn<NativeTestSuiteVariant>
 	, HasDevelopmentVariant<NativeTestSuiteVariant>
 	, BinaryAwareComponentMixIn
@@ -99,8 +96,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	private final ModelObjectRegistry<Task> taskRegistry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, Factory<SourceView<LanguageSourceSet>> sourcesFactory) {
-		getExtensions().add("sources", sourcesFactory.create());
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry) {
 		this.taskRegistry = taskRegistry;
 		this.objects = objects;
 
