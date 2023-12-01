@@ -19,6 +19,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.platform.base.VariantOf;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeComponentOf;
+import dev.nokee.testing.base.internal.CheckableComponentSpec;
 import dev.nokee.testing.base.internal.TestableComponentSpec;
 import org.gradle.api.Action;
 
@@ -28,7 +29,8 @@ import org.gradle.api.Action;
 // Contract: must implements/extends from T
 public interface INativeComponentSpec<T /*extends ModelElement*/> extends NativeComponentOf<T>/*, T*/
 	, VariantAwareComponentMixIn<VariantOf<T>>
-	, NativeComponentSpec, TargetedNativeComponentSpec, TestableComponentSpec
+	, NativeComponentSpec, TargetedNativeComponentSpec
+	, TestableComponentSpec, CheckableComponentSpec
 {
 	@Override
 	@SuppressWarnings("unchecked")

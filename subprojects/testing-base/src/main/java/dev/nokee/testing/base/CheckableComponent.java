@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package dev.nokee.testing.base.internal;
+package dev.nokee.testing.base;
 
-import dev.nokee.model.internal.ModelElement;
-import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.testing.base.CheckableComponent;
+import dev.nokee.platform.base.Component;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
-import static dev.nokee.utils.TaskUtils.configureDependsOn;
-
-public interface CheckableComponentSpec extends ModelElement, CheckableComponent {
-	@NestedObject
+public interface CheckableComponent extends Component {
+	// Note: we can't use anything other than Task because of lifecycle-base/base plugin
 	TaskProvider<Task> getCheckTask();
 
-	default void checkedBy(Object... tasks) {
-		getCheckTask().configure(configureDependsOn(tasks));
-	}
+	void checkedBy(Object... tasks);
 }
