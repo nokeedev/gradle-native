@@ -15,17 +15,7 @@
  */
 package dev.nokee.testing.nativebase.internal.plugins;
 
-import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
-import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
-import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
-import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
-import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
-import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -146,20 +136,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		// TODO: Only for executable-based native test suite
 		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
-		});
-		// TODO: Should rely on parent components being annotated with language support
-		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(testSuite -> {
-			if (project.getPlugins().hasPlugin(CLanguageBasePlugin.class)) {
-				testSuite.getExtensions().create("$cSupport", SupportCSourceSetTag.class);
-			} else if (project.getPlugins().hasPlugin(CppLanguageBasePlugin.class)) {
-				testSuite.getExtensions().create("$cppSupport", SupportCppSourceSetTag.class);
-			} else if (project.getPlugins().hasPlugin(ObjectiveCLanguageBasePlugin.class)) {
-				testSuite.getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
-			} else if (project.getPlugins().hasPlugin(ObjectiveCppLanguageBasePlugin.class)) {
-				testSuite.getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
-			} else if (project.getPlugins().hasPlugin(SwiftLanguageBasePlugin.class)) {
-				testSuite.getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
-			}
 		});
 
 		project.afterEvaluate(proj -> {

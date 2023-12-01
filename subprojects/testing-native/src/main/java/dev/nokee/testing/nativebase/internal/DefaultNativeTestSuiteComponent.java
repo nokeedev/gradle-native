@@ -79,18 +79,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 //				return it + StringUtils.capitalize(getIdentifier().getName().toString());
 //			}));
 //
-//			// TODO: We won't need this once testSuites container will be maintained on component themselves
-//			if (component.getExtensions().findByType(SupportCSourceSetTag.class) != null) {
-//				getExtensions().create("$cSupport", SupportCSourceSetTag.class);
-//			} else if (component.getExtensions().findByType(SupportCppSourceSetTag.class) != null) {
-//				getExtensions().create("$cppSupport", SupportCppSourceSetTag.class);
-//			} else if (component.getExtensions().findByType(SupportObjectiveCSourceSetTag.class) != null) {
-//				getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
-//			} else if (component.getExtensions().findByType(SupportObjectiveCppSourceSetTag.class) != null) {
-//				getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
-//			} else if (component.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null) {
-//				getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
-//			}
 //			if (component instanceof BaseNativeComponent) {
 //				val testedComponentDependencies = ((BaseNativeComponent<?>) component).getDependencies();
 //				getDependencies().getImplementation().getAsConfiguration().extendsFrom(testedComponentDependencies.getImplementation().getAsConfiguration());
