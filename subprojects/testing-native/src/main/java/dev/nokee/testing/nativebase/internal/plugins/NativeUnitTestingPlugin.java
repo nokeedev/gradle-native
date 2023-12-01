@@ -47,7 +47,6 @@ import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
 import dev.nokee.testing.nativebase.internal.NativeExecutableBasedTestSuiteSpec;
 import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentSpec;
 import dev.nokee.util.provider.ZipProviderBuilder;
-import dev.nokee.utils.CallableUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -179,14 +178,14 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				if (it instanceof TargetMachineAwareComponent) {
 					return ((TargetMachineAwareComponent) it).getTargetMachines();
 				} else {
-					return null; // safe as per-contract
+					return nullSafeValue();
 				}
 			}).orElse(Collections.singleton(TargetMachines.host())));
 			testSuite.getTargetBuildTypes().convention(testSuite.getTestedComponent().flatMap(it -> {
 				if (it instanceof TargetBuildTypeAwareComponent) {
 					return ((TargetBuildTypeAwareComponent) it).getTargetBuildTypes();
 				} else {
-					return null; // safe as per-contract
+					return nullSafeValue();
 				}
 			}));
 		});
