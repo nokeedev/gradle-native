@@ -69,15 +69,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 //		if (getTestedComponent().isPresent()) {
 //			val component = (BaseComponent<?>) getTestedComponent().get();
 //
-//			// TODO: Map name to something close to what is expected
-//			getBaseName().convention(component.getBaseName().map(it -> {
-//				// if the tested component has a SwiftSourceSet
-//				if (model(project, objects()).get(SwiftSourceSet.class, t -> ModelObjectIdentifiers.descendantOf(t.getIdentifier(), component.getIdentifier())).get().isEmpty()) {
-//					return it + "-" + getIdentifier().getName();
-//				}
-//				return it + StringUtils.capitalize(getIdentifier().getName().toString());
-//			}));
-//
 //			if (component instanceof BaseNativeComponent) {
 //				val testedComponentDependencies = ((BaseNativeComponent<?>) component).getDependencies();
 //				getDependencies().getImplementation().getAsConfiguration().extendsFrom(testedComponentDependencies.getImplementation().getAsConfiguration());

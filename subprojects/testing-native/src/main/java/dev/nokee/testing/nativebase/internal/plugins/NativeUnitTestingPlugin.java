@@ -17,10 +17,15 @@ package dev.nokee.testing.nativebase.internal.plugins;
 
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
@@ -48,6 +53,7 @@ import dev.nokee.testing.nativebase.internal.NativeExecutableBasedTestSuiteSpec;
 import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentSpec;
 import dev.nokee.util.provider.ZipProviderBuilder;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -68,6 +74,7 @@ import java.util.concurrent.Callable;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
@@ -78,6 +85,7 @@ import static dev.nokee.utils.DeferUtils.asToStringObject;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 import static dev.nokee.utils.TransformerUtils.flatten;
+import static dev.nokee.utils.TransformerUtils.nullSafeProvider;
 import static dev.nokee.utils.TransformerUtils.nullSafeValue;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
@@ -168,6 +176,25 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					task.source(variant.getComponentObjects());
 				});
 			});
+		});
+
+		// TODO: Test applying testing plugin before component plugin
+		model(project, mapOf(TestSuiteComponent.class)).configureEach(HasBaseName.class, testSuite -> {
+			final Provider<Component> componentProvider = ((TestSuiteComponent) testSuite).getTestedComponent();
+			final Provider<String> baseNameProvider = componentProvider.flatMap(component -> {
+				if (component instanceof HasBaseName) {
+					return ((HasBaseName) component).getBaseName();
+				}
+				return nullSafeProvider();
+			});
+			testSuite.getBaseName().set(ZipProviderBuilder.newBuilder(project.getObjects())
+				.value(componentProvider).value(baseNameProvider).zip((component, baseName) -> {
+					// if the tested component has a SwiftSourceSet
+					if (model(project, objects()).get(SwiftSourceSet.class, t -> ModelObjectIdentifiers.descendantOf(t.getIdentifier(), ((ModelElement) component).getIdentifier())).get().isEmpty()) {
+						return baseName + "-" + ((ModelElement) testSuite).getIdentifier().getName();
+					}
+					return baseName + StringUtils.capitalize(((ModelElement) testSuite).getIdentifier().getName().toString());
+			}));
 		});
 
 		// TODO: Convert to include NativeTestSuiteOf (may convert NativeTestSuiteComponentSpec)
