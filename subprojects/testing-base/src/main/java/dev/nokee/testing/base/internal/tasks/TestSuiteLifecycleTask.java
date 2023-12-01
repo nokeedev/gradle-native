@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package dev.nokee.testing.nativebase.internal;
+package dev.nokee.testing.base.internal.tasks;
 
-import dev.nokee.model.internal.ModelElement;
-import dev.nokee.platform.nativebase.internal.TargetedNativeComponentSpec;
-import dev.nokee.testing.base.internal.TestSuiteComponentSpec;
+import dev.nokee.testing.base.TestSuiteComponent;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.provider.Property;
 
-public interface NativeTestSuiteComponentSpec extends ModelElement, TargetedNativeComponentSpec, TestSuiteComponentSpec {
+public abstract /*final*/ class TestSuiteLifecycleTask extends DefaultTask {
+	public abstract Property<TestSuiteComponent> getTestSuite();
 }

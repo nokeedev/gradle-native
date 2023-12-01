@@ -17,23 +17,17 @@
 package dev.nokee.testing.base.internal;
 
 import dev.nokee.model.internal.ModelElement;
-import dev.nokee.platform.base.Component;
-import dev.nokee.testing.base.TestSuiteComponent;
-import org.gradle.api.provider.Provider;
+import dev.nokee.model.internal.decorators.NestedObject;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskProvider;
 
-public interface TestSuiteComponentSpec extends ModelElement, TestSuiteComponent {
-	@Override
-	default TestSuiteComponentSpec testedComponent(Object component) {
-		if (component instanceof Provider) {
-			getTestedComponent().set(((Provider<?>) component).map(it -> {
-				assert it instanceof Component;
-				return (Component) it;
-			}));
-		} else if (component instanceof Component) {
-			getTestedComponent().set((Component) component);
-		} else {
-			throw new UnsupportedOperationException("tested component must be a 'Component' type");
-		}
-		return this;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
+
+public interface CheckableComponentSpec extends ModelElement {
+	@NestedObject
+	TaskProvider<Task> getCheckTask();
+
+	default void checkedBy(Object... tasks) {
+		getCheckTask().configure(configureDependsOn(tasks));
 	}
 }

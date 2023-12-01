@@ -117,7 +117,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				}
 
 				component.finalizeExtension(project);
-				component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
+//				component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 			});
 		});
 		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {

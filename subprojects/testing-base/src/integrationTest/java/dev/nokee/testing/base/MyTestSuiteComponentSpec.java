@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package dev.nokee.testing.nativebase.internal;
+package dev.nokee.testing.base;
 
-import dev.nokee.model.internal.ModelElement;
-import dev.nokee.platform.nativebase.internal.TargetedNativeComponentSpec;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.testing.base.internal.TestSuiteComponentSpec;
 
-public interface NativeTestSuiteComponentSpec extends ModelElement, TargetedNativeComponentSpec, TestSuiteComponentSpec {
+public abstract class MyTestSuiteComponentSpec extends ModelElementSupport implements TestSuiteComponentSpec {
 }

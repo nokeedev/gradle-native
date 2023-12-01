@@ -22,7 +22,7 @@ import dev.nokee.testing.base.TestableComponent;
 import org.gradle.api.plugins.ExtensionAware;
 
 public interface TestableComponentSpec extends TestableComponent, Component, ExtensionAware {
-	static String TEST_SUITES_EXTENSION_NAME = "testSuites";
+	String TEST_SUITES_EXTENSION_NAME = "testSuites";
 
 	@Override
 	default TestSuiteContainer getTestSuites() {

@@ -21,7 +21,6 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.testing.base.internal.TestSuiteComponentSpec;
 import dev.nokee.testing.base.internal.TestableComponentSpec;
 import lombok.val;
 import org.gradle.api.Project;
@@ -71,8 +70,6 @@ class TestableComponentSpecIntegrationTests {
 		project.apply(pluginId("dev.nokee.testing-base"));
 		assertThat(callTo(subject::getTestSuites), doesNotThrowException());
 	}
-
-	public static abstract class MyTestSuiteComponentSpec extends ModelElementSupport implements TestSuiteComponentSpec {}
 
 	@Test
 	void canRegisterTestSuitesViaComponent() {
