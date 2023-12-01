@@ -108,6 +108,15 @@ public final class ModelMapAdapters {
 			return ModelElementSupport.newInstance(element, (Factory<S>) () -> factory.create(name));
 		}
 
+		public ModelElementIdentity getById(ModelObjectIdentifier identifier) {
+			KnownElement element = mapping.findByName(ModelObjectIdentifiers.asFullyQualifiedName(identifier).toString());
+			if (element == null) {
+				throw new RuntimeException("element not known");
+			}
+
+			return element.identifiers.stream().filter(it -> it.identifier.equals(identifier)).findFirst().orElseThrow(() -> new RuntimeException("element with same name found but not same id"));
+		}
+
 		public void forEach(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.all(configureAction);
 		}
@@ -193,6 +202,11 @@ public final class ModelMapAdapters {
 			onFinalize.accept(() -> {
 				configureEach(type, finalizeAction);
 			});
+		}
+
+		@Override
+		public ModelObject<Configuration> getById(ModelObjectIdentifier identifier) {
+			return knownElements.getById(identifier).asModelObject(Configuration.class);
 		}
 
 		private static final class DefaultRegistrableType implements RegistrableTypes {
@@ -293,6 +307,11 @@ public final class ModelMapAdapters {
 			});
 		}
 
+		@Override
+		public ModelObject<Task> getById(ModelObjectIdentifier identifier) {
+			return knownElements.getById(identifier).asModelObject(Task.class);
+		}
+
 		private static final class TaskContainerRegistrableTypes implements RegistrableTypes {
 			private final SupportedType registrableTypes = SupportedTypes.anySubtypeOf(Task.class);
 
@@ -391,6 +410,11 @@ public final class ModelMapAdapters {
 			onFinalize.accept(() -> {
 				configureEach(type, finalizeAction);
 			});
+		}
+
+		@Override
+		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
+			return knownElements.getById(identifier).asModelObject(elementType);
 		}
 
 		private final class DefaultRegistrableTypes implements RegistrableTypes {

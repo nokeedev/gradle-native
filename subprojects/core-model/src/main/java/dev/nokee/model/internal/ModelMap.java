@@ -27,4 +27,6 @@ public interface ModelMap<ElementType> {
 
 	void whenElementFinalized(Action<? super ElementType> finalizeAction);
 	<U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction);
+
+	ModelObject<ElementType> getById(ModelObjectIdentifier identifier);
 }

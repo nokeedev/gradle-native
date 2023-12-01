@@ -25,6 +25,7 @@ import dev.nokee.util.lambdas.internal.SerializableTransformerAdapter;
 import dev.nokee.utils.internal.WrappedTransformer;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.gradle.internal.Transformers;
 
@@ -230,6 +231,16 @@ public final class TransformerUtils {
 	 */
 	public static <OutputElementType, InputElementType> Transformer<Iterable<? extends OutputElementType>, Iterable<? extends InputElementType>> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OutputElementType>, InputElementType> mapper) {
 		return ofTransformer(new FlatTransformEachToCollectionAdapter<>(listFactory(), mapper));
+	}
+
+	public static <ElementType> Transformer<Iterable<? extends ElementType>, Iterable<? extends Iterable<? extends ElementType>>> flatten() {
+		return ofTransformer(it -> {
+			final ImmutableList.Builder<ElementType> result = ImmutableList.builder();
+			for (Iterable<? extends ElementType> elements : it) {
+				result.addAll(elements);
+			}
+			return result.build();
+		});
 	}
 
 	/**
@@ -499,6 +510,14 @@ public final class TransformerUtils {
 		public String toString() {
 			return "TransformerUtils.stream(" + mapper + ")";
 		}
+	}
+
+	public static <OUT> OUT nullSafeValue() {
+		return null;
+	}
+
+	public static <OUT> Provider<OUT> nullSafeProvider() {
+		return null;
 	}
 
 	public static <OUT, IN> Transformer<OUT, IN> ofTransformer(org.gradle.api.Transformer<? extends OUT, ? super IN> transformer) {

@@ -85,57 +85,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 //				getDependencies().getLinkOnly().getAsConfiguration().extendsFrom(testedComponentDependencies.getLinkOnly().getAsConfiguration());
 //				getDependencies().getRuntimeOnly().getAsConfiguration().extendsFrom(testedComponentDependencies.getRuntimeOnly().getAsConfiguration());
 //			}
-//			getVariants().configureEach(variant -> {
-//				variant.getBinaries().configureEach(NativeExecutableBinarySpec.class, binary -> {
-//					// TODO: Replace with object dependencies
-//					Provider<List<? extends FileTree>> componentObjects = component.getVariants().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS).equals(((VariantInternal) variant).getBuildVariant().withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS))).map(it -> {
-//						ImmutableList.Builder<FileTree> result = ImmutableList.builder();
-//						it.stream().flatMap(v -> v.getBinaries().withType(NativeBinary.class).get().stream()).forEach(testedBinary -> {
-//							result.addAll(testedBinary.getCompileTasks().withType(NativeSourceCompileTask.class).getElements().map(t -> {
-//								return t.stream().map(a -> {
-//									return ((AbstractNativeSourceCompileTask) a).getObjectFileDir().getAsFileTree().matching(pattern -> pattern.include("**/*.o", "**/*.obj"));
-//								}).collect(toList());
-//							}).get());
-//
-//							result.addAll(testedBinary.getCompileTasks().withType(SwiftCompileTask.class).getElements().map(t -> {
-//								return t.stream().map(a -> {
-//									return a.getObjectFileDir().getAsFileTree().matching(pattern -> pattern.include("**/*.o", "**/*.obj"));
-//								}).collect(toList());
-//							}).get());
-//						});
-//						return result.build();
-//					});
-////					Provider<List<? extends FileTree>> componentObjects = component.getBinaries().withType(NativeBinary.class).flatMap(it -> {
-////						ImmutableList.Builder<FileTree> result = ImmutableList.builder();
-////						result.addAll(it.getCompileTasks().withType(NativeSourceCompileTask.class).getElements().map(t -> {
-////							return t.stream().map(a -> {
-////								return ((AbstractNativeSourceCompileTask) a).getObjectFileDir().getAsFileTree().matching(UTTypeUtils.onlyIf(UTTypeObjectCode.INSTANCE));
-////							}).collect(Collectors.toList());
-////						}).get());
-////
-////						result.addAll(it.getCompileTasks().withType(SwiftCompileTask.class).getElements().map(t -> {
-////							return t.stream().map(a -> {
-////								return ((SwiftCompileTask) a).getObjectFileDir().getAsFileTree().matching(UTTypeUtils.onlyIf(UTTypeObjectCode.INSTANCE));
-////							}).collect(Collectors.toList());
-////						}).get());
-////
-////						return result.build();
-////					});
-//
-//					ConfigurableFileCollection objects = this.objects.fileCollection();
-//					objects.from(componentObjects);
-//					if (component instanceof NativeApplicationComponent) {
-//						val relocateTask = taskRegistry.register(((ModelElement) variant).getIdentifier().child(TaskName.of("relocateMainSymbolFor")), UnexportMainSymbol.class).configure(task -> {
-//							task.getObjects().from(componentObjects);
-//							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(OutputDirectoryPath.forIdentifier(binary.getIdentifier()) + "/objs/for-test"));
-//						}).asProvider();
-//						objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
-//					}
-//					binary.getLinkTask().configure(task -> {
-//						task.source(objects);
-//					});
-//				});
-//			});
 //
 //			getBinaries().configureEach(ExecutableBinary.class, binary -> {
 //				binary.getCompileTasks().configureEach(SwiftCompileTask.class, task -> {

@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import com.google.common.base.Suppliers;
 import dev.nokee.util.lambdas.SerializableCallable;
 import dev.nokee.util.lambdas.internal.SerializableCallableAdapter;
 import lombok.EqualsAndHashCode;
@@ -77,6 +78,10 @@ public final class CallableUtils {
 				throw handler.rethrowAsUncheckedException(e);
 			}
 		}
+	}
+
+	public static <V> Callable<V> memoizeOnCall(Callable<V> delegate) {
+		return Suppliers.memoize(() -> uncheckedCall(delegate))::get;
 	}
 
 	/**
