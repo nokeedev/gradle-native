@@ -67,6 +67,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
+		// TODO: Convert to include NativeTestSuiteOf (may convert NativeTestSuiteComponentSpec)
 		testSuites(project).withType(NativeTestSuiteComponentSpec.class)
 			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
 		testSuites(project).withType(NativeTestSuiteComponentSpec.class).configureEach(testSuite -> {
@@ -88,14 +89,17 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeTestSuiteVariant.class);
 
+		// TODO: Move to NativeComponentBasePlugin
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
+		// TODO: Move to ComponentModelBasePlugin
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 			}
 		});
+		// TODO: Move to NativeComponentBasePlugin
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
@@ -109,6 +113,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 		});
 		project.afterEvaluate(__ -> {
+			// TODO: Use ComponentModelBasePlugin to calculate variants
 			testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 				for (BuildVariant it : component.getBuildVariants().get()) {
 					final BuildVariantInternal buildVariant = (BuildVariantInternal) it;
@@ -120,9 +125,11 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 //				component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 			});
 		});
+		// TODO: Only for executable-based native test suite
 		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
 		});
+		// TODO: Should rely on parent components being annotated with language support
 		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(testSuite -> {
 			if (project.getPlugins().hasPlugin(CLanguageBasePlugin.class)) {
 				testSuite.getExtensions().create("$cSupport", SupportCSourceSetTag.class);

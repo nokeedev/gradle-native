@@ -18,7 +18,6 @@ package dev.nokee.testing.nativebase.internal;
 import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.HasBaseName;
@@ -75,13 +74,12 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	public void finalizeExtension(Project project) {
-		val checkTask = taskRegistry.register(ProjectIdentifier.of(project).child(TaskName.of("check")), Task.class).asProvider();
-
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
 			val variantIdentifier = VariantIdentifier.builder().withComponentIdentifier(getIdentifier()).withBuildVariant((BuildVariantInternal) buildVariant).build();
 
 			// TODO: The variant should have give access to the testTask
+			//   It should be on executable-based variant
 			val runTask = taskRegistry.register(getIdentifier().child(TaskName.of("run")), RunTestExecutable.class).configure(task -> {
 				// TODO: Use a provider of the variant here
 				task.dependsOn((Callable) () -> getVariants().filter(it -> it.getBuildVariant().equals(buildVariant)).flatMap(it -> it.get(0).getDevelopmentBinary()));

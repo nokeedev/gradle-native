@@ -63,6 +63,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
 	}
 
+	// TODO: Move capability to NativeComponentBasePlugin
 	@SuppressWarnings("unchecked")
 	public TaskProvider<Task> getObjectsTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
