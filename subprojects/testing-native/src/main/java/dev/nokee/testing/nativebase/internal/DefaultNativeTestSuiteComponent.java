@@ -19,32 +19,24 @@ import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseNameUtils;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.DependentComponentSpec;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
-import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 
 import javax.inject.Inject;
-import java.util.concurrent.Callable;
 
 public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
 	, NativeTestSuiteComponentSpec
@@ -74,29 +66,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	public void finalizeExtension(Project project) {
-		// HACK: This should really be solve using the variant whenElementKnown API
-		getBuildVariants().get().forEach(buildVariant -> {
-			val variantIdentifier = VariantIdentifier.builder().withComponentIdentifier(getIdentifier()).withBuildVariant((BuildVariantInternal) buildVariant).build();
-
-			// TODO: The variant should have give access to the testTask
-			//   It should be on executable-based variant
-			val runTask = taskRegistry.register(getIdentifier().child(TaskName.of("run")), RunTestExecutable.class).configure(task -> {
-				// TODO: Use a provider of the variant here
-				task.dependsOn((Callable) () -> getVariants().filter(it -> it.getBuildVariant().equals(buildVariant)).flatMap(it -> it.get(0).getDevelopmentBinary()));
-				task.setOutputDir(task.getTemporaryDir());
-				task.commandLine(new Object() {
-					@Override
-					public String toString() {
-						val binary = (NativeExecutableBinarySpec) getVariants().get().stream().filter(it -> it.getBuildVariant().equals(buildVariant)).findFirst().get().getDevelopmentBinary().get();
-						return binary.getLinkTask().flatMap(LinkExecutable::getLinkedFile).get().getAsFile().getAbsolutePath();
-					}
-				});
-			}).asProvider();
-
-			// TODO: Attach runTask to test suite lifecycle task if it make sense.
-		});
-
-
 		getTestedComponent().disallowChanges();
 //		if (getTestedComponent().isPresent()) {
 //			val component = (BaseComponent<?>) getTestedComponent().get();

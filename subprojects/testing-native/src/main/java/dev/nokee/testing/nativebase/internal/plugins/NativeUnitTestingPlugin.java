@@ -30,14 +30,14 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.rules.TargetedNativeComponentDimensionsRule;
 import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
+import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
@@ -45,19 +45,23 @@ import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
+import dev.nokee.testing.nativebase.internal.NativeExecutableBasedTestSuiteSpec;
 import dev.nokee.testing.nativebase.internal.NativeTestSuiteComponentSpec;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuites;
+import static dev.nokee.utils.DeferUtils.asToStringObject;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class NativeUnitTestingPlugin implements Plugin<Project> {
@@ -66,6 +70,20 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(TestingBasePlugin.class);
+
+		model(project, mapOf(Variant.class)).configureEach(NativeExecutableBasedTestSuiteSpec.class, variant -> {
+			variant.getRunTask().configure(task -> {
+				final Provider<RegularFile> executableFile = variant.getExecutable()
+					.flatMap(NativeExecutableBinarySpec::getLinkTask)
+					.flatMap(LinkExecutable::getLinkedFile);
+
+				task.dependsOn(executableFile);
+				task.setOutputDir(task.getTemporaryDir());
+				task.commandLine(asToStringObject(executableFile.map(it -> it.getAsFile().getAbsolutePath())::get));
+			});
+
+			// TODO(TestingBase): Attach runTask to test suite lifecycle task if it make sense.
+		});
 
 		// TODO: Convert to include NativeTestSuiteOf (may convert NativeTestSuiteComponentSpec)
 		testSuites(project).withType(NativeTestSuiteComponentSpec.class)
