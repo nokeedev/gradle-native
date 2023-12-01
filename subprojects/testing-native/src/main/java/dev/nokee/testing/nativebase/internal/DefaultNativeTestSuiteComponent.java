@@ -66,7 +66,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNati
 	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	public void finalizeExtension(Project project) {
-		getTestedComponent().disallowChanges();
 //		if (getTestedComponent().isPresent()) {
 //			val component = (BaseComponent<?>) getTestedComponent().get();
 //
