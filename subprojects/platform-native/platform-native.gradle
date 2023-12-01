@@ -36,6 +36,7 @@ gradlePlugin {
 	}
 
 	dependencies {
+		api project(':testingBase')
 		implementation project(':coreUtils')
 		api project(':platformBase')
 		api project(':runtimeNative')

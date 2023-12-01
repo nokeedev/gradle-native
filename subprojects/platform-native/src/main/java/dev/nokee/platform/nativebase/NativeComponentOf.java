@@ -20,14 +20,13 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantOf;
+import dev.nokee.testing.base.TestableComponent;
 import org.gradle.api.Action;
 
 // TODO: we should tie T to a special type while would be either a Component or Variant or event TestSuiteComponent
-public interface NativeComponentOf<T> extends Component
+public interface NativeComponentOf<T> extends Component, TestableComponent
 	, VariantAwareComponent<VariantOf<T>>, HasDevelopmentVariant<VariantOf<T>>
-	, TargetMachineAwareComponent
-	, TargetBuildTypeAwareComponent
-	, TargetLinkageAwareComponent
+	, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, TargetLinkageAwareComponent
 {
 	void configure(Action<? super T> configureAction);
 }
