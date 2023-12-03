@@ -82,12 +82,12 @@ public final class ModelMapAdapters {
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, Project project, Factory<KnownElements> knownElementsFactory) {
-			this(new Configuration.Namer(), delegate, project, knownElementsFactory);
+		public ForConfigurationContainer(ConfigurationContainer delegate, Project project, KnownElements knownElements) {
+			this(new Configuration.Namer(), delegate, project, knownElements);
 		}
 
-		private ForConfigurationContainer(Namer<Configuration> namer, ConfigurationContainer delegate, Project project, Factory<KnownElements> knownElementsFactory) {
-			this.knownElements = knownElementsFactory.create();
+		private ForConfigurationContainer(Namer<Configuration> namer, ConfigurationContainer delegate, Project project, KnownElements knownElements) {
+			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
@@ -187,13 +187,13 @@ public final class ModelMapAdapters {
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, Project project, Factory<KnownElements> knownElementsFactory) {
-			this(Task.class, new Task.Namer(), delegate, project, knownElementsFactory);
+		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, Project project, KnownElements knownElements) {
+			this(Task.class, new Task.Namer(), delegate, project, knownElements);
 		}
 
-		private ForTaskContainer(Class<Task> elementType, Namer<Task> namer, PolymorphicDomainObjectContainer<Task> delegate, Project project, Factory<KnownElements> knownElementsFactory) {
+		private ForTaskContainer(Class<Task> elementType, Namer<Task> namer, PolymorphicDomainObjectContainer<Task> delegate, Project project, KnownElements knownElements) {
 			this.elementType = elementType;
-			this.knownElements = knownElementsFactory.create();
+			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
@@ -279,9 +279,9 @@ public final class ModelMapAdapters {
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, Namer<ElementType> namer, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, Project project, Factory<KnownElements> knownElementsFactory) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, Namer<ElementType> namer, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, Project project, KnownElements knownElements) {
 			this.elementType = elementType;
-			this.knownElements = knownElementsFactory.create();
+			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
