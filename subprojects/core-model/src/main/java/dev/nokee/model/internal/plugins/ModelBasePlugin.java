@@ -26,7 +26,7 @@ import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.KnownElements;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMap;
-import dev.nokee.model.internal.ModelMapAdapters;
+import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
@@ -76,8 +76,10 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		applyToAllTarget(project);
 
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
-		objects.register(model(project).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations(), project, KnownElements.Factory.forProject(project)));
-		objects.register(model(project).getExtensions().create("$tasks", ModelMapAdapters.ForTaskContainer.class, project.getTasks(), project, KnownElements.Factory.forProject(project)));
+		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(project.getObjects(), project, KnownElements.Factory.forProject(project), objects));
+
+		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
+		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));
 	}
 
 	public static ModelExtension model(ExtensionAware target) {
