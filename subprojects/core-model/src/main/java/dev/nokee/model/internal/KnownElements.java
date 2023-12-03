@@ -18,6 +18,7 @@ package dev.nokee.model.internal;
 
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
+import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Namer;
@@ -50,6 +51,7 @@ public final class KnownElements {
 	}
 
 	// TODO: Consider using NamedDomainObjectRegistry instead of Function
+	// TODO: Should it really return ModelObject?
 	public <S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, Function<? super String, ? extends NamedDomainObjectProvider<S>> factory) {
 		ModelMapAdapters.ModelElementIdentity identity = new ModelMapAdapters.ModelElementIdentity(identifier, type);
 		knownElements.add(identity);
@@ -57,7 +59,7 @@ public final class KnownElements {
 		return identity.asModelObject(type);
 	}
 
-	public <S> S create(String name, Class<S> type, Function<? super ModelElement, ? extends S> factory) {
+	public <S> S create(String name, Class<S> type, Function<? super KnownElement, ? extends S> factory) {
 		KnownElement element = mapping.findByName(name);
 		if (element == null) {
 			knownElements.add(new ModelMapAdapters.ModelElementIdentity(projectIdentifier.child(name), type));
@@ -67,6 +69,7 @@ public final class KnownElements {
 		return factory.apply(element);
 	}
 
+	// TODO: How to deal with identity vs element
 	public ModelMapAdapters.ModelElementIdentity getById(ModelObjectIdentifier identifier) {
 		KnownElement element = mapping.findByName(ModelObjectIdentifiers.asFullyQualifiedName(identifier).toString());
 		if (element == null) {
@@ -77,7 +80,7 @@ public final class KnownElements {
 	}
 
 	@Nullable
-	public ModelElement findByName(String name) {
+	public KnownElement findByName(String name) {
 		return mapping.findByName(name);
 	}
 
@@ -100,7 +103,7 @@ public final class KnownElements {
 		};
 	}
 
-	static final class KnownElement implements ModelElement {
+	public static final class KnownElement implements Named {
 		private final String name;
 		private final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> identifiers;
 
@@ -114,7 +117,6 @@ public final class KnownElements {
 			return name;
 		}
 
-		@Override
 		public ModelObjectIdentifier getIdentifier() {
 			assert identifiers.size() >= 1; // TODO: Need to figure out
 			return identifiers.iterator().next().getIdentifier();

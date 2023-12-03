@@ -57,9 +57,19 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void execute(S it) {
-			final ModelElement element = knownElements.findByName(namer.determineName(it));
+			final KnownElements.KnownElement element = knownElements.findByName(namer.determineName(it));
 			if (element != null) {
-				ModelElementSupport.injectIdentifier(it, element);
+				ModelElementSupport.injectIdentifier(it, new ModelElement() {
+					@Override
+					public ModelObjectIdentifier getIdentifier() {
+						return element.getIdentifier();
+					}
+
+					@Override
+					public String getName() {
+						return element.getName();
+					}
+				});
 			}
 		}
 	}
@@ -293,7 +303,17 @@ public final class ModelMapAdapters {
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
 			delegate.registerFactory(type, name -> knownElements.create(name, type, element -> {
-				return ModelElementSupport.newInstance(element, (Factory<U>) () -> factory.create(name));
+				return ModelElementSupport.newInstance(new ModelElement() {
+					@Override
+					public ModelObjectIdentifier getIdentifier() {
+						return element.getIdentifier();
+					}
+
+					@Override
+					public String getName() {
+						return element.getName();
+					}
+				}, (Factory<U>) () -> factory.create(name));
 			}));
 			creatableTypes.add(type);
 		}
