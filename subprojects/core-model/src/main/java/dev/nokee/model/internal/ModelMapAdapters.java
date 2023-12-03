@@ -50,6 +50,24 @@ import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 public final class ModelMapAdapters {
 	private ModelMapAdapters() {}
 
+	private static final class InjectModelElementAction<S> implements Action<S> {
+		private final Namer<S> namer;
+		private final KnownElements knownElements;
+
+		private InjectModelElementAction(Namer<S> namer, KnownElements knownElements) {
+			this.namer = namer;
+			this.knownElements = knownElements;
+		}
+
+		@Override
+		public void execute(S it) {
+			final KnownElement element = knownElements.mapping.findByName(namer.determineName(it));
+			if (element != null) {
+				ModelElementSupport.injectIdentifier(it, element);
+			}
+		}
+	}
+
 	private static final class KnownElement implements ModelElement {
 		private final String name;
 		private final DomainObjectSet<ModelElementIdentity> identifiers;
@@ -122,6 +140,21 @@ public final class ModelMapAdapters {
 		public void forEach(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.all(configureAction);
 		}
+
+		public <S> Action<S> forCreatedElements(Namer<S> namer, Function<? super String, NamedDomainObjectProvider<?>> query) {
+			return it -> {
+				KnownElement element = mapping.findByName(namer.determineName(it));
+				if (element == null) {
+					return; // ignore these elements, they were not explicitly registered by us and are not created by our factories
+				}
+
+				element.identifiers.all(t -> {
+					if (t.elementProvider == null) {
+						t.attachProvider(query.apply(element.getName()));
+					}
+				});
+			};
+		}
 	}
 
 	public interface ForNamedDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
@@ -133,15 +166,16 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForConfigurationContainer(ConfigurationContainer delegate, Project project, Factory<KnownElements> knownElementsFactory) {
+			this(new Configuration.Namer(), delegate, project, knownElementsFactory);
+		}
+
+		private ForConfigurationContainer(Namer<Configuration> namer, ConfigurationContainer delegate, Project project, Factory<KnownElements> knownElementsFactory) {
 			this.knownElements = knownElementsFactory.create();
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
-			knownElements.forEach(it -> {
-				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
-					it.attachProvider(delegate.named(it.getName()));
-				}
-			});
+			delegate.configureEach(knownElements.forCreatedElements(namer, delegate::named));
+			delegate.configureEach(new InjectModelElementAction<>(namer, knownElements));
 		}
 
 		@Override
@@ -237,23 +271,17 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, Project project, Factory<KnownElements> knownElementsFactory) {
-			this.elementType = Task.class;
+			this(Task.class, new Task.Namer(), delegate, project, knownElementsFactory);
+		}
+
+		private ForTaskContainer(Class<Task> elementType, Namer<Task> namer, PolymorphicDomainObjectContainer<Task> delegate, Project project, Factory<KnownElements> knownElementsFactory) {
+			this.elementType = elementType;
 			this.knownElements = knownElementsFactory.create();
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
-			knownElements.forEach(it -> {
-				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
-					it.attachProvider(delegate.named(it.getName()));
-				}
-			});
-			final Namer<Task> namer = new Task.Namer();
-			delegate.configureEach(it -> {
-				KnownElement element = knownElements.mapping.findByName(namer.determineName(it));
-				if (element != null) {
-					ModelElementSupport.injectIdentifier(it, element);
-				}
-			});
+			delegate.configureEach(knownElements.forCreatedElements(namer, delegate::named));
+			delegate.configureEach(new InjectModelElementAction<>(namer, knownElements));
 		}
 
 		@Override
@@ -334,18 +362,15 @@ public final class ModelMapAdapters {
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, Project project, Factory<KnownElements> knownElementsFactory) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, Namer<ElementType> namer, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, Project project, Factory<KnownElements> knownElementsFactory) {
 			this.elementType = elementType;
 			this.knownElements = knownElementsFactory.create();
 			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
-			knownElements.forEach(it -> {
-				if (it.elementProvider == null && delegate.getNames().contains(it.getName())) {
-					it.attachProvider(delegate.named(it.getName()));
-				}
-			});
+			delegate.configureEach(knownElements.forCreatedElements(namer, delegate::named));
+			delegate.configureEach(new InjectModelElementAction<>(namer, knownElements));
 		}
 
 		@Override

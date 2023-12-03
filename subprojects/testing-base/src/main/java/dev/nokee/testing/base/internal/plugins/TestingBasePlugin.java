@@ -22,6 +22,7 @@ import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.internal.rules.TestSuiteLifecycleTaskCapabilityRule;
 import dev.nokee.testing.base.internal.rules.TestableComponentCapabilityRule;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
+import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.reflect.TypeOf;
@@ -45,7 +46,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add(TEST_SUITE_COMPONENT_CONTAINER_TYPE, "testSuites", project.getObjects().polymorphicDomainObjectContainer(TestSuiteComponent.class));
 
-		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, testSuites(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
+		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, new Named.Namer(), testSuites(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
 
 		new TestableComponentCapabilityRule().execute(project);
 		new TestSuiteLifecycleTaskCapabilityRule().execute(project);
