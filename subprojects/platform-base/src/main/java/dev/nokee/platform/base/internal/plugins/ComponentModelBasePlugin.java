@@ -21,7 +21,6 @@ import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
@@ -98,10 +97,10 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(DEPENDENCY_BUCKET_CONTAINER_TYPE, "$dependencyBuckets", project.getObjects().polymorphicDomainObjectContainer(DependencyBucket.class));
 		project.getExtensions().add(ARTIFACT_CONTAINER_TYPE, "$artifacts", project.getObjects().polymorphicDomainObjectContainer(Artifact.class));
 
-		model(project, objects()).register(model(project).getExtensions().create("components", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Component.class, components(project), ProjectIdentifier.of(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
-		model(project, objects()).register(model(project).getExtensions().create("variants", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Variant.class, variants(project), ProjectIdentifier.of(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
-		model(project, objects()).register(model(project).getExtensions().create("dependencyBuckets", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, DependencyBucket.class, dependencyBuckets(project), ProjectIdentifier.of(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
-		model(project, objects()).register(model(project).getExtensions().create("artifacts", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Artifact.class, artifacts(project), ProjectIdentifier.of(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
+		model(project, objects()).register(model(project).getExtensions().create("components", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Component.class, components(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
+		model(project, objects()).register(model(project).getExtensions().create("variants", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Variant.class, variants(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
+		model(project, objects()).register(model(project).getExtensions().create("dependencyBuckets", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, DependencyBucket.class, dependencyBuckets(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
+		model(project, objects()).register(model(project).getExtensions().create("artifacts", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, Artifact.class, artifacts(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
 
 		// FIXME: This is temporary until we convert all entity
 		project.afterEvaluate(__ -> {

@@ -72,10 +72,12 @@ public final class ModelMapAdapters {
 	}
 
 	static final class KnownElements implements dev.nokee.model.internal.KnownElements {
+		private final ProjectIdentifier projectIdentifier;
 		private final DomainObjectSet<ModelElementIdentity> knownElements;
 		private final NamedDomainObjectSet<KnownElement> mapping;
 
-		public KnownElements(ObjectFactory objects) {
+		public KnownElements(ProjectIdentifier projectIdentifier, ObjectFactory objects) {
+			this.projectIdentifier = projectIdentifier;
 			this.knownElements = objects.domainObjectSet(ModelElementIdentity.class);
 			this.mapping = objects.namedDomainObjectSet(KnownElement.class);
 
@@ -98,7 +100,7 @@ public final class ModelMapAdapters {
 			return identity.asModelObject(type);
 		}
 
-		public <S> S create(ProjectIdentifier projectIdentifier, String name, Class<S> type, NamedDomainObjectFactory<? extends S> factory) {
+		public <S> S create(String name, Class<S> type, NamedDomainObjectFactory<? extends S> factory) {
 			KnownElement element = mapping.findByName(name);
 			if (element == null) {
 				knownElements.add(new ModelElementIdentity(projectIdentifier.child(name), type));
@@ -329,16 +331,14 @@ public final class ModelMapAdapters {
 		private final ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate;
 		private final Set<Class<? extends ElementType>> creatableTypes = new LinkedHashSet<>();
 		private final ManagedFactoryProvider managedFactory;
-		private final ProjectIdentifier projectIdentifier;
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ProjectIdentifier projectIdentifier, Instantiator instantiator, Project project, Factory<KnownElements> knownElementsFactory) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, Project project, Factory<KnownElements> knownElementsFactory) {
 			this.elementType = elementType;
 			this.knownElements = knownElementsFactory.create();
 			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
-			this.projectIdentifier = projectIdentifier;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
 			knownElements.forEach(it -> {
@@ -360,7 +360,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
-			delegate.registerFactory(type, name -> knownElements.create(projectIdentifier, name, type, factory));
+			delegate.registerFactory(type, name -> knownElements.create(name, type, factory));
 			creatableTypes.add(type);
 		}
 

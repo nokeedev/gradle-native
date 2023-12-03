@@ -21,18 +21,20 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 
 public final class DefaultKnownElementsFactory implements Factory<KnownElements> {
+	private final ProjectIdentifier projectIdentifier;
 	private final ObjectFactory objects;
 
-	public DefaultKnownElementsFactory(ObjectFactory objects) {
+	public DefaultKnownElementsFactory(ProjectIdentifier projectIdentifier, ObjectFactory objects) {
+		this.projectIdentifier = projectIdentifier;
 		this.objects = objects;
 	}
 
 	public static DefaultKnownElementsFactory forProject(Project project) {
-		return new DefaultKnownElementsFactory(project.getObjects());
+		return new DefaultKnownElementsFactory(ProjectIdentifier.of(project), project.getObjects());
 	}
 
 	@Override
 	public KnownElements create() {
-		return new ModelMapAdapters.KnownElements(objects);
+		return new ModelMapAdapters.KnownElements(projectIdentifier, objects);
 	}
 }
