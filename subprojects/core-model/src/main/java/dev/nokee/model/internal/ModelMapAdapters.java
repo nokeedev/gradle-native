@@ -71,7 +71,7 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	private static final class KnownElements {
+	static final class KnownElements implements dev.nokee.model.internal.KnownElements {
 		private final DomainObjectSet<ModelElementIdentity> knownElements;
 		private final NamedDomainObjectSet<KnownElement> mapping;
 
@@ -130,8 +130,8 @@ public final class ModelMapAdapters {
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, ObjectFactory objects, Project project) {
-			this.knownElements = new KnownElements(objects);
+		public ForConfigurationContainer(ConfigurationContainer delegate, Project project, Factory<KnownElements> knownElementsFactory) {
+			this.knownElements = knownElementsFactory.create();
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
@@ -234,9 +234,9 @@ public final class ModelMapAdapters {
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, ObjectFactory objects, Project project) {
+		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, Project project, Factory<KnownElements> knownElementsFactory) {
 			this.elementType = Task.class;
-			this.knownElements = new KnownElements(objects);
+			this.knownElements = knownElementsFactory.create();
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 
@@ -333,9 +333,9 @@ public final class ModelMapAdapters {
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ObjectFactory objects, ProjectIdentifier projectIdentifier, Instantiator instantiator, Project project) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, ProjectIdentifier projectIdentifier, Instantiator instantiator, Project project, Factory<KnownElements> knownElementsFactory) {
 			this.elementType = elementType;
-			this.knownElements = new KnownElements(objects);
+			this.knownElements = knownElementsFactory.create();
 			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.projectIdentifier = projectIdentifier;
