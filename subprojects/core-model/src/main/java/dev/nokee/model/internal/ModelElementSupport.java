@@ -23,6 +23,7 @@ import org.gradle.api.plugins.ExtensionAware;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public abstract class ModelElementSupport implements ModelElement, ExtensionAware {
 	private static final ThreadLocal<ModelElement> nextIdentity = new ThreadLocal<>();
@@ -41,6 +42,11 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 	@Override
 	public ModelObjectIdentifier getIdentifier() {
 		return delegate.getIdentifier();
+	}
+
+	@Override
+	public Stream<ModelElement> getParents() {
+		return delegate.getParents();
 	}
 
 	// TODO: Get identifier should mark the element as single identifier else there is no way of knowing which overlapping you want

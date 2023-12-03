@@ -18,6 +18,10 @@ package dev.nokee.model.internal;
 
 import org.gradle.api.Named;
 
+import java.util.stream.Stream;
+
 public interface ModelElement extends Named {
 	ModelObjectIdentifier getIdentifier();
+
+	Stream<ModelElement> getParents();
 }
