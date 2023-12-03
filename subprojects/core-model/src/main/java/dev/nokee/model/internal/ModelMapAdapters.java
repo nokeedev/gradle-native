@@ -46,34 +46,6 @@ import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 public final class ModelMapAdapters {
 	private ModelMapAdapters() {}
 
-	private static final class InjectModelElementAction<S> implements Action<S> {
-		private final Namer<S> namer;
-		private final KnownElements knownElements;
-
-		private InjectModelElementAction(Namer<S> namer, KnownElements knownElements) {
-			this.namer = namer;
-			this.knownElements = knownElements;
-		}
-
-		@Override
-		public void execute(S it) {
-			final KnownElements.KnownElement element = knownElements.findByName(namer.determineName(it));
-			if (element != null) {
-				ModelElementSupport.injectIdentifier(it, new ModelElement() {
-					@Override
-					public ModelObjectIdentifier getIdentifier() {
-						return element.getIdentifier();
-					}
-
-					@Override
-					public String getName() {
-						return element.getName();
-					}
-				});
-			}
-		}
-	}
-
 	public interface ForNamedDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
 	public static /*final*/ class ForConfigurationContainer implements ForNamedDomainObjectContainer<Configuration>, HasPublicType {
@@ -83,16 +55,9 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForConfigurationContainer(ConfigurationContainer delegate, Project project, KnownElements knownElements) {
-			this(new Configuration.Namer(), delegate, project, knownElements);
-		}
-
-		private ForConfigurationContainer(Namer<Configuration> namer, ConfigurationContainer delegate, Project project, KnownElements knownElements) {
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
-
-			delegate.configureEach(knownElements.forCreatedElements(namer, delegate::named));
-			delegate.configureEach(new InjectModelElementAction<>(namer, knownElements));
 		}
 
 		@Override
@@ -196,9 +161,6 @@ public final class ModelMapAdapters {
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
-
-			delegate.configureEach(knownElements.forCreatedElements(namer, delegate::named));
-			delegate.configureEach(new InjectModelElementAction<>(namer, knownElements));
 		}
 
 		@Override
@@ -279,15 +241,12 @@ public final class ModelMapAdapters {
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, Namer<ElementType> namer, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, Project project, KnownElements knownElements) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, Project project, KnownElements knownElements) {
 			this.elementType = elementType;
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
-
-			delegate.configureEach(knownElements.forCreatedElements(namer, delegate::named));
-			delegate.configureEach(new InjectModelElementAction<>(namer, knownElements));
 		}
 
 		@Override

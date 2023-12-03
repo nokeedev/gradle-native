@@ -18,8 +18,10 @@ package dev.nokee.model.internal;
 
 import dev.nokee.internal.Factory;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
+import org.gradle.api.Namer;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -42,25 +44,68 @@ public final class ModelMapFactory {
 		this.modelObjects = modelObjects;
 	}
 
-	public ModelMapAdapters.ForPolymorphicDomainObjectContainer<Task> create(TaskContainer tasks) {
+	public ModelMapAdapters.ForPolymorphicDomainObjectContainer<Task> create(TaskContainer container) {
+		final Namer<Task> namer = new Task.Namer();
 		val knownElements = knownElementsFactory.create();
-		val result = objects.newInstance(ModelMapAdapters.ForTaskContainer.class, tasks, project, knownElements);
+
+		container.configureEach(knownElements.forCreatedElements(namer, container::named));
+		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
+
+		val result = objects.newInstance(ModelMapAdapters.ForTaskContainer.class, container, project, knownElements);
 		modelObjects.register(result);
 		return result;
 	}
 
-	public ModelMapAdapters.ForNamedDomainObjectContainer<Configuration> create(ConfigurationContainer configurations) {
+	public ModelMapAdapters.ForNamedDomainObjectContainer<Configuration> create(ConfigurationContainer container) {
+		final Namer<Configuration> namer = new Configuration.Namer();
 		val knownElements = knownElementsFactory.create();
-		val result = objects.newInstance(ModelMapAdapters.ForConfigurationContainer.class, configurations, project, knownElements);
+
+		container.configureEach(knownElements.forCreatedElements(namer, container::named));
+		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
+
+		val result = objects.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, project, knownElements);
 		modelObjects.register(result);
 		return result;
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends Named> ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T> create(Class<T> elementType, ExtensiblePolymorphicDomainObjectContainer<T> container) {
+		final Namer<Named> namer = new Named.Namer();
 		val knownElements = knownElementsFactory.create();
-		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, new Named.Namer(), container, instantiator(project), project, knownElements);
+
+		container.configureEach(knownElements.forCreatedElements(namer, container::named));
+		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
+
+		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), project, knownElements);
 		modelObjects.register(result);
 		return result;
+	}
+
+	static final class InjectModelElementAction<S> implements Action<S> {
+		private final Namer<S> namer;
+		private final KnownElements knownElements;
+
+		private InjectModelElementAction(Namer<S> namer, KnownElements knownElements) {
+			this.namer = namer;
+			this.knownElements = knownElements;
+		}
+
+		@Override
+		public void execute(S it) {
+			final KnownElements.KnownElement element = knownElements.findByName(namer.determineName(it));
+			if (element != null) {
+				ModelElementSupport.injectIdentifier(it, new ModelElement() {
+					@Override
+					public ModelObjectIdentifier getIdentifier() {
+						return element.getIdentifier();
+					}
+
+					@Override
+					public String getName() {
+						return element.getName();
+					}
+				});
+			}
+		}
 	}
 }
