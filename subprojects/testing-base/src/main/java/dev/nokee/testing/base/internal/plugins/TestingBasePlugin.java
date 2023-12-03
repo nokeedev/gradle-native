@@ -15,7 +15,7 @@
  */
 package dev.nokee.testing.base.internal.plugins;
 
-import dev.nokee.model.internal.DefaultKnownElementsFactory;
+import dev.nokee.model.internal.KnownElements;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.testing.base.TestSuiteComponent;
@@ -46,7 +46,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add(TEST_SUITE_COMPONENT_CONTAINER_TYPE, "testSuites", project.getObjects().polymorphicDomainObjectContainer(TestSuiteComponent.class));
 
-		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, new Named.Namer(), testSuites(project), instantiator(project), project, DefaultKnownElementsFactory.forProject(project)));
+		model(project, objects()).register(model(project).getExtensions().create("testSuites", ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, TestSuiteComponent.class, new Named.Namer(), testSuites(project), instantiator(project), project, KnownElements.Factory.forProject(project)));
 
 		new TestableComponentCapabilityRule().execute(project);
 		new TestSuiteLifecycleTaskCapabilityRule().execute(project);

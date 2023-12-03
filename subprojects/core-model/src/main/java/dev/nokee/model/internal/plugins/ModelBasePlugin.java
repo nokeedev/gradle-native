@@ -22,8 +22,8 @@ import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.internal.services.ContextualModelObjectIdentifierAwareServiceLookup;
 import dev.nokee.internal.services.ExtensionBackedServiceLookup;
 import dev.nokee.internal.services.ServiceLookup;
-import dev.nokee.model.internal.DefaultKnownElementsFactory;
 import dev.nokee.model.internal.DefaultModelObjects;
+import dev.nokee.model.internal.KnownElements;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMap;
 import dev.nokee.model.internal.ModelMapAdapters;
@@ -76,8 +76,8 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		applyToAllTarget(project);
 
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
-		objects.register(model(project).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations(), project, DefaultKnownElementsFactory.forProject(project)));
-		objects.register(model(project).getExtensions().create("$tasks", ModelMapAdapters.ForTaskContainer.class, project.getTasks(), project, DefaultKnownElementsFactory.forProject(project)));
+		objects.register(model(project).getExtensions().create("$configuration", ModelMapAdapters.ForConfigurationContainer.class, project.getConfigurations(), project, KnownElements.Factory.forProject(project)));
+		objects.register(model(project).getExtensions().create("$tasks", ModelMapAdapters.ForTaskContainer.class, project.getTasks(), project, KnownElements.Factory.forProject(project)));
 	}
 
 	public static ModelExtension model(ExtensionAware target) {
