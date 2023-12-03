@@ -24,8 +24,6 @@ import org.gradle.api.provider.ProviderConvertible;
 public interface KnownDomainObject<T> extends ProviderConvertible<T> {
 	DomainObjectIdentifier getIdentifier();
 
-	Class<T> getType();
-
 	KnownDomainObject<T> configure(Action<? super T> action);
 
 	<S> Provider<S> map(Transformer<? extends S, ? super T> transformer);
