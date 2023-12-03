@@ -100,14 +100,14 @@ public final class ModelMapAdapters {
 			return identity.asModelObject(type);
 		}
 
-		public <S> S create(String name, Class<S> type, NamedDomainObjectFactory<? extends S> factory) {
+		public <S> S create(String name, Class<S> type, Function<? super KnownElement, ? extends S> factory) {
 			KnownElement element = mapping.findByName(name);
 			if (element == null) {
 				knownElements.add(new ModelElementIdentity(projectIdentifier.child(name), type));
 				element = Objects.requireNonNull(mapping.findByName(name));
 			}
 
-			return ModelElementSupport.newInstance(element, (Factory<S>) () -> factory.create(name));
+			return factory.apply(element);
 		}
 
 		public ModelElementIdentity getById(ModelObjectIdentifier identifier) {
@@ -360,7 +360,9 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
-			delegate.registerFactory(type, name -> knownElements.create(name, type, factory));
+			delegate.registerFactory(type, name -> knownElements.create(name, type, element -> {
+				return ModelElementSupport.newInstance(element, (Factory<U>) () -> factory.create(name));
+			}));
 			creatableTypes.add(type);
 		}
 
