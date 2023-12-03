@@ -16,5 +16,20 @@
 
 package dev.nokee.model.internal;
 
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Namer;
+
+import javax.annotation.Nullable;
+import java.util.function.Function;
+
 public interface KnownElements {
+	// TODO: Consider using NamedDomainObjectRegistry instead of Function
+	<S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, Function<? super String, ? extends NamedDomainObjectProvider<S>> factory);
+	<S> S create(String name, Class<S> type, Function<? super ModelElement, ? extends S> factory);
+	ModelMapAdapters.ModelElementIdentity getById(ModelObjectIdentifier identifier);
+	@Nullable ModelElement findByName(String name);
+	void forEach(Action<? super ModelMapAdapters.ModelElementIdentity> configureAction);
+
+	<S> Action<S> forCreatedElements(Namer<S> namer, Function<? super String, NamedDomainObjectProvider<?>> query);
 }

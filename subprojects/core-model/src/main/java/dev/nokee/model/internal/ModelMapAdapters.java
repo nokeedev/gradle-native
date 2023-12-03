@@ -61,7 +61,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void execute(S it) {
-			final KnownElement element = knownElements.mapping.findByName(namer.determineName(it));
+			final ModelElement element = knownElements.findByName(namer.determineName(it));
 			if (element != null) {
 				ModelElementSupport.injectIdentifier(it, element);
 			}
@@ -89,12 +89,12 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	static final class KnownElements implements dev.nokee.model.internal.KnownElements {
+	static final class DefaultKnownElements implements KnownElements {
 		private final ProjectIdentifier projectIdentifier;
 		private final DomainObjectSet<ModelElementIdentity> knownElements;
 		private final NamedDomainObjectSet<KnownElement> mapping;
 
-		public KnownElements(ProjectIdentifier projectIdentifier, ObjectFactory objects) {
+		public DefaultKnownElements(ProjectIdentifier projectIdentifier, ObjectFactory objects) {
 			this.projectIdentifier = projectIdentifier;
 			this.knownElements = objects.domainObjectSet(ModelElementIdentity.class);
 			this.mapping = objects.namedDomainObjectSet(KnownElement.class);
@@ -110,7 +110,7 @@ public final class ModelMapAdapters {
 			});
 		}
 
-		// TODO: Consider using NamedDomainObjectRegistry instead of Function
+		@Override
 		public <S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, Function<? super String, ? extends NamedDomainObjectProvider<S>> factory) {
 			ModelElementIdentity identity = new ModelElementIdentity(identifier, type);
 			knownElements.add(identity);
@@ -118,7 +118,8 @@ public final class ModelMapAdapters {
 			return identity.asModelObject(type);
 		}
 
-		public <S> S create(String name, Class<S> type, Function<? super KnownElement, ? extends S> factory) {
+		@Override
+		public <S> S create(String name, Class<S> type, Function<? super ModelElement, ? extends S> factory) {
 			KnownElement element = mapping.findByName(name);
 			if (element == null) {
 				knownElements.add(new ModelElementIdentity(projectIdentifier.child(name), type));
@@ -128,6 +129,7 @@ public final class ModelMapAdapters {
 			return factory.apply(element);
 		}
 
+		@Override
 		public ModelElementIdentity getById(ModelObjectIdentifier identifier) {
 			KnownElement element = mapping.findByName(ModelObjectIdentifiers.asFullyQualifiedName(identifier).toString());
 			if (element == null) {
@@ -137,6 +139,12 @@ public final class ModelMapAdapters {
 			return element.identifiers.stream().filter(it -> it.identifier.equals(identifier)).findFirst().orElseThrow(() -> new RuntimeException("element with same name found but not same id"));
 		}
 
+		@Override
+		public ModelElement findByName(String name) {
+			return mapping.findByName(name);
+		}
+
+		@Override
 		public void forEach(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.all(configureAction);
 		}

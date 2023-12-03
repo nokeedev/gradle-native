@@ -35,6 +35,6 @@ public final class DefaultKnownElementsFactory implements Factory<KnownElements>
 
 	@Override
 	public KnownElements create() {
-		return new ModelMapAdapters.KnownElements(projectIdentifier, objects);
+		return new ModelMapAdapters.DefaultKnownElements(projectIdentifier, objects);
 	}
 }
