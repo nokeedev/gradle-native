@@ -38,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.SupportedTypes.instanceOf;
@@ -232,6 +233,10 @@ public final class ModelMapAdapters {
 		}
 	}
 
+	public interface ContextualModelElementInstantiator {
+		<S> Function<KnownElements.KnownElement, S> newInstance(Factory<S> factory);
+	}
+
 	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, ModelMap<ElementType>, HasPublicType {
 		private final Class<ElementType> elementType;
 		private final KnownElements knownElements;
@@ -239,14 +244,16 @@ public final class ModelMapAdapters {
 		private final Set<Class<? extends ElementType>> creatableTypes = new LinkedHashSet<>();
 		private final ManagedFactoryProvider managedFactory;
 		private final Consumer<Runnable> onFinalize;
+		private final ContextualModelElementInstantiator elementInstantiator;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, Project project, KnownElements knownElements) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, Project project, KnownElements knownElements, ContextualModelElementInstantiator elementInstantiator) {
 			this.elementType = elementType;
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
+			this.elementInstantiator = elementInstantiator;
 		}
 
 		@Override
@@ -261,19 +268,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
-			delegate.registerFactory(type, name -> knownElements.create(name, type, element -> {
-				return ModelElementSupport.newInstance(new ModelElement() {
-					@Override
-					public ModelObjectIdentifier getIdentifier() {
-						return element.getIdentifier();
-					}
-
-					@Override
-					public String getName() {
-						return element.getName();
-					}
-				}, (Factory<U>) () -> factory.create(name));
-			}));
+			delegate.registerFactory(type, name -> knownElements.create(name, type, elementInstantiator.newInstance((Factory<U>) () -> factory.create(name))));
 			creatableTypes.add(type);
 		}
 

@@ -29,6 +29,8 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
 
+import java.util.function.Function;
+
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 
 public final class ModelMapFactory {
@@ -76,12 +78,29 @@ public final class ModelMapFactory {
 		container.configureEach(knownElements.forCreatedElements(namer, container::named));
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), project, knownElements);
+		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), project, knownElements, new ModelMapAdapters.ContextualModelElementInstantiator() {
+			@Override
+			public <S> Function<KnownElements.KnownElement, S> newInstance(Factory<S> factory) {
+				return element -> {
+					return ModelElementSupport.newInstance(new ModelElement() {
+						@Override
+						public ModelObjectIdentifier getIdentifier() {
+							return element.getIdentifier();
+						}
+
+						@Override
+						public String getName() {
+							return element.getName();
+						}
+					}, factory);
+				};
+			}
+		});
 		modelObjects.register(result);
 		return result;
 	}
 
-	static final class InjectModelElementAction<S> implements Action<S> {
+	private static final class InjectModelElementAction<S> implements Action<S> {
 		private final Namer<S> namer;
 		private final KnownElements knownElements;
 
