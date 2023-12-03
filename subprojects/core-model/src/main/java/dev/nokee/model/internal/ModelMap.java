@@ -20,6 +20,7 @@ import org.gradle.api.Action;
 
 public interface ModelMap<ElementType> {
 //	Class<ElementType> getElementType();
+//	<T extends ElementType> ModelObject<ElementType> create(ElementName name, Class<T> type);
 	void configureEach(Action<? super ElementType> configureAction);
 	<U> void configureEach(Class<U> type, Action<? super U> configureAction);
 
