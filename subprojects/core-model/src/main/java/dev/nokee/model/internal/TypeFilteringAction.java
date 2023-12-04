@@ -33,7 +33,7 @@ public final class TypeFilteringAction<ElementType, FilteredType> implements Act
 	@Override
 	@SuppressWarnings("unchecked")
 	public void execute(ElementType t) {
-		if (type.isAssignableFrom(t.getClass())) {
+		if (type.getConcreteClass().isAssignableFrom(t.getClass())) {
 			action.accept(t, (FilteredType) t);
 		}
 	}
