@@ -49,6 +49,11 @@ public final class ModelMapFactory {
 		this.knownElementsFactory = knownElementsFactory;
 		this.modelObjects = modelObjects;
 		this.providers = providers;
+
+		val knownElements = knownElementsFactory.create();
+		val container = objects.namedDomainObjectSet(Project.class);
+		container.configureEach(new InjectModelElementAction<>(it -> it.getName(), knownElements));
+		modelObjects.register(objects.newInstance(ModelMapAdapters.ForProject.class, container, project, knownElements));
 	}
 
 	public ModelMapAdapters.ForPolymorphicDomainObjectContainer<Task> create(TaskContainer container) {

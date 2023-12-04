@@ -70,7 +70,7 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 
 	@Override
 	public Stream<ModelMapAdapters.ModelElementIdentity> parentsOf(ModelObjectIdentifier identifier) {
-		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new ParentIterator(identifier.getParent()), Spliterator.ORDERED), false).filter(it -> !(it instanceof ProjectIdentifier)).map(identifierToElements::get);
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new ParentIterator(identifier.getParent()), Spliterator.ORDERED), false).map(identifierToElements::get);
 	}
 
 	private static final class ParentIterator implements Iterator<ModelObjectIdentifier> {

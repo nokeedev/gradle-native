@@ -73,7 +73,7 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 			final ElementName name = ElementName.of("objectiveCpp");
 			final Class<? extends LanguageSourceSet> sourceSetType = ObjectiveCppSourceSetSpec.class;
 
-			if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || t.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(sourceSetTag) != null).getOrElse(false)) || project.getExtensions().findByType(sourceSetTag) != null) {
+			if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || t.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(sourceSetTag) != null).getOrElse(false))) {
 				model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
 			}
 		})));

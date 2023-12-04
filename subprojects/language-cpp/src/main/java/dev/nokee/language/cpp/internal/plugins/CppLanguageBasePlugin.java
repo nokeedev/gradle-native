@@ -29,7 +29,6 @@ import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.scripts.DefaultImporter;
-import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
@@ -42,7 +41,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
-import static dev.nokee.utils.Optionals.safeAs;
 
 public class CppLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -75,7 +73,7 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 			final ElementName name = ElementName.of("cpp");
 			final Class<? extends LanguageSourceSet> sourceSetType = CppSourceSetSpec.class;
 
-			if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || t.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(sourceSetTag) != null).getOrElse(false)) || project.getExtensions().findByType(sourceSetTag) != null) {
+			if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || t.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(sourceSetTag) != null).getOrElse(false))) {
 				model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
 			}
 		})));

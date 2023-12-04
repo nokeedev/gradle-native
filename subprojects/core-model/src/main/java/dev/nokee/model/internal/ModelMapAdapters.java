@@ -24,12 +24,14 @@ import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Namer;
 import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 
@@ -42,10 +44,62 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.SupportedTypes.instanceOf;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
 
 public final class ModelMapAdapters {
 	private ModelMapAdapters() {}
+
+	public static /*final*/ class ForProject implements ModelMap<Project> {
+		private final Project project;
+		private final ModelObject<Project> object;
+
+		@Inject
+		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements) {
+			this.project = project;
+			this.object = knownElements.register(ProjectIdentifier.of(project), Project.class, name -> {
+				delegate.add(project);
+				return delegate.named(project.getName());
+			});
+		}
+
+		@Override
+		public void configureEach(Action<? super Project> configureAction) {
+			object.configure(configureAction);
+		}
+
+		@Override
+		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
+			object.configure(ofType(type, configureAction));
+		}
+
+		@Override
+		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
+			configureAction.execute((ModelElementIdentity) (ModelObject<?>) object);
+		}
+
+		@Override
+		public void whenElementFinalized(Action<? super Project> finalizeAction) {
+			project.afterEvaluate(__ -> {
+				object.configure(finalizeAction);
+			});
+		}
+
+		@Override
+		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
+			project.afterEvaluate(__ -> {
+				object.configure(ofType(type, finalizeAction));
+			});
+		}
+
+		@Override
+		public ModelObject<Project> getById(ModelObjectIdentifier identifier) {
+			if (identifier.equals(ProjectIdentifier.of(project))) {
+				return object;
+			}
+			throw new RuntimeException();
+		}
+	}
 
 	public interface ForNamedDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
