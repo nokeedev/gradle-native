@@ -18,17 +18,18 @@ package dev.nokee.testing.nativebase.internal;
 import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.DependentComponentSpec;
+import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
@@ -38,14 +39,14 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-public /*final*/ abstract class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
+public /*final*/ abstract class DefaultNativeTestSuiteComponent extends ModelElementSupport implements NativeTestSuite
 	, NativeTestSuiteComponentSpec
 	, NativeSourcesAware
 	, ExtensionAwareMixIn
 	, DependentComponentSpec<NativeComponentDependencies>
 	, SourceComponentSpec
-	, VariantAwareComponentMixIn<NativeTestSuiteVariant>
-	, HasDevelopmentVariant<NativeTestSuiteVariant>
+	, VariantComponentSpec<DefaultNativeTestSuiteVariant>
+	, VariantAwareComponentMixIn<NativeTestSuiteVariant>, HasDevelopmentVariant<NativeTestSuiteVariant>
 	, BinaryAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasBaseName

@@ -448,8 +448,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		model(project, mapOf(Component.class))
-			.whenElementFinalized(VariantComponentSpec.class, new RegisterVariants<>(model(project, registryOf(Variant.class))));
+		model(project, objects())
+			.whenElementFinalized(ofType(VariantComponentSpec.class, new RegisterVariants<>(model(project, registryOf(Variant.class)))));
 
 		// TODO: Should be part of native-library-base/native-application-base plugin
 		variants(project).configureEach(ofType(HasBinaryLifecycleTask.class, withElement((element, variant, target) -> {
