@@ -19,7 +19,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.HasCppSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
-import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule;
+import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRuleEx;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
@@ -29,6 +29,7 @@ import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.scripts.DefaultImporter;
+import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
@@ -39,7 +40,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class CppLanguageBasePlugin implements Plugin<Project> {
@@ -57,16 +57,13 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as CppHeaderSet and CppSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		components(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("cppSources", HasCppSources.class, HasCppSources::getCppSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
-		variants(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("cppSources", HasCppSources.class, HasCppSources::getCppSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
+		model(project, objects()).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("cppSources", HasCppSources.class, HasCppSources::getCppSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
 
-		components(project).configureEach(new UseConventionalLayout<>("cppSources", "src/%s/cpp"));
-		variants(project).configureEach(new UseConventionalLayout<>("cppSources", "src/%s/cpp"));
-		components(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
-		variants(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
+		model(project, objects()).configureEach(ofType(Named.class, new UseConventionalLayout<>("cppSources", "src/%s/cpp")));
+		model(project, objects()).configureEach(ofType(Named.class, new UseConventionalLayout<>("privateHeaders", "src/%s/headers")));
 
-		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("cppSources"));
-		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("privateHeaders"));
+		model(project, objects()).configureEach(ofType(ExtensionAware.class, withElement(new ExtendsFromParentNativeSourcesRuleEx("cppSources"))));
+		model(project, objects()).configureEach(ofType(ExtensionAware.class, withElement(new ExtendsFromParentNativeSourcesRuleEx("privateHeaders"))));
 
 		model(project, objects()).configureEach(ofType(NativeLanguageSourceSetAware.class, withElement((identifier, target) -> {
 			final Class<?> sourceSetTag = SupportCppSourceSetTag.class;

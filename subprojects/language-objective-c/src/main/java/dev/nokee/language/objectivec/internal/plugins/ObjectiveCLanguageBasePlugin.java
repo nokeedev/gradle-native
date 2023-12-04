@@ -17,7 +17,7 @@ package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
-import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule;
+import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRuleEx;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
@@ -29,6 +29,7 @@ import dev.nokee.language.objectivec.HasObjectiveCSources;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.scripts.DefaultImporter;
+import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
@@ -39,7 +40,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
@@ -54,16 +54,13 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		DefaultImporter.forProject(project)
 			.defaultImport(ObjectiveCSourceSet.class);
 
-		components(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("objectiveCSources", HasObjectiveCSources.class, HasObjectiveCSources::getObjectiveCSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
-		variants(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("objectiveCSources", HasObjectiveCSources.class, HasObjectiveCSources::getObjectiveCSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
+		model(project, objects()).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("objectiveCSources", HasObjectiveCSources.class, HasObjectiveCSources::getObjectiveCSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
 
-		components(project).configureEach(new UseConventionalLayout<>("objectiveCSources", "src/%s/objectiveC", "src/%s/objc"));
-		variants(project).configureEach(new UseConventionalLayout<>("objectiveCSources", "src/%s/objectiveC", "src/%s/objc"));
-		components(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
-		variants(project).configureEach(new UseConventionalLayout<>("privateHeaders", "src/%s/headers"));
+		model(project, objects()).configureEach(ofType(Named.class, new UseConventionalLayout<>("objectiveCSources", "src/%s/objectiveC", "src/%s/objc")));
+		model(project, objects()).configureEach(ofType(Named.class, new UseConventionalLayout<>("privateHeaders", "src/%s/headers")));
 
-		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("objectiveCSources"));
-		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("privateHeaders"));
+		model(project, objects()).configureEach(ofType(ExtensionAware.class, withElement(new ExtendsFromParentNativeSourcesRuleEx("objectiveCSources"))));
+		model(project, objects()).configureEach(ofType(ExtensionAware.class, withElement(new ExtendsFromParentNativeSourcesRuleEx("privateHeaders"))));
 
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.

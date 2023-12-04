@@ -20,6 +20,7 @@ import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.internal.IVariantOf;
+import dev.nokee.platform.base.internal.ParentAware;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.nativebase.NativeBinary;
@@ -48,6 +49,7 @@ public abstract /*final*/ class DefaultCppLibrary extends CppLibrarySpec impleme
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
 		, NativePlatformPluginSupport.VariantOf<DefaultCppLibrary>
+		, ParentAware
 	{
 		@Inject
 		public Variant(ModelObjectRegistry<Task> taskRegistry) {

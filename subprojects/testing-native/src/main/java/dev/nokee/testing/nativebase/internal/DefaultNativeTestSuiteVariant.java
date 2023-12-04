@@ -23,6 +23,7 @@ import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.ParentAware;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -47,6 +48,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasRuntimeElementsDependencyBucket
+	, ParentAware
 {
 	@Inject
 	public DefaultNativeTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {

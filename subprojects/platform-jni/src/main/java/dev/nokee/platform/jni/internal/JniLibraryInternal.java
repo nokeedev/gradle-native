@@ -26,6 +26,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.ParentAware;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
@@ -58,6 +59,7 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	, HasBaseName
 	, HasDevelopmentBinary
 	, AssembleTaskMixIn
+	, ParentAware
 {
 	@Inject
 	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {

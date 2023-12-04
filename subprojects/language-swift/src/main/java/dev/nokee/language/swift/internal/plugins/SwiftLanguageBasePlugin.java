@@ -16,7 +16,7 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule;
+import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRuleEx;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesMixInRule;
@@ -26,6 +26,7 @@ import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.scripts.DefaultImporter;
+import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
@@ -38,7 +39,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class SwiftLanguageBasePlugin implements Plugin<Project> {
@@ -58,13 +58,11 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 			sourceSet.getImportModules().extendsFrom(sourceSet.getDependencies().getCompileOnly());
 		});
 
-		components(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("swiftSources", HasSwiftSources.class, HasSwiftSources::getSwiftSources, project.getObjects())));
-		variants(project).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("swiftSources", HasSwiftSources.class, HasSwiftSources::getSwiftSources, project.getObjects())));
+		model(project, objects()).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("swiftSources", HasSwiftSources.class, HasSwiftSources::getSwiftSources, project.getObjects())));
 
-		components(project).configureEach(new UseConventionalLayout<>("swiftSources", "src/%s/swift"));
-		variants(project).configureEach(new UseConventionalLayout<>("swiftSources", "src/%s/swift"));
+		model(project, objects()).configureEach(ofType(Named.class, new UseConventionalLayout<>("swiftSources", "src/%s/swift")));
 
-		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("swiftSources"));
+		model(project, objects()).configureEach(ofType(ExtensionAware.class, withElement(new ExtendsFromParentNativeSourcesRuleEx("swiftSources"))));
 
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new ImportModulesConfigurationRegistrationAction(project.getObjects()));
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new AttachImportModulesToCompileTaskRule());
