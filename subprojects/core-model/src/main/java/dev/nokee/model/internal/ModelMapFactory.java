@@ -63,7 +63,7 @@ public final class ModelMapFactory {
 		container.configureEach(knownElements.forCreatedElements(namer, container::named));
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = objects.newInstance(ModelMapAdapters.ForTaskContainer.class, container, project, knownElements);
+		val result = objects.newInstance(ModelMapAdapters.ForTaskContainer.class, container, knownElements);
 		modelObjects.register(result);
 		return result;
 	}
@@ -75,7 +75,7 @@ public final class ModelMapFactory {
 		container.configureEach(knownElements.forCreatedElements(namer, container::named));
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = objects.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, project, knownElements);
+		val result = objects.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, knownElements);
 		modelObjects.register(result);
 		return result;
 	}
@@ -88,7 +88,7 @@ public final class ModelMapFactory {
 		container.configureEach(knownElements.forCreatedElements(namer, container::named));
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), project, knownElements, new ModelMapAdapters.ContextualModelElementInstantiator() {
+		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), knownElements, new ModelMapAdapters.ContextualModelElementInstantiator() {
 			@Override
 			public <S> Function<KnownElements.KnownElement, S> newInstance(Factory<S> factory) {
 				return element -> ModelElementSupport.newInstance(create(element), factory);

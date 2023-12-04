@@ -69,6 +69,12 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public void whenElementKnown(Action<? super ModelMapAdapters.ModelElementIdentity> action) {
+		collections.all(it -> it.whenElementKnow(action));
+	}
+
+	@Override
 	public Stream<ModelMapAdapters.ModelElementIdentity> parentsOf(ModelObjectIdentifier identifier) {
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new ParentIterator(identifier.getParent()), Spliterator.ORDERED), false).map(identifierToElements::get);
 	}

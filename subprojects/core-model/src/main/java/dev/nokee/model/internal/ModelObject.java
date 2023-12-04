@@ -24,4 +24,5 @@ public interface ModelObject<ObjectType> extends Named {
 	NamedDomainObjectProvider<ObjectType> asProvider();
 	ObjectType get();
 	ModelObject<ObjectType> configure(Action<? super ObjectType> configureAction);
+	ModelObject<ObjectType> whenFinalized(Action<? super ObjectType> finalizeAction);
 }

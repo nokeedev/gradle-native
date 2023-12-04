@@ -27,6 +27,7 @@ public interface ModelObjects {
 	<T> void register(ModelMap<T> repository);
 
 	void configureEach(Action<? super Object> action);
+	void whenElementKnown(Action<? super ModelMapAdapters.ModelElementIdentity> action);
 
 	Stream<ModelMapAdapters.ModelElementIdentity> parentsOf(ModelObjectIdentifier identifier);
 

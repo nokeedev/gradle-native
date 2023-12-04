@@ -26,6 +26,7 @@ import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.KnownElements;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMap;
+import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -80,6 +81,10 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));
+
+		project.afterEvaluate(__ -> {
+			objects.whenElementKnown(ModelMapAdapters.ModelElementIdentity::finalizeNow);
+		});
 	}
 
 	public static ModelExtension model(ExtensionAware target) {
