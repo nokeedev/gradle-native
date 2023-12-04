@@ -26,7 +26,6 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
-import org.gradle.api.Namer;
 import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -199,11 +198,7 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, KnownElements knownElements) {
-			this(Task.class, new Task.Namer(), delegate, knownElements);
-		}
-
-		private ForTaskContainer(Class<Task> elementType, Namer<Task> namer, PolymorphicDomainObjectContainer<Task> delegate, KnownElements knownElements) {
-			this.elementType = elementType;
+			this.elementType = Task.class;
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 		}
