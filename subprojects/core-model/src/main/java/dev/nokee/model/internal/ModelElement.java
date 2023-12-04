@@ -17,6 +17,7 @@
 package dev.nokee.model.internal;
 
 import org.gradle.api.Named;
+import org.gradle.api.provider.Provider;
 
 import java.util.stream.Stream;
 
@@ -24,4 +25,7 @@ public interface ModelElement extends Named {
 	ModelObjectIdentifier getIdentifier();
 
 	Stream<ModelElement> getParents();
+
+	boolean instanceOf(Class<?> type);
+	<T> Provider<T> safeAs(Class<T> type);
 }

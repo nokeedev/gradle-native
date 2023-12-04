@@ -16,22 +16,19 @@
 
 package dev.nokee.model.internal;
 
+import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.specs.Spec;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 public interface ModelObjects {
 	<T> void register(ModelMap<T> repository);
 
-	void configureEach(BiConsumer<? super ModelObjectIdentity, ? super Object> configureAction);
-	<T> void configureEach(Class<T> type, BiConsumer<? super ModelObjectIdentity, ? super T> configureAction);
-	<T> void configureEach(TypeOf<T> type, BiConsumer<? super ModelObjectIdentity, ? super T> configureAction);
+	void configureEach(Action<? super Object> action);
 
 	Stream<ModelMapAdapters.ModelElementIdentity> parentsOf(ModelObjectIdentifier identifier);
 

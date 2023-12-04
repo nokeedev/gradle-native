@@ -34,6 +34,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
 
+import static dev.nokee.model.internal.ModelElementAction.withElement;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
@@ -68,17 +70,15 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("cppSources"));
 		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("privateHeaders"));
 
-		model(project, objects()).configureEach((identifier, target) -> {
-			if (target instanceof NativeLanguageSourceSetAware) {
-				final Class<?> sourceSetTag = SupportCppSourceSetTag.class;
-				final ElementName name = ElementName.of("cpp");
-				final Class<? extends LanguageSourceSet> sourceSetType = CppSourceSetSpec.class;
+		model(project, objects()).configureEach(ofType(NativeLanguageSourceSetAware.class, withElement((identifier, target) -> {
+			final Class<?> sourceSetTag = SupportCppSourceSetTag.class;
+			final ElementName name = ElementName.of("cpp");
+			final Class<? extends LanguageSourceSet> sourceSetType = CppSourceSetSpec.class;
 
-				if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || Optionals.stream(t.getAsOptional().map(safeAs(ExtensionAware.class))).anyMatch(it -> it.getExtensions().findByType(sourceSetTag) != null)) || project.getExtensions().findByType(sourceSetTag) != null) {
-					model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
-				}
+			if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || t.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(sourceSetTag) != null).getOrElse(false)) || project.getExtensions().findByType(sourceSetTag) != null) {
+				model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
 			}
-		});
+		})));
 
 		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(CppSourceSetSpec.class, "cppSources"));
 	}

@@ -57,6 +57,8 @@ import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
 
+import static dev.nokee.model.internal.ModelElementAction.withElement;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
@@ -110,43 +112,43 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class);
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class);
 
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ApiDependencyBucketMixIn>() {
+		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, withElement(new ExtendsFromParentDependencyBucketAction<ApiDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(ApiDependencyBucketMixIn dependencies) {
 				return dependencies.getApi();
 			}
-		});
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<ImplementationDependencyBucketMixIn>() {
+		})));
+		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, withElement(new ExtendsFromParentDependencyBucketAction<ImplementationDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(ImplementationDependencyBucketMixIn dependencies) {
 				return dependencies.getImplementation();
 			}
-		});
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<CompileOnlyDependencyBucketMixIn>() {
+		})));
+		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, withElement(new ExtendsFromParentDependencyBucketAction<CompileOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(CompileOnlyDependencyBucketMixIn dependencies) {
 				return dependencies.getCompileOnly();
 			}
-		});
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromParentDependencyBucketAction<RuntimeOnlyDependencyBucketMixIn>() {
+		})));
+		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, withElement(new ExtendsFromParentDependencyBucketAction<RuntimeOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(RuntimeOnlyDependencyBucketMixIn dependencies) {
 				return dependencies.getRuntimeOnly();
 			}
-		});
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ImplementationExtendsFromApiDependencyBucketAction());
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<CompileOnlyDependencyBucketMixIn>() {
+		})));
+		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, new ImplementationExtendsFromApiDependencyBucketAction()));
+		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<CompileOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(CompileOnlyDependencyBucketMixIn dependencies) {
 				return dependencies.getCompileOnly();
 			}
-		});
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<RuntimeOnlyDependencyBucketMixIn>() {
+		}));
+		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<RuntimeOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(RuntimeOnlyDependencyBucketMixIn dependencies) {
 				return dependencies.getRuntimeOnly();
 			}
-		});
+		}));
 
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
@@ -192,7 +194,8 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		});
 
 		model(project).getExtensions().add("__nokeeService_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
-		model(project, objects()).configureEach(HasBaseName.class, new BaseNameConfigurationRule(project.getProviders()));
+
+		model(project, objects()).configureEach(ofType(HasBaseName.class, withElement(new BaseNameConfigurationRule(project.getProviders()))));
 		model(project, mapOf(Component.class)).configureEach(HasDevelopmentBinary.class, new DevelopmentBinaryConventionRule(project.getProviders()));
 	}
 }

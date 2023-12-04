@@ -16,9 +16,8 @@
 
 package dev.nokee.platform.base.internal.rules;
 
-import dev.nokee.model.internal.ModelObjects;
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.utils.Optionals;
 import org.gradle.api.Named;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -28,9 +27,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static dev.nokee.utils.Optionals.safeAs;
-
-public final class BaseNameConfigurationRule implements BiConsumer<ModelObjects.ModelObjectIdentity, HasBaseName> {
+public final class BaseNameConfigurationRule implements BiConsumer<ModelElement, HasBaseName> {
 	private final ProviderFactory providers;
 
 	public BaseNameConfigurationRule(ProviderFactory providers) {
@@ -38,7 +35,7 @@ public final class BaseNameConfigurationRule implements BiConsumer<ModelObjects.
 	}
 
 	@Override
-	public void accept(ModelObjects.ModelObjectIdentity identity, HasBaseName target) {
+	public void accept(ModelElement identity, HasBaseName target) {
 		target.getBaseName().convention(providers.provider(() -> {
 			return identity.getParents()
 				.flatMap(projectionOf(HasBaseName.class))
@@ -62,8 +59,8 @@ public final class BaseNameConfigurationRule implements BiConsumer<ModelObjects.
 		return () -> null;
 	}
 
-	private static <T> Function<ModelObjects.ModelObjectIdentity, Stream<T>> projectionOf(Class<T> type) {
-		return it -> Optionals.stream(it.getAsOptional().map(safeAs(type)));
+	private static <T> Function<ModelElement, Stream<T>> projectionOf(Class<T> type) {
+		return it -> it.safeAs(type).map(Stream::of).getOrElse(Stream.empty());
 	}
 
 	// Useful because the intention is to use the Provider type of a Property (for example)

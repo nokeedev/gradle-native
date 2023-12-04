@@ -16,12 +16,9 @@
 
 package dev.nokee.platform.nativebase.internal.rules;
 
-import dev.nokee.model.internal.ModelObjects;
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
-import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
-import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import dev.nokee.utils.Optionals;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
@@ -29,10 +26,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static dev.nokee.utils.Optionals.safeAs;
 import static java.util.Collections.singleton;
 
-public final class TargetBuildTypeConventionRule implements BiConsumer<ModelObjects.ModelObjectIdentity, TargetBuildTypeAwareComponent> {
+public final class TargetBuildTypeConventionRule implements BiConsumer<ModelElement, TargetBuildTypeAwareComponent> {
 	private final ProviderFactory providers;
 
 	public TargetBuildTypeConventionRule(ProviderFactory providers) {
@@ -40,7 +36,7 @@ public final class TargetBuildTypeConventionRule implements BiConsumer<ModelObje
 	}
 
 	@Override
-	public void accept(ModelObjects.ModelObjectIdentity identity, TargetBuildTypeAwareComponent component) {
+	public void accept(ModelElement identity, TargetBuildTypeAwareComponent component) {
 		component.getTargetBuildTypes().convention(providers.provider(() -> {
 			return identity.getParents()
 				.flatMap(projectionOf(TargetBuildTypeAwareComponent.class))
@@ -55,8 +51,8 @@ public final class TargetBuildTypeConventionRule implements BiConsumer<ModelObje
 		return providers.provider(() -> null);
 	}
 
-	private static <T> Function<ModelObjects.ModelObjectIdentity, Stream<T>> projectionOf(Class<T> type) {
-		return it -> Optionals.stream(it.getAsOptional().map(safeAs(type)));
+	private static <T> Function<ModelElement, Stream<T>> projectionOf(Class<T> type) {
+		return it -> it.safeAs(type).map(Stream::of).getOrElse(Stream.empty());
 	}
 
 	// Useful because the intention is to use the Provider type of a Property (for example)

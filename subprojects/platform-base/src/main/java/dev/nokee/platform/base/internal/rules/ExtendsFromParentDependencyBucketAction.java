@@ -17,27 +17,24 @@
 package dev.nokee.platform.base.internal.rules;
 
 import com.google.common.reflect.TypeToken;
-import dev.nokee.model.internal.ModelObjects;
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
-import dev.nokee.utils.Optionals;
 import org.gradle.api.reflect.TypeOf;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static dev.nokee.utils.Optionals.safeAs;
-
-public abstract class ExtendsFromParentDependencyBucketAction<T> implements BiConsumer<ModelObjects.ModelObjectIdentity, DependencyAwareComponent<?>> {
+public abstract class ExtendsFromParentDependencyBucketAction<T> implements BiConsumer<ModelElement, DependencyAwareComponent<?>> {
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
 	private Class<T> bucketUnderConfiguration() {
 		return (Class<T>) new TypeToken<T>(getClass()) {}.getRawType();
 	}
 
 	@Override
-	public final void accept(ModelObjects.ModelObjectIdentity identifier, DependencyAwareComponent<?> target) {
+	public final void accept(ModelElement identifier, DependencyAwareComponent<?> target) {
 		final ComponentDependencies targetDependencies = target.getDependencies();
 		if (bucketUnderConfiguration().isInstance(targetDependencies)) {
 			identifier.getParents()
@@ -51,8 +48,8 @@ public abstract class ExtendsFromParentDependencyBucketAction<T> implements BiCo
 		}
 	}
 
-	private static <T> Function<ModelObjects.ModelObjectIdentity, Stream<T>> projectionOf(TypeOf<T> type) {
-		return it -> Optionals.stream(it.getAsOptional().map(safeAs(type)));
+	private static <T> Function<ModelElement, Stream<T>> projectionOf(TypeOf<T> type) {
+		return it -> it.safeAs(type.getConcreteClass()).map(Stream::of).getOrElse(Stream.empty());
 	}
 
 	protected abstract DeclarableDependencyBucketSpec bucketOf(T dependencies);

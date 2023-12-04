@@ -27,6 +27,8 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 
 import java.util.function.Function;
@@ -39,12 +41,14 @@ public final class ModelMapFactory {
 	private final Project project;
 	private final Factory<KnownElements> knownElementsFactory;
 	private final ModelObjects modelObjects;
+	private final ProviderFactory providers;
 
-	public ModelMapFactory(ObjectFactory objects, Project project, Factory<KnownElements> knownElementsFactory, ModelObjects modelObjects) {
+	public ModelMapFactory(ObjectFactory objects, Project project, Factory<KnownElements> knownElementsFactory, ModelObjects modelObjects, ProviderFactory providers) {
 		this.objects = objects;
 		this.project = project;
 		this.knownElementsFactory = knownElementsFactory;
 		this.modelObjects = modelObjects;
+		this.providers = providers;
 	}
 
 	public ModelMapAdapters.ForPolymorphicDomainObjectContainer<Task> create(TaskContainer container) {
@@ -98,26 +102,17 @@ public final class ModelMapFactory {
 
 			@Override
 			public Stream<ModelElement> getParents() {
-				return modelObjects.parentsOf(element.getIdentifier()).map(it -> create(it));
+				return modelObjects.parentsOf(element.getIdentifier()).map(it -> ModelElementSupport.asModelElement(it.get()));
 			}
 
 			@Override
-			public String getName() {
-				return element.getName();
-			}
-		};
-	}
-
-	private ModelElement create(ModelMapAdapters.ModelElementIdentity element) {
-		return new ModelElement() {
-			@Override
-			public ModelObjectIdentifier getIdentifier() {
-				return element.getIdentifier();
+			public boolean instanceOf(Class<?> type) {
+				return element.identifiers.stream().anyMatch(it -> it.instanceOf(type));
 			}
 
 			@Override
-			public Stream<ModelElement> getParents() {
-				return modelObjects.parentsOf(element.getIdentifier()).map(it -> create(it));
+			public <T> Provider<T> safeAs(Class<T> type) {
+				return providers.provider(() -> element.identifiers.stream().filter(it -> it.instanceOf(type)).map(it -> it.asModelObject(type).asProvider()).findFirst().orElse(null)).flatMap(it -> it);
 			}
 
 			@Override

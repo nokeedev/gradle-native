@@ -26,20 +26,20 @@ import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.scripts.DefaultImporter;
-import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
+import static dev.nokee.model.internal.ModelElementAction.withElement;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
-import static dev.nokee.utils.Optionals.safeAs;
 
 public class SwiftLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -70,17 +70,15 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new AttachImportModulesToCompileTaskRule());
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new SwiftCompileTaskDefaultConfigurationRule());
 
-		model(project, objects()).configureEach((identifier, target) -> {
-			if (target instanceof NativeLanguageSourceSetAware) {
-				final Class<?> sourceSetTag = SupportSwiftSourceSetTag.class;
-				final ElementName name = ElementName.of("swift");
-				final Class<? extends LanguageSourceSet> sourceSetType = SwiftSourceSetSpec.class;
+		model(project, objects()).configureEach(ofType(NativeLanguageSourceSetAware.class, withElement((identifier, target) -> {
+			final Class<?> sourceSetTag = SupportSwiftSourceSetTag.class;
+			final ElementName name = ElementName.of("swift");
+			final Class<? extends LanguageSourceSet> sourceSetType = SwiftSourceSetSpec.class;
 
-				if (identifier.getParents().flatMap(it -> Optionals.stream(it.getAsOptional().map(safeAs(ExtensionAware.class)))).anyMatch(it -> it.getExtensions().findByType(sourceSetTag) != null) || project.getExtensions().findByType(sourceSetTag) != null) {
-					model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
-				}
+			if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || t.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(sourceSetTag) != null).getOrElse(false)) || project.getExtensions().findByType(sourceSetTag) != null) {
+				model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
 			}
-		});
+		})));
 
 		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(SwiftSourceSetSpec.class, "swiftSources"));
 	}

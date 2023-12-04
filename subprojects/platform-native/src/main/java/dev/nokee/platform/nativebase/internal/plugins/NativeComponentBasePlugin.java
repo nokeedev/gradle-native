@@ -31,7 +31,6 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
@@ -54,6 +53,7 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.RegisterVariants;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
+import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
@@ -124,8 +124,10 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
+import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.ModelElementActionAdapter.elementWith;
 import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -148,18 +150,18 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DarwinRuntimePlugin.class); // for now, later we will be more smart
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction<LinkOnlyDependencyBucketMixIn>() {
+		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, withElement(new ExtendsFromParentDependencyBucketAction<LinkOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(LinkOnlyDependencyBucketMixIn dependencies) {
 				return dependencies.getLinkOnly();
 			}
-		});
-		model(project, objects()).configureEach(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<LinkOnlyDependencyBucketMixIn>() {
+		})));
+		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, new ExtendsFromImplementationDependencyBucketAction<LinkOnlyDependencyBucketMixIn>() {
 			@Override
 			protected DeclarableDependencyBucketSpec bucketOf(LinkOnlyDependencyBucketMixIn dependencies) {
 				return dependencies.getLinkOnly();
 			}
-		});
+		}));
 
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeSharedLibraryBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeBundleBinarySpec.class);
@@ -406,8 +408,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 		components(project).withType(NativeComponentSpec.class)
 			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
-		model(project, objects()).configureEach(TargetMachineAwareComponent.class, new TargetMachineConventionRule(project.getProviders()));
-		model(project, objects()).configureEach(TargetBuildTypeAwareComponent.class, new TargetBuildTypeConventionRule(project.getProviders()));
+		model(project, objects()).configureEach(ofType(TargetMachineAwareComponent.class, withElement(new TargetMachineConventionRule(project.getProviders()))));
+		model(project, objects()).configureEach(ofType(TargetBuildTypeAwareComponent.class, withElement(new TargetBuildTypeConventionRule(project.getProviders()))));
 		components(project).configureEach(component -> {
 			if (component instanceof NativeApplicationComponent && component instanceof TargetLinkageAwareComponent) {
 				((TargetLinkageAwareComponent) component).getTargetLinkages().convention(singletonList(TargetLinkages.EXECUTABLE));
@@ -498,19 +500,19 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		model(project, objects()).configureEach(AbstractLinkTask.class, new BiConsumer<ModelObjects.ModelObjectIdentity, AbstractLinkTask>() {
+		model(project, objects()).configureEach(ofType(AbstractLinkTask.class, withElement(new BiConsumer<ModelElement, AbstractLinkTask>() {
 			@Override
-			public void accept(ModelObjects.ModelObjectIdentity identity, AbstractLinkTask task) {
-				identity.getParent().filter(this::isNativeLinkableBinary).ifPresent(__ -> {
+			public void accept(ModelElement identity, AbstractLinkTask task) {
+				identity.getParents().filter(this::isNativeLinkableBinary).findFirst().ifPresent(__ -> {
 					// Until we model the build type
 					task.getDebuggable().set(false);
 				});
 			}
 
-			private boolean isNativeLinkableBinary(ModelObjects.ModelObjectIdentity it) {
+			private boolean isNativeLinkableBinary(ModelElement it) {
 				return it.instanceOf(NativeBundleBinarySpec.class) || it.instanceOf(NativeExecutableBinarySpec.class) || it.instanceOf(NativeSharedLibraryBinarySpec.class);
 			}
-		});
+		})));
 		artifacts(project).withType(NativeSharedLibraryBinarySpec.class).configureEach(binary -> {
 			binary.getLinkTask().configure(task -> {
 				final Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());

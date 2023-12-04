@@ -105,7 +105,7 @@ public final class KnownElements {
 
 	public static final class KnownElement implements Named {
 		private final String name;
-		private final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> identifiers;
+		final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> identifiers;
 
 		public KnownElement(String name, ObjectFactory objects) {
 			this.name = name;

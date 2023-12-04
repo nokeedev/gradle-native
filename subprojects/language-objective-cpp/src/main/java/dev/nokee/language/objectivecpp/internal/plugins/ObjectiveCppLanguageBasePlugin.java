@@ -29,18 +29,18 @@ import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.scripts.DefaultImporter;
-import dev.nokee.utils.Optionals;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
 
+import static dev.nokee.model.internal.ModelElementAction.withElement;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
-import static dev.nokee.utils.Optionals.safeAs;
 
 public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -68,17 +68,15 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("objectiveCppSources"));
 		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("privateHeaders"));
 
-		model(project, objects()).configureEach((identifier, target) -> {
-			if (target instanceof NativeLanguageSourceSetAware) {
-				final Class<?> sourceSetTag = SupportObjectiveCppSourceSetTag.class;
-				final ElementName name = ElementName.of("objectiveCpp");
-				final Class<? extends LanguageSourceSet> sourceSetType = ObjectiveCppSourceSetSpec.class;
+		model(project, objects()).configureEach(ofType(NativeLanguageSourceSetAware.class, withElement((identifier, target) -> {
+			final Class<?> sourceSetTag = SupportObjectiveCppSourceSetTag.class;
+			final ElementName name = ElementName.of("objectiveCpp");
+			final Class<? extends LanguageSourceSet> sourceSetType = ObjectiveCppSourceSetSpec.class;
 
-				if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || Optionals.stream(t.getAsOptional().map(safeAs(ExtensionAware.class))).anyMatch(it -> it.getExtensions().findByType(sourceSetTag) != null)) || project.getExtensions().findByType(sourceSetTag) != null) {
-					model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
-				}
+			if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || t.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(sourceSetTag) != null).getOrElse(false)) || project.getExtensions().findByType(sourceSetTag) != null) {
+				model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
 			}
-		});
+		})));
 
 		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(ObjectiveCppSourceSetSpec.class, "objectiveCppSources"));
 	}

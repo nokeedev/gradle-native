@@ -33,7 +33,9 @@ import org.gradle.api.Project;
 
 import java.util.function.BiConsumer;
 
+import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.ModelElementActionAdapter.elementWith;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -53,12 +55,12 @@ public final class TestableComponentCapabilityRule implements Action<Project> {
 		components(project, it -> it.configureEach(TestableComponentSpec.class, elementWith(attachTestSuiteContainer(project))));
 
 		// Auto wire testedComponent to parent Component
-		model(project, objects()).configureEach(TestSuiteComponentSpec.class, (identifier, testSuite) -> {
+		model(project, objects()).configureEach(ofType(TestSuiteComponentSpec.class, withElement((identifier, testSuite) -> {
 			identifier.getParents().filter(it -> it.instanceOf(Component.class)).findFirst().ifPresent(it -> {
-				testSuite.getTestedComponent().set(it.getAsProvider(Component.class));
+				testSuite.getTestedComponent().set(it.safeAs(Component.class));
 				testSuite.getTestedComponent().disallowChanges();
 			});
-		});
+		})));
 	}
 
 	private static BiConsumer<ModelObjectIdentifier, TestableComponentSpec> attachTestSuiteContainer(Project project) {

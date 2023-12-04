@@ -15,13 +15,12 @@
  */
 package dev.nokee.platform.base.internal.assembletask;
 
-import dev.nokee.model.internal.ModelObjects;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 
-import java.util.function.BiConsumer;
-
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
@@ -30,20 +29,20 @@ import static dev.nokee.utils.TaskUtils.configureDescription;
 public class AssembleTaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
 	public void apply(T target) {
-		model(target, objects()).configureEach(HasAssembleTask.class, new ConfigureAssembleTaskDescriptionRule());
-		model(target, objects()).configureEach(HasAssembleTask.class, new ConfigureAssembleTaskGroupRule());
+		model(target, objects()).configureEach(ofType(HasAssembleTask.class, new ConfigureAssembleTaskDescriptionRule()));
+		model(target, objects()).configureEach(ofType(HasAssembleTask.class, new ConfigureAssembleTaskGroupRule()));
 	}
 
-	private static final class ConfigureAssembleTaskDescriptionRule implements BiConsumer<ModelObjects.ModelObjectIdentity, HasAssembleTask> {
+	private static final class ConfigureAssembleTaskDescriptionRule implements Action<HasAssembleTask> {
 		@Override
-		public void accept(ModelObjects.ModelObjectIdentity identifier, HasAssembleTask component) {
+		public void execute(HasAssembleTask component) {
 			component.getAssembleTask().configure(configureDescription("Assembles the outputs of the %s.", component));
 		}
 	}
 
-	private static final class ConfigureAssembleTaskGroupRule implements BiConsumer<ModelObjects.ModelObjectIdentity, HasAssembleTask> {
+	private static final class ConfigureAssembleTaskGroupRule implements Action<HasAssembleTask> {
 		@Override
-		public void accept(ModelObjects.ModelObjectIdentity identifier, HasAssembleTask target) {
+		public void execute(HasAssembleTask target) {
 			target.getAssembleTask().configure(configureBuildGroup());
 		}
 	}

@@ -20,6 +20,7 @@ import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.decorators.ModelObjectIdentifierSupport;
 import dev.nokee.model.internal.type.ModelTypeUtils;
 import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -47,6 +48,16 @@ public abstract class ModelElementSupport implements ModelElement, ExtensionAwar
 	@Override
 	public Stream<ModelElement> getParents() {
 		return delegate.getParents();
+	}
+
+	@Override
+	public boolean instanceOf(Class<?> type) {
+		return delegate.instanceOf(type);
+	}
+
+	@Override
+	public <T> Provider<T> safeAs(Class<T> type) {
+		return delegate.safeAs(type);
 	}
 
 	// TODO: Get identifier should mark the element as single identifier else there is no way of knowing which overlapping you want

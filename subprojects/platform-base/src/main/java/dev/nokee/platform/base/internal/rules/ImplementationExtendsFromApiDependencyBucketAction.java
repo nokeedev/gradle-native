@@ -16,18 +16,16 @@
 
 package dev.nokee.platform.base.internal.rules;
 
-import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.LibraryComponentDependencies;
 import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
+import org.gradle.api.Action;
 
-import java.util.function.BiConsumer;
-
-public final class ImplementationExtendsFromApiDependencyBucketAction implements BiConsumer<ModelObjects.ModelObjectIdentity, DependencyAwareComponent<?>> {
+public final class ImplementationExtendsFromApiDependencyBucketAction implements Action<DependencyAwareComponent<?>> {
 	@Override
-	public void accept(ModelObjects.ModelObjectIdentity objects, DependencyAwareComponent<?> target) {
+	public void execute(DependencyAwareComponent<?> target) {
 		final ComponentDependencies targetDependencies = target.getDependencies();
 		if (targetDependencies instanceof LibraryComponentDependencies && targetDependencies instanceof ApiDependencyBucketMixIn && targetDependencies instanceof ImplementationDependencyBucketMixIn) {
 			((ImplementationDependencyBucketMixIn) targetDependencies).getImplementation().extendsFrom(((ApiDependencyBucketMixIn) targetDependencies).getApi());
