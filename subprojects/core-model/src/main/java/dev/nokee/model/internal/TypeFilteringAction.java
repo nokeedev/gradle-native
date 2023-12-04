@@ -19,11 +19,13 @@ package dev.nokee.model.internal;
 import org.gradle.api.Action;
 import org.gradle.api.reflect.TypeOf;
 
+import java.util.function.BiConsumer;
+
 public final class TypeFilteringAction<ElementType, FilteredType> implements Action<ElementType> {
 	private final TypeOf<FilteredType> type;
-	private final Action<? super FilteredType> action;
+	private final BiConsumer<? super ElementType, ? super FilteredType> action;
 
-	public TypeFilteringAction(TypeOf<FilteredType> type, Action<? super FilteredType> action) {
+	public TypeFilteringAction(TypeOf<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
 		this.type = type;
 		this.action = action;
 	}
@@ -32,15 +34,23 @@ public final class TypeFilteringAction<ElementType, FilteredType> implements Act
 	@SuppressWarnings("unchecked")
 	public void execute(ElementType t) {
 		if (type.isAssignableFrom(t.getClass())) {
-			action.execute((FilteredType) t);
+			action.accept(t, (FilteredType) t);
 		}
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(Class<FilteredType> type, Action<? super FilteredType> action) {
-		return new TypeFilteringAction<>(TypeOf.typeOf(type), action);
+		return new TypeFilteringAction<>(TypeOf.typeOf(type), (__, t) -> action.execute(t));
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(TypeOf<FilteredType> type, Action<? super FilteredType> action) {
+		return new TypeFilteringAction<>(type, (__, t) -> action.execute(t));
+	}
+
+	public static <ElementType, FilteredType> Action<ElementType> ofType(Class<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
+		return new TypeFilteringAction<>(TypeOf.typeOf(type), action);
+	}
+
+	public static <ElementType, FilteredType> Action<ElementType> ofType(TypeOf<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
 		return new TypeFilteringAction<>(type, action);
 	}
 }

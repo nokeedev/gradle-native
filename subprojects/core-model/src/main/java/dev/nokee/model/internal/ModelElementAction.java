@@ -37,4 +37,16 @@ public final class ModelElementAction<ElementType> implements Action<ElementType
 	public static <ElementType> ModelElementAction<ElementType> withElement(BiConsumer<? super ModelElement, ? super ElementType> action) {
 		return new ModelElementAction<>(action);
 	}
+
+	public static <ElementType, T> BiConsumer<ElementType, T> withElement(BiModelElementConsumer<? super ElementType, ? super T> action) {
+		return (t, u) -> {
+			ModelElementSupport.safeAsModelElement(t).ifPresent(element -> {
+				action.accept(element, t, u);
+			});
+		};
+	}
+
+	public interface BiModelElementConsumer<A, B> {
+		void accept(ModelElement e, A a, B b);
+	}
 }

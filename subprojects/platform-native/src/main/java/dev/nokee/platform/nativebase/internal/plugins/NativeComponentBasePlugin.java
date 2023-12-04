@@ -125,7 +125,6 @@ import java.util.stream.Stream;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.ModelElementAction.withElement;
-import static dev.nokee.model.internal.ModelElementActionAdapter.elementWith;
 import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
@@ -453,45 +452,39 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			.whenElementFinalized(VariantComponentSpec.class, new RegisterVariants<>(model(project, registryOf(Variant.class))));
 
 		// TODO: Should be part of native-library-base/native-application-base plugin
-		variants(project).configureEach(elementWith((identifier, variant) -> {
-			if (variant instanceof HasBinaryLifecycleTask) {
-				((HasBinaryLifecycleTask) variant).getBinaryLifecycleTask().configure(configureBuildGroup());
-				((HasBinaryLifecycleTask) variant).getBinaryLifecycleTask().configure(task -> {
-					val linkage = ((BuildVariantInternal) variant.getBuildVariant()).getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-					NamedDomainObjectProvider<Binary> binaryProvider;// = artifacts(project).named(variant.getName());
-					if (linkage.isShared()) {
-						binaryProvider = artifacts(project).named(ModelObjectIdentifiers.asFullyQualifiedName(identifier.child("sharedLibrary")).toString(), Binary.class);
-						task.setDescription(String.format("Assembles a shared library binary containing the objects files of %s.", "shared library binary '" + binaryProvider.getName() + "'"));
-					} else if (linkage.isExecutable()) {
-						binaryProvider = artifacts(project).named(ModelObjectIdentifiers.asFullyQualifiedName(identifier.child("executable")).toString(), Binary.class);
-						task.setDescription(String.format("Assembles a executable binary containing the objects files of %s.", "executable binary '" + binaryProvider.getName() + "'"));
-					} else {
-						binaryProvider = artifacts(project).named(ModelObjectIdentifiers.asFullyQualifiedName(identifier.child("staticLibrary")).toString(), Binary.class);
-						task.setDescription(String.format("Assembles a static library binary containing the objects files of %s.", "static library binary '" + binaryProvider.getName() + "'"));
-					}
-					task.dependsOn((Callable<Object>) binaryProvider::get);
-				});
-			}
-		}));
+		variants(project).configureEach(ofType(HasBinaryLifecycleTask.class, withElement((element, variant, target) -> {
+			target.getBinaryLifecycleTask().configure(configureBuildGroup());
+			target.getBinaryLifecycleTask().configure(task -> {
+				val linkage = ((BuildVariantInternal) variant.getBuildVariant()).getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+				NamedDomainObjectProvider<Binary> binaryProvider;// = artifacts(project).named(variant.getName());
+				if (linkage.isShared()) {
+					binaryProvider = artifacts(project).named(ModelObjectIdentifiers.asFullyQualifiedName(element.getIdentifier().child("sharedLibrary")).toString(), Binary.class);
+					task.setDescription(String.format("Assembles a shared library binary containing the objects files of %s.", "shared library binary '" + binaryProvider.getName() + "'"));
+				} else if (linkage.isExecutable()) {
+					binaryProvider = artifacts(project).named(ModelObjectIdentifiers.asFullyQualifiedName(element.getIdentifier().child("executable")).toString(), Binary.class);
+					task.setDescription(String.format("Assembles a executable binary containing the objects files of %s.", "executable binary '" + binaryProvider.getName() + "'"));
+				} else {
+					binaryProvider = artifacts(project).named(ModelObjectIdentifiers.asFullyQualifiedName(element.getIdentifier().child("staticLibrary")).toString(), Binary.class);
+					task.setDescription(String.format("Assembles a static library binary containing the objects files of %s.", "static library binary '" + binaryProvider.getName() + "'"));
+				}
+				task.dependsOn((Callable<Object>) binaryProvider::get);
+			});
+		})));
 
 		model(project, mapOf(Component.class)).configureEach(VariantComponentSpec.class, component -> {
 			final View<?> variants = ((VariantAwareComponent<?>) component).getVariants();
 			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) variants.map(VariantInternal.class::cast).get())));
 		});
-		variants(project).configureEach(elementWith((identifier, variant) -> {
-			if (variant instanceof HasAssembleTask) {
-				if (!((VariantIdentifier) identifier).getUnambiguousName().isEmpty()) {
-					((HasAssembleTask) variant).getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
-				}
+		variants(project).configureEach(ofType(HasAssembleTask.class, withElement((element, variant, target) -> {
+			if (!((VariantIdentifier) element.getIdentifier()).getUnambiguousName().isEmpty()) {
+				target.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 			}
-		}));
-		variants(project).configureEach(elementWith((identifier, variant) -> {
-			if (variant instanceof ObjectsTaskMixIn) {
-				if (!((VariantIdentifier) identifier).getUnambiguousName().isEmpty()) {
-					((ObjectsTaskMixIn) variant).getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
-				}
+		})));
+		variants(project).configureEach(ofType(ObjectsTaskMixIn.class, withElement((element, variant, target) -> {
+			if (!((VariantIdentifier) element.getIdentifier()).getUnambiguousName().isEmpty()) {
+				target.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 			}
-		}));
+		})));
 
 		// TODO: Restrict this rule
 		components(project).configureEach(component -> {

@@ -105,6 +105,7 @@ public final class KnownElements {
 
 	public static final class KnownElement implements Named {
 		private final String name;
+		// TODO: Should reduce visibility
 		final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> identifiers;
 
 		public KnownElement(String name, ObjectFactory objects) {

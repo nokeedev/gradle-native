@@ -16,8 +16,8 @@
 
 package dev.nokee.testing.base.internal.rules;
 
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelMap;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
@@ -34,7 +34,6 @@ import org.gradle.api.Project;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.model.internal.ModelElementAction.withElement;
-import static dev.nokee.model.internal.ModelElementActionAdapter.elementWith;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
@@ -52,7 +51,7 @@ public final class TestableComponentCapabilityRule implements Action<Project> {
 	@Override
 	public void execute(Project project) {
 		// Attach test suite containers (contextual)
-		components(project, it -> it.configureEach(TestableComponentSpec.class, elementWith(attachTestSuiteContainer(project))));
+		components(project, it -> it.configureEach(TestableComponentSpec.class, withElement(attachTestSuiteContainer(project))));
 
 		// Auto wire testedComponent to parent Component
 		model(project, objects()).configureEach(ofType(TestSuiteComponentSpec.class, withElement((identifier, testSuite) -> {
@@ -63,11 +62,10 @@ public final class TestableComponentCapabilityRule implements Action<Project> {
 		})));
 	}
 
-	private static BiConsumer<ModelObjectIdentifier, TestableComponentSpec> attachTestSuiteContainer(Project project) {
-		return (identifier, component) -> {
+	private static BiConsumer<ModelElement, TestableComponentSpec> attachTestSuiteContainer(Project project) {
+		return (element, component) -> {
 			final Namer<Named> namer = new Named.Namer();
-			component.getExtensions().add(TestableComponentSpec.TEST_SUITES_EXTENSION_NAME, instantiator(project).newInstance(ContextualTestSuiteContainer.class, identifier, new ViewAdapter<>(TestSuiteComponent.class, new ModelNodeBackedViewStrategy(testSuite -> namer.determineName((TestSuiteComponent) testSuite), testSuites(project), project.getProviders(), project.getObjects(), (Runnable) () -> {
-			}, identifier))));
+			component.getExtensions().add(TestableComponentSpec.TEST_SUITES_EXTENSION_NAME, instantiator(project).newInstance(ContextualTestSuiteContainer.class, element.getIdentifier(), new ViewAdapter<>(TestSuiteComponent.class, new ModelNodeBackedViewStrategy(testSuite -> namer.determineName((TestSuiteComponent) testSuite), testSuites(project), project.getProviders(), project.getObjects(), (Runnable) () -> {}, element.getIdentifier()))));
 		};
 	}
 }
