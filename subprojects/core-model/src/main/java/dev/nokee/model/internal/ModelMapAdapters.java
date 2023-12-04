@@ -20,7 +20,6 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.internal.reflect.Instantiator;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectFactory;
@@ -35,11 +34,10 @@ import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -54,6 +52,7 @@ public final class ModelMapAdapters {
 	public static /*final*/ class ForProject implements ModelMap<Project> {
 		private final Project project;
 		private final ModelObject<Project> object;
+		private final Consumer<Runnable> onFinalize;
 
 		@Inject
 		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements) {
@@ -62,6 +61,7 @@ public final class ModelMapAdapters {
 				delegate.add(project);
 				return delegate.named(project.getName());
 			});
+			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 		}
 
 		@Override
@@ -81,12 +81,12 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super Project> finalizeAction) {
-			object.whenFinalized(finalizeAction);
+			onFinalize.accept(() -> configureEach(finalizeAction));
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			object.whenFinalized(ofType(type, finalizeAction));
+			onFinalize.accept(() -> configureEach(ofType(type, finalizeAction)));
 		}
 
 		@Override
@@ -103,11 +103,13 @@ public final class ModelMapAdapters {
 	public static /*final*/ class ForConfigurationContainer implements ForNamedDomainObjectContainer<Configuration>, HasPublicType {
 		private final KnownElements knownElements;
 		private final ConfigurationContainer delegate;
+		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements) {
+		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, Project project) {
 			this.knownElements = knownElements;
 			this.delegate = delegate;
+			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 		}
 
 		@Override
@@ -160,12 +162,12 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super Configuration> finalizeAction) {
-			whenElementKnow(it -> it.asModelObject(Configuration.class).whenFinalized(finalizeAction));
+			onFinalize.accept(() -> configureEach(finalizeAction));
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			whenElementKnow(it -> it.whenFinalized(ofType(type, finalizeAction)));
+			onFinalize.accept(() -> configureEach(ofType(type, finalizeAction)));
 		}
 
 		@Override
@@ -195,12 +197,14 @@ public final class ModelMapAdapters {
 		private final Class<Task> elementType;
 		private final KnownElements knownElements;
 		private final PolymorphicDomainObjectContainer<Task> delegate;
+		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, KnownElements knownElements) {
+		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, KnownElements knownElements, Project project) {
 			this.elementType = Task.class;
 			this.knownElements = knownElements;
 			this.delegate = delegate;
+			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 		}
 
 		@Override
@@ -244,12 +248,12 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super Task> finalizeAction) {
-			whenElementKnow(it -> it.asModelObject(Task.class).whenFinalized(finalizeAction));
+			onFinalize.accept(() -> configureEach(finalizeAction));
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			whenElementKnow(it -> it.whenFinalized(ofType(type, finalizeAction)));
+			onFinalize.accept(() -> configureEach(ofType(type, finalizeAction)));
 		}
 
 		@Override
@@ -279,14 +283,16 @@ public final class ModelMapAdapters {
 		private final Set<Class<? extends ElementType>> creatableTypes = new LinkedHashSet<>();
 		private final ManagedFactoryProvider managedFactory;
 		private final ContextualModelElementInstantiator elementInstantiator;
+		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, ContextualModelElementInstantiator elementInstantiator) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, ContextualModelElementInstantiator elementInstantiator, Project project) {
 			this.elementType = elementType;
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.elementInstantiator = elementInstantiator;
+			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 		}
 
 		@Override
@@ -341,12 +347,12 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-			whenElementKnow(it -> it.asModelObject(elementType).whenFinalized(finalizeAction));
+			onFinalize.accept(() -> configureEach(finalizeAction));
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			whenElementKnow(it -> it.whenFinalized(ofType(type, finalizeAction)));
+			onFinalize.accept(() -> configureEach(ofType(type, finalizeAction)));
 		}
 
 		@Override
@@ -376,7 +382,6 @@ public final class ModelMapAdapters {
 		private final Class<?> implementationType;
 		NamedDomainObjectProvider<?> elementProvider; // TODO: Reduce visibility
 		private boolean forcedRealize = false;
-		private final List<Action<?>> finalizeActions = new ArrayList<>();
 
 		// TODO: Reduce visibility
 		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType) {
@@ -426,23 +431,9 @@ public final class ModelMapAdapters {
 			}
 		}
 
-		@SuppressWarnings("unchecked")
-		public void finalizeNow() {
-			while (!finalizeActions.isEmpty()) {
-				val action = finalizeActions.remove(0);
-				elementProvider.configure((Action<Object>) action);
-			}
-		}
-
 		@Override
 		public ModelObject<Object> configure(Action<? super Object> configureAction) {
 			elementProvider.configure(configureAction);
-			return this;
-		}
-
-		@Override
-		public ModelObject<Object> whenFinalized(Action<? super Object> finalizeAction) {
-			finalizeActions.add(finalizeAction);
 			return this;
 		}
 

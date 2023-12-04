@@ -63,7 +63,7 @@ public final class ModelMapFactory {
 		container.configureEach(knownElements.forCreatedElements(namer, container::named));
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = objects.newInstance(ModelMapAdapters.ForTaskContainer.class, container, knownElements);
+		val result = objects.newInstance(ModelMapAdapters.ForTaskContainer.class, container, knownElements, project);
 		modelObjects.register(result);
 		return result;
 	}
@@ -75,7 +75,7 @@ public final class ModelMapFactory {
 		container.configureEach(knownElements.forCreatedElements(namer, container::named));
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = objects.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, knownElements);
+		val result = objects.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, knownElements, project);
 		modelObjects.register(result);
 		return result;
 	}
@@ -93,7 +93,7 @@ public final class ModelMapFactory {
 			public <S> Function<KnownElements.KnownElement, S> newInstance(Factory<S> factory) {
 				return element -> ModelElementSupport.newInstance(create(element), factory);
 			}
-		});
+		}, project);
 		modelObjects.register(result);
 		return result;
 	}
