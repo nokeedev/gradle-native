@@ -18,6 +18,7 @@ package dev.nokee.testing.nativebase.internal;
 
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.platform.base.internal.RunnableComponentSpec;
 import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -26,7 +27,7 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 
 // TODO: May limit to variant, this seems to be very variant specific
-public interface NativeExecutableBasedTestSuiteSpec extends ModelElement, ExtensionAware {
+public interface NativeExecutableBasedTestSuiteSpec extends ModelElement, ExtensionAware, RunnableComponentSpec {
 	@NestedObject
 	TaskProvider<RunTestExecutable> getRunTask();
 

@@ -23,6 +23,8 @@ import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent
 
+// TODO: Add embedded test suite test case, aka test suite registered on testable component
+
 class CppTestSuiteLibraryFunctionalTest extends AbstractTestSuiteComponentFunctionalTest implements CppTaskNames {
 	@Override
 	protected void makeSingleProject() {

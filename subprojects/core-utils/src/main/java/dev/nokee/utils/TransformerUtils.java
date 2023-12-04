@@ -259,6 +259,26 @@ public final class TransformerUtils {
 		return ofTransformer(new TransformEachToCollectionAdapter<>(listFactory(), mapper));
 	}
 
+	public static <ElementType> Transformer<ElementType, ElementType> filter(Spec<? super ElementType> spec) {
+		return it -> {
+			if (spec.isSatisfiedBy(it)) {
+				return it;
+			} else {
+				return nullSafeValue();
+			}
+		};
+	}
+
+	public static <OutputElementType, InputElementType> Transformer<OutputElementType, InputElementType> to(Class<OutputElementType> type) {
+		return it -> {
+			if (type.isInstance(it)) {
+				return type.cast(it);
+			} else {
+				return nullSafeValue();
+			}
+		};
+	}
+
 	public static <A, B, C> Transformer<C, A> compose(org.gradle.api.Transformer<C, B> g, org.gradle.api.Transformer<? extends B, A> f) {
 		if (isNoOpTransformer(g)) {
 			return Cast.uncheckedCast("g is a noop transformer, so we can assume the types are matching", f);

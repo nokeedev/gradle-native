@@ -23,6 +23,8 @@ import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CGreeterLib
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent
 
+// TODO: Add embedded test suite test case, aka test suite registered on testable component
+
 class CTestSuiteLibraryFunctionalTest extends AbstractTestSuiteComponentFunctionalTest implements CTaskNames {
 	@Override
 	protected void makeSingleProject() {

@@ -15,21 +15,25 @@
  */
 package dev.nokee.testing.nativebase.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObject;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentOf;
@@ -46,6 +50,7 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.testing.base.TestSuiteComponent;
+import dev.nokee.testing.base.internal.CheckableComponentSpec;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
@@ -55,20 +60,25 @@ import dev.nokee.util.provider.ZipProviderBuilder;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.Transformer;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 
 import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
@@ -82,18 +92,20 @@ import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuit
 import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
 import static dev.nokee.utils.CallableUtils.memoizeOnCall;
 import static dev.nokee.utils.DeferUtils.asToStringObject;
+import static dev.nokee.utils.ProviderUtils.ifPresent;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 import static dev.nokee.utils.TransformerUtils.flatten;
 import static dev.nokee.utils.TransformerUtils.nullSafeProvider;
 import static dev.nokee.utils.TransformerUtils.nullSafeValue;
+import static dev.nokee.utils.TransformerUtils.to;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public class NativeUnitTestingPlugin implements Plugin<Project> {
-
 	private static Action<PatternFilterable> objectFiles() {
 		return it -> it.include("**/*.o", "**/*.obj");
 	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
@@ -110,8 +122,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				task.setOutputDir(task.getTemporaryDir());
 				task.commandLine(asToStringObject(executableFile.map(it -> it.getAsFile().getAbsolutePath())::get));
 			});
-
-			// TODO(TestingBase): Attach runTask to test suite lifecycle task if it make sense.
 		});
 		model(project, mapOf(Variant.class)).configureEach(NativeExecutableBasedTestSuiteSpec.class, variant -> {
 			variant.getComponentObjects().from(memoizeOnCall((Callable<?>) () -> {
@@ -127,12 +137,10 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				final Provider<NativeComponentSpecEx> testedVariant = testedComponentProvider.flatMap(component -> {
 						return component.getVariants().filter(it -> ((BuildVariantInternal) it.getBuildVariant()).withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS).equals(((VariantInternal) variant).getBuildVariant().withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS)));
 					})
-					.map(testedVariants -> {
-						return testedVariants.stream().collect(MoreCollectors.onlyElement());
-					})
+					.map(testedVariants -> testedVariants.stream().collect(MoreCollectors.onlyElement()))
 					.map(NativeComponentSpecEx.class::cast);
 
-				final Provider<Iterable<? extends FileSystemLocation>> objectFilesProvider = testedVariant
+				final Provider<Iterable<? extends FileTree>> objectFilesProvider = testedVariant
 					.flatMap(it -> it.getBinaries().withType(NativeBinary.class).getElements())
 					.map(transformEach(it -> it.getCompileTasks().getElements()))
 					.flatMap(toProviderOfIterable(project.getObjects()::listProperty))
@@ -146,28 +154,22 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 							return Collections.emptyList();
 						}
 					}))
-					.map(transformEach(DirectoryProperty::getAsFileTree))
-					.map(transformEach(it -> it.matching(objectFiles())))
-					.map(transformEach(FileCollection::getElements))
-					.flatMap(toProviderOfIterable(project.getObjects()::listProperty))
-					.map(flatten());
+					.map(transformEach(it -> it.getAsFileTree()))
+					.map(transformEach(it -> it.matching(objectFiles())));
 
-				return ZipProviderBuilder.newBuilder(project.getObjects())
-					.value(testedComponentProvider).value(objectFilesProvider)
-					.zip((testedComponent, objectFiles) -> {
-						final ConfigurableFileCollection objects = project.getObjects().fileCollection();
-						objects.from(objectFiles);
-						if (testedComponent instanceof NativeApplicationComponent) {
-							final ModelObjectRegistry<Task> taskRegistry = model(project, registryOf(Task.class));
-							val relocateTask = taskRegistry.register(variant.getIdentifier().child(TaskName.of("relocateMainSymbolFor")), UnexportMainSymbol.class)
-								.configure(task -> {
-									task.getObjects().from(objectFiles);
-									task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(OutputDirectoryPath.forIdentifier(variant.getIdentifier()) + "/objs/for-test"));
-								}).asProvider();
-							objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
-						}
-						return objects;
-					}).flatMap(FileCollection::getElements);
+				val testedComponent = testedComponentProvider.get();
+				final ConfigurableFileCollection objects = project.getObjects().fileCollection();
+				objects.from(objectFilesProvider);
+				if (testedComponent instanceof NativeApplicationComponent) {
+					final ModelObjectRegistry<Task> taskRegistry = model(project, registryOf(Task.class));
+					final NamedDomainObjectProvider<UnexportMainSymbol> relocateTask = taskRegistry.register(variant.getIdentifier().child(TaskName.of("relocateMainSymbolFor")), UnexportMainSymbol.class)
+						.configure(task -> {
+							task.getObjects().from(objectFilesProvider);
+							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("objs/for-test/" + OutputDirectoryPath.forIdentifier(variant.getIdentifier())));
+						}).asProvider();
+					objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
+				}
+				return objects;
 			}));
 
 			// Attach object files
@@ -176,6 +178,30 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					task.source(variant.getComponentObjects());
 				});
 			});
+		});
+
+		// Link test suite privateHeaders to testedComponent's private/public headers
+		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(it -> {
+			final ConfigurableFileCollection privateHeaders = (ConfigurableFileCollection) it.getExtensions().findByName("privateHeaders");
+			if (privateHeaders != null) {
+				privateHeaders.from((Callable<?>) () -> {
+					return it.getTestedComponent().map(to(ExtensionAware.class))
+						.map(new Transformer<Iterable<Provider<?>>, ExtensionAware>() {
+							@Override
+							public Iterable<Provider<?>> transform(ExtensionAware ext) {
+								final ImmutableList.Builder<Provider<?>> builder = ImmutableList.builder();
+								findHeadersExtension(ext, "privateHeaders").ifPresent(builder::add);
+								findHeadersExtension(ext, "publicHeaders").ifPresent(builder::add);
+								return builder.build();
+							}
+
+							private /*static*/ Optional<Provider<Set<FileSystemLocation>>> findHeadersExtension(ExtensionAware self, String extensionName) {
+								return Optional.ofNullable((FileCollection) self.getExtensions().findByName(extensionName)).map(FileCollection::getElements);
+							}
+						})
+						.flatMap(toProviderOfIterable(project.getObjects()::listProperty));
+				});
+			}
 		});
 
 		// TODO: Test applying testing plugin before component plugin
@@ -197,6 +223,12 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			}));
 		});
 
+		// TODO: Should be on testing-base plugin or ComponentModelBasePlugin
+		// Configure test suite's baseName convention
+		testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(testSuite -> {
+			testSuite.getBaseName().convention(BaseNameUtils.from(testSuite.getIdentifier()).getAsString());
+		});
+
 		// TODO: Convert to include NativeTestSuiteOf (may convert NativeTestSuiteComponentSpec)
 		testSuites(project).withType(NativeTestSuiteComponentSpec.class)
 			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
@@ -205,14 +237,14 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				if (it instanceof TargetMachineAwareComponent) {
 					return ((TargetMachineAwareComponent) it).getTargetMachines();
 				} else {
-					return nullSafeValue();
+					return nullSafeProvider();
 				}
 			}).orElse(Collections.singleton(TargetMachines.host())));
 			testSuite.getTargetBuildTypes().convention(testSuite.getTestedComponent().flatMap(it -> {
 				if (it instanceof TargetBuildTypeAwareComponent) {
 					return ((TargetBuildTypeAwareComponent) it).getTargetBuildTypes();
 				} else {
-					return nullSafeValue();
+					return nullSafeProvider();
 				}
 			}));
 		});

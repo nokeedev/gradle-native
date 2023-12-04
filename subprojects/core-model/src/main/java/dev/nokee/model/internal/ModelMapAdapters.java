@@ -80,6 +80,13 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		public <U> void whenElementKnow(Class<U> type, Action<? super ModelElementIdentity> configureAction) {
+			if (((ModelElementIdentity) (ModelObject<?>) object).instanceOf(type)) {
+				configureAction.execute((ModelElementIdentity) (ModelObject<?>) object);
+			}
+		}
+
+		@Override
 		public void whenElementFinalized(Action<? super Project> finalizeAction) {
 			onFinalize.accept(() -> configureEach(finalizeAction));
 		}
@@ -158,6 +165,15 @@ public final class ModelMapAdapters {
 		@Override
 		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.forEach(configureAction);
+		}
+
+		@Override
+		public <U> void whenElementKnow(Class<U> type, Action<? super ModelElementIdentity> configureAction) {
+			knownElements.forEach(it -> {
+				if (it.instanceOf(type)) {
+					configureAction.execute(it);
+				}
+			});
 		}
 
 		@Override
@@ -244,6 +260,15 @@ public final class ModelMapAdapters {
 		@Override
 		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.forEach(configureAction);
+		}
+
+		@Override
+		public <U> void whenElementKnow(Class<U> type, Action<? super ModelElementIdentity> configureAction) {
+			knownElements.forEach(it -> {
+				if (it.instanceOf(type)) {
+					configureAction.execute(it);
+				}
+			});
 		}
 
 		@Override
@@ -343,6 +368,15 @@ public final class ModelMapAdapters {
 		@Override
 		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
 			knownElements.forEach(configureAction);
+		}
+
+		@Override
+		public <U> void whenElementKnow(Class<U> type, Action<? super ModelElementIdentity> configureAction) {
+			knownElements.forEach(it -> {
+				if (it.instanceOf(type)) {
+					configureAction.execute(it);
+				}
+			});
 		}
 
 		@Override

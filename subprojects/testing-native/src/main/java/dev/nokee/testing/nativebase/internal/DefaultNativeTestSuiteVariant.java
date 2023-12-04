@@ -33,6 +33,7 @@ import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.testing.base.internal.HasTestSuiteLifecycleTask;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
@@ -40,6 +41,7 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.inject.Inject;
 
 public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVariant implements NativeTestSuiteVariant, VariantInternal
+	, NativeExecutableBasedTestSuiteSpec
 	, NativeVariantSpec
 	, NativeSourcesAware
 	, DependentComponentSpec<NativeComponentDependencies>
@@ -49,6 +51,7 @@ public /*final*/ abstract class DefaultNativeTestSuiteVariant extends BaseVarian
 	, AssembleTaskMixIn
 	, HasRuntimeElementsDependencyBucket
 	, ParentAware
+	, HasTestSuiteLifecycleTask
 {
 	@Inject
 	public DefaultNativeTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {

@@ -17,12 +17,10 @@ package dev.nokee.testing.nativebase.internal;
 
 import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
-import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
-import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
@@ -34,10 +32,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponen
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.model.ObjectFactory;
-
-import javax.inject.Inject;
 
 public /*final*/ abstract class DefaultNativeTestSuiteComponent extends ModelElementSupport implements NativeTestSuite
 	, NativeTestSuiteComponentSpec
@@ -51,17 +45,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends ModelEle
 	, AssembleTaskMixIn
 	, HasBaseName
 {
-	private final ObjectFactory objects;
-	private final ModelObjectRegistry<Task> taskRegistry;
-
-	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry) {
-		this.taskRegistry = taskRegistry;
-		this.objects = objects;
-
-		this.getBaseName().convention(BaseNameUtils.from(getIdentifier()).getAsString());
-	}
-
 	@Override
 	@NestedObject
 	public abstract DefaultNativeComponentDependencies getDependencies();
@@ -80,14 +63,6 @@ public /*final*/ abstract class DefaultNativeTestSuiteComponent extends ModelEle
 //			getBinaries().configureEach(ExecutableBinary.class, binary -> {
 //				binary.getCompileTasks().configureEach(SwiftCompileTask.class, task -> {
 //					task.getModules().from(component.getDevelopmentVariant().map(it -> it.getBinaries().withType(NativeBinary.class).getElements().get().stream().flatMap(b -> b.getCompileTasks().withType(SwiftCompileTask.class).get().stream()).map(SwiftCompile::getModuleFile).collect(toList())));
-//				});
-//				binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-//					((AbstractNativeSourceCompileTask)task).getIncludes().from((Callable<?>) () -> {
-//						val builder = ImmutableList.builder();
-//						Optional.ofNullable(component.getExtensions().findByName("privateHeaders")).ifPresent(builder::add);
-//						Optional.ofNullable(component.getExtensions().findByName("publicHeaders")).ifPresent(builder::add);
-//						return builder.build();
-//					});
 //				});
 //			});
 //		}
