@@ -29,12 +29,13 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.reflect.TypeOf;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 
 public class LanguageBasePlugin implements Plugin<Project> {
-	private static final org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>> LANGUAGE_SOURCE_SET_CONTAINER_TYPE = new org.gradle.api.reflect.TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>>() {};
+	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>> LANGUAGE_SOURCE_SET_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>>() {};
 
 	public static ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet> sources(Project project) {
 		return project.getExtensions().getByType(LANGUAGE_SOURCE_SET_CONTAINER_TYPE);
@@ -56,6 +57,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 			Runnable realizeNow = () -> {};
 			return instantiator(project).newInstance(ViewAdapter.class, LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier));
 		};
-		model(project).getExtensions().add(new org.gradle.api.reflect.TypeOf<Factory<View<LanguageSourceSet>>>() {}, "__nokee_sourcesFactory", sourcesFactory);
+		model(project).getExtensions().add(new TypeOf<Factory<View<LanguageSourceSet>>>() {}, "__nokee_sourcesFactory", sourcesFactory);
 	}
 }
