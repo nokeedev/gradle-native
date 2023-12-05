@@ -25,6 +25,7 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.DependentComponentSpec;
@@ -73,6 +74,7 @@ public /*final*/ abstract class DefaultUiTestXCTestTestSuiteComponent extends Ba
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasDevelopmentVariant<DefaultXCTestTestSuiteVariant>
+	, HasBaseName
 {
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;

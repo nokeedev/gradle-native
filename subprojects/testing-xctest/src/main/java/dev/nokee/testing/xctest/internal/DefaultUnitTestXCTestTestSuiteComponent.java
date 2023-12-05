@@ -25,6 +25,7 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.DependentComponentSpec;
@@ -71,6 +72,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 	, TaskAwareComponentMixIn
 	, AssembleTaskMixIn
 	, HasDevelopmentVariant<DefaultXCTestTestSuiteVariant>
+	, HasBaseName
 {
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
@@ -126,7 +128,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 		variant.configure(it -> it.getDevelopmentBinary().set(xcTestBundle));
 
 		val createUnitTestApplicationBundleTask = taskRegistry.register(variantIdentifier.child(TaskName.of("create", "launcherApplicationBundle")), CreateIosApplicationBundleTask.class).configure(task -> {
-			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().map(it -> ((BaseNativeComponent<?>) it)).get().getBaseName().get() + "-unsigned.app"));
+			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + "something" /*getTestedComponent().map(it -> ((BaseNativeComponent<?>) it)).get().getBaseName().get()*/ + "-unsigned.app"));
 			task.getSources().from(getTestedComponent().map(it -> ((BaseNativeComponent<?>) it)).flatMap(c -> c.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources()))));
 			task.getPlugIns().from(signUnitTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
 			task.getFrameworks().from(getXCTestBundleInjectDynamicLibrary());
@@ -136,7 +138,7 @@ public /*final*/ abstract class DefaultUnitTestXCTestTestSuiteComponent extends 
 
 		val signTask = taskRegistry.register(variantIdentifier.child(TaskName.of("sign", "launcherApplicationBundle")), SignIosApplicationBundleTask.class).configure(task -> {
 			task.getUnsignedApplicationBundle().set(createUnitTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
-			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().map(it -> ((BaseNativeComponent<?>) it)).get().getBaseName().get() + ".app"));
+			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + "something" /*getTestedComponent().map(it -> ((BaseNativeComponent<?>) it)).get().getBaseName().get()*/ + ".app"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
 			task.getCodeSignatureTool().disallowChanges();
 		}).asProvider();

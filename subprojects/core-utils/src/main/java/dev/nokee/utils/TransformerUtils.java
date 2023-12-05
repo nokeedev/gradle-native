@@ -26,6 +26,7 @@ import dev.nokee.utils.internal.WrappedTransformer;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.specs.Spec;
 import org.gradle.internal.Transformers;
 
@@ -273,6 +274,16 @@ public final class TransformerUtils {
 		return it -> {
 			if (type.isInstance(it)) {
 				return type.cast(it);
+			} else {
+				return nullSafeValue();
+			}
+		};
+	}
+
+	public static <OutputElementType, InputElementType> Transformer<OutputElementType, InputElementType> to(TypeOf<OutputElementType> type) {
+		return it -> {
+			if (type.getConcreteClass().isInstance(it)) {
+				return type.getConcreteClass().cast(it);
 			} else {
 				return nullSafeValue();
 			}

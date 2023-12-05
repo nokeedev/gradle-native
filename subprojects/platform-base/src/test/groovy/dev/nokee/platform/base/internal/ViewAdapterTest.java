@@ -21,10 +21,7 @@ import dev.nokee.internal.testing.reflect.Invokable;
 import dev.nokee.internal.testing.reflect.MethodCallable;
 import dev.nokee.internal.testing.testdoubles.TestDouble;
 import dev.nokee.utils.ActionTestUtils;
-import dev.nokee.utils.ClosureTestUtils;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
 import dev.nokee.utils.SpecTestUtils;
-import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
@@ -44,10 +41,8 @@ import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
-import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newSpy;
 import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
 import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
-import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofIterable;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofSpec;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofTransformer;
@@ -80,36 +75,10 @@ class ViewAdapterTest {
 	}
 
 	@Test
-	void forwardsConfigureEachClosureToStrategy() {
-		val closure = ClosureTestUtils.doSomething(MyType.class);
-		subject.configureEach(closure);
-		assertThat(delegate.to(method(Strategy_configureEach(MyType.class))),
-			calledOnceWith(MyType.class, new ClosureWrappedConfigureAction<>(closure)));
-	}
-
-	@Test
-	void throwsExceptionIfConfigureEachClosureIsNull() {
-		assertThrows(NullPointerException.class, () -> subject.configureEach((Closure<?>) null));
-	}
-
-	@Test
 	void forwardsConfigureEachActionByTypeToStrategy() {
 		val action = ActionTestUtils.<MySubType>doSomething();
 		subject.configureEach(MySubType.class, action);
 		assertThat(delegate.to(method(Strategy_configureEach(MySubType.class))), calledOnceWith(MySubType.class, action));
-	}
-
-	@Test
-	void forwardsConfigureEachClosureByTypeToStrategy() {
-		val closure = ClosureTestUtils.doSomething(MySubType.class);
-		subject.configureEach(MySubType.class, closure);
-		assertThat(delegate.to(method(Strategy_configureEach(MySubType.class))),
-			calledOnceWith(MySubType.class, new ClosureWrappedConfigureAction<>(closure)));
-	}
-
-	@Test
-	void throwsExceptionIfConfigureEachByTypeClosureIsNull() {
-		assertThrows(NullPointerException.class, () -> subject.configureEach(MyType.class, (Closure<?>) null));
 	}
 
 	@Test
@@ -129,25 +98,6 @@ class ViewAdapterTest {
 	@Test
 	void throwsExceptionIfConfigureEachBySpecActionIsNull() {
 		assertThrows(NullPointerException.class, () -> subject.configureEach(SpecTestUtils.aSpec(), (Action<MyType>) null));
-	}
-
-	@Test
-	void forwardsConfigureEachClosureBySpecToStrategy() {
-		val closure = ClosureTestUtils.doSomething(MyType.class);
-		val spec = SpecTestUtils.aSpec();
-		subject.configureEach(spec, closure);
-		assertThat(delegate.to(method(Strategy_configureEach(MyType.class))),
-			calledOnceWith(MyType.class, new SpecFilteringAction<>(spec, new ClosureWrappedConfigureAction<>(closure))));
-	}
-
-	@Test
-	void throwsExceptionIfConfigureEachByClosureSpecIsNull() {
-		assertThrows(NullPointerException.class, () -> subject.configureEach((Spec<MyType>) null, newSpy(ofClosure(MyType.class)).instance()));
-	}
-
-	@Test
-	void throwsExceptionIfConfigureEachBySpecClosureIsNull() {
-		assertThrows(NullPointerException.class, () -> subject.configureEach(SpecTestUtils.aSpec(), (Closure<?>) null));
 	}
 
 	@Test

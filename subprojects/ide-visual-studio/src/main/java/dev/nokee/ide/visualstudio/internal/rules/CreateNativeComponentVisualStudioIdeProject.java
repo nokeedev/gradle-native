@@ -28,13 +28,14 @@ import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeTarget;
 import dev.nokee.ide.visualstudio.internal.tasks.GenerateVisualStudioIdeProjectTask;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.type.TypeOf;
+import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.jni.JniLibrary;
@@ -60,6 +61,7 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.reflect.TypeOf;
 
 import java.util.Collections;
 import java.util.List;
@@ -70,14 +72,14 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
+import static dev.nokee.utils.TransformerUtils.to;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 
-public final class CreateNativeComponentVisualStudioIdeProject implements Action<ModelElement> {
+public final class CreateNativeComponentVisualStudioIdeProject implements Action<ModelMapAdapters.ModelElementIdentity> {
 	private final VisualStudioIdeProjectExtension extension;
 	private final ProjectLayout projectLayout;
 	private final ObjectFactory objectFactory;
@@ -91,25 +93,25 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 	}
 
 	@Override
-	public void execute(ModelElement knownComponent) {
+	public void execute(ModelMapAdapters.ModelElementIdentity knownComponent) {
 		// TODO: Do something about the casting of DomainObjectIdentifier
 		extension.getProjects().register(knownComponent.getName(), configureVisualStudioIdeProject(knownComponent));
 	}
 
 	@SuppressWarnings("unchecked")
-	private Action<VisualStudioIdeProject> configureVisualStudioIdeProject(ModelElement knownComponent) {
+	private Action<VisualStudioIdeProject> configureVisualStudioIdeProject(ModelMapAdapters.ModelElementIdentity knownComponent) {
 		return new Action<VisualStudioIdeProject>() {
 			@Override
 			public void execute(VisualStudioIdeProject visualStudioProject) {
 				val visualStudioProjectInternal = (DefaultVisualStudioIdeProject) visualStudioProject;
-				visualStudioProjectInternal.getGeneratorTask().configure(vcxprojFilenameToMatchComponentBaseName(knownComponent.as(of(new TypeOf<BaseComponent<?>>() {})).flatMap(BaseComponent::getBaseName)));
+				visualStudioProjectInternal.getGeneratorTask().configure(vcxprojFilenameToMatchComponentBaseName(knownComponent.asProvider().map(to(HasBaseName.class)).flatMap(HasBaseName::getBaseName)));
 
-				visualStudioProjectInternal.getSourceFiles().from(knownComponent.as(of(new TypeOf<BaseComponent<?>>() {})).flatMap(this::componentSources));
-				visualStudioProjectInternal.getHeaderFiles().from(knownComponent.as(of(new TypeOf<BaseComponent<?>>() {})).flatMap(this::componentHeaders));
-				visualStudioProjectInternal.getTargets().addAllLater(CreateNativeComponentVisualStudioIdeProject.this.asGradleListProvider(knownComponent.as(of(new TypeOf<BaseComponent<?>>() {})).flatMap(CreateNativeComponentVisualStudioIdeProject.this::toVisualStudioIdeTargets)));
+				visualStudioProjectInternal.getSourceFiles().from(knownComponent.asProvider().map(to(SourceAwareComponent.class)).flatMap(this::componentSources));
+				visualStudioProjectInternal.getHeaderFiles().from(knownComponent.asProvider().map(to(SourceAwareComponent.class)).flatMap(this::componentHeaders));
+				visualStudioProjectInternal.getTargets().addAllLater(CreateNativeComponentVisualStudioIdeProject.this.asGradleListProvider(knownComponent.asProvider().map(to(new TypeOf<VariantAwareComponent<?>>() {})).flatMap(CreateNativeComponentVisualStudioIdeProject.this::toVisualStudioIdeTargets)));
 			}
 
-			private Provider<List<? extends FileTree>> componentSources(BaseComponent<?> component) {
+			private Provider<List<? extends FileTree>> componentSources(SourceAwareComponent component) {
 				return sourceViewOf(component).getElements().map(flatTransformEach(it -> {
 					if (it instanceof HasSource) {
 						return Collections.singletonList(((HasSource) it).getSource().getAsFileTree());
@@ -119,7 +121,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 				})).map(ImmutableList::copyOf);
 			}
 
-			private Provider<List<FileTree>> componentHeaders(BaseComponent<?> component) {
+			private Provider<List<FileTree>> componentHeaders(SourceAwareComponent component) {
 				return sourceViewOf(component).filter(this::forHeaderSets)
 					.map(transformEach(it -> ((HasHeaders) it).getHeaders().getAsFileTree())).map(ImmutableList::copyOf);
 			}
@@ -140,14 +142,14 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 		return result;
 	}
 
-	private Provider<List<VisualStudioIdeTarget>> toVisualStudioIdeTargets(BaseComponent<?> component) {
+	private Provider<List<VisualStudioIdeTarget>> toVisualStudioIdeTargets(VariantAwareComponent<?> component) {
 		return component.getVariants().flatMap(new ToVisualStudioIdeTargets(component));
 	}
 
 	private class ToVisualStudioIdeTargets implements Transformer<Iterable<VisualStudioIdeTarget>, Variant> {
 		private final Set<BinaryLinkage> allLinkages;
 
-		ToVisualStudioIdeTargets(BaseComponent<?> component) {
+		ToVisualStudioIdeTargets(VariantAwareComponent<?> component) {
 			this.allLinkages = component.getBuildVariants().get().stream().map(it -> ((BuildVariantInternal) it).getAxisValue(BINARY_LINKAGE_COORDINATE_AXIS)).collect(Collectors.toSet());
 		}
 

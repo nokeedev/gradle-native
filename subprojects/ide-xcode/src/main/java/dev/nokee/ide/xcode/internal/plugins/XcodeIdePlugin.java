@@ -21,6 +21,7 @@ import dev.nokee.ide.xcode.internal.XcodeIdeRequest;
 import dev.nokee.ide.xcode.internal.rules.CreateNativeComponentXcodeIdeProject;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.utils.TextCaseUtils;
@@ -37,6 +38,9 @@ import org.gradle.api.file.FileCollection;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 
 public abstract class XcodeIdePlugin implements Plugin<Project> {
 
@@ -112,10 +116,7 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			@Override
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project));
-				throw new UnsupportedOperationException("fix me");
-//				modelConfigurer.configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(ModelElementFactory.class), (entity, tag, factory) -> {
-//					action.execute(factory.createElement(entity));
-//				})));
+				model(project, mapOf(Component.class)).whenElementKnow(action);
 			}
 		};
 	}

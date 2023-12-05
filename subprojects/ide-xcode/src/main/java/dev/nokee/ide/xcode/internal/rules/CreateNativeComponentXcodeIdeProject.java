@@ -31,13 +31,14 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeTarget;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
+import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.ios.IosResourceSet;
@@ -70,8 +71,10 @@ import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.objectivec.tasks.ObjectiveCCompile;
 
@@ -89,8 +92,9 @@ import java.util.stream.StreamSupport;
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
+import static dev.nokee.utils.TransformerUtils.to;
 
-public final class CreateNativeComponentXcodeIdeProject implements Action<ModelElement> {
+public final class CreateNativeComponentXcodeIdeProject implements Action<ModelMapAdapters.ModelElementIdentity> {
 	private final XcodeIdeProjectExtension extension;
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objectFactory;
@@ -108,42 +112,42 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 	}
 
 	@Override
-	public void execute(ModelElement knownComponent) {
+	public void execute(ModelMapAdapters.ModelElementIdentity knownComponent) {
 		registerXcodeIdeProjectIfAbsent(extension.getProjects(), projectIdentifier.getName().toString()).configure(configureXcodeIdeProject(knownComponent));
 	}
 
-	private NamedDomainObjectProvider<XcodeIdeProject> registerXcodeIdeProjectIfAbsent(NamedDomainObjectContainer<XcodeIdeProject> container, String name) {
+	private static NamedDomainObjectProvider<XcodeIdeProject> registerXcodeIdeProjectIfAbsent(NamedDomainObjectContainer<XcodeIdeProject> container, String name) {
 		if (isXcodeIdeProjectAbsent(container, name)) {
 			return container.register(name);
 		}
 		return container.named(name);
 	}
 
-	private boolean isXcodeIdeProjectAbsent(NamedDomainObjectContainer<XcodeIdeProject> container, String name) {
+	private static boolean isXcodeIdeProjectAbsent(NamedDomainObjectContainer<XcodeIdeProject> container, String name) {
 		return !StreamSupport.stream(container.getCollectionSchema().getElements().spliterator(), false).anyMatch(it -> it.getName().equals(name));
 	}
 
-	private Action<XcodeIdeProject> configureXcodeIdeProject(ModelElement knownComponent) {
+	private Action<XcodeIdeProject> configureXcodeIdeProject(ModelMapAdapters.ModelElementIdentity knownComponent) {
 		return new Action<XcodeIdeProject>() {
 			@Override
 			public void execute(XcodeIdeProject xcodeProject) {
-				xcodeProject.getTargets().addAllLater(CreateNativeComponentXcodeIdeProject.this.asGradleListProvider(knownComponent.as(ModelType.of(new TypeOf<BaseComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this.toXcodeIdeTargets())));
-				xcodeProject.getGroups().addLater(knownComponent.as(ModelType.of(new TypeOf<BaseComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this::toXcodeIdeGroup));
+				xcodeProject.getTargets().addAllLater(asCollectionProvider(knownComponent.asProvider().map(to(new org.gradle.api.reflect.TypeOf<VariantAwareComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this.toXcodeIdeTargets())));
+				xcodeProject.getGroups().addLater(knownComponent.asProvider().map(to(new TypeOf<VariantAwareComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this::toXcodeIdeGroup));
 			}
 		};
 	}
 
-	private Provider<List<XcodeIdeTarget>> asGradleListProvider(Provider<List<? extends XcodeIdeTarget>> xcodeIdeTargets) {
-		val result = objectFactory.listProperty(XcodeIdeTarget.class);
-		result.set(xcodeIdeTargets);
-		return result;
+	@SuppressWarnings("unchecked")
+	private <T> Provider<? extends Iterable<T>> asCollectionProvider(Provider<? extends Iterable<? extends T>> collectionProvider) {
+		// TODO: Only on early Gradle
+		return (Provider<? extends Iterable<T>>) objectFactory.listProperty(Object.class).value(collectionProvider);
 	}
 
-	private Provider<XcodeIdeGroup> toXcodeIdeGroup(BaseComponent<?> component) {
+	private Provider<XcodeIdeGroup> toXcodeIdeGroup(VariantAwareComponent<?> component) {
 		return providerFactory.provider(new Callable<XcodeIdeGroup>() {
 			@Override
 			public XcodeIdeGroup call() throws Exception {
-				val result = new DefaultXcodeIdeGroup(component.getBaseName().get(), objectFactory);
+				val result = new DefaultXcodeIdeGroup(((HasBaseName) component).getBaseName().get(), objectFactory);
 				result.getSources().from(sourceViewOf(component).flatMap(CreateNativeComponentXcodeIdeProject.this::toSource));
 				return result;
 			}
@@ -180,10 +184,10 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 		throw new UnsupportedOperationException();
 	}
 
-	private Transformer<Provider<List<XcodeIdeTarget>>, BaseComponent<?>> toXcodeIdeTargets() {
-		return new Transformer<Provider<List<XcodeIdeTarget>>, BaseComponent<?>>() {
+	private Transformer<Provider<List<XcodeIdeTarget>>, VariantAwareComponent<?>> toXcodeIdeTargets() {
+		return new Transformer<Provider<List<XcodeIdeTarget>>, VariantAwareComponent<?>>() {
 			@Override
-			public Provider<List<XcodeIdeTarget>> transform(BaseComponent<?> component) {
+			public Provider<List<XcodeIdeTarget>> transform(VariantAwareComponent<?> component) {
 				return component.getVariants().getElements().flatMap(new ToXcodeIdeTargets(component));
 			}
 		};
@@ -191,9 +195,9 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 
 	private class ToXcodeIdeTargets implements Transformer<Provider<List<XcodeIdeTarget>>, Set<? extends Variant>> {
 		private final boolean hasMultipleLinkages;
-		private final BaseComponent<?> component;
+		private final VariantAwareComponent<?> component;
 
-		ToXcodeIdeTargets(BaseComponent<?> component) {
+		ToXcodeIdeTargets(VariantAwareComponent<?> component) {
 			this.component = component;
 			this.hasMultipleLinkages = component.getBuildVariants().get().stream().map(buildVariant -> ((BuildVariantInternal) buildVariant).getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)).distinct().count() > 1;
 		}
@@ -265,7 +269,8 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 						.put("FRAMEWORK_SEARCH_PATHS", binaries.getElements().flatMap(toFrameworkSearchPaths()))
 						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
 						.put("USE_HEADERMAP", "NO")
-						.put("GRADLE_IDE_PROJECT_NAME", component.getIdentifier().getName());
+						// TODO: We shouldn't need toString?
+						.put("GRADLE_IDE_PROJECT_NAME", ((ModelElement) component).getIdentifier().getName().toString());
 
 					if (variantInternal instanceof DefaultIosApplicationVariant) {
 						xcodeConfiguration.getBuildSettings()
@@ -337,7 +342,8 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 				}
 
 				private boolean hasSwiftCapability() {
-					throw new UnsupportedOperationException("fix me");
+					return ((ModelElement) variantInternal).getParents().anyMatch(it -> it.instanceOf(SupportSwiftSourceSetTag.class) || it.safeAs(ExtensionAware.class).map(t -> t.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null).getOrElse(false));
+//					throw new UnsupportedOperationException("fix me");
 //					return modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(component.getNode())).and(withType(of(SwiftSourceSet.class)))));
 				}
 
@@ -462,8 +468,8 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 					target.getProductReference().set(((DefaultUiTestXCTestTestSuiteComponent)component).getModuleName().map(it -> it + ".xctest"));
 					target.getProductType().set(XcodeIdeProductTypes.UI_TEST);
 				} else {
-					target.getProductName().set(component.getBaseName());
-					target.getProductReference().set(component.getBaseName().map(toProductReference(osOperations, linkage)));
+					target.getProductName().set(((HasBaseName) component).getBaseName());
+					target.getProductReference().set(((HasBaseName) component).getBaseName().map(toProductReference(osOperations, linkage)));
 					target.getProductType().set(toProductType(linkage));
 				}
 
@@ -499,11 +505,11 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 			return new IllegalArgumentException(String.format("Unsupported linkage '%s'.", linkage));
 		}
 
-		private String targetName(BaseComponent<?> component, BinaryLinkage linkage) {
+		private String targetName(VariantAwareComponent<?> component, BinaryLinkage linkage) {
 			if (hasMultipleLinkages) {
-				return component.getBaseName().get() + StringUtils.capitalize(linkage.getName());
+				return ((HasBaseName) component).getBaseName().get() + StringUtils.capitalize(linkage.getName());
 			}
-			return component.getBaseName().get();
+			return ((HasBaseName) component).getBaseName().get();
 		}
 	}
 }

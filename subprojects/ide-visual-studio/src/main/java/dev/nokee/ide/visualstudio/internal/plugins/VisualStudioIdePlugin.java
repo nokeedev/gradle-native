@@ -17,11 +17,15 @@ package dev.nokee.ide.visualstudio.internal.plugins;
 
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectExtension;
 import dev.nokee.ide.visualstudio.internal.rules.CreateNativeComponentVisualStudioIdeProject;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 
 public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 	@Override
@@ -36,10 +40,7 @@ public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 			@Override
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val action = new CreateNativeComponentVisualStudioIdeProject(extension, project.getLayout(), project.getObjects(), project.getProviders());
-				throw new UnsupportedOperationException("fixme");
-//				modelConfigurer.configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(ModelElementFactory.class), (entity, tag, factory) -> {
-//					action.execute(factory.createElement(entity));
-//				})));
+				model(project, mapOf(Component.class)).whenElementKnow(action);
 			}
 		};
 	}

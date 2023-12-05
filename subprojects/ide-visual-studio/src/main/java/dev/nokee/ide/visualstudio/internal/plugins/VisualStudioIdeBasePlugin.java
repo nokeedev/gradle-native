@@ -15,10 +15,20 @@
  */
 package dev.nokee.ide.visualstudio.internal.plugins;
 
-import dev.nokee.ide.base.internal.*;
+import dev.nokee.ide.base.internal.BaseIdeCleanMetadata;
+import dev.nokee.ide.base.internal.BaseIdeProjectReference;
+import dev.nokee.ide.base.internal.IdeProjectExtension;
+import dev.nokee.ide.base.internal.IdeProjectInternal;
+import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.visualstudio.VisualStudioIdeProject;
-import dev.nokee.ide.visualstudio.internal.*;
+import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeProject;
+import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeProjectExtension;
+import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeProjectReference;
+import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeWorkspaceExtension;
+import dev.nokee.ide.visualstudio.internal.VisualStudioIdeBridge;
+import dev.nokee.ide.visualstudio.internal.VisualStudioIdeCleanMetadata;
+import dev.nokee.ide.visualstudio.internal.VisualStudioIdeUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Rule;

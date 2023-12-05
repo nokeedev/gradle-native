@@ -23,6 +23,7 @@ import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -49,6 +50,7 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements NativeTestSuiteComponentSpec
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, BinaryAwareComponent
+	, HasDevelopmentVariant<DefaultXCTestTestSuiteVariant>
 {
 	@Getter private final Property<GroupId> groupId;
 	private final ProviderFactory providers;
@@ -66,13 +68,16 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		this.taskRegistry = taskRegistry;
 	}
 
+	@Override
+	public abstract Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant();
+
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		throw new UnsupportedOperationException("readd support for whenElementKnown");
 	}
 
 	private void onEachVariant(DefaultXCTestTestSuiteVariant testSuite) {
 		testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
-			Provider<String> moduleName = getTestedComponent().flatMap(it -> ((BaseNativeComponent<?>) it).getBaseName());
+			Provider<String> moduleName = null;//getTestedComponent().flatMap(it -> ((BaseNativeComponent<?>) it).getBaseName());
 			binary.getCompileTasks().configureEach(SourceCompile.class, task -> {
 				task.getCompilerArgs().addAll(providers.provider(() -> ImmutableList.of("-target", "x86_64-apple-ios13.2-simulator", "-F", getSdkPath() + "/System/Library/Frameworks", "-iframework", getSdkPlatformPath() + "/Developer/Library/Frameworks")));
 				task.getCompilerArgs().addAll(task.getToolChain().map(toolChain -> {

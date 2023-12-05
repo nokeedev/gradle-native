@@ -16,10 +16,11 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 
-public abstract class BaseNativeComponent<T extends Variant> extends ModelElementSupport implements VariantAwareComponentInternal<T> {
+public abstract class BaseNativeComponent<T extends Variant> extends ModelElementSupport implements VariantAwareComponentInternal<T>, Component {
 	public abstract NativeComponentDependencies getDependencies();
 }
