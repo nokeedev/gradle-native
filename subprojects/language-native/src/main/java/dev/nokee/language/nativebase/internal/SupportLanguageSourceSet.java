@@ -16,5 +16,13 @@
 
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.model.internal.ModelElement;
+import org.gradle.api.plugins.ExtensionAware;
+
+import java.util.function.Predicate;
+
 public interface SupportLanguageSourceSet {
+	static Predicate<ModelElement> hasLanguageSupport(Class<? extends SupportLanguageSourceSet> supportType) {
+		return element -> element.instanceOf(supportType) || element.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(supportType) != null).getOrElse(false);
+	}
 }

@@ -20,6 +20,7 @@ import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRule
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
 import dev.nokee.language.nativebase.internal.NativeSourcesMixInRule;
+import dev.nokee.language.nativebase.internal.SupportLanguageSourceSet;
 import dev.nokee.language.nativebase.internal.UseConventionalLayout;
 import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.swift.HasSwiftSources;
@@ -33,6 +34,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
+import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.hasLanguageSupport;
 import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
@@ -69,11 +71,11 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new SwiftCompileTaskDefaultConfigurationRule());
 
 		model(project, objects()).configureEach(ofType(NativeLanguageSourceSetAware.class, withElement((identifier, target) -> {
-			final Class<?> sourceSetTag = SupportSwiftSourceSetTag.class;
+			final Class<? extends SupportLanguageSourceSet> sourceSetTag = SupportSwiftSourceSetTag.class;
 			final ElementName name = ElementName.of("swift");
 			final Class<? extends LanguageSourceSet> sourceSetType = SwiftSourceSetSpec.class;
 
-			if (identifier.getParents().anyMatch(t -> t.instanceOf(sourceSetTag) || t.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(sourceSetTag) != null).getOrElse(false))) {
+			if (identifier.getParents().anyMatch(hasLanguageSupport(sourceSetTag))) {
 				model(project, registryOf(LanguageSourceSet.class)).register(identifier.getIdentifier().child(name), sourceSetType);
 			}
 		})));

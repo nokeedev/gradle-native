@@ -71,7 +71,6 @@ import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.reflect.TypeOf;
@@ -90,6 +89,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.hasLanguageSupport;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 import static dev.nokee.utils.TransformerUtils.to;
@@ -342,9 +342,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelM
 				}
 
 				private boolean hasSwiftCapability() {
-					return ((ModelElement) variantInternal).getParents().anyMatch(it -> it.instanceOf(SupportSwiftSourceSetTag.class) || it.safeAs(ExtensionAware.class).map(t -> t.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null).getOrElse(false));
-//					throw new UnsupportedOperationException("fix me");
-//					return modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(component.getNode())).and(withType(of(SwiftSourceSet.class)))));
+					return ((ModelElement) variantInternal).getParents().anyMatch(hasLanguageSupport(SupportSwiftSourceSetTag.class));
 				}
 
 				public Transformer<Provider<? extends FileSystemLocation>, Binary> toProductLocation() {
