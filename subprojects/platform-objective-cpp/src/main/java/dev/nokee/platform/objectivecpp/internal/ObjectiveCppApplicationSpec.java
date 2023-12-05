@@ -16,6 +16,7 @@
 
 package dev.nokee.platform.objectivecpp.internal;
 
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppLanguageSupportSpec;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.c.internal;
+package dev.nokee.language.objectivecpp.internal;
 
-import dev.nokee.language.c.internal.CSourcesMixIn;
-import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
+import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 
-public interface CLanguageSupportSpec extends SupportCSourceSetTag, CSourcesMixIn, PrivateHeadersMixIn {}
+public interface ObjectiveCppLanguageSupportSpec extends SupportObjectiveCppSourceSetTag, ObjectiveCppSourcesMixIn, PrivateHeadersMixIn {}

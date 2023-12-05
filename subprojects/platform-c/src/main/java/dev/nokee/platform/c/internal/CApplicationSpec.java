@@ -16,6 +16,7 @@
 
 package dev.nokee.platform.c.internal;
 
+import dev.nokee.language.c.internal.CLanguageSupportSpec;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.c.CApplication;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;

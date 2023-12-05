@@ -16,6 +16,7 @@
 
 package dev.nokee.platform.swift.internal;
 
+import dev.nokee.language.swift.internal.SwiftLanguageSupportSpec;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.nativebase.internal.NativeLibrarySpecEx;
 import dev.nokee.platform.swift.SwiftLibrary;

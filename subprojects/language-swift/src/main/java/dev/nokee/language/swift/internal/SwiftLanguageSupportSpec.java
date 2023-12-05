@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.objectivecpp.internal;
+package dev.nokee.language.swift.internal;
 
-import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesMixIn;
-import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
 
-public interface ObjectiveCppLanguageSupportSpec extends SupportObjectiveCppSourceSetTag, ObjectiveCppSourcesMixIn, PrivateHeadersMixIn {}
+public interface SwiftLanguageSupportSpec extends SupportSwiftSourceSetTag, SwiftSourcesMixIn {}

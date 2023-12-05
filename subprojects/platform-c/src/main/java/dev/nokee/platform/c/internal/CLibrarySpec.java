@@ -16,6 +16,7 @@
 
 package dev.nokee.platform.c.internal;
 
+import dev.nokee.language.c.internal.CLanguageSupportSpec;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.c.CLibrary;

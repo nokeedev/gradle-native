@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.swift.internal;
+package dev.nokee.language.c.internal;
 
-import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
-import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
+import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
+import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 
-public interface SwiftLanguageSupportSpec extends SupportSwiftSourceSetTag, SwiftSourcesMixIn {}
+public interface CLanguageSupportSpec extends SupportCSourceSetTag, CSourcesMixIn, PrivateHeadersMixIn {}

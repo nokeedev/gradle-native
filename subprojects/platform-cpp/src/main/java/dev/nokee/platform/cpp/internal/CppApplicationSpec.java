@@ -16,6 +16,7 @@
 
 package dev.nokee.platform.cpp.internal;
 
+import dev.nokee.language.cpp.internal.CppLanguageSupportSpec;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.cpp.CppApplication;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;

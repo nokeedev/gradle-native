@@ -17,6 +17,7 @@
 package dev.nokee.platform.objectivecpp.internal;
 
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppLanguageSupportSpec;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.nativebase.internal.NativeLibrarySpecEx;
 import dev.nokee.platform.objectivecpp.ObjectiveCppLibrary;
