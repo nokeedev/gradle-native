@@ -45,7 +45,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 
-		project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "$sources", project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class));
+		project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "sources", project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class));
 		model(project).getExtensions().add("sources", model(project).getExtensions().getByType(ModelMapFactory.class).create(LanguageSourceSet.class, sources(project)));
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
