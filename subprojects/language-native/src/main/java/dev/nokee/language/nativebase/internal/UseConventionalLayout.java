@@ -17,6 +17,7 @@
 package dev.nokee.language.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.language.base.internal.SourcePropertyName;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -26,18 +27,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class UseConventionalLayout<TargetType extends Named> implements Action<TargetType> {
-	private final String extensionName;
+	private final SourcePropertyName propertyName;
 	private final List<String> sourceLayoutFormats;
 
-	public UseConventionalLayout(String extensionName, String... sourceLayoutFormats) {
-		this.extensionName = extensionName;
+	public UseConventionalLayout(SourcePropertyName propertyName, String... sourceLayoutFormats) {
+		this.propertyName = propertyName;
 		this.sourceLayoutFormats = ImmutableList.copyOf(sourceLayoutFormats);
 	}
 
 	@Override
 	public void execute(TargetType target) {
 		if (!target.getName().isEmpty()) {
-			final ConfigurableFileCollection extension = ((ConfigurableFileCollection) ((ExtensionAware) target).getExtensions().findByName(extensionName));
+			final ConfigurableFileCollection extension = ((ConfigurableFileCollection) ((ExtensionAware) target).getExtensions().findByName(propertyName.asExtensionName()));
 			if (extension != null) {
 				extension.from(sourceLayoutFormats.stream().map(it -> String.format(it, target.getName())).collect(Collectors.toList()));
 			}

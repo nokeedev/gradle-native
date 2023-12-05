@@ -17,6 +17,7 @@
 package dev.nokee.language.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.language.base.internal.SourcePropertyName;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
@@ -28,7 +29,7 @@ import java.util.function.Function;
 public final class NativeSourcesMixInRule<TargetType> implements Action<TargetType> {
 	private final List<Spec> specs;
 
-	public <T> NativeSourcesMixInRule(Spec... specs) {
+	public NativeSourcesMixInRule(Spec... specs) {
 		this.specs = ImmutableList.copyOf(specs);
 	}
 
@@ -40,14 +41,14 @@ public final class NativeSourcesMixInRule<TargetType> implements Action<TargetTy
 	}
 
 	public static final class Spec {
-		private final String extensionName;
+		private final SourcePropertyName propertyName;
 		private final Class<?> type;
 		private final Function<Object, ConfigurableFileCollection> mapper;
 		private final ObjectFactory objects;
 
 		@SuppressWarnings("unchecked")
-		public <T> Spec(String extensionName, Class<T> type, Function<T, ConfigurableFileCollection> mapper, ObjectFactory objects) {
-			this.extensionName = extensionName;
+		public <T> Spec(SourcePropertyName propertyName, Class<T> type, Function<T, ConfigurableFileCollection> mapper, ObjectFactory objects) {
+			this.propertyName = propertyName;
 			this.type = type;
 			this.mapper = (Function<Object, ConfigurableFileCollection>) mapper;
 			this.objects = objects;
@@ -62,7 +63,7 @@ public final class NativeSourcesMixInRule<TargetType> implements Action<TargetTy
 			}
 
 			if (sources != null) {
-				((ExtensionAware) target).getExtensions().add(ConfigurableFileCollection.class, extensionName, sources);
+				((ExtensionAware) target).getExtensions().add(ConfigurableFileCollection.class, propertyName.asExtensionName(), sources);
 			}
 		}
 	}

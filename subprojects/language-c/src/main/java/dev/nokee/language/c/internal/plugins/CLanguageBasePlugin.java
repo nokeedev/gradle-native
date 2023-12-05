@@ -16,6 +16,7 @@
 package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.HasCSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
@@ -35,6 +36,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
 
+import static dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin.PRIVATE_HEADERS;
 import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.hasLanguageSupport;
 import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
@@ -45,6 +47,8 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class CLanguageBasePlugin implements Plugin<Project> {
+	public static final SourcePropertyName C_SOURCES = () -> "cSources";
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
@@ -59,17 +63,17 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as CHeaderSet and CSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		model(project, objects()).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("cSources", HasCSources.class, HasCSources::getCSources, project.getObjects()), new NativeSourcesMixInRule.Spec("privateHeaders", HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
+		model(project, objects()).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec(C_SOURCES, HasCSources.class, HasCSources::getCSources, project.getObjects()), new NativeSourcesMixInRule.Spec(PRIVATE_HEADERS, HasPrivateHeaders.class, HasPrivateHeaders::getPrivateHeaders, project.getObjects())));
 
 		model(project, objects()).configureEach(ofType(Named.class,
-			new UseConventionalLayout<>("cSources", "src/%s/c")));
+			new UseConventionalLayout<>(C_SOURCES, "src/%s/c")));
 		model(project, objects()).configureEach(ofType(Named.class,
-			new UseConventionalLayout<>("privateHeaders", "src/%s/headers")));
+			new UseConventionalLayout<>(PRIVATE_HEADERS, "src/%s/headers")));
 
 		model(project, objects()).configureEach(ofType(ExtensionAware.class,
-			withElement(new ExtendsFromParentNativeSourcesRuleEx("cSources"))));
+			withElement(new ExtendsFromParentNativeSourcesRuleEx(C_SOURCES))));
 		model(project, objects()).configureEach(ofType(ExtensionAware.class,
-			withElement(new ExtendsFromParentNativeSourcesRuleEx("privateHeaders"))));
+			withElement(new ExtendsFromParentNativeSourcesRuleEx(PRIVATE_HEADERS))));
 
 		model(project, objects()).configureEach(ofType(NativeLanguageSourceSetAware.class, withElement((identifier, target) -> {
 			final Class<? extends SupportLanguageSourceSet> sourceSetTag = SupportCSourceSetTag.class;
@@ -81,6 +85,6 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 			}
 		})));
 
-		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(CSourceSetSpec.class, "cSources"));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(CSourceSetSpec.class, C_SOURCES));
 	}
 }

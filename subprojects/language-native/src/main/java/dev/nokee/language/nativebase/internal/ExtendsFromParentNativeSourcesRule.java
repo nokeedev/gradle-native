@@ -16,6 +16,7 @@
 
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.VariantAwareComponent;
 import org.gradle.api.Action;
@@ -27,20 +28,20 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 
 public final class ExtendsFromParentNativeSourcesRule<TargetType extends Component> implements Action<TargetType> {
-	private final String extensionName;
+	private final SourcePropertyName propertyName;
 
-	public ExtendsFromParentNativeSourcesRule(String extensionName) {
-		this.extensionName = extensionName;
+	public ExtendsFromParentNativeSourcesRule(SourcePropertyName propertyName) {
+		this.propertyName = propertyName;
 	}
 
 	@Override
 	public void execute(TargetType target) {
 		if (target instanceof VariantAwareComponent) {
 			((VariantAwareComponent<?>) target).getVariants().configureEach(variant -> {
-				final ConfigurableFileCollection sources = (ConfigurableFileCollection) ((ExtensionAware) variant).getExtensions().findByName(extensionName);
+				final ConfigurableFileCollection sources = (ConfigurableFileCollection) ((ExtensionAware) variant).getExtensions().findByName(propertyName.asExtensionName());
 				if (sources != null) {
 					sources.from((Callable<?>) () -> {
-						return Optional.ofNullable(((ExtensionAware) target).getExtensions().findByName(extensionName)).orElse(Collections.emptyList());
+						return Optional.ofNullable(((ExtensionAware) target).getExtensions().findByName(propertyName.asExtensionName())).orElse(Collections.emptyList());
 					});
 				}
 			});

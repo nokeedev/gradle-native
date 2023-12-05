@@ -16,6 +16,7 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.nativebase.internal.ExtendsFromParentNativeSourcesRuleEx;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAware;
@@ -44,6 +45,8 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class SwiftLanguageBasePlugin implements Plugin<Project> {
+	public static final SourcePropertyName SWIFT_SOURCES = () -> "swiftSources";
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
@@ -60,11 +63,11 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 			sourceSet.getImportModules().extendsFrom(sourceSet.getDependencies().getCompileOnly());
 		});
 
-		model(project, objects()).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec("swiftSources", HasSwiftSources.class, HasSwiftSources::getSwiftSources, project.getObjects())));
+		model(project, objects()).configureEach(new NativeSourcesMixInRule<>(new NativeSourcesMixInRule.Spec(SWIFT_SOURCES, HasSwiftSources.class, HasSwiftSources::getSwiftSources, project.getObjects())));
 
-		model(project, objects()).configureEach(ofType(Named.class, new UseConventionalLayout<>("swiftSources", "src/%s/swift")));
+		model(project, objects()).configureEach(ofType(Named.class, new UseConventionalLayout<>(SWIFT_SOURCES, "src/%s/swift")));
 
-		model(project, objects()).configureEach(ofType(ExtensionAware.class, withElement(new ExtendsFromParentNativeSourcesRuleEx("swiftSources"))));
+		model(project, objects()).configureEach(ofType(ExtensionAware.class, withElement(new ExtendsFromParentNativeSourcesRuleEx(SWIFT_SOURCES))));
 
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new ImportModulesConfigurationRegistrationAction(project.getObjects()));
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new AttachImportModulesToCompileTaskRule());
@@ -80,6 +83,6 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 			}
 		})));
 
-		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(SwiftSourceSetSpec.class, "swiftSources"));
+		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(SwiftSourceSetSpec.class, SWIFT_SOURCES));
 	}
 }

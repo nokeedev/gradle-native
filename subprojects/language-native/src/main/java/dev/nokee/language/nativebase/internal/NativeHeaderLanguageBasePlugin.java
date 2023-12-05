@@ -17,6 +17,7 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceAwareComponent;
+import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
@@ -37,6 +38,9 @@ import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
+	public static final SourcePropertyName PRIVATE_HEADERS = () -> "privateHeaders";
+	public static final SourcePropertyName PUBLIC_HEADERS = () -> "publicHeaders";
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
@@ -57,7 +61,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
-							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName("privateHeaders")).orElse(Collections.emptyList());
+							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName(PRIVATE_HEADERS.asExtensionName())).orElse(Collections.emptyList());
 						});
 					}
 				});
@@ -72,11 +76,11 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 			}
 
 			if (sources != null) {
-				((ExtensionAware) target).getExtensions().add(ConfigurableFileCollection.class, "publicHeaders", sources);
+				((ExtensionAware) target).getExtensions().add(ConfigurableFileCollection.class, PUBLIC_HEADERS.asExtensionName(), sources);
 			}
 		});
-		components(project).configureEach(new UseConventionalLayout<>("publicHeaders", "src/%s/public"));
-		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>("publicHeaders"));
+		components(project).configureEach(new UseConventionalLayout<>(PUBLIC_HEADERS, "src/%s/public"));
+		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>(PUBLIC_HEADERS));
 		components(project).configureEach(variant -> {
 			// TODO: check if it's a native variant?
 			if (variant instanceof SourceAwareComponent) {
@@ -84,7 +88,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				sources.configureEach(sourceSet -> {
 					if (sourceSet instanceof HasHeaders) {
 						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
-							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName("publicHeaders")).orElse(Collections.emptyList());
+							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName(PUBLIC_HEADERS.asExtensionName())).orElse(Collections.emptyList());
 						});
 					}
 				});

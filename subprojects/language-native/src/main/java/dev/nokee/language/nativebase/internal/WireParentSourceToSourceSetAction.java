@@ -19,6 +19,7 @@ package dev.nokee.language.nativebase.internal;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceAwareComponent;
+import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.platform.base.View;
 import org.gradle.api.Action;
 import org.gradle.api.plugins.ExtensionAware;
@@ -29,11 +30,11 @@ import java.util.concurrent.Callable;
 
 public final class WireParentSourceToSourceSetAction<T> implements Action<T> {
 	private final Class<? extends LanguageSourceSet> sourceType;
-	private final String sourceExtensionName;
+	private final SourcePropertyName propertyName;
 
-	public WireParentSourceToSourceSetAction(Class<? extends LanguageSourceSet> sourceType, String sourceExtensionName) {
+	public WireParentSourceToSourceSetAction(Class<? extends LanguageSourceSet> sourceType, SourcePropertyName propertyName) {
 		this.sourceType = sourceType;
-		this.sourceExtensionName = sourceExtensionName;
+		this.propertyName = propertyName;
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public final class WireParentSourceToSourceSetAction<T> implements Action<T> {
 			sources.configureEach(sourceSet -> {
 				if (sourceType.isInstance(sourceSet) && sourceSet instanceof HasSource) {
 					((HasSource) sourceSet).getSource().from((Callable<Object>) () -> {
-						return Optional.ofNullable(((ExtensionAware) t).getExtensions().findByName(sourceExtensionName)).orElse(Collections.emptyList());
+						return Optional.ofNullable(((ExtensionAware) t).getExtensions().findByName(propertyName.asExtensionName())).orElse(Collections.emptyList());
 					});
 				}
 			});

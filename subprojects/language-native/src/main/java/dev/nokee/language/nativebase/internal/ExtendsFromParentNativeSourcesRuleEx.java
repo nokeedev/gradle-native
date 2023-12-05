@@ -16,6 +16,7 @@
 
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.platform.base.internal.ParentAware;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -27,10 +28,10 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 
 public final class ExtendsFromParentNativeSourcesRuleEx implements BiConsumer<ModelElement, ExtensionAware> {
-	private final String extensionName;
+	private final SourcePropertyName propertyName;
 
-	public ExtendsFromParentNativeSourcesRuleEx(String extensionName) {
-		this.extensionName = extensionName;
+	public ExtendsFromParentNativeSourcesRuleEx(SourcePropertyName propertyName) {
+		this.propertyName = propertyName;
 	}
 
 	@Override
@@ -45,6 +46,6 @@ public final class ExtendsFromParentNativeSourcesRuleEx implements BiConsumer<Mo
 
 	@Nullable
 	private ConfigurableFileCollection findExtension(ExtensionAware target) {
-		return (ConfigurableFileCollection) target.getExtensions().findByName(extensionName);
+		return (ConfigurableFileCollection) target.getExtensions().findByName(propertyName.asExtensionName());
 	}
 }
