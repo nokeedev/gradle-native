@@ -44,7 +44,8 @@ public class CppLanguageImplementation implements NativeLanguageImplementation {
 	public void registerSourceProperties(LanguagePropertiesAware target) {
 		val cppSources = objects.newInstance(SourceProperty.class, "cppSources");
 		cppSources.getLayouts().add(layout("cpp"));
-		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders", NativeHeaderProperty.BasicVisibility.Private);
+		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders");
+		privateHeaders.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private);
 
 		target.getSourceProperties().add(cppSources);
 		target.getSourceProperties().add(privateHeaders);

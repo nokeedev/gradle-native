@@ -21,6 +21,7 @@ import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -42,7 +43,11 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
-		model(project, objects()).configureEach(ofType(PublicHeadersMixIn.class, it -> it.getSourceProperties().add(project.getObjects().newInstance(NativeHeaderProperty.class, "publicHeaders", NativeHeaderProperty.BasicVisibility.Public))));
+		model(project, objects()).configureEach(ofType(PublicHeadersMixIn.class, it -> {
+			val publicHeaders = project.getObjects().newInstance(NativeHeaderProperty.class, "publicHeaders");
+			publicHeaders.getVisibility().set(NativeHeaderProperty.BasicVisibility.Public);
+			it.getSourceProperties().add(publicHeaders);
+		}));
 
 		sources(project).configureEach(new HeaderSearchPathsConfigurationRegistrationAction<>(project.getObjects()));
 		sources(project).configureEach(new AttachHeaderSearchPathsToCompileTaskRule<>());

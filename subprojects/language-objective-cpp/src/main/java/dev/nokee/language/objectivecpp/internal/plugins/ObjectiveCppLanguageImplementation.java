@@ -42,7 +42,8 @@ public class ObjectiveCppLanguageImplementation implements NativeLanguageImpleme
 	public void registerSourceProperties(LanguagePropertiesAware target) {
 		val objectiveCppSources = objects.newInstance(SourceProperty.class, "objectiveCppSources");
 		objectiveCppSources.getLayouts().addAll(layout("objectiveCpp"), layout("objcpp"));
-		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders", NativeHeaderProperty.BasicVisibility.Private);
+		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders");
+		privateHeaders.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private);
 
 		target.getSourceProperties().add(objectiveCppSources);
 		target.getSourceProperties().add(privateHeaders);

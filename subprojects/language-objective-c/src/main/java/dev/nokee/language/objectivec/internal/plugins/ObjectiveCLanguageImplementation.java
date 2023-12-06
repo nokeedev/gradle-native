@@ -42,7 +42,8 @@ public class ObjectiveCLanguageImplementation implements NativeLanguageImplement
 	public void registerSourceProperties(LanguagePropertiesAware target) {
 		val objectiveCSources = objects.newInstance(SourceProperty.class, "objectiveCSources");
 		objectiveCSources.getLayouts().addAll(layout("objectiveC"), layout("objc"));
-		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders", NativeHeaderProperty.BasicVisibility.Private);
+		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders");
+		privateHeaders.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private);
 
 		target.getSourceProperties().add(objectiveCSources);
 		target.getSourceProperties().add(privateHeaders);

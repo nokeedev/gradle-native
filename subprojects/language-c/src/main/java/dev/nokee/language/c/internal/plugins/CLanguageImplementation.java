@@ -44,7 +44,8 @@ public class CLanguageImplementation implements NativeLanguageImplementation {
 	public void registerSourceProperties(LanguagePropertiesAware target) {
 		val cSources = objects.newInstance(SourceProperty.class, "cSources");
 		cSources.getLayouts().add(layout("c"));
-		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders", NativeHeaderProperty.BasicVisibility.Private);
+		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders");
+		privateHeaders.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private);
 
 		target.getSourceProperties().add(cSources);
 		target.getSourceProperties().add(privateHeaders);
