@@ -18,7 +18,6 @@ package dev.nokee.language.nativebase.internal;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
 import dev.nokee.language.base.internal.PropertySpec;
-import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
@@ -41,9 +40,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
-	public static final SourcePropertyName PRIVATE_HEADERS = () -> "privateHeaders";
-	public static final SourcePropertyName PUBLIC_HEADERS = () -> "publicHeaders";
-
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageBasePlugin.class);

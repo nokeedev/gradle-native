@@ -16,9 +16,7 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
-import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
@@ -28,11 +26,8 @@ import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class SwiftLanguageBasePlugin implements Plugin<Project> {
-	public static final SourcePropertyName SWIFT_SOURCES = () -> "swiftSources";
-
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
@@ -52,7 +47,5 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new ImportModulesConfigurationRegistrationAction(project.getObjects()));
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new AttachImportModulesToCompileTaskRule());
 		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new SwiftCompileTaskDefaultConfigurationRule());
-
-		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(SwiftSourceSetSpec.class, SWIFT_SOURCES));
 	}
 }

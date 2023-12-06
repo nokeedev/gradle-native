@@ -16,11 +16,9 @@
 package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
-import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
@@ -28,11 +26,8 @@ import org.gradle.api.Project;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 
 public class CLanguageBasePlugin implements Plugin<Project> {
-	public static final SourcePropertyName C_SOURCES = () -> "cSources";
-
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
@@ -46,7 +41,5 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 
 		// No need to register anything as CHeaderSet and CSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
-
-		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(CSourceSetSpec.class, C_SOURCES));
 	}
 }

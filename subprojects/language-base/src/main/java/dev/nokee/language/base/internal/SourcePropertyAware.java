@@ -16,6 +16,9 @@
 
 package dev.nokee.language.base.internal;
 
-public interface SourcePropertyName {
-	String asExtensionName();
+import dev.nokee.language.base.HasSource;
+
+// Use on LanguageSourceSet
+// Source set marked with this interface links `source` with parent `<elementName>Sources`
+public interface SourcePropertyAware extends HasSource {
 }

@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.objectivecpp.internal.plugins;
 
+import dev.nokee.language.base.internal.SourcePropertyAware;
 import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
@@ -24,7 +25,7 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketS
 import org.gradle.api.tasks.TaskProvider;
 
 public /*final*/ abstract class ObjectiveCppSourceSetSpec extends BaseNativeSourceSetSpec implements ObjectiveCppSourceSet
-	, HasHeaderSearchPaths
+	, HasHeaderSearchPaths, SourcePropertyAware
 {
 	@NestedObject
 	public abstract TaskProvider<ObjectiveCppCompileTask> getCompileTask();

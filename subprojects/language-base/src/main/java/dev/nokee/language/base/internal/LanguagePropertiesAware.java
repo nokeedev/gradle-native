@@ -21,6 +21,7 @@ import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.Nested;
 
+// Use on Component/Variant/TestSuiteComponent
 public interface LanguagePropertiesAware extends ModelElement, ExtensionAware {
 	@Nested
 	NamedDomainObjectSet<PropertySpec> getSourceProperties();

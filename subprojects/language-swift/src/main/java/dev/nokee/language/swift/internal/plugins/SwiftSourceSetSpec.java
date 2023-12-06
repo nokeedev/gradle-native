@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
+import dev.nokee.language.base.internal.SourcePropertyAware;
 import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
@@ -23,7 +24,7 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketS
 import org.gradle.api.tasks.TaskProvider;
 
 public /*final*/ abstract class SwiftSourceSetSpec extends BaseNativeSourceSetSpec implements SwiftSourceSet
-	, HasImportModules
+	, HasImportModules, SourcePropertyAware
 {
 	@NestedObject
 	public abstract TaskProvider<SwiftCompileTask> getCompileTask();

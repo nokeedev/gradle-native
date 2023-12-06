@@ -16,12 +16,14 @@
 package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.internal.Factory;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.SourceProperty;
+import dev.nokee.language.base.internal.SourcePropertyAware;
 import dev.nokee.language.base.internal.rules.RegisterLanguageImplementationRule;
 import dev.nokee.language.base.internal.rules.RegisterSourcePropertyAsGradleExtensionRule;
 import dev.nokee.language.base.internal.rules.RegisterSourcePropertyBasedOnLanguageImplementationRule;
@@ -39,8 +41,14 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
 
+import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.stream.Stream;
+
+import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
@@ -81,5 +89,10 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		model(project).getExtensions().add("$properties", model(project).getExtensions().getByType(ModelMapFactory.class).create(PropertySpec.class, project.getObjects().polymorphicDomainObjectContainer(PropertySpec.class)));
 		model(project, factoryRegistryOf(PropertySpec.class)).registerFactory(SourceProperty.class);
 		model(project, mapOf(PropertySpec.class)).configureEach(LanguageSourcePropertySpec.class, new UseConventionalLayoutRule());
+		model(project, mapOf(LanguageSourceSet.class)).configureEach(ofType(SourcePropertyAware.class, withElement((element, sourceSet, source) -> {
+			source.getSource().from((Callable<?>) () -> {
+				return element.getParents().flatMap(it -> it.safeAs(ExtensionAware.class).map(t -> t.getExtensions().findByName(element.getIdentifier().getName().toString() + "Sources")).map(Stream::of).getOrElse(Stream.empty())).findFirst().map(it -> (Iterable<?>) it).orElse(Collections.emptyList());
+			});
+		})));
 	}
 }

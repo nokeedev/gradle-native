@@ -19,6 +19,9 @@ package dev.nokee.language.base.internal;
 import dev.nokee.model.internal.ModelElement;
 import org.gradle.api.DomainObjectSet;
 
+// Use on Component/Variant/TestSuiteComponent
+//   See Implements
+//   See LanguageImplementation
 public interface LanguageSupportSpec extends ModelElement {
 	DomainObjectSet<LanguageImplementation> getLanguageImplementations();
 }
