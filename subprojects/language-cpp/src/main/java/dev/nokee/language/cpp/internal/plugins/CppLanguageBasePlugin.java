@@ -39,8 +39,5 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 
 		DefaultImporter.forProject(project)
 			.defaultImport(CppSourceSet.class);
-
-		// No need to register anything as CppHeaderSet and CppSourceSet are managed instance compatible,
-		//   but don't depend on this behaviour.
 	}
 }

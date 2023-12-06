@@ -39,8 +39,5 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 
 		DefaultImporter.forProject(project)
 			.defaultImport(CSourceSet.class);
-
-		// No need to register anything as CHeaderSet and CSourceSet are managed instance compatible,
-		//   but don't depend on this behaviour.
 	}
 }

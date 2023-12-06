@@ -45,9 +45,6 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		DefaultImporter.forProject(project)
 			.defaultImport(ObjectiveCSourceSet.class);
 
-		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
-		//   but don't depend on this behaviour.
-
 		model(project, mapOf(PropertySpec.class)).configureEach(SourceProperty.class, it -> {
 			if (it.getIdentifier().getName().toString().equals("objectiveCSources")) {
 				it.getParents().findFirst().map(Named::getName).filter(not(String::isEmpty)).ifPresent(name -> {

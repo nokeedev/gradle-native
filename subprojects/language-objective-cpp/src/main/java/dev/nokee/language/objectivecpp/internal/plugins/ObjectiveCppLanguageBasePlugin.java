@@ -45,9 +45,6 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		DefaultImporter.forProject(project)
 			.defaultImport(ObjectiveCppSourceSet.class);
 
-		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
-		//   but don't depend on this behaviour.
-
 		model(project, mapOf(PropertySpec.class)).configureEach(SourceProperty.class, it -> {
 			if (it.getIdentifier().getName().toString().equals("objectiveCppSources")) {
 				it.getParents().findFirst().map(Named::getName).filter(not(String::isEmpty)).ifPresent(name -> {
