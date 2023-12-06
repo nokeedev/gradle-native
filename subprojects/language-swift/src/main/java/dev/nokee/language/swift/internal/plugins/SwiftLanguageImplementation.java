@@ -21,6 +21,7 @@ import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.SourceProperty;
 import dev.nokee.language.nativebase.internal.NativeLanguageImplementation;
 import dev.nokee.model.internal.names.ElementName;
+import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
@@ -39,7 +40,9 @@ public class SwiftLanguageImplementation implements NativeLanguageImplementation
 
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
-		target.getSourceProperties().add(objects.newInstance(SourceProperty.class, "swiftSources", Arrays.asList(layout("swift"))));
+		val swiftSources = objects.newInstance(SourceProperty.class, "swiftSources", Arrays.asList(layout("swift")));
+
+		target.getSourceProperties().add(swiftSources);
 	}
 
 	@Override

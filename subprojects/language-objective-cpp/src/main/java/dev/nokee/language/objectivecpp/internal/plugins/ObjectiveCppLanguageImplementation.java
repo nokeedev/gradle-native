@@ -22,6 +22,7 @@ import dev.nokee.language.base.internal.SourceProperty;
 import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
 import dev.nokee.language.nativebase.internal.NativeLanguageImplementation;
 import dev.nokee.model.internal.names.ElementName;
+import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
@@ -40,8 +41,11 @@ public class ObjectiveCppLanguageImplementation implements NativeLanguageImpleme
 
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
-		target.getSourceProperties().add(objects.newInstance(SourceProperty.class, "objectiveCppSources", Arrays.asList(layout("objectiveCpp"), layout("objcpp"))));
-		target.getSourceProperties().add(objects.newInstance(NativeHeaderProperty.class, "privateHeaders", NativeHeaderProperty.BasicVisibility.Private));
+		val objectiveCppSources = objects.newInstance(SourceProperty.class, "objectiveCppSources", Arrays.asList(layout("objectiveCpp"), layout("objcpp")));
+		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders", NativeHeaderProperty.BasicVisibility.Private);
+
+		target.getSourceProperties().add(objectiveCppSources);
+		target.getSourceProperties().add(privateHeaders);
 	}
 
 	@Override
