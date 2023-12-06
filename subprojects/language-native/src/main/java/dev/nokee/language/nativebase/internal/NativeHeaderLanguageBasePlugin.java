@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 
@@ -72,5 +74,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 				}).findFirst().map(a -> (Iterable<?>) a.getSource()).orElse(Collections.emptyList());
 			});
 		})));
+
+		model(project, factoryRegistryOf(ISourceProperty.class)).registerFactory(NativeHeaderProperty.class);
 	}
 }

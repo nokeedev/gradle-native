@@ -45,10 +45,10 @@ public class SwiftLanguageImplementation implements NativeLanguageImplementation
 
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
-		val swiftSources = objects.newInstance(SourceProperty.class, "swiftSources");
-		swiftSources.getLayouts().add(layout("swift"));
+		val swiftSources = propertyRegistry.register(target.getIdentifier().child("swiftSources"), SourceProperty.class);
+		swiftSources.configure(it -> it.getLayouts().add(layout("swift")));
 
-		target.getSourceProperties().add(swiftSources);
+		target.getSourceProperties().add(swiftSources.get());
 	}
 
 	@Override

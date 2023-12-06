@@ -29,6 +29,6 @@ public final class RegisterSourcePropertyAsGradleExtensionRule implements Action
 	}
 
 	private Action<ISourceProperty> registerOn(ExtensionContainer extensions) {
-		return property -> extensions.add(ConfigurableFileCollection.class, property.getName(), property.getSource());
+		return property -> extensions.add(ConfigurableFileCollection.class, property.getIdentifier().getName().toString(), property.getSource());
 	}
 }

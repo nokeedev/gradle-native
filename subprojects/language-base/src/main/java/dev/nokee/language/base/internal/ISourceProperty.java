@@ -16,11 +16,12 @@
 
 package dev.nokee.language.base.internal;
 
+import dev.nokee.model.internal.ModelElement;
 import org.gradle.api.Named;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
 
-public interface ISourceProperty extends Named {
+public interface ISourceProperty extends ModelElement {
 	ConfigurableFileCollection getSource();
 
 	ListProperty<ConventionLayout> getLayouts();

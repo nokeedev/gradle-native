@@ -46,13 +46,13 @@ public class CLanguageImplementation implements NativeLanguageImplementation {
 
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
-		val cSources = objects.newInstance(SourceProperty.class, "cSources");
-		cSources.getLayouts().add(layout("c"));
-		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders");
-		privateHeaders.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private);
+		val cSources = propertyRegistry.register(target.getIdentifier().child("cSources"), SourceProperty.class);
+		cSources.configure(it -> it.getLayouts().add(layout("c")));
+		val privateHeaders = propertyRegistry.register(target.getIdentifier().child("privateHeaders"), NativeHeaderProperty.class);
+		privateHeaders.configure(it -> it.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private));
 
-		target.getSourceProperties().add(cSources);
-		target.getSourceProperties().add(privateHeaders);
+		target.getSourceProperties().add(cSources.get());
+		target.getSourceProperties().add(privateHeaders.get());
 	}
 
 	@Override

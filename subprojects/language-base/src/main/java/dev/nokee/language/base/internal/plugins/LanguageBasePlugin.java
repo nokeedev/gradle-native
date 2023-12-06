@@ -20,6 +20,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.base.internal.SourceProperty;
 import dev.nokee.language.base.internal.rules.RegisterLanguageImplementationRule;
 import dev.nokee.language.base.internal.rules.RegisterSourcePropertyAsGradleExtensionRule;
 import dev.nokee.language.base.internal.rules.RegisterSourcePropertyBasedOnLanguageImplementationRule;
@@ -40,6 +41,7 @@ import org.gradle.api.Project;
 import org.gradle.api.reflect.TypeOf;
 
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
@@ -76,5 +78,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		model(project, objects()).configureEach(ofType(LanguagePropertiesAware.class, new UseConventionalLayoutRule()));
 
 		model(project).getExtensions().add("$properties", model(project).getExtensions().getByType(ModelMapFactory.class).create(ISourceProperty.class, project.getObjects().polymorphicDomainObjectContainer(ISourceProperty.class)));
+		model(project, factoryRegistryOf(ISourceProperty.class)).registerFactory(SourceProperty.class);
 	}
 }

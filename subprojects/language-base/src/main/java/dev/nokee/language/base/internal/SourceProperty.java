@@ -16,43 +16,9 @@
 
 package dev.nokee.language.base.internal;
 
+import dev.nokee.model.internal.ModelElementSupport;
 import org.gradle.api.file.ConfigurableFileCollection;
 
-import javax.inject.Inject;
-import java.util.Objects;
-
-public abstract /*final*/ class SourceProperty implements ISourceProperty {
-	private final String name;
-
-	@Inject
-	public SourceProperty(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
+public abstract /*final*/ class SourceProperty extends ModelElementSupport implements ISourceProperty {
 	public abstract ConfigurableFileCollection getSource();
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		SourceProperty that = (SourceProperty) o;
-		return Objects.equals(name, that.name);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(name);
-	}
-
-	@Override
-	public String toString() {
-		return "source property '" + name + "'";
-	}
 }

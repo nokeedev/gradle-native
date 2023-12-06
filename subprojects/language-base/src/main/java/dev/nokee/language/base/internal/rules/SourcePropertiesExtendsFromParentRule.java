@@ -17,12 +17,15 @@
 package dev.nokee.language.base.internal.rules;
 
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.platform.base.internal.ParentAware;
 import org.gradle.api.Action;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
+
+import static dev.nokee.utils.TransformerUtils.filter;
 
 public final class SourcePropertiesExtendsFromParentRule implements Action<LanguagePropertiesAware> {
 
@@ -32,7 +35,10 @@ public final class SourcePropertiesExtendsFromParentRule implements Action<Langu
 			target.getSourceProperties().all(prop -> {
 				prop.getSource().from((Callable<?>) () -> {
 					return target.getParents().flatMap(a -> {
-						return a.safeAs(LanguagePropertiesAware.class).map(b -> b.getSourceProperties().findByName(prop.getName())).map(Stream::of).getOrElse(Stream.empty());
+						return a.safeAs(LanguagePropertiesAware.class).map(b -> {
+							final String name = ModelObjectIdentifiers.asFullyQualifiedName(b.getIdentifier().child(prop.getIdentifier().getName())).toString();
+							return b.getSourceProperties().findByName(name);
+						}).map(filter(it -> !it.equals(prop))).map(Stream::of).getOrElse(Stream.empty());
 					}).findFirst().map(c -> (Iterable<?>) c.getSource()).orElse(Collections.emptyList());
 				});
 			});
