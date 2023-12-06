@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
-import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
+import dev.nokee.language.objectivec.internal.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;

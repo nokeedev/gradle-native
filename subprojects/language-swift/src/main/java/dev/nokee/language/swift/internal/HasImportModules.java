@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.objectivec.internal.plugins;
 
-import dev.nokee.language.nativebase.internal.SupportLanguageSourceSet;
+package dev.nokee.language.swift.internal;
 
-public interface SupportObjectiveCSourceSetTag extends SupportLanguageSourceSet {}
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
+import org.gradle.api.file.ConfigurableFileCollection;
+
+public interface HasImportModules {
+	ResolvableDependencyBucketSpec getImportModules();
+	ConfigurableFileCollection getDependentImportModules();
+	ConfigurableFileCollection getDependentFrameworkSearchPaths();
+}

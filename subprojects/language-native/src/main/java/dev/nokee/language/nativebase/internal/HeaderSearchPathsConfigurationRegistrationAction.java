@@ -36,7 +36,7 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 public final class HeaderSearchPathsConfigurationRegistrationAction<T> implements Action<T> {
 	private final ObjectFactory objects;
 
-	HeaderSearchPathsConfigurationRegistrationAction(ObjectFactory objects) {
+	public HeaderSearchPathsConfigurationRegistrationAction(ObjectFactory objects) {
 		this.objects = objects;
 	}
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.nokee.language.c.internal.plugins;
+package dev.nokee.language.cpp.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
@@ -32,28 +32,28 @@ import javax.inject.Inject;
 import java.util.function.BiConsumer;
 
 @EqualsAndHashCode
-public class CLanguageImplementation implements NativeLanguageImplementation {
+public class CppLanguageImplementation implements NativeLanguageImplementation {
 	@EqualsAndHashCode.Exclude private final ObjectFactory objects;
 	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<PropertySpec> propertyRegistry;
 
 	@Inject
-	public CLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<PropertySpec> propertyRegistry) {
+	public CppLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<PropertySpec> propertyRegistry) {
 		this.objects = objects;
 		this.propertyRegistry = propertyRegistry;
 	}
 
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
-		val cSources = propertyRegistry.register(target.getIdentifier().child("cSources"), SourceProperty.class);
+		val cppSources = propertyRegistry.register(target.getIdentifier().child("cppSources"), SourceProperty.class);
 		val privateHeaders = propertyRegistry.register(target.getIdentifier().child("privateHeaders"), NativeHeaderProperty.class);
 		privateHeaders.configure(it -> it.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private));
 
-		target.getSourceProperties().add(cSources.get());
+		target.getSourceProperties().add(cppSources.get());
 		target.getSourceProperties().add(privateHeaders.get());
 	}
 
 	@Override
 	public void registerSourceSet(BiConsumer<? super ElementName, Class<? extends LanguageSourceSet>> action) {
-		action.accept(ElementName.of("c"), CSourceSetSpec.class);
+		action.accept(ElementName.of("cpp"), CppSourceSetSpec.class);
 	}
 }

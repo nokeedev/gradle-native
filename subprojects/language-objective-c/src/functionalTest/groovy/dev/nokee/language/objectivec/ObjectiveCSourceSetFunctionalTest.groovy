@@ -19,7 +19,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetSpec
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterApp
 import dev.nokee.runtime.nativebase.internal.TargetMachines
 import spock.lang.Requires

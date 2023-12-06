@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.nokee.language.objectivec.internal.plugins;
+package dev.nokee.language.objectivec.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;

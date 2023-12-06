@@ -31,7 +31,7 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeTarget;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.SupportSwiftSourceSetTag;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ProjectIdentifier;

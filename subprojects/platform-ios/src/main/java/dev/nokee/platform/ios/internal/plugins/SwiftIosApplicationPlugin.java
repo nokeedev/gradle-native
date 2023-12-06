@@ -16,9 +16,9 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.language.base.internal.SourceComponentSpec;
-import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
+import dev.nokee.language.swift.internal.SwiftSourcesMixIn;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.decorators.NestedObject;

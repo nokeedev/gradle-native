@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.nativebase.internal;
+package dev.nokee.language.nativebase.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
@@ -21,7 +21,14 @@ import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.nativebase.internal.AttachHeaderSearchPathsToCompileTaskRule;
+import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
+import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationAction;
+import dev.nokee.language.nativebase.internal.NativeCompileTaskDefaultConfigurationRule;
+import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
+import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
+import dev.nokee.model.internal.TypeFilteringAction;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import lombok.val;
 import org.gradle.api.Plugin;

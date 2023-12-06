@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package dev.nokee.language.c.internal;
 
-package dev.nokee.language.swift.internal.plugins;
+import dev.nokee.language.nativebase.internal.SupportLanguageSourceSet;
 
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import org.gradle.api.file.ConfigurableFileCollection;
-
-public interface HasImportModules {
-	ResolvableDependencyBucketSpec getImportModules();
-	ConfigurableFileCollection getDependentImportModules();
-	ConfigurableFileCollection getDependentFrameworkSearchPaths();
-}
+public interface SupportCSourceSetTag extends SupportLanguageSourceSet {}

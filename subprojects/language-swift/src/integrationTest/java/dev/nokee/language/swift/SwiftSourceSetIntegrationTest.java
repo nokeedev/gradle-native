@@ -26,7 +26,7 @@ import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableSourceIntegr
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
 import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrationTester;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
+import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.model.testers.HasPublicTypeTester;
 import lombok.val;

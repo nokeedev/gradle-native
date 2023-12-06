@@ -18,6 +18,8 @@ package dev.nokee.language.swift.internal.plugins;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
+import dev.nokee.language.swift.internal.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.SwiftLanguageImplementation;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;

@@ -21,7 +21,7 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
+import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;

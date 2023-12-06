@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package dev.nokee.language.swift.internal.plugins;
+package dev.nokee.language.objectivecpp.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.SourceProperty;
+import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
 import dev.nokee.language.nativebase.internal.NativeLanguageImplementation;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.ElementName;
@@ -31,25 +32,28 @@ import javax.inject.Inject;
 import java.util.function.BiConsumer;
 
 @EqualsAndHashCode
-public class SwiftLanguageImplementation implements NativeLanguageImplementation {
+public class ObjectiveCppLanguageImplementation implements NativeLanguageImplementation {
 	@EqualsAndHashCode.Exclude private final ObjectFactory objects;
 	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<PropertySpec> propertyRegistry;
 
 	@Inject
-	public SwiftLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<PropertySpec> propertyRegistry) {
+	public ObjectiveCppLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<PropertySpec> propertyRegistry) {
 		this.objects = objects;
 		this.propertyRegistry = propertyRegistry;
 	}
 
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
-		val swiftSources = propertyRegistry.register(target.getIdentifier().child("swiftSources"), SourceProperty.class);
+		val objectiveCppSources = propertyRegistry.register(target.getIdentifier().child("objectiveCppSources"), SourceProperty.class);
+		val privateHeaders = propertyRegistry.register(target.getIdentifier().child("privateHeaders"), NativeHeaderProperty.class);
+		privateHeaders.configure(it -> it.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private));
 
-		target.getSourceProperties().add(swiftSources.get());
+		target.getSourceProperties().add(objectiveCppSources.get());
+		target.getSourceProperties().add(privateHeaders.get());
 	}
 
 	@Override
 	public void registerSourceSet(BiConsumer<? super ElementName, Class<? extends LanguageSourceSet>> action) {
-		action.accept(ElementName.of("swift"), SwiftSourceSetSpec.class);
+		action.accept(ElementName.of("objectiveCpp"), ObjectiveCppSourceSetSpec.class);
 	}
 }

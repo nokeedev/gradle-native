@@ -19,8 +19,7 @@ package dev.nokee.language.objectivec.internal;
 import dev.nokee.language.base.internal.Implements;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageImplementation;
-import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 
+// Use on Component/Variant/TestSuiteComponent
 @Implements(ObjectiveCLanguageImplementation.class)
 public interface ObjectiveCLanguageSupportSpec extends LanguageSupportSpec, SupportObjectiveCSourceSetTag, ObjectiveCSourcesMixIn, PrivateHeadersMixIn {}

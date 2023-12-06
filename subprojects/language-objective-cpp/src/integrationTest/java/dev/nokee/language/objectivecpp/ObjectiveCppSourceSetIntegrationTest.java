@@ -29,7 +29,7 @@ import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledHeaderSearchPat
 import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledHeadersIntegrationTester;
 import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
 import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrationTester;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetSpec;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.model.testers.HasPublicTypeTester;
 import org.gradle.api.NamedDomainObjectProvider;

@@ -22,7 +22,7 @@ import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetSpec;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

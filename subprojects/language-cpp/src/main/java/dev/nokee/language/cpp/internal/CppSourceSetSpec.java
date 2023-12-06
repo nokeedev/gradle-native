@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.swift.internal.plugins;
+package dev.nokee.language.cpp.internal;
 
 import dev.nokee.language.base.internal.SourcePropertyAware;
+import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
-import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import org.gradle.api.tasks.TaskProvider;
 
-public /*final*/ abstract class SwiftSourceSetSpec extends BaseNativeSourceSetSpec implements SwiftSourceSet
-	, HasImportModules, SourcePropertyAware
+public /*final*/ abstract class CppSourceSetSpec extends BaseNativeSourceSetSpec implements CppSourceSet
+	, HasHeaderSearchPaths, SourcePropertyAware
 {
 	@NestedObject
-	public abstract TaskProvider<SwiftCompileTask> getCompileTask();
+	public abstract TaskProvider<CppCompileTask> getCompileTask();
 
 	@NestedObject
-	public abstract ResolvableDependencyBucketSpec getImportModules();
+	public abstract ResolvableDependencyBucketSpec getHeaderSearchPaths();
 
 	@Override
 	protected String getTypeName() {
-		return "Swift sources";
+		return "C++ sources";
 	}
 }

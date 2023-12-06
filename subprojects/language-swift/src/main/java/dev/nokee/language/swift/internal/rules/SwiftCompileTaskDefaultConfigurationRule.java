@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.swift.internal.plugins;
+package dev.nokee.language.swift.internal.rules;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
+import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -42,7 +43,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class SwiftCompileTaskDefaultConfigurationRule implements Action<SwiftSourceSetSpec> {
+public final class SwiftCompileTaskDefaultConfigurationRule implements Action<SwiftSourceSetSpec> {
 	@Override
 	public void execute(SwiftSourceSetSpec sourceSet) {
 		sourceSet.getCompileTask().configure(configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(sourceSet.getIdentifier(), asModuleFileOfModuleName()))));

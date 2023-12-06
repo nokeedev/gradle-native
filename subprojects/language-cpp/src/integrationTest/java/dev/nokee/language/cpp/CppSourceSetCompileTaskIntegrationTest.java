@@ -19,7 +19,7 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
+import dev.nokee.language.cpp.internal.CppSourceSetSpec;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;

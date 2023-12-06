@@ -18,9 +18,8 @@ package dev.nokee.language.cpp.internal;
 
 import dev.nokee.language.base.internal.Implements;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
-import dev.nokee.language.cpp.internal.plugins.CppLanguageImplementation;
-import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 
+// Use on Component/Variant/TestSuiteComponent
 @Implements(CppLanguageImplementation.class)
 public interface CppLanguageSupportSpec extends LanguageSupportSpec, SupportCppSourceSetTag, CppSourcesMixIn, PrivateHeadersMixIn {}

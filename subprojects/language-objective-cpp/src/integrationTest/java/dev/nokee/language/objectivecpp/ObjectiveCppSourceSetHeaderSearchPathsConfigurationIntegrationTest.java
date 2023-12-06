@@ -19,7 +19,7 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetSpec;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.junit.jupiter.api.Test;

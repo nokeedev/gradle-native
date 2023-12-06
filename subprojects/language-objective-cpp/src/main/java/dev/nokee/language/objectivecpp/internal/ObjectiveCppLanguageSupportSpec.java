@@ -19,8 +19,7 @@ package dev.nokee.language.objectivecpp.internal;
 import dev.nokee.language.base.internal.Implements;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageImplementation;
-import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 
+// Use on Component/Variant/TestSuiteComponent
 @Implements(ObjectiveCppLanguageImplementation.class)
 public interface ObjectiveCppLanguageSupportSpec extends LanguageSupportSpec, SupportObjectiveCppSourceSetTag, ObjectiveCppSourcesMixIn, PrivateHeadersMixIn {}

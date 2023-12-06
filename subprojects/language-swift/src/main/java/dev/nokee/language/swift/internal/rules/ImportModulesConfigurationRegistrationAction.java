@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.swift.internal.plugins;
+package dev.nokee.language.swift.internal.rules;
 
 import dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts;
+import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -34,10 +35,10 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-final class ImportModulesConfigurationRegistrationAction implements Action<SwiftSourceSetSpec> {
+public final class ImportModulesConfigurationRegistrationAction implements Action<SwiftSourceSetSpec> {
 	private final ObjectFactory objects;
 
-	ImportModulesConfigurationRegistrationAction(ObjectFactory objects) {
+	public ImportModulesConfigurationRegistrationAction(ObjectFactory objects) {
 		this.objects = objects;
 	}
 

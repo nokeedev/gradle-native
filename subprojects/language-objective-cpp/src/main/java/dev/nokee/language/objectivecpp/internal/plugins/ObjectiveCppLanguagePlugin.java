@@ -19,6 +19,8 @@ import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppLanguageImplementation;
+import dev.nokee.language.objectivecpp.internal.SupportObjectiveCppSourceSetTag;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 

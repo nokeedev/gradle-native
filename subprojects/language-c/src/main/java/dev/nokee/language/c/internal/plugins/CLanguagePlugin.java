@@ -17,6 +17,8 @@ package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.c.internal.CLanguageImplementation;
+import dev.nokee.language.c.internal.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import org.gradle.api.Plugin;

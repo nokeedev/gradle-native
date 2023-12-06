@@ -21,7 +21,7 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetSpec;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

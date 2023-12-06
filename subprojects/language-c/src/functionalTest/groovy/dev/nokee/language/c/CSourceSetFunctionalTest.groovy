@@ -16,7 +16,7 @@
 package dev.nokee.language.c
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
-import dev.nokee.language.c.internal.plugins.CSourceSetSpec
+import dev.nokee.language.c.internal.CSourceSetSpec
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 import dev.nokee.runtime.nativebase.internal.TargetMachines

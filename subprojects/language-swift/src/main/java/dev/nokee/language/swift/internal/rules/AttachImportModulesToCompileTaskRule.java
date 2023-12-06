@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.swift.internal.plugins;
+package dev.nokee.language.swift.internal.rules;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.utils.FileSystemLocationUtils;
@@ -37,7 +38,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-final class AttachImportModulesToCompileTaskRule implements Action<SwiftSourceSetSpec> {
+public final class AttachImportModulesToCompileTaskRule implements Action<SwiftSourceSetSpec> {
 	@Override
 	public void execute(SwiftSourceSetSpec sourceSet) {
 		sourceSet.getCompileTask().configure(configureImportModules(from(sourceSet.getDependentImportModules())));

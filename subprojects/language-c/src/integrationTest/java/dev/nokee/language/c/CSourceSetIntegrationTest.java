@@ -23,7 +23,7 @@ import dev.nokee.language.base.testers.HasConfigurableSourceTester;
 import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableCompileTaskIntegrationTester;
 import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableSourceIntegrationTester;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
-import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
+import dev.nokee.language.c.internal.CSourceSetSpec;
 import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.HasConfigurableHeadersTester;
 import dev.nokee.language.nativebase.LanguageSourceSetHasBuildableHeadersIntegrationTester;
