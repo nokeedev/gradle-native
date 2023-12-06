@@ -30,8 +30,9 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeGroup;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeTarget;
 import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.language.swift.internal.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.SwiftLanguageImplementation;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -89,7 +90,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.hasLanguageSupport;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 import static dev.nokee.utils.TransformerUtils.to;
@@ -342,7 +342,10 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelM
 				}
 
 				private boolean hasSwiftCapability() {
-					return ((ModelElement) variantInternal).getParents().anyMatch(hasLanguageSupport(SupportSwiftSourceSetTag.class));
+					if (variantInternal instanceof LanguageSupportSpec) {
+						return ((LanguageSupportSpec) variantInternal).getLanguageImplementations().stream().anyMatch(SwiftLanguageImplementation.class::isInstance);
+					}
+					return false;
 				}
 
 				public Transformer<Provider<? extends FileSystemLocation>, Binary> toProductLocation() {
