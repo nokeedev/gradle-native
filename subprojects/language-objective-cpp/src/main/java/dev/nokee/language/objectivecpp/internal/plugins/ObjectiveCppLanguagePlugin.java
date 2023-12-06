@@ -15,26 +15,17 @@
  */
 package dev.nokee.language.objectivecpp.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageImplementation;
-import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
-import dev.nokee.language.base.internal.SourceProperty;
-import dev.nokee.language.nativebase.internal.NativeLanguageImplementation;
 import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.model.ObjectFactory;
 
-import javax.inject.Inject;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 
 public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLanguageSupportPlugin {
-	private final ObjectFactory objects;
-
-	@Inject
-	public ObjectiveCppLanguagePlugin(ObjectFactory objects) {
-		this.objects = objects;
-	}
+	private Instantiator instantiator;
 
 	@Override
 	public void apply(Project project) {
@@ -42,10 +33,12 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLangua
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		project.getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class);
+
+		this.instantiator = instantiator(project);
 	}
 
 	@Override
 	public void registerImplementation(LanguageSupportSpec target) {
-		target.getLanguageImplementations().add(new ObjectiveCppLanguageImplementation(objects));
+		target.getLanguageImplementations().add(instantiator.newInstance(ObjectiveCppLanguageImplementation.class));
 	}
 }

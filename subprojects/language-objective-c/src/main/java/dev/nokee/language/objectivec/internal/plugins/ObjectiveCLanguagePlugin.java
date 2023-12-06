@@ -15,22 +15,17 @@
  */
 package dev.nokee.language.objectivec.internal.plugins;
 
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.model.ObjectFactory;
 
-import javax.inject.Inject;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 
 public class ObjectiveCLanguagePlugin implements Plugin<Project>, NativeLanguageSupportPlugin {
-	private final ObjectFactory objects;
-
-	@Inject
-	public ObjectiveCLanguagePlugin(ObjectFactory objects) {
-		this.objects = objects;
-	}
+	private Instantiator instantiator;
 
 	@Override
 	public void apply(Project project) {
@@ -38,10 +33,12 @@ public class ObjectiveCLanguagePlugin implements Plugin<Project>, NativeLanguage
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		project.getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
+
+		this.instantiator = instantiator(project);
 	}
 
 	@Override
 	public void registerImplementation(LanguageSupportSpec target) {
-		target.getLanguageImplementations().add(new ObjectiveCLanguageImplementation(objects));
+		target.getLanguageImplementations().add(instantiator.newInstance(ObjectiveCLanguageImplementation.class));
 	}
 }

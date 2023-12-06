@@ -15,32 +15,30 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
-import javax.inject.Inject;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 
 public class SwiftLanguagePlugin implements Plugin<Project>, NativeLanguageSupportPlugin {
-	private final ObjectFactory objects;
-
-	@Inject
-	public SwiftLanguagePlugin(ObjectFactory objects) {
-		this.objects = objects;
-	}
+	private Instantiator instantiator;
 
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
+
 		project.getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
+
+		this.instantiator = instantiator(project);
 	}
 
 	@Override
 	public void registerImplementation(LanguageSupportSpec target) {
-		target.getLanguageImplementations().add(new SwiftLanguageImplementation(objects));
+		target.getLanguageImplementations().add(instantiator.newInstance(SwiftLanguageImplementation.class));
 	}
 }
