@@ -17,8 +17,8 @@
 package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.SourceProperty;
 import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
 import dev.nokee.language.nativebase.internal.NativeLanguageImplementation;
@@ -31,15 +31,13 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.language.base.internal.LanguageImplementation.layout;
-
 @EqualsAndHashCode
 public class ObjectiveCppLanguageImplementation implements NativeLanguageImplementation {
 	@EqualsAndHashCode.Exclude private final ObjectFactory objects;
-	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<ISourceProperty> propertyRegistry;
+	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<PropertySpec> propertyRegistry;
 
 	@Inject
-	public ObjectiveCppLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<ISourceProperty> propertyRegistry) {
+	public ObjectiveCppLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<PropertySpec> propertyRegistry) {
 		this.objects = objects;
 		this.propertyRegistry = propertyRegistry;
 	}
@@ -47,7 +45,6 @@ public class ObjectiveCppLanguageImplementation implements NativeLanguageImpleme
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
 		val objectiveCppSources = propertyRegistry.register(target.getIdentifier().child("objectiveCppSources"), SourceProperty.class);
-		objectiveCppSources.configure(it -> it.getLayouts().addAll(layout("objectiveCpp"), layout("objcpp")));
 		val privateHeaders = propertyRegistry.register(target.getIdentifier().child("privateHeaders"), NativeHeaderProperty.class);
 		privateHeaders.configure(it -> it.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private));
 

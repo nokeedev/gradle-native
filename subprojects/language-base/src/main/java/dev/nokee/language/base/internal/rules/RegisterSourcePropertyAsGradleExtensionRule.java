@@ -16,8 +16,8 @@
 
 package dev.nokee.language.base.internal.rules;
 
-import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.plugins.ExtensionContainer;
@@ -25,10 +25,10 @@ import org.gradle.api.plugins.ExtensionContainer;
 public final class RegisterSourcePropertyAsGradleExtensionRule implements Action<LanguagePropertiesAware> {
 	@Override
 	public void execute(LanguagePropertiesAware target) {
-		target.getSourceProperties().all(registerOn(target.getExtensions()));
+		target.getSourceProperties().withType(LanguageSourcePropertySpec.class).all(registerOn(target.getExtensions()));
 	}
 
-	private Action<ISourceProperty> registerOn(ExtensionContainer extensions) {
+	private Action<LanguageSourcePropertySpec> registerOn(ExtensionContainer extensions) {
 		return property -> extensions.add(ConfigurableFileCollection.class, property.getIdentifier().getName().toString(), property.getSource());
 	}
 }

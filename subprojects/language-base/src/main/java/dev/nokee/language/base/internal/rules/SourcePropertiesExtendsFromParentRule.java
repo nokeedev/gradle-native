@@ -17,6 +17,7 @@
 package dev.nokee.language.base.internal.rules;
 
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.platform.base.internal.ParentAware;
 import org.gradle.api.Action;
@@ -32,12 +33,12 @@ public final class SourcePropertiesExtendsFromParentRule implements Action<Langu
 	@Override
 	public void execute(LanguagePropertiesAware target) {
 		if (target.instanceOf(ParentAware.class)) {
-			target.getSourceProperties().all(prop -> {
+			target.getSourceProperties().withType(LanguageSourcePropertySpec.class).all(prop -> {
 				prop.getSource().from((Callable<?>) () -> {
 					return target.getParents().flatMap(a -> {
 						return a.safeAs(LanguagePropertiesAware.class).map(b -> {
 							final String name = ModelObjectIdentifiers.asFullyQualifiedName(b.getIdentifier().child(prop.getIdentifier().getName())).toString();
-							return b.getSourceProperties().findByName(name);
+							return b.getSourceProperties().withType(LanguageSourcePropertySpec.class).findByName(name);
 						}).map(filter(it -> !it.equals(prop))).map(Stream::of).getOrElse(Stream.empty());
 					}).findFirst().map(c -> (Iterable<?>) c.getSource()).orElse(Collections.emptyList());
 				});

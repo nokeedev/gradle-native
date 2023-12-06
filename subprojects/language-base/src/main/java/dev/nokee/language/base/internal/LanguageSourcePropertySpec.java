@@ -16,17 +16,11 @@
 
 package dev.nokee.language.base.internal;
 
-import dev.nokee.model.internal.ModelElement;
-import org.gradle.api.Named;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
 
-public interface ISourceProperty extends ModelElement {
+public interface LanguageSourcePropertySpec extends PropertySpec {
 	ConfigurableFileCollection getSource();
 
-	ListProperty<ConventionLayout> getLayouts();
-
-	interface ConventionLayout {
-		Object apply(Named target);
-	}
+	Provider<String> getSourceName();
 }

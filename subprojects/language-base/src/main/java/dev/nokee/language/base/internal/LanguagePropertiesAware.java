@@ -23,5 +23,5 @@ import org.gradle.api.tasks.Nested;
 
 public interface LanguagePropertiesAware extends ModelElement, ExtensionAware {
 	@Nested
-	NamedDomainObjectSet<ISourceProperty> getSourceProperties();
+	NamedDomainObjectSet<PropertySpec> getSourceProperties();
 }

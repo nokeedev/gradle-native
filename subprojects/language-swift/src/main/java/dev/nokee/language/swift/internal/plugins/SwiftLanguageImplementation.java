@@ -17,8 +17,8 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.SourceProperty;
 import dev.nokee.language.nativebase.internal.NativeLanguageImplementation;
 import dev.nokee.model.internal.ModelObjectRegistry;
@@ -30,15 +30,13 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.language.base.internal.LanguageImplementation.layout;
-
 @EqualsAndHashCode
 public class SwiftLanguageImplementation implements NativeLanguageImplementation {
 	@EqualsAndHashCode.Exclude private final ObjectFactory objects;
-	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<ISourceProperty> propertyRegistry;
+	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<PropertySpec> propertyRegistry;
 
 	@Inject
-	public SwiftLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<ISourceProperty> propertyRegistry) {
+	public SwiftLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<PropertySpec> propertyRegistry) {
 		this.objects = objects;
 		this.propertyRegistry = propertyRegistry;
 	}
@@ -46,7 +44,6 @@ public class SwiftLanguageImplementation implements NativeLanguageImplementation
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
 		val swiftSources = propertyRegistry.register(target.getIdentifier().child("swiftSources"), SourceProperty.class);
-		swiftSources.configure(it -> it.getLayouts().add(layout("swift")));
 
 		target.getSourceProperties().add(swiftSources.get());
 	}

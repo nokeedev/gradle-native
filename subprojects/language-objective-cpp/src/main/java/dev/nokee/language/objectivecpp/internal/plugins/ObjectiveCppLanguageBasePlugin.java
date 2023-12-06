@@ -16,6 +16,8 @@
 package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.PropertySpec;
+import dev.nokee.language.base.internal.SourceProperty;
 import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
@@ -23,12 +25,15 @@ import dev.nokee.language.nativebase.internal.WireParentSourceToSourceSetAction;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.scripts.DefaultImporter;
+import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.util.internal.NotPredicate.not;
 
 public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 	public static final SourcePropertyName OBJECTIVE_CPP_SOURCES = () -> "objectiveCppSources";
@@ -48,5 +53,13 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		//   but don't depend on this behaviour.
 
 		variants(project).configureEach(new WireParentSourceToSourceSetAction<>(ObjectiveCppSourceSetSpec.class, OBJECTIVE_CPP_SOURCES));
+
+		model(project, mapOf(PropertySpec.class)).configureEach(SourceProperty.class, it -> {
+			if (it.getIdentifier().getName().toString().equals("objectiveCppSources")) {
+				it.getParents().findFirst().map(Named::getName).filter(not(String::isEmpty)).ifPresent(name -> {
+					it.getSource().from(it.getSourceName().map(sourceName -> String.format("src/%s/objcpp", name, sourceName)));
+				});
+			}
+		});
 	}
 }

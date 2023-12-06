@@ -16,13 +16,6 @@
 
 package dev.nokee.language.base.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.ModelElement;
 
-import java.util.function.BiConsumer;
-
-public interface LanguageImplementation {
-	void registerSourceProperties(LanguagePropertiesAware target);
-
-	void registerSourceSet(BiConsumer<? super ElementName, Class<? extends LanguageSourceSet>> action);
-}
+public interface PropertySpec extends ModelElement {}

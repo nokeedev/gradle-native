@@ -16,14 +16,17 @@
 package dev.nokee.language.objectivecpp.internal;
 
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
 public interface ObjectiveCppSourcesMixIn extends HasObjectiveCppSources, LanguagePropertiesAware {
 	@Override
 	default ConfigurableFileCollection getObjectiveCppSources() {
-		return getSourceProperties().getByName("objectiveCppSources").getSource();
+		final String name = ModelObjectIdentifiers.asFullyQualifiedName(getIdentifier().child("objectiveCppSources")).toString();
+		return getSourceProperties().named(name, LanguageSourcePropertySpec.class).get().getSource();
 	}
 
 	@Override

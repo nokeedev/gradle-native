@@ -16,14 +16,17 @@
 
 package dev.nokee.language.base.internal.rules;
 
-import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
 import org.gradle.api.Action;
+import org.gradle.api.Named;
 
-import java.util.stream.Collectors;
+import static dev.nokee.util.internal.NotPredicate.not;
 
-public final class UseConventionalLayoutRule implements Action<LanguagePropertiesAware> {
+public final class UseConventionalLayoutRule implements Action<LanguageSourcePropertySpec> {
 	@Override
-	public void execute(LanguagePropertiesAware target) {
-		target.getSourceProperties().all(it -> it.getSource().from(it.getLayouts().get().stream().map(t -> t.apply(target)).collect(Collectors.toList())));
+	public void execute(LanguageSourcePropertySpec property) {
+		property.getParents().findFirst().map(Named::getName).filter(not(String::isEmpty)).ifPresent(name -> {
+			property.getSource().from(property.getSourceName().map(sourceName -> String.format("src/%s/%s", name, sourceName)));
+		});
 	}
 }

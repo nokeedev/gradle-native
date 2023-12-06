@@ -17,8 +17,8 @@
 package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.SourceProperty;
 import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
 import dev.nokee.language.nativebase.internal.NativeLanguageImplementation;
@@ -31,15 +31,13 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.language.base.internal.LanguageImplementation.layout;
-
 @EqualsAndHashCode
 public class CLanguageImplementation implements NativeLanguageImplementation {
 	@EqualsAndHashCode.Exclude private final ObjectFactory objects;
-	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<ISourceProperty> propertyRegistry;
+	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<PropertySpec> propertyRegistry;
 
 	@Inject
-	public CLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<ISourceProperty> propertyRegistry) {
+	public CLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<PropertySpec> propertyRegistry) {
 		this.objects = objects;
 		this.propertyRegistry = propertyRegistry;
 	}
@@ -47,7 +45,6 @@ public class CLanguageImplementation implements NativeLanguageImplementation {
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
 		val cSources = propertyRegistry.register(target.getIdentifier().child("cSources"), SourceProperty.class);
-		cSources.configure(it -> it.getLayouts().add(layout("c")));
 		val privateHeaders = propertyRegistry.register(target.getIdentifier().child("privateHeaders"), NativeHeaderProperty.class);
 		privateHeaders.configure(it -> it.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private));
 

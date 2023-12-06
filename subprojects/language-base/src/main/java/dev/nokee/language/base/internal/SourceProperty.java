@@ -17,8 +17,24 @@
 package dev.nokee.language.base.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
-import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 
-public abstract /*final*/ class SourceProperty extends ModelElementSupport implements ISourceProperty {
-	public abstract ConfigurableFileCollection getSource();
+import javax.inject.Inject;
+
+public abstract /*final*/ class SourceProperty extends ModelElementSupport implements LanguageSourcePropertySpec {
+	private final Provider<String> sourceName;
+
+	@Inject
+	public SourceProperty(ProviderFactory providers) {
+		sourceName = providers.provider(() -> {
+			final String elementName = getIdentifier().getName().toString();
+			return elementName.substring(0, elementName.length() - "Sources".length());
+		});
+	}
+
+	@Override
+	public Provider<String> getSourceName() {
+		return sourceName;
+	}
 }

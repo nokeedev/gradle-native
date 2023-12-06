@@ -16,14 +16,17 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
 import dev.nokee.language.nativebase.HasPublicHeaders;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
 public interface PublicHeadersMixIn extends HasPublicHeaders, LanguagePropertiesAware {
 	@Override
 	default ConfigurableFileCollection getPublicHeaders() {
-		return getSourceProperties().getByName("publicHeaders").getSource();
+		final String name = ModelObjectIdentifiers.asFullyQualifiedName(getIdentifier().child("publicHeaders")).toString();
+		return getSourceProperties().named(name, LanguageSourcePropertySpec.class).get().getSource();
 	}
 
 	@Override

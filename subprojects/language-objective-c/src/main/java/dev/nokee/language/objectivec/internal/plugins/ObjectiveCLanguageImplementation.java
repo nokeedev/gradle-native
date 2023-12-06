@@ -17,8 +17,8 @@
 package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.SourceProperty;
 import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
 import dev.nokee.language.nativebase.internal.NativeLanguageImplementation;
@@ -31,15 +31,13 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.language.base.internal.LanguageImplementation.layout;
-
 @EqualsAndHashCode
 public class ObjectiveCLanguageImplementation implements NativeLanguageImplementation {
 	@EqualsAndHashCode.Exclude private final ObjectFactory objects;
-	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<ISourceProperty> propertyRegistry;
+	@EqualsAndHashCode.Exclude private final ModelObjectRegistry<PropertySpec> propertyRegistry;
 
 	@Inject
-	public ObjectiveCLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<ISourceProperty> propertyRegistry) {
+	public ObjectiveCLanguageImplementation(ObjectFactory objects, ModelObjectRegistry<PropertySpec> propertyRegistry) {
 		this.objects = objects;
 		this.propertyRegistry = propertyRegistry;
 	}
@@ -47,7 +45,6 @@ public class ObjectiveCLanguageImplementation implements NativeLanguageImplement
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
 		val objectiveCSources = propertyRegistry.register(target.getIdentifier().child("objectiveCSources"), SourceProperty.class);
-		objectiveCSources.configure(it -> it.getLayouts().addAll(layout("objectiveC"), layout("objc")));
 		val privateHeaders = propertyRegistry.register(target.getIdentifier().child("privateHeaders"), NativeHeaderProperty.class);
 		privateHeaders.configure(it -> it.getVisibility().set(NativeHeaderProperty.BasicVisibility.Private));
 

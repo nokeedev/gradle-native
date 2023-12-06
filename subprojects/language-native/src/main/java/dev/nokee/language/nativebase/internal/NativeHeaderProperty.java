@@ -16,21 +16,18 @@
 
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.ISourceProperty;
-import dev.nokee.language.base.internal.LanguageImplementation;
+import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
 import dev.nokee.model.internal.ModelElementSupport;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 
-import javax.inject.Inject;
-
-public abstract /*final*/ class NativeHeaderProperty extends ModelElementSupport implements ISourceProperty {
-	@Inject
-	public NativeHeaderProperty() {
-		getLayouts().add(getVisibility().map(it -> LanguageImplementation.layout(it.toString())));
-		getLayouts().disallowChanges();
-	}
-
+public abstract /*final*/ class NativeHeaderProperty extends ModelElementSupport implements LanguageSourcePropertySpec {
 	public abstract Property<Visibility> getVisibility();
+
+	@Override
+	public Provider<String> getSourceName() {
+		return getVisibility().map(Object::toString);
+	}
 
 	public interface Visibility {
 	}

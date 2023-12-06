@@ -15,12 +15,14 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
+import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -36,6 +38,7 @@ import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	public static final SourcePropertyName PRIVATE_HEADERS = () -> "privateHeaders";
@@ -46,9 +49,9 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
 		model(project, objects()).configureEach(ofType(PublicHeadersMixIn.class, it -> {
-			val publicHeaders = project.getObjects().newInstance(NativeHeaderProperty.class, "publicHeaders");
-			publicHeaders.getVisibility().set(NativeHeaderProperty.BasicVisibility.Public);
-			it.getSourceProperties().add(publicHeaders);
+			val publicHeaders = model(project, registryOf(PropertySpec.class)).register(it.getIdentifier().child("publicHeaders"), NativeHeaderProperty.class);
+			publicHeaders.configure(a -> a.getVisibility().set(NativeHeaderProperty.BasicVisibility.Public));
+			it.getSourceProperties().add(publicHeaders.get());
 		}));
 
 		sources(project).configureEach(new HeaderSearchPathsConfigurationRegistrationAction<>(project.getObjects()));
@@ -63,18 +66,24 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 		sources(project).configureEach(ofType(HasHeaders.class, withElement((element, sourceSet) -> {
 			sourceSet.getHeaders().from((Callable<Object>) () -> {
 				return element.getParents().flatMap(it -> {
-					return it.safeAs(LanguagePropertiesAware.class).map(a -> a.getSourceProperties().findByName("publicHeaders")).map(Stream::of).getOrElse(Stream.empty());
+					return it.safeAs(LanguagePropertiesAware.class).map(a -> {
+						final String name = ModelObjectIdentifiers.asFullyQualifiedName(a.getIdentifier().child("publicHeaders")).toString();
+						return a.getSourceProperties().withType(LanguageSourcePropertySpec.class).findByName(name);
+					}).map(Stream::of).getOrElse(Stream.empty());
 				}).findFirst().map(a -> (Iterable<?>) a.getSource()).orElse(Collections.emptyList());
 			});
 		})));
 		sources(project).configureEach(ofType(HasHeaders.class, withElement((element, sourceSet) -> {
 			sourceSet.getHeaders().from((Callable<Object>) () -> {
 				return element.getParents().flatMap(it -> {
-					return it.safeAs(LanguagePropertiesAware.class).map(a -> a.getSourceProperties().findByName("privateHeaders")).map(Stream::of).getOrElse(Stream.empty());
+					return it.safeAs(LanguagePropertiesAware.class).map(a -> {
+						final String name = ModelObjectIdentifiers.asFullyQualifiedName(a.getIdentifier().child("privateHeaders")).toString();
+						return a.getSourceProperties().withType(LanguageSourcePropertySpec.class).findByName(name);
+					}).map(Stream::of).getOrElse(Stream.empty());
 				}).findFirst().map(a -> (Iterable<?>) a.getSource()).orElse(Collections.emptyList());
 			});
 		})));
 
-		model(project, factoryRegistryOf(ISourceProperty.class)).registerFactory(NativeHeaderProperty.class);
+		model(project, factoryRegistryOf(PropertySpec.class)).registerFactory(NativeHeaderProperty.class);
 	}
 }
