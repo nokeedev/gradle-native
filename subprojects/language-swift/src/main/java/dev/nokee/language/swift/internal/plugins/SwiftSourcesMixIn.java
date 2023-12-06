@@ -15,11 +15,17 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
+import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.swift.HasSwiftSources;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
-public interface SwiftSourcesMixIn extends HasSwiftSources {
+public interface SwiftSourcesMixIn extends HasSwiftSources, LanguagePropertiesAware {
+	@Override
+	default ConfigurableFileCollection getSwiftSources() {
+		return getSourceProperties().getByName("swiftSources").getSource();
+	}
+
 	@Override
 	default void swiftSources(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getSwiftSources());

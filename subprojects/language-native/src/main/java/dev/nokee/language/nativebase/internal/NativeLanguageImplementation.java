@@ -16,7 +16,7 @@
 
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.base.internal.LanguageImplementation;
 
-public interface NativeLanguageSourceSetAware extends LanguageSupportSpec {
+public interface NativeLanguageImplementation extends LanguageImplementation {
 }

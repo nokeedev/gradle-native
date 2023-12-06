@@ -16,7 +16,6 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.internal.IVariantOf;
@@ -40,7 +39,6 @@ public abstract /*final*/ class DefaultNativeLibrary extends NativeLibrarySpec i
 {
 	public static abstract /*final*/ class Variant extends NativeLibrarySpec implements IVariantOf<NativeLibrarySpec>
 		, NativeVariantSpec
-		, NativeSourcesAware
 		, ApiElementsDependencyBucketMixIn
 		, LinkElementsDependencyBucketMixIn
 		, RuntimeElementsDependencyBucketMixIn

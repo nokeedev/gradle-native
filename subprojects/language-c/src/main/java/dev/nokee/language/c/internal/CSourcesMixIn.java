@@ -15,11 +15,17 @@
  */
 package dev.nokee.language.c.internal;
 
+import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.c.HasCSources;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
-public interface CSourcesMixIn extends HasCSources {
+public interface CSourcesMixIn extends HasCSources, LanguagePropertiesAware {
+	@Override
+	default ConfigurableFileCollection getCSources() {
+		return getSourceProperties().getByName("cSources").getSource();
+	}
+
 	// For Groovy DSL
 	default ConfigurableFileCollection getcSources() {
 		return getCSources();

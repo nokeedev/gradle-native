@@ -15,27 +15,24 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceAwareComponent;
+import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.SourcePropertyName;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.View;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.plugins.ExtensionAware;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.model.internal.ModelElementAction.withElement;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	public static final SourcePropertyName PRIVATE_HEADERS = () -> "privateHeaders";
@@ -44,6 +41,8 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
+
+		model(project, objects()).configureEach(ofType(PublicHeadersMixIn.class, it -> it.getSourceProperties().add(project.getObjects().newInstance(NativeHeaderProperty.class, "publicHeaders", NativeHeaderProperty.BasicVisibility.Public))));
 
 		sources(project).configureEach(new HeaderSearchPathsConfigurationRegistrationAction<>(project.getObjects()));
 		sources(project).configureEach(new AttachHeaderSearchPathsToCompileTaskRule<>());
@@ -54,45 +53,19 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 			}
 		});
 
-		variants(project).configureEach(variant -> {
-			// TODO: check if it's a native variant?
-			if (variant instanceof SourceAwareComponent) {
-				final View<LanguageSourceSet> sources = ((SourceAwareComponent) variant).getSources();
-				sources.configureEach(sourceSet -> {
-					if (sourceSet instanceof HasHeaders) {
-						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
-							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName(PRIVATE_HEADERS.asExtensionName())).orElse(Collections.emptyList());
-						});
-					}
-				});
-			}
-		});
-
-		components(project).configureEach(target -> {
-			ConfigurableFileCollection sources = null;
-			// TODO: mixin on native library
-			if (target instanceof HasPublicHeaders) {
-				sources = ((HasPublicHeaders) target).getPublicHeaders();
-			}
-
-			if (sources != null) {
-				((ExtensionAware) target).getExtensions().add(ConfigurableFileCollection.class, PUBLIC_HEADERS.asExtensionName(), sources);
-			}
-		});
-		components(project).configureEach(new UseConventionalLayout<>(PUBLIC_HEADERS, "src/%s/public"));
-		components(project).configureEach(new ExtendsFromParentNativeSourcesRule<>(PUBLIC_HEADERS));
-		components(project).configureEach(variant -> {
-			// TODO: check if it's a native variant?
-			if (variant instanceof SourceAwareComponent) {
-				final View<LanguageSourceSet> sources = ((SourceAwareComponent) variant).getSources();
-				sources.configureEach(sourceSet -> {
-					if (sourceSet instanceof HasHeaders) {
-						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) () -> {
-							return Optional.ofNullable(((ExtensionAware) variant).getExtensions().findByName(PUBLIC_HEADERS.asExtensionName())).orElse(Collections.emptyList());
-						});
-					}
-				});
-			}
-		});
+		sources(project).configureEach(ofType(HasHeaders.class, withElement((element, sourceSet) -> {
+			sourceSet.getHeaders().from((Callable<Object>) () -> {
+				return element.getParents().flatMap(it -> {
+					return it.safeAs(LanguagePropertiesAware.class).map(a -> a.getSourceProperties().findByName("publicHeaders")).map(Stream::of).getOrElse(Stream.empty());
+				}).findFirst().map(a -> (Iterable<?>) a.getSource()).orElse(Collections.emptyList());
+			});
+		})));
+		sources(project).configureEach(ofType(HasHeaders.class, withElement((element, sourceSet) -> {
+			sourceSet.getHeaders().from((Callable<Object>) () -> {
+				return element.getParents().flatMap(it -> {
+					return it.safeAs(LanguagePropertiesAware.class).map(a -> a.getSourceProperties().findByName("privateHeaders")).map(Stream::of).getOrElse(Stream.empty());
+				}).findFirst().map(a -> (Iterable<?>) a.getSource()).orElse(Collections.emptyList());
+			});
+		})));
 	}
 }

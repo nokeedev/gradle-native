@@ -17,6 +17,13 @@ package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.base.internal.rules.RegisterLanguageImplementationRule;
+import dev.nokee.language.base.internal.rules.RegisterSourcePropertyAsGradleExtensionRule;
+import dev.nokee.language.base.internal.rules.RegisterSourcePropertyBasedOnLanguageImplementationRule;
+import dev.nokee.language.base.internal.rules.SourcePropertiesExtendsFromParentRule;
+import dev.nokee.language.base.internal.rules.UseConventionalLayoutRule;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -31,8 +38,10 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.reflect.TypeOf;
 
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 
 public class LanguageBasePlugin implements Plugin<Project> {
 	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>> LANGUAGE_SOURCE_SET_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>>() {};
@@ -58,5 +67,11 @@ public class LanguageBasePlugin implements Plugin<Project> {
 			return instantiator(project).newInstance(ViewAdapter.class, LanguageSourceSet.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((LanguageSourceSet) it), sources(project), project.getProviders(), project.getObjects(), realizeNow, identifier));
 		};
 		model(project).getExtensions().add(new TypeOf<Factory<View<LanguageSourceSet>>>() {}, "__nokee_sourcesFactory", sourcesFactory);
+
+		model(project, objects()).configureEach(ofType(LanguagePropertiesAware.class, new RegisterSourcePropertyAsGradleExtensionRule()));
+		model(project, objects()).configureEach(ofType(LanguageSupportSpec.class, new RegisterSourcePropertyBasedOnLanguageImplementationRule()));
+		model(project, objects()).configureEach(ofType(LanguagePropertiesAware.class, new SourcePropertiesExtendsFromParentRule()));
+		model(project, objects()).configureEach(ofType(LanguageSupportSpec.class, new RegisterLanguageImplementationRule(instantiator(project))));
+		model(project, objects()).configureEach(ofType(LanguagePropertiesAware.class, new UseConventionalLayoutRule()));
 	}
 }

@@ -37,6 +37,7 @@ import org.objectweb.asm.Type;
 
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Inherited;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -131,10 +132,17 @@ public final class DefaultInstantiator implements Instantiator {
 	private final class ClassInspector {
 		public ClassInspection inspectType(Class<?> type) {
 			Set<GeneratedMethod> result = new LinkedHashSet<>();
+			Set<Annotation> inheritedAnnotations = new LinkedHashSet<>();
 
 			new SuperClassFirstClassVisitor(new MethodFieldVisitor(new NotPrivateOrStaticMethodsVisitor(new OnlyNestedOrInjectGetterMethod(new NestedOrInjectVisitor() {
 				@Override
-				public void visitClass(Class<?> type) {}
+				public void visitClass(Class<?> type) {
+					for (Annotation annotation : type.getDeclaredAnnotations()) {
+						if (annotation.annotationType().isAnnotationPresent(Inherited.class)) {
+							inheritedAnnotations.add(annotation);
+						}
+					}
+				}
 
 				@Override
 				public void visitInjectedConstructor(Constructor<?> constructor) {
@@ -170,7 +178,7 @@ public final class DefaultInstantiator implements Instantiator {
 					return new InstantiationStrategy() {
 						@Override
 						public Object newInstance(ServiceLookup serviceLookup, ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException {
-							Class<?> typeToInstantiate = classLoader.defineClass(Type.getInternalName(type) + "Subclass", generateSubclass(type, result));
+							Class<?> typeToInstantiate = classLoader.defineClass(Type.getInternalName(type) + "Subclass", generateSubclass(type, result, inheritedAnnotations));
 
 							ServiceLookup previousService = nextService.get();
 							try {
@@ -220,13 +228,30 @@ public final class DefaultInstantiator implements Instantiator {
 		Object newInstance(ServiceLookup serviceLookup, ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException;
 	}
 
-	public static byte[] generateSubclass(Class<?> superClass, Collection<GeneratedMethod> methods) {
+	public static byte[] generateSubclass(Class<?> superClass, Collection<GeneratedMethod> methods, Collection<Annotation> annotations) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
 		String superClassNameInternal = Type.getInternalName(superClass);
 		String subclassNameInternal = superClassNameInternal + "Subclass";
 
 		cw.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT, subclassNameInternal, null, superClassNameInternal, null);
+
+		for (Annotation annotation : annotations) {
+			AnnotationVisitor av = cw.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
+			for (Method method : annotation.annotationType().getDeclaredMethods()) {
+				try {
+					final Object value = method.invoke(annotation);
+					if (value instanceof Class) {
+						av.visit(method.getName(), Type.getType((Class<?>) value));
+					} else {
+						throw new RuntimeException();
+					}
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			av.visitEnd();
+		}
 
 		boolean injectConstructorFound = false;
 		for (Constructor<?> constructor : superClass.getConstructors()) {

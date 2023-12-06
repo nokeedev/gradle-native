@@ -15,11 +15,17 @@
  */
 package dev.nokee.language.objectivec.internal;
 
+import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
-public interface ObjectiveCSourcesMixIn extends HasObjectiveCSources {
+public interface ObjectiveCSourcesMixIn extends HasObjectiveCSources, LanguagePropertiesAware {
+	@Override
+	default ConfigurableFileCollection getObjectiveCSources() {
+		return getSourceProperties().getByName("objectiveCSources").getSource();
+	}
+
 	@Override
 	default void objectiveCSources(Action<? super ConfigurableFileCollection> action) {
 		action.execute(getObjectiveCSources());

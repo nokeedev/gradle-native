@@ -16,7 +16,11 @@
 
 package dev.nokee.language.swift.internal;
 
+import dev.nokee.language.base.internal.Implements;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SwiftLanguageImplementation;
 import dev.nokee.language.swift.internal.plugins.SwiftSourcesMixIn;
 
-public interface SwiftLanguageSupportSpec extends SupportSwiftSourceSetTag, SwiftSourcesMixIn {}
+@Implements(SwiftLanguageImplementation.class)
+public interface SwiftLanguageSupportSpec extends LanguageSupportSpec, SupportSwiftSourceSetTag, SwiftSourcesMixIn {}

@@ -16,7 +16,6 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.internal.IVariantOf;
@@ -36,7 +35,6 @@ public abstract /*final*/ class DefaultNativeApplication extends NativeApplicati
 {
 	public static abstract /*final*/ class Variant extends NativeApplicationSpec implements IVariantOf<NativeApplicationSpec>
 		, NativeVariantSpec
-		, NativeSourcesAware
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
 		, NativePlatformPluginSupport.VariantOf<DefaultNativeApplication>

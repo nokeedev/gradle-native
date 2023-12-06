@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.objectivecpp.internal;
+
+package dev.nokee.language.base.internal.rules;
 
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
-import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
 import org.gradle.api.Action;
-import org.gradle.api.file.ConfigurableFileCollection;
 
-public interface ObjectiveCppSourcesMixIn extends HasObjectiveCppSources, LanguagePropertiesAware {
-	@Override
-	default ConfigurableFileCollection getObjectiveCppSources() {
-		return getSourceProperties().getByName("objectiveCppSources").getSource();
-	}
+import java.util.stream.Collectors;
 
+public final class UseConventionalLayoutRule implements Action<LanguagePropertiesAware> {
 	@Override
-	default void objectiveCppSources(Action<? super ConfigurableFileCollection> action) {
-		action.execute(getObjectiveCppSources());
+	public void execute(LanguagePropertiesAware target) {
+		target.getSourceProperties().all(it -> it.getSource().from(it.getLayouts().stream().map(t -> t.apply(target)).collect(Collectors.toList())));
 	}
 }

@@ -15,16 +15,33 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
+import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.model.ObjectFactory;
 
-public class CLanguagePlugin implements Plugin<Project> {
+import javax.inject.Inject;
+
+public class CLanguagePlugin implements Plugin<Project>, NativeLanguageSupportPlugin {
+	private final ObjectFactory objects;
+
+	@Inject
+	public CLanguagePlugin(ObjectFactory objects) {
+		this.objects = objects;
+	}
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		project.getExtensions().create("$cSupport", SupportCSourceSetTag.class);
+	}
+
+	@Override
+	public void registerImplementation(LanguageSupportSpec target) {
+		target.getLanguageImplementations().add(new CLanguageImplementation(objects));
 	}
 }

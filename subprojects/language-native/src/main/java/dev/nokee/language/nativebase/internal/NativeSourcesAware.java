@@ -15,5 +15,8 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-public interface NativeSourcesAware {
+import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
+
+public interface NativeSourcesAware extends LanguagePropertiesAware, LanguageSupportSpec {
 }

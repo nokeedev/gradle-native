@@ -14,9 +14,22 @@
  * limitations under the License.
  */
 
-package dev.nokee.language.nativebase.internal;
+package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSupportSpec;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
 
-public interface NativeLanguageSourceSetAware extends LanguageSupportSpec {
+/**
+ * Language plugin can register implementation on each component:
+ * <code>
+ *   plugins.withType(LanguageSupportPlugin) { languagePlugin ->
+ *       components.withType(MyLanguageSupportType).configureEach {
+ *           languagePlugin.registerImplementation(it)
+ *       }
+ *   }
+ * </code>
+ */
+public interface LanguageSupportPlugin extends Plugin<Project> {
+	void registerImplementation(LanguageSupportSpec target);
 }

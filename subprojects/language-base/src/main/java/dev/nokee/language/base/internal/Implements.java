@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package dev.nokee.language.nativebase.internal;
+package dev.nokee.language.base.internal;
 
-import dev.nokee.language.base.internal.LanguageSupportSpec;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface NativeLanguageSourceSetAware extends LanguageSupportSpec {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+public @interface Implements {
+	Class<? extends LanguageImplementation> value();
 }

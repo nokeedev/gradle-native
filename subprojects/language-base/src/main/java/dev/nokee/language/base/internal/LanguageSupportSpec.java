@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package dev.nokee.language.nativebase.internal;
+package dev.nokee.language.base.internal;
 
-import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.model.internal.ModelElement;
+import org.gradle.api.DomainObjectSet;
 
-public interface NativeLanguageSourceSetAware extends LanguageSupportSpec {
+public interface LanguageSupportSpec extends ModelElement {
+	DomainObjectSet<LanguageImplementation> getLanguageImplementations();
 }

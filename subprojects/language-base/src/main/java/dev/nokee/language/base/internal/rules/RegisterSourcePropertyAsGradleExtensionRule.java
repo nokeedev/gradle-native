@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.objectivecpp.internal;
 
+package dev.nokee.language.base.internal.rules;
+
+import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
-import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.plugins.ExtensionContainer;
 
-public interface ObjectiveCppSourcesMixIn extends HasObjectiveCppSources, LanguagePropertiesAware {
+public final class RegisterSourcePropertyAsGradleExtensionRule implements Action<LanguagePropertiesAware> {
 	@Override
-	default ConfigurableFileCollection getObjectiveCppSources() {
-		return getSourceProperties().getByName("objectiveCppSources").getSource();
+	public void execute(LanguagePropertiesAware target) {
+		target.getSourceProperties().all(registerOn(target.getExtensions()));
 	}
 
-	@Override
-	default void objectiveCppSources(Action<? super ConfigurableFileCollection> action) {
-		action.execute(getObjectiveCppSources());
+	private Action<ISourceProperty> registerOn(ExtensionContainer extensions) {
+		return property -> extensions.add(ConfigurableFileCollection.class, property.getName(), property.getSource());
 	}
 }

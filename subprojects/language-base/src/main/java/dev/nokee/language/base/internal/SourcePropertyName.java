@@ -16,13 +16,6 @@
 
 package dev.nokee.language.base.internal;
 
-import org.gradle.api.specs.Spec;
-
-public interface SourcePropertyName extends Spec<SourceProperty> {
+public interface SourcePropertyName {
 	String asExtensionName();
-
-	@Override
-	default boolean isSatisfiedBy(SourceProperty element) {
-		return element.getPropertyName().equals(this);
-	}
 }

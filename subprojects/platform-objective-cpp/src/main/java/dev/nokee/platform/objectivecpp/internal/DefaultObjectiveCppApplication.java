@@ -16,7 +16,6 @@
 
 package dev.nokee.platform.objectivecpp.internal;
 
-import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.internal.IVariantOf;
@@ -40,7 +39,6 @@ public /*final*/ abstract class DefaultObjectiveCppApplication extends Objective
 {
 	public static abstract class Variant extends ObjectiveCppApplicationSpec implements IVariantOf<ObjectiveCppApplicationSpec>
 		, NativeVariantSpec
-		, NativeSourcesAware
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
 		, NativePlatformPluginSupport.VariantOf<DefaultObjectiveCppApplication>

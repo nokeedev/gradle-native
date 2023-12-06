@@ -17,6 +17,8 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.HasSource;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -28,6 +30,10 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 
 public class LanguageNativeBasePlugin implements Plugin<Project> {
 	@Override
@@ -57,5 +63,27 @@ public class LanguageNativeBasePlugin implements Plugin<Project> {
 				sourceSet.getBuildDependencies().add(((HasHeaders) sourceSet).getHeaders().getBuildDependencies());
 			}
 		});
+
+		model(project, objects()).configureEach(ofType(NativeLanguageSourceSetAware.class, it -> {
+			it.getLanguageImplementations().all(langImpl -> {
+				langImpl.registerSourceSet((name, sourceSetType) -> model(project, registryOf(LanguageSourceSet.class)).register(it.getIdentifier().child(name), sourceSetType));
+			});
+		}));
+
+		project.getPlugins().withType(NativeLanguageSupportPlugin.class, nativeLangPlugin -> {
+			model(project, objects()).configureEach(ofType(NativeSourcesAware.class, nativeLangPlugin::registerImplementation));
+		});
+		project.getPlugins().withType(NativeLanguageSupportPlugin.class, nativeLangPlugin -> {
+			model(project, objects()).configureEach(ofType(NativeLanguageSourceSetAware.class, nativeLangPlugin::registerImplementation));
+		});
+
+		model(project, objects()).configureEach(ofType(NativeSourcesAware.class, it -> {
+			it.getParents().filter(t -> t.instanceOf(LanguageSupportSpec.class))
+				.forEach(t -> t.safeAs(LanguageSupportSpec.class).get().getLanguageImplementations().withType(NativeLanguageImplementation.class, a -> it.getLanguageImplementations().add(a)));
+		}));
+		model(project, objects()).configureEach(ofType(NativeLanguageSourceSetAware.class, it -> {
+			it.getParents().filter(t -> t.instanceOf(LanguageSupportSpec.class))
+				.forEach(t -> t.safeAs(LanguageSupportSpec.class).get().getLanguageImplementations().withType(NativeLanguageImplementation.class, a -> it.getLanguageImplementations().add(a)));
+		}));
 	}
 }

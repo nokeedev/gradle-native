@@ -23,6 +23,7 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import org.gradle.api.tasks.TaskProvider;
 
+// Source set that produce object files
 public interface NativeSourceSet extends LanguageSourceSet
 	, HasSource
 	, HasCompileTask

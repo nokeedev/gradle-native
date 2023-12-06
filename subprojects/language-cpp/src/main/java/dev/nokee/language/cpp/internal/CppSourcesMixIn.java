@@ -15,13 +15,16 @@
  */
 package dev.nokee.language.cpp.internal;
 
+import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.cpp.HasCppSources;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
-public interface CppSourcesMixIn extends HasCppSources {
+public interface CppSourcesMixIn extends HasCppSources, LanguagePropertiesAware {
 	@Override
-	ConfigurableFileCollection getCppSources();
+	default ConfigurableFileCollection getCppSources() {
+		return getSourceProperties().getByName("cppSources").getSource();
+	}
 
 	@Override
 	default void cppSources(Action<? super ConfigurableFileCollection> action) {

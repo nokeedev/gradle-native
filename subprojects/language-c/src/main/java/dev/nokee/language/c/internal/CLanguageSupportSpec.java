@@ -16,7 +16,11 @@
 
 package dev.nokee.language.c.internal;
 
+import dev.nokee.language.base.internal.Implements;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.c.internal.plugins.CLanguageImplementation;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 
-public interface CLanguageSupportSpec extends SupportCSourceSetTag, CSourcesMixIn, PrivateHeadersMixIn {}
+@Implements(CLanguageImplementation.class)
+public interface CLanguageSupportSpec extends LanguageSupportSpec, SupportCSourceSetTag, CSourcesMixIn, PrivateHeadersMixIn {}

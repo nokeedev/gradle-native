@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package dev.nokee.language.cpp.internal;
+package dev.nokee.language.base.internal.rules;
 
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.language.base.internal.Implements;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
-import dev.nokee.language.cpp.internal.plugins.CppLanguageImplementation;
-import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
-import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
+import org.gradle.api.Action;
 
-@Implements(CppLanguageImplementation.class)
-public interface CppLanguageSupportSpec extends LanguageSupportSpec, SupportCppSourceSetTag, CppSourcesMixIn, PrivateHeadersMixIn {}
+public final class RegisterLanguageImplementationRule implements Action<LanguageSupportSpec> {
+	private final Instantiator instantiator;
+
+	public RegisterLanguageImplementationRule(Instantiator instantiator) {
+		this.instantiator = instantiator;
+	}
+
+	@Override
+	public void execute(LanguageSupportSpec target) {
+		for (Implements languageImplementations : target.getClass().getAnnotationsByType(Implements.class)) {
+			target.getLanguageImplementations().add(instantiator.newInstance(languageImplementations.value()));
+		}
+	}
+}

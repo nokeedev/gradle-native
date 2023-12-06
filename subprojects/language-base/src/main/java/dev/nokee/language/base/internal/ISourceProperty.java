@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.LanguagePropertiesAware;
-import dev.nokee.language.nativebase.HasPrivateHeaders;
-import org.gradle.api.Action;
+package dev.nokee.language.base.internal;
+
+import org.gradle.api.Named;
 import org.gradle.api.file.ConfigurableFileCollection;
 
-public interface PrivateHeadersMixIn extends HasPrivateHeaders, LanguagePropertiesAware {
-	@Override
-	default ConfigurableFileCollection getPrivateHeaders() {
-		return getSourceProperties().getByName("privateHeaders").getSource();
-	}
+import java.util.List;
 
-	@Override
-	default void privateHeaders(Action<? super ConfigurableFileCollection> action) {
-		action.execute(getPrivateHeaders());
+public interface ISourceProperty extends Named {
+	ConfigurableFileCollection getSource();
+
+	List<ConventionLayout> getLayouts();
+
+	interface ConventionLayout {
+		Object apply(Named target);
 	}
 }
