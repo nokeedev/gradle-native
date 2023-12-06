@@ -21,8 +21,6 @@ import dev.nokee.language.base.internal.LanguageImplementation;
 import lombok.EqualsAndHashCode;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
 
 @EqualsAndHashCode
 public abstract /*final*/ class NativeHeaderProperty implements ISourceProperty {
@@ -33,16 +31,13 @@ public abstract /*final*/ class NativeHeaderProperty implements ISourceProperty 
 	public NativeHeaderProperty(String name, Visibility visibility) {
 		this.name = name;
 		this.visibility = visibility;
+		getLayouts().add(LanguageImplementation.layout(visibility.toString()));
+		getLayouts().disallowChanges();
 	}
 
 	@Override
 	public String getName() {
 		return name;
-	}
-
-	@Override
-	public List<ConventionLayout> getLayouts() {
-		return Arrays.asList(LanguageImplementation.layout(visibility.toString()));
 	}
 
 	public interface Visibility {

@@ -19,17 +19,14 @@ package dev.nokee.language.base.internal;
 import org.gradle.api.file.ConfigurableFileCollection;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Objects;
 
 public abstract /*final*/ class SourceProperty implements ISourceProperty {
 	private final String name;
-	private final List<ConventionLayout> layouts;
 
 	@Inject
-	public SourceProperty(String name, List<ConventionLayout> layouts) {
+	public SourceProperty(String name) {
 		this.name = name;
-		this.layouts = layouts;
 	}
 
 	@Override
@@ -38,11 +35,6 @@ public abstract /*final*/ class SourceProperty implements ISourceProperty {
 	}
 
 	public abstract ConfigurableFileCollection getSource();
-
-	@Override
-	public List<ConventionLayout> getLayouts() {
-		return layouts;
-	}
 
 	@Override
 	public boolean equals(Object o) {

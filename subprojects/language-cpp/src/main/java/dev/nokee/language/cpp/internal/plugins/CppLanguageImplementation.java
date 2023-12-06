@@ -27,7 +27,6 @@ import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.language.base.internal.LanguageImplementation.layout;
@@ -43,7 +42,8 @@ public class CppLanguageImplementation implements NativeLanguageImplementation {
 
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
-		val cppSources = objects.newInstance(SourceProperty.class, "cppSources", Arrays.asList(layout("cpp")));
+		val cppSources = objects.newInstance(SourceProperty.class, "cppSources");
+		cppSources.getLayouts().add(layout("cpp"));
 		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders", NativeHeaderProperty.BasicVisibility.Private);
 
 		target.getSourceProperties().add(cppSources);

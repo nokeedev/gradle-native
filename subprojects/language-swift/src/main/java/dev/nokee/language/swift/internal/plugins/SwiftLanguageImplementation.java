@@ -25,7 +25,6 @@ import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.language.base.internal.LanguageImplementation.layout;
@@ -40,7 +39,8 @@ public class SwiftLanguageImplementation implements NativeLanguageImplementation
 
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
-		val swiftSources = objects.newInstance(SourceProperty.class, "swiftSources", Arrays.asList(layout("swift")));
+		val swiftSources = objects.newInstance(SourceProperty.class, "swiftSources");
+		swiftSources.getLayouts().add(layout("swift"));
 
 		target.getSourceProperties().add(swiftSources);
 	}

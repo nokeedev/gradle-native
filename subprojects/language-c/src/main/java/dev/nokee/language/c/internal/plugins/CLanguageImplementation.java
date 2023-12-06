@@ -27,7 +27,6 @@ import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.language.base.internal.LanguageImplementation.layout;
@@ -43,7 +42,8 @@ public class CLanguageImplementation implements NativeLanguageImplementation {
 
 	@Override
 	public void registerSourceProperties(LanguagePropertiesAware target) {
-		val cSources = objects.newInstance(SourceProperty.class, "cSources", Arrays.asList(layout("c")));
+		val cSources = objects.newInstance(SourceProperty.class, "cSources");
+		cSources.getLayouts().add(layout("c"));
 		val privateHeaders = objects.newInstance(NativeHeaderProperty.class, "privateHeaders", NativeHeaderProperty.BasicVisibility.Private);
 
 		target.getSourceProperties().add(cSources);

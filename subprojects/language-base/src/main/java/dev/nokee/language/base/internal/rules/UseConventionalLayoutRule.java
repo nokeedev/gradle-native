@@ -24,6 +24,6 @@ import java.util.stream.Collectors;
 public final class UseConventionalLayoutRule implements Action<LanguagePropertiesAware> {
 	@Override
 	public void execute(LanguagePropertiesAware target) {
-		target.getSourceProperties().all(it -> it.getSource().from(it.getLayouts().stream().map(t -> t.apply(target)).collect(Collectors.toList())));
+		target.getSourceProperties().all(it -> it.getSource().from(it.getLayouts().get().stream().map(t -> t.apply(target)).collect(Collectors.toList())));
 	}
 }

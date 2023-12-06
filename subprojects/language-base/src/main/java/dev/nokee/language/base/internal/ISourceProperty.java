@@ -18,13 +18,12 @@ package dev.nokee.language.base.internal;
 
 import org.gradle.api.Named;
 import org.gradle.api.file.ConfigurableFileCollection;
-
-import java.util.List;
+import org.gradle.api.provider.ListProperty;
 
 public interface ISourceProperty extends Named {
 	ConfigurableFileCollection getSource();
 
-	List<ConventionLayout> getLayouts();
+	ListProperty<ConventionLayout> getLayouts();
 
 	interface ConventionLayout {
 		Object apply(Named target);
