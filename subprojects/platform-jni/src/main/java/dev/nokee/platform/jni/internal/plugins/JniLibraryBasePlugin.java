@@ -20,8 +20,6 @@ import com.google.common.collect.Iterables;
 import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.language.c.internal.SupportCSourceSetTag;
-import dev.nokee.language.cpp.internal.SupportCppSourceSetTag;
 import dev.nokee.language.jvm.internal.GroovySourceSetSpec;
 import dev.nokee.language.jvm.internal.JavaSourceSetSpec;
 import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
@@ -33,8 +31,6 @@ import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.language.objectivec.internal.SupportObjectiveCSourceSetTag;
-import dev.nokee.language.objectivecpp.internal.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
@@ -287,13 +283,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("kotlin"), KotlinSourceSetSpec.class).get(); // force realize to avoid out-of-order
 			});
-		});
-		// TODO: When discovery will be a real feature, we shouldn't need this anymore
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			project.getPluginManager().withPlugin("dev.nokee.c-language", __ -> component.getExtensions().create("$cSupport", SupportCSourceSetTag.class));
-			project.getPluginManager().withPlugin("dev.nokee.cpp-language", __ -> component.getExtensions().create("$cppSupport", SupportCppSourceSetTag.class));
-			project.getPluginManager().withPlugin("dev.nokee.objective-c-language", __ -> component.getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class));
-			project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", __ -> component.getExtensions().create("$objectiveCppSupport", SupportObjectiveCppSourceSetTag.class));
 		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			component.getDevelopmentVariant().convention((Provider<? extends JniLibraryInternal>) project.provider(new BuildableDevelopmentVariantConvention(() -> component.getVariants().getElements().get())));

@@ -18,5 +18,7 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 
+// Use on NativeBinary
+//   Implies implementation language and matching default source set
 public interface NativeLanguageSourceSetAware extends LanguageSupportSpec {
 }

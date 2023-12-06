@@ -18,5 +18,7 @@ package dev.nokee.language.nativebase.internal;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 
+// Use on Component/Variant/TestSuiteComponent
+//   Implies implementation language and *Sources properties
 public interface NativeSourcesAware extends LanguagePropertiesAware, LanguageSupportSpec {
 }

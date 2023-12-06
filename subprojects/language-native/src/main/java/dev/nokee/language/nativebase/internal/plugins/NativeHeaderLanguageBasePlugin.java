@@ -21,14 +21,13 @@ import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
-import dev.nokee.language.nativebase.internal.AttachHeaderSearchPathsToCompileTaskRule;
+import dev.nokee.language.nativebase.internal.rules.AttachHeaderSearchPathsToCompileTaskRule;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
-import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationAction;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskDefaultConfigurationRule;
+import dev.nokee.language.nativebase.internal.rules.HeaderSearchPathsConfigurationRegistrationAction;
+import dev.nokee.language.nativebase.internal.rules.NativeCompileTaskDefaultConfigurationRule;
 import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
 import dev.nokee.language.nativebase.internal.PublicHeadersMixIn;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import dev.nokee.model.internal.TypeFilteringAction;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -46,6 +45,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 
+// TODO: formalize headers visibility with export elements
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
