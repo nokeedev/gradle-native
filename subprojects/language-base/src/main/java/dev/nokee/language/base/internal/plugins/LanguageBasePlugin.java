@@ -17,6 +17,7 @@ package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.ISourceProperty;
 import dev.nokee.language.base.internal.LanguagePropertiesAware;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.base.internal.rules.RegisterLanguageImplementationRule;
@@ -73,5 +74,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		model(project, objects()).configureEach(ofType(LanguagePropertiesAware.class, new SourcePropertiesExtendsFromParentRule()));
 		model(project, objects()).configureEach(ofType(LanguageSupportSpec.class, new RegisterLanguageImplementationRule(instantiator(project))));
 		model(project, objects()).configureEach(ofType(LanguagePropertiesAware.class, new UseConventionalLayoutRule()));
+
+		model(project).getExtensions().add("$properties", model(project).getExtensions().getByType(ModelMapFactory.class).create(ISourceProperty.class, project.getObjects().polymorphicDomainObjectContainer(ISourceProperty.class)));
 	}
 }
