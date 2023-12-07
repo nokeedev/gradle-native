@@ -35,8 +35,6 @@ gradlePlugin {
 		implementation project(':coreExec')
 		implementation project(':runtimeNative')
 		implementation "com.google.guava:guava:${guavaVersion}"
-		implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
-		annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
 	}
 }
 
