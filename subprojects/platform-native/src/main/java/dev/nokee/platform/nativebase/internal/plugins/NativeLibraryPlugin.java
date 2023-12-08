@@ -31,8 +31,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 
 		new NativePlatformPluginSupport<>()
 			.useLanguagePlugin(CLanguageBasePlugin.class) // TODO: Should probably be NativeHeaderLanguageBasePlugin
-			.registerComponent(DefaultNativeLibrary.class)
-			.registerVariant(DefaultNativeLibrary.Variant.class)
+			.componentType(DefaultNativeLibrary.class)
 			.registerAsMainComponent(baseName(convention(project.getName())))
 			.mountAsExtension()
 			.execute(project);

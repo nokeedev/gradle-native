@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.c.internal;
+package dev.nokee.platform.nativebase;
 
-import dev.nokee.language.c.internal.CLanguageSupportSpec;
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.platform.c.CApplication;
-import dev.nokee.platform.nativebase.internal.NativeApplicationSpecEx;
+import dev.nokee.language.base.SourceAwareComponent;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.TaskAwareComponent;
+import org.gradle.api.Named;
 
-public /*final*/ abstract class CApplicationSpec extends ModelElementSupport implements CApplication
-	, NativeApplicationSpecEx
-	, CLanguageSupportSpec
+public interface NativeComponent extends Named
+	, BinaryAwareComponent, TaskAwareComponent, SourceAwareComponent
+	, HasBaseName
 {
-	@Override
-	protected String getTypeName() {
-		return "C application";
-	}
+	NativeComponentDependencies getDependencies();
 }

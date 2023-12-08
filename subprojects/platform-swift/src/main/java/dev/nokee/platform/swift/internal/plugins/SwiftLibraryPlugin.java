@@ -15,9 +15,10 @@
  */
 package dev.nokee.platform.swift.internal.plugins;
 
+import dev.nokee.language.swift.internal.SwiftLanguageImplementation;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibrary;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
-import dev.nokee.platform.swift.internal.DefaultSwiftLibrary;
 import dev.nokee.utils.TextCaseUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -33,8 +34,8 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 
 		new NativePlatformPluginSupport<>()
 			.useLanguagePlugin(SwiftLanguageBasePlugin.class)
-			.registerComponent(DefaultSwiftLibrary.class)
-			.registerVariant(DefaultSwiftLibrary.Variant.class)
+			.registerLanguages(SwiftLanguageImplementation.class)
+			.componentType(DefaultNativeLibrary.class)
 			.registerAsMainComponent(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))))
 			.mountAsExtension()
 			.execute(project);

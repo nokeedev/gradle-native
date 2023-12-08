@@ -16,9 +16,10 @@
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppLanguageImplementation;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplication;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
-import dev.nokee.platform.objectivecpp.internal.DefaultObjectiveCppApplication;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -32,8 +33,8 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 
 		new NativePlatformPluginSupport<>()
 			.useLanguagePlugin(ObjectiveCppLanguageBasePlugin.class)
-			.registerComponent(DefaultObjectiveCppApplication.class)
-			.registerVariant(DefaultObjectiveCppApplication.Variant.class)
+			.registerLanguages(ObjectiveCppLanguageImplementation.class)
+			.componentType(DefaultNativeApplication.class)
 			.registerAsMainComponent(baseName(convention(project.getName())))
 			.mountAsExtension()
 			.execute(project);

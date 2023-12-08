@@ -16,6 +16,7 @@
 
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.internal.IVariantOf;
@@ -32,9 +33,11 @@ import javax.inject.Inject;
 
 public abstract /*final*/ class DefaultNativeApplication extends NativeApplicationSpec implements INativeComponentSpec<NativeApplicationSpec>
 	, VariantComponentSpec<DefaultNativeApplication.Variant>
+	, NativeSourcesAware
 {
 	public static abstract /*final*/ class Variant extends NativeApplicationSpec implements IVariantOf<NativeApplicationSpec>
 		, NativeVariantSpec
+		, NativeSourcesAware
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
 		, NativePlatformPluginSupport.VariantOf<DefaultNativeApplication>

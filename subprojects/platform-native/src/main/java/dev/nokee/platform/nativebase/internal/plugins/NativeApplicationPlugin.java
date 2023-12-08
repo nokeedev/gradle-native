@@ -31,8 +31,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 		new NativePlatformPluginSupport<>()
 			.useLanguagePlugin(CLanguageBasePlugin.class) // TODO: Should probably be NativeHeaderLanguageBasePlugin
-			.registerComponent(DefaultNativeApplication.class)
-			.registerVariant(DefaultNativeApplication.Variant.class)
+			.componentType(DefaultNativeApplication.class)
 			.registerAsMainComponent(baseName(convention(project.getName())))
 			.mountAsExtension()
 			.execute(project);

@@ -60,6 +60,8 @@ import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplication;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibrary;
 import dev.nokee.platform.nativebase.internal.HasBinaryLifecycleTask;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
@@ -162,6 +164,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		}));
 
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeApplication.class);
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeApplication.Variant.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultNativeLibrary.class);
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeLibrary.Variant.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeSharedLibraryBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeBundleBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeExecutableBinarySpec.class);
@@ -169,7 +175,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, mapOf(Variant.class)).configureEach(NativeComponentSpecEx.class, result -> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(((VariantInternal) result).getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
-
 
 		project.afterEvaluate(__ -> {
 			// TODO: Should not force realize consumable bucket if Gradle can handle it.

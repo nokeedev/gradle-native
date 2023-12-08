@@ -15,9 +15,10 @@
  */
 package dev.nokee.platform.cpp.internal.plugins;
 
+import dev.nokee.language.cpp.internal.CppLanguageImplementation;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.platform.cpp.internal.DefaultCppApplication;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplication;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -32,8 +33,8 @@ public class CppApplicationPlugin implements Plugin<Project> {
 
 		new NativePlatformPluginSupport<>()
 			.useLanguagePlugin(CppLanguageBasePlugin.class)
-			.registerComponent(DefaultCppApplication.class)
-			.registerVariant(DefaultCppApplication.Variant.class)
+			.registerLanguages(CppLanguageImplementation.class)
+			.componentType(DefaultNativeApplication.class)
 			.registerAsMainComponent(baseName(convention(project.getName())))
 			.mountAsExtension()
 			.execute(project);

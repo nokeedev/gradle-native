@@ -16,16 +16,12 @@
 
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.language.base.SourceAwareComponent;
-import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.TaskAwareComponent;
 
 /**
  * A native library.
  *
  * @since 0.4
  */
-public interface NativeLibraryEx extends DependencyAwareComponent<NativeLibraryComponentDependencies>, BinaryAwareComponent, TaskAwareComponent, SourceAwareComponent, HasBaseName {
+public interface NativeLibraryEx extends NativeComponent, DependencyAwareComponent<NativeLibraryComponentDependencies> {
 }
