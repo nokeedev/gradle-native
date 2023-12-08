@@ -330,14 +330,6 @@ public final class DefaultInstantiator implements Instantiator {
 		mv.visitEnd();
 	}
 
-	private static void superClasses(Class<?> current, Collection<Class<?>> supers) {
-		Class<?> superclass = current.getSuperclass();
-		while (superclass != null) {
-			supers.add(superclass);
-			superclass = superclass.getSuperclass();
-		}
-	}
-
 
 	private interface ClassVisitor {
 		void visitClass(Class<?> type);
@@ -363,6 +355,14 @@ public final class DefaultInstantiator implements Instantiator {
 				}
 				visitor.visitClass(current);
 				Collections.addAll(queue, current.getInterfaces());
+			}
+		}
+
+		private static void superClasses(Class<?> current, Collection<Class<?>> supers) {
+			Class<?> superclass = current.getSuperclass();
+			while (superclass != null) {
+				supers.add(superclass);
+				superclass = superclass.getSuperclass();
 			}
 		}
 	}
