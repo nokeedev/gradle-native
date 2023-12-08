@@ -295,4 +295,14 @@ public final class GradleProviderMatchers {
 	private enum ProviderState {
 		present, absent
 	}
+
+	// WARNING: This matcher will mutate the property
+	public static <T> Matcher<Property<T>> conventionOf(Matcher<? super T> matcher) {
+		return new FeatureMatcher<Property<T>, T>(matcher, "", "") {
+			@Override
+			protected T featureValueOf(Property<T> actual) {
+				return actual.value((T) null).getOrNull();
+			}
+		};
+	}
 }

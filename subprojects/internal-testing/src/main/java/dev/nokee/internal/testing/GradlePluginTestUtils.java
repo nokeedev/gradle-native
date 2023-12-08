@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.nokee.testing.base;
+package dev.nokee.internal.testing;
 
 import org.gradle.api.Plugin;
 

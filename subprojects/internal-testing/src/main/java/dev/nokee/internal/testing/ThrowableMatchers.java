@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dev.nokee.testing.base;
+package dev.nokee.internal.testing;
 
 import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
@@ -30,15 +30,15 @@ import java.util.concurrent.Callable;
 import static org.hamcrest.Matchers.hasItem;
 
 public final class ThrowableMatchers {
-	private static Invocation callTo(ThrowingRunnable runnable) {
+	public static Invocation callTo(ThrowingRunnable runnable) {
 		return new Invocation(runnable);
 	}
 
-	static Invocation callTo(Callable<?> callable) {
+	public static Invocation callTo(Callable<?> callable) {
 		return new Invocation(callable::call);
 	}
 
-	static Matcher<Invocation> throwsException(Matcher<? super Throwable> matcher) {
+	public static Matcher<Invocation> throwsException(Matcher<? super Throwable> matcher) {
 		return new FeatureMatcher<Invocation, Throwable>(matcher, "", "") {
 			@Override
 			protected Throwable featureValueOf(Invocation actual) {
@@ -52,7 +52,7 @@ public final class ThrowableMatchers {
 		};
 	}
 
-	static Matcher<Invocation> doesNotThrowException() {
+	public static Matcher<Invocation> doesNotThrowException() {
 		return new TypeSafeMatcher<Invocation>() {
 			@Override
 			protected boolean matchesSafely(Invocation actual) {
@@ -71,7 +71,7 @@ public final class ThrowableMatchers {
 		};
 	}
 
-	static Matcher<Throwable> message(String message) {
+	public static Matcher<Throwable> message(String message) {
 		return new FeatureMatcher<Throwable, List<String>>(hasItem(message), "", "") {
 			@Override
 			protected List<String> featureValueOf(Throwable actual) {

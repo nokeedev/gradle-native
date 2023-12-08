@@ -18,7 +18,13 @@ package dev.nokee.internal.testing;
 import com.google.common.collect.ImmutableMap;
 import lombok.val;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.*;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationVariant;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.FileCollectionDependency;
+import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.artifacts.PublishArtifactSet;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.attributes.HasAttributes;
@@ -34,7 +40,13 @@ import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.isA;
 
 public final class ConfigurationMatchers {
 	private ConfigurationMatchers() {}
@@ -240,6 +252,15 @@ public final class ConfigurationMatchers {
 	 */
 	public static <T extends Dependency> Matcher<T> forCoordinate(@Nullable String group, String name, @Nullable String version) {
 		return allOf(withGroup(equalTo(group)), withName(equalTo(requireNonNull(name))), withVersion(equalTo(version)));
+	}
+
+	public static <T extends Dependency> Matcher<T> withFiles(Matcher<? super Iterable<File>> matcher) {
+		return new FeatureMatcher<T, Iterable<File>>(matcher, "", "") {
+			@Override
+			protected Iterable<File> featureValueOf(T actual) {
+				return ((FileCollectionDependency) actual).getFiles();
+			}
+		};
 	}
 
 	private static Matcher<Dependency> withGroup(Matcher<? super String> matcher) {

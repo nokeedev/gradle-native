@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.ProjectMatchers.extensions;
 import static dev.nokee.internal.testing.ProjectMatchers.publicType;
-import static dev.nokee.testing.base.GradlePluginTestUtils.pluginId;
+import static dev.nokee.internal.testing.GradlePluginTestUtils.pluginId;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasItem;
