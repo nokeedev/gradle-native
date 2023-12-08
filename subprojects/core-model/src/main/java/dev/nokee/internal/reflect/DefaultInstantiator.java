@@ -42,13 +42,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -330,112 +326,7 @@ public final class DefaultInstantiator implements Instantiator {
 		mv.visitEnd();
 	}
 
-
-	private interface ClassVisitor {
-		void visitClass(Class<?> type);
-	}
-
-	private static final class SuperClassFirstClassVisitor {
-		private final ClassVisitor visitor;
-
-		private SuperClassFirstClassVisitor(ClassVisitor visitor) {
-			this.visitor = visitor;
-		}
-
-		public void visitClass(Class<?> type) {
-			Set<Class<?>> seen = new HashSet<Class<?>>();
-			Deque<Class<?>> queue = new ArrayDeque<Class<?>>();
-
-			queue.add(type);
-			superClasses(type, queue);
-			while (!queue.isEmpty()) {
-				Class<?> current = queue.removeFirst();
-				if (!seen.add(current)) {
-					continue;
-				}
-				visitor.visitClass(current);
-				Collections.addAll(queue, current.getInterfaces());
-			}
-		}
-
-		private static void superClasses(Class<?> current, Collection<Class<?>> supers) {
-			Class<?> superclass = current.getSuperclass();
-			while (superclass != null) {
-				supers.add(superclass);
-				superclass = superclass.getSuperclass();
-			}
-		}
-	}
-
-	interface ClassMethodFieldVisitor {
-		void visitClass(Class<?> type);
-		void visitConstructor(Constructor<?> constructor);
-		void visitMethod(Method method);
-		void visitEnd();
-	}
-
-	private static final class MethodFieldVisitor implements ClassVisitor {
-		private final ClassMethodFieldVisitor visitor;
-
-		private MethodFieldVisitor(ClassMethodFieldVisitor visitor) {
-			this.visitor = visitor;
-		}
-
-		@Override
-		public void visitClass(Class<?> type) {
-			visitor.visitClass(type);
-
-			for (Constructor<?> constructor : type.getDeclaredConstructors()) {
-				visitor.visitConstructor(constructor);
-			}
-
-			for (Method method : type.getDeclaredMethods()) {
-				visitor.visitMethod(method);
-			}
-
-			// No support for field for now
-
-			visitor.visitEnd();
-		}
-	}
-
-	private static final class NotPrivateOrStaticMethodsVisitor implements ClassMethodFieldVisitor {
-		private final ClassMethodFieldVisitor visitor;
-
-		private NotPrivateOrStaticMethodsVisitor(ClassMethodFieldVisitor visitor) {
-			this.visitor = visitor;
-		}
-
-		@Override
-		public void visitClass(Class<?> type) {
-			visitor.visitClass(type);
-		}
-
-		@Override
-		public void visitConstructor(Constructor<?> constructor) {
-			if (Modifier.isPrivate(constructor.getModifiers())) {
-				// skip
-			} else {
-				visitor.visitConstructor(constructor);
-			}
-		}
-
-		@Override
-		public void visitMethod(Method method) {
-			if (Modifier.isPrivate(method.getModifiers()) || Modifier.isStatic(method.getModifiers())) {
-				// skip
-			} else {
-				visitor.visitMethod(method);
-			}
-		}
-
-		@Override
-		public void visitEnd() {
-			visitor.visitEnd();
-		}
-	}
-
-	private static final class OnlyNestedOrInjectGetterMethod implements ClassMethodFieldVisitor {
+	private static final class OnlyNestedOrInjectGetterMethod implements MethodFieldVisitor.ClassMethodFieldVisitor {
 		private final NestedOrInjectVisitor visitor;
 
 		private OnlyNestedOrInjectGetterMethod(NestedOrInjectVisitor visitor) {
