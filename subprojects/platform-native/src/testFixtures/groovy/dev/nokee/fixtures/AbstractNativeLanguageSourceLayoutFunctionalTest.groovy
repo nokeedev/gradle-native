@@ -68,7 +68,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 		expect:
 		succeeds ':assemble'
-		result.assertTasksExecuted(tasks.allToLifecycleAssemble, tasks(':library').allToLinkElements)
+		result.assertTasksExecuted(tasks.allToLifecycleAssemble, libraryTasks)
 	}
 
 	def "can generate sources"() {
@@ -218,7 +218,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 		expect:
 		succeeds(':assemble')
-		result.assertTasksExecuted(tasks.allToAssemble, tasks(':library').allToLinkElements, ':library:generateSources')
+		result.assertTasksExecuted(tasks.allToAssemble, libraryTasks, ':library:generateSources')
 	}
 
 	protected String getComponentUnderTestDsl() {
@@ -354,5 +354,9 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		}
 
 		return result
+	}
+
+	protected List<String> getLibraryTasks() {
+		return tasks(':library').allToLinkElements
 	}
 }

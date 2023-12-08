@@ -21,16 +21,12 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElement;
-import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObject;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
@@ -50,7 +46,6 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.testing.base.TestSuiteComponent;
-import dev.nokee.testing.base.internal.CheckableComponentSpec;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
@@ -92,7 +87,6 @@ import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuit
 import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
 import static dev.nokee.utils.CallableUtils.memoizeOnCall;
 import static dev.nokee.utils.DeferUtils.asToStringObject;
-import static dev.nokee.utils.ProviderUtils.ifPresent;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 import static dev.nokee.utils.TransformerUtils.flatten;
@@ -271,7 +265,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class);
 
 		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
-			final NativeApplicationOutgoingDependencies outgoing = new NativeApplicationOutgoingDependencies(variant.getRuntimeElements().getAsConfiguration(), project.getObjects());
+			final NativeApplicationOutgoingDependencies outgoing = new NativeApplicationOutgoingDependencies(variant, variant.getRuntimeElements().getAsConfiguration(), project);
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 		});
 		project.afterEvaluate(__ -> {

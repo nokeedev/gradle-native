@@ -15,33 +15,70 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
+import dev.nokee.language.nativebase.internal.NativePlatformFactory;
+import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
+import dev.nokee.model.internal.ModelObject;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.nativebase.internal.HasOutputFile;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
-import lombok.AccessLevel;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
+import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.TaskUtils;
 import lombok.Getter;
+import lombok.val;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Sync;
+
+import java.io.File;
+
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public final class NativeApplicationOutgoingDependencies implements NativeOutgoingDependencies {
-	@Getter private final DirectoryProperty exportedHeaders;
+	@Getter private final ConfigurableFileCollection exportedHeaders;
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
-	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
-	public NativeApplicationOutgoingDependencies(Configuration runtimeElements, ObjectFactory objects) {
-		this.objects = objects;
-		this.exportedHeaders = objects.directoryProperty();
-		this.exportedSwiftModule = objects.fileProperty();
-		this.exportedBinary = objects.property(Binary.class);
+	public NativeApplicationOutgoingDependencies(NativeVariantSpec variant, Configuration runtimeElements, Project project) {
+		this.exportedHeaders = project.getObjects().fileCollection();
+		this.exportedSwiftModule = project.getObjects().fileProperty();
+		this.exportedBinary = project.getObjects().property(Binary.class);
 
-		runtimeElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
+		final ModelObject<Sync> syncRuntimeLibraryTask = model(project, registryOf(Task.class)).register(variant.getIdentifier().child(TaskName.of("sync", "runtimeLibrary")), Sync.class);
+
+		val runtimeLibraryName = finalizeValueOnRead(project.getObjects().property(String.class).value(project.provider(() -> {
+			val toolChainSelector = new ToolChainSelectorInternal(((ProjectInternal) project).getModelRegistry());
+			val platform = NativePlatformFactory.create(variant.getBuildVariant().getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
+			val toolchain = toolChainSelector.select(platform);
+			val toolProvider = toolchain.select(platform);
+			val linkage = variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+			val baseName = ((HasBaseName)variant).getBaseName().get();
+			if (linkage.isExecutable()) {
+				return toolProvider.getExecutableName(baseName);
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		})));
+
+		syncRuntimeLibraryTask.configure(task -> {
+			task.from(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary), spec -> spec.rename(it -> runtimeLibraryName.get()));
+			task.setDestinationDir(project.getLayout().getBuildDirectory().dir(TaskUtils.temporaryDirectoryPath(task)).get().getAsFile());
+		});
+
+		runtimeElements.getOutgoing().artifact(syncRuntimeLibraryTask.asProvider().map(it -> new File(it.getDestinationDir(), runtimeLibraryName.get())));
 	}
 
 	private Provider<RegularFile> getOutgoingRuntimeLibrary(Binary binary) {

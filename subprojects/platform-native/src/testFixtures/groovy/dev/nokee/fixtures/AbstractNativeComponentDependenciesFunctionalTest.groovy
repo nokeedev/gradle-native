@@ -153,7 +153,7 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 
 		if (this.class.name.contains('WithStaticLinkage')) {
 			if (this.class.simpleName.startsWith('Swift')) {
-				result = [libraryTasks.compile]
+				result = [libraryTasks.compile, libraryTasks.syncApiElements]
 			} else {
 				result = [libraryTasks.syncApiElements]
 			}

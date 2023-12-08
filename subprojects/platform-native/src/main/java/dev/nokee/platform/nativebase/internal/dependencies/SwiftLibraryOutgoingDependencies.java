@@ -15,18 +15,29 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
-import dev.nokee.util.internal.LazyPublishArtifact;
+import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.tasks.Sync;
+
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 
 public final class SwiftLibraryOutgoingDependencies extends AbstractNativeLibraryOutgoingDependencies implements NativeOutgoingDependencies {
-	public SwiftLibraryOutgoingDependencies(Configuration apiElements, Configuration linkElements, Configuration runtimeElements, ObjectFactory objects) {
-		super(linkElements, runtimeElements, objects);
+	public SwiftLibraryOutgoingDependencies(NativeVariantSpec variant, Configuration apiElements, Configuration linkElements, Configuration runtimeElements, Project project) {
+		super(variant, linkElements, runtimeElements, project);
 
-		val apiArtifacts = objects.listProperty(PublishArtifact.class);
-		apiArtifacts.add(new LazyPublishArtifact(getExportedSwiftModule()));
-		apiElements.getOutgoing().getArtifacts().addAllLater(apiArtifacts);
+		val syncTask = model(project, registryOf(Task.class)).register(variant.getIdentifier().child(TaskName.of("sync", "importModule")), Sync.class);
+		syncTask.configure(task -> {
+			task.from(getExportedSwiftModule(), spec -> spec.rename(it -> TextCaseUtils.toCamelCase(((HasBaseName) variant).getBaseName().get()) + ".swiftmodule"));
+			task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
+		});
+		apiElements.getOutgoing().artifact(syncTask.asProvider().map(Sync::getDestinationDir));
 	}
 }

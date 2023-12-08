@@ -23,6 +23,7 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.utils.TextCaseUtils;
@@ -31,6 +32,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.swift.SwiftVersion;
 
@@ -44,10 +46,16 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
 public final class SwiftCompileTaskDefaultConfigurationRule implements Action<SwiftSourceSetSpec> {
+	private final ProviderFactory providers;
+
+	public SwiftCompileTaskDefaultConfigurationRule(ProviderFactory providers) {
+		this.providers = providers;
+	}
+
 	@Override
 	public void execute(SwiftSourceSetSpec sourceSet) {
 		sourceSet.getCompileTask().configure(configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(sourceSet.getIdentifier(), asModuleFileOfModuleName()))));
-		sourceSet.getCompileTask().configure(configureModuleName(convention(toModuleName(sourceSet.getIdentifier().getName()))));
+		sourceSet.getCompileTask().configure(configureModuleName(convention(toModuleName(sourceSet.getParents().filter(it -> it.instanceOf(HasBaseName.class)).findFirst().map(it -> it.safeAs(HasBaseName.class).flatMap(HasBaseName::getBaseName)).orElse(providers.provider(() -> sourceSet.getIdentifier().getName().toString()))))));
 		sourceSet.getCompileTask().configure(configureSourceCompatibility(set(SwiftVersion.SWIFT5)));
 		sourceSet.getCompileTask().configure(configureDebuggable(convention(false)));
 		sourceSet.getCompileTask().configure(configureOptimized(convention(false)));
@@ -96,6 +104,10 @@ public final class SwiftCompileTaskDefaultConfigurationRule implements Action<Sw
 
 	private static String toModuleName(ElementName name) {
 		return TextCaseUtils.toCamelCase(name.toString());
+	}
+
+	private static Provider<String> toModuleName(Provider<String> nameProvider) {
+		return nameProvider.map(name -> TextCaseUtils.toCamelCase(name));
 	}
 	//endregion
 

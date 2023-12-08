@@ -15,78 +15,35 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
+import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.runtime.nativebase.internal.NativeArtifactTypes;
-import dev.nokee.util.internal.LazyPublishArtifact;
 import lombok.val;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.file.Directory;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskDependency;
+import org.gradle.api.tasks.Sync;
 
-import javax.annotation.Nullable;
-import java.io.File;
-import java.util.Date;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 
 public final class NativeLibraryOutgoingDependencies extends AbstractNativeLibraryOutgoingDependencies implements NativeOutgoingDependencies {
 	private final Configuration apiElements;
 
-	public NativeLibraryOutgoingDependencies(Configuration apiElements, Configuration linkElements, Configuration runtimeElements, ObjectFactory objects) {
-		super(linkElements, runtimeElements, objects);
+	public NativeLibraryOutgoingDependencies(NativeVariantSpec variant, Configuration apiElements, Configuration linkElements, Configuration runtimeElements, Project project) {
+		super(variant, linkElements, runtimeElements, project);
 
 		// TODO: Introduce compileOnlyApi which apiElements should extends from
 		this.apiElements = apiElements;
 
-		// See https://github.com/gradle/gradle/issues/15146 to learn more about splitting the implicit dependencies
-		val apiArtifacts = objects.listProperty(PublishArtifact.class);
-		apiArtifacts.add(new ExportHeadersArtifact(getExportedHeaders()));
-		apiElements.getOutgoing().getArtifacts().addAllLater(apiArtifacts);
-	}
-
-	private static final class ExportHeadersArtifact implements PublishArtifact {
-		private final PublishArtifact delegate;
-
-		private ExportHeadersArtifact(Provider<Directory> exportedHeaders) {
-			this.delegate = new LazyPublishArtifact(exportedHeaders);
-		}
-
-		@Override
-		public String getName() {
-			return delegate.getName();
-		}
-
-		@Override
-		public String getExtension() {
-			return delegate.getExtension();
-		}
-
-		@Override
-		public String getType() {
-			return NativeArtifactTypes.NATIVE_HEADERS_DIRECTORY;
-		}
-
-		@Nullable
-		@Override
-		public String getClassifier() {
-			return delegate.getClassifier();
-		}
-
-		@Override
-		public File getFile() {
-			return delegate.getFile();
-		}
-
-		@Nullable
-		@Override
-		public Date getDate() {
-			return delegate.getDate();
-		}
-
-		@Override
-		public TaskDependency getBuildDependencies() {
-			return delegate.getBuildDependencies();
-		}
+		val syncTask = model(project, registryOf(Task.class)).register(variant.getIdentifier().child(TaskName.of("sync", "publicHeaders")), Sync.class);
+		syncTask.configure(task -> {
+			task.from(getExportedHeaders());
+			task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
+		});
+		apiElements.getOutgoing().artifact(syncTask.asProvider().map(Sync::getDestinationDir),
+			it -> it.setType(NativeArtifactTypes.NATIVE_HEADERS_DIRECTORY));
 	}
 
 	public Configuration getApiElements() {

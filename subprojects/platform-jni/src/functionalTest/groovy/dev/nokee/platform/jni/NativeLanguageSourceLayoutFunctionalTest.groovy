@@ -72,6 +72,11 @@ class JavaCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNa
 			}
 		'''
 	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(':library').allToRuntimeElements
+	}
 }
 
 class JavaCppJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements CppTaskNames, JavaJniTaskNames {
@@ -118,6 +123,11 @@ class JavaCppJniLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				id 'dev.nokee.cpp-library'
 			}
 		'''
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(':library').allToRuntimeElements
 	}
 }
 
@@ -180,6 +190,11 @@ class JavaObjectiveCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends A
 			}
 		'''
 	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(':library').allToRuntimeElements
+	}
 }
 
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
@@ -240,5 +255,10 @@ class JavaObjectiveCppJniLibraryNativeLanguageSourceLayoutFunctionalTest extends
 				linkerArgs.add('-lobjc')
 			}
 		'''
+	}
+
+	@Override
+	protected List<String> getLibraryTasks() {
+		return tasks(':library').allToRuntimeElements
 	}
 }
