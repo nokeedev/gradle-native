@@ -24,20 +24,24 @@ import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Namer;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ProviderFactory;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class KnownElements {
 	private final ProjectIdentifier projectIdentifier;
 	private final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> knownElements;
 	private final NamedDomainObjectSet<KnownElement> mapping;
+	private final ProviderFactory providers;
 
-	public KnownElements(ProjectIdentifier projectIdentifier, ObjectFactory objects) {
+	public KnownElements(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers) {
 		this.projectIdentifier = projectIdentifier;
 		this.knownElements = objects.domainObjectSet(ModelMapAdapters.ModelElementIdentity.class);
 		this.mapping = objects.namedDomainObjectSet(KnownElement.class);
+		this.providers = providers;
 
 		knownElements.all(identity -> {
 			KnownElement element = mapping.findByName(identity.getName());
@@ -53,7 +57,7 @@ public final class KnownElements {
 	// TODO: Consider using NamedDomainObjectRegistry instead of Function
 	// TODO: Should it really return ModelObject?
 	public <S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, Function<? super String, ? extends NamedDomainObjectProvider<S>> factory) {
-		ModelMapAdapters.ModelElementIdentity identity = new ModelMapAdapters.ModelElementIdentity(identifier, type);
+		ModelMapAdapters.ModelElementIdentity identity = new ModelMapAdapters.ModelElementIdentity(identifier, type, providers);
 		knownElements.add(identity);
 		identity.attachProvider(factory.apply(identity.getName()));
 		return identity.asModelObject(type);
@@ -62,7 +66,7 @@ public final class KnownElements {
 	public <S> S create(String name, Class<S> type, Function<? super KnownElement, ? extends S> factory) {
 		KnownElement element = mapping.findByName(name);
 		if (element == null) {
-			knownElements.add(new ModelMapAdapters.ModelElementIdentity(projectIdentifier.child(name), type));
+			knownElements.add(new ModelMapAdapters.ModelElementIdentity(projectIdentifier.child(name), type, providers));
 			element = Objects.requireNonNull(mapping.findByName(name));
 		}
 
@@ -127,19 +131,21 @@ public final class KnownElements {
 	public static final class Factory implements dev.nokee.internal.Factory<KnownElements> {
 		private final ProjectIdentifier projectIdentifier;
 		private final ObjectFactory objects;
+		private final ProviderFactory providers;
 
-		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects) {
+		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers) {
 			this.projectIdentifier = projectIdentifier;
 			this.objects = objects;
+			this.providers = providers;
 		}
 
 		public static Factory forProject(Project project) {
-			return new Factory(ProjectIdentifier.of(project), project.getObjects());
+			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders());
 		}
 
 		@Override
 		public KnownElements create() {
-			return new KnownElements(projectIdentifier, objects);
+			return new KnownElements(projectIdentifier, objects, providers);
 		}
 	}
 }
