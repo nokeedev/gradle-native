@@ -57,7 +57,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponen
 import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkAction;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.TargetedNativeComponentDimensionsRule;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
@@ -283,9 +282,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("kotlin"), KotlinSourceSetSpec.class).get(); // force realize to avoid out-of-order
 			});
-		});
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
-			component.getDevelopmentVariant().convention((Provider<? extends JniLibraryInternal>) project.provider(new BuildableDevelopmentVariantConvention(() -> component.getVariants().getElements().get())));
 		});
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			Provider<? extends List<? extends JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> v.getSharedLibrary().isBuildable());

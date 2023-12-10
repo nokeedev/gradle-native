@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -144,6 +145,22 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 		}).flatMap(identities -> {
 			SetProperty<T> result = objects.setProperty(type);
 			identities.forEach(it -> result.add(it.asModelObject(type).asProvider()));
+			return result;
+		});
+	}
+
+	@Override
+	public <T> Provider<Set<ModelMapAdapters.ModelElementIdentity>> getElements(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec) {
+		return providers.provider(() -> {
+			final Set<ModelMapAdapters.ModelElementIdentity> result = new LinkedHashSet<>();
+
+			forEachIdentity(it -> {
+				if (spec.isSatisfiedBy(it)) {
+					if (it.instanceOf(type)) {
+						result.add(it);
+					}
+				}
+			});
 			return result;
 		});
 	}

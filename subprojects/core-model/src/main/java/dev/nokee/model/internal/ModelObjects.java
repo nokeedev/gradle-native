@@ -34,4 +34,5 @@ public interface ModelObjects {
 
 	<T> Provider<Set<T>> get(Class<T> type);
 	<T> Provider<Set<T>> get(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec);
+	<T> Provider<Set<ModelMapAdapters.ModelElementIdentity>> getElements(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec);
 }

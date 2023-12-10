@@ -32,6 +32,7 @@ import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
@@ -86,7 +87,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDepende
 import dev.nokee.platform.nativebase.internal.dependencies.SwiftLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.mixins.LinkOnlyDependencyBucketMixIn;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantTransformer;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.rules.TargetBuildTypeConventionRule;
 import dev.nokee.platform.nativebase.internal.rules.TargetMachineConventionRule;
@@ -457,8 +458,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		})));
 
 		model(project, mapOf(Component.class)).configureEach(VariantComponentSpec.class, component -> {
-			final View<?> variants = ((VariantAwareComponent<?>) component).getVariants();
-			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) variants.map(VariantInternal.class::cast).get())));
+			final Provider<Set<ModelMapAdapters.ModelElementIdentity>> variants = model(project, objects()).getElements(VariantInternal.class, it -> {
+				if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), component.getIdentifier())) {
+					return it.instanceOf(VariantInternal.class);
+				}
+				return false;
+			});
+			component.getDevelopmentVariant().convention(variants.flatMap(new BuildableDevelopmentVariantTransformer<>()));
 		});
 		variants(project).configureEach(ofType(HasAssembleTask.class, withElement((element, variant, target) -> {
 			if (!((VariantIdentifier) element.getIdentifier()).getUnambiguousName().isEmpty()) {

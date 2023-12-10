@@ -25,7 +25,6 @@ import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
@@ -96,7 +95,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				}
 
 				component.finalizeExtension(project);
-				component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 
 				component.getVariants().get(); // Force realization, for now
 			});

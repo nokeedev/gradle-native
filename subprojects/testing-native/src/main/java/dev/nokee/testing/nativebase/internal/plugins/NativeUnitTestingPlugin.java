@@ -272,7 +272,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			// TODO: Use ComponentModelBasePlugin to calculate variants
 			testSuites(project).withType(DefaultNativeTestSuiteComponent.class).configureEach(component -> {
 				component.finalizeExtension(project);
-//				component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 			});
 		});
 		// TODO: Only for executable-based native test suite
