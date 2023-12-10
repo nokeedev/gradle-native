@@ -126,6 +126,11 @@ public final class KnownElements {
 			assert identifiers.size() >= 1; // TODO: Need to figure out
 			return identifiers.iterator().next().getIdentifier();
 		}
+
+		@Override
+		public String toString() {
+			return "KnownElement '" + name + "': " + identifiers.stream().map(Object::toString).collect(Collectors.joining(","));
+		}
 	}
 
 	public static final class Factory implements dev.nokee.internal.Factory<KnownElements> {

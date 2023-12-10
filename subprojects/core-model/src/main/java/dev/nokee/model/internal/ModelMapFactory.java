@@ -124,6 +124,11 @@ public final class ModelMapFactory {
 			public String getName() {
 				return element.getName();
 			}
+
+			@Override
+			public String toString() {
+				return element.toString();
+			}
 		};
 	}
 
