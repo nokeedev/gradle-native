@@ -21,17 +21,12 @@ import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.reflect.DefaultInstantiator;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObject;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.model.internal.type.ModelType;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -43,6 +38,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static dev.nokee.internal.reflect.SignatureUtils.getGenericSignature;
 import static dev.nokee.internal.reflect.SignatureUtils.getterSignature;
@@ -82,25 +78,8 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 			public void visitFieldsInitialization(String ownerInternalName, MethodVisitor mv) {
 				mv.visitVarInsn(Opcodes.ALOAD, 0); // Load 'this' to set the field on
 
-				if (isTaskType(returnType.getType())) {
-					String taskName = propertyName;
-					if (taskName.endsWith("Task")) {
-						taskName = taskName.substring(0, taskName.length() - "Task".length());
-					}
-					mv.visitLdcInsn(taskName);
-					mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(TaskName.class), "of", "(Ljava/lang/String;)Ldev/nokee/model/internal/names/TaskName;", false);
-				} else if (Provider.class.isAssignableFrom(returnType.getRawType()) || Named.class.isAssignableFrom(returnType.getRawType())) {
-					mv.visitLdcInsn(propertyName);
-					mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(ElementName.class), "of", "(Ljava/lang/String;)Ldev/nokee/model/internal/names/ElementName;", true);
-				} else {
-					NestedObject nestedObject = (NestedObject) method.getAnnotations().filter(it -> it.annotationType().equals(NestedObject.class)).findFirst().orElse(null);
-					if (nestedObject == null || nestedObject.value().length() == 0) {
-						mv.visitInsn(Opcodes.ACONST_NULL);
-					} else {
-						mv.visitLdcInsn(nestedObject.value());
-						mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(ElementName.class), "of", "(Ljava/lang/String;)Ldev/nokee/model/internal/names/ElementName;", true);
-					}
-				}
+				final ElementName elementName = new NestedObjectNamer(new DeriveNameFromPropertyNameNamer()).determineName(method);
+				new ElementNameVisitor(mv).visitElementName(elementName);
 
 				if (returnType.getType() instanceof ParameterizedType) {
 					assert ((ParameterizedType) returnType.getType()).getActualTypeArguments().length == 1;
@@ -165,37 +144,30 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 
 	@SuppressWarnings("unchecked")
 	public static Object create(@Nullable ElementName elementName, Type objectType) {
-		ModelObjectIdentifier identifier = nextIdentifier();
-		if (elementName != null) {
-			identifier = identifier.child(elementName);
-		}
+		final ModelObjectIdentifier identifier = ((Supplier<ModelObjectIdentifier>) () -> {
+			ModelObjectIdentifier result = nextIdentifier();
+			if (elementName != null) {
+				result = result.child(elementName);
+			}
+			return result;
+		}).get();
 
-		if (objectType instanceof ParameterizedType) {
-			Type rawType = ((ParameterizedType) objectType).getRawType();
-			assert rawType instanceof Class;
-			if (NamedDomainObjectProvider.class.isAssignableFrom((Class<?>) rawType)) {
-				assert ((ParameterizedType) objectType).getActualTypeArguments().length == 1;
-				assert ((ParameterizedType) objectType).getActualTypeArguments()[0] instanceof Class;
-				Class<Object> elementType = (Class<Object>) ((ParameterizedType) objectType).getActualTypeArguments()[0];
+		return new ObjectTypeVisitor<>(new ObjectTypeVisitor.Visitor<Object>() {
+			@Override
+			public Object visitElementType(Class<?> elementType) {
 				return ((ModelObjectRegistry<? super Object>) Objects.requireNonNull(DefaultInstantiator.getNextService().find(registryTypeOf(elementType)))).register(identifier, elementType).asProvider();
-			} else if (ModelObject.class.isAssignableFrom((Class<?>) rawType)) {
-				assert ((ParameterizedType) objectType).getActualTypeArguments().length == 1;
-				assert ((ParameterizedType) objectType).getActualTypeArguments()[0] instanceof Class;
-				Class<Object> elementType = (Class<Object>) ((ParameterizedType) objectType).getActualTypeArguments()[0];
-				return ((ModelObjectRegistry<? super Object>) Objects.requireNonNull(DefaultInstantiator.getNextService().find(registryTypeOf(elementType)))).register(identifier, elementType);
-			} else {
-				throw new UnsupportedOperationException(rawType + " -- " + objectType.getTypeName());
 			}
-		} else {
-			assert objectType instanceof Class;
-			Class<Object> elementType = (Class<Object>) objectType;
-			final ModelObjectRegistry<? super Object> registry = (ModelObjectRegistry<? super Object>) DefaultInstantiator.getNextService().find(registryTypeOf(elementType));
-			if (registry != null) {
-				return registry.register(identifier, elementType).get();
-			} else {
-				return ModelObjectIdentifierSupport.newInstance(identifier, () -> ((Instantiator) DefaultInstantiator.getNextService().find(Instantiator.class)).newInstance(elementType));
+
+			@Override
+			public Object visitElementTypeOrObjectType(Class<?> elementType) {
+				final ModelObjectRegistry<? super Object> registry = (ModelObjectRegistry<? super Object>) DefaultInstantiator.getNextService().find(registryTypeOf(elementType));
+				if (registry != null) {
+					return registry.register(identifier, elementType).get();
+				} else {
+					return ModelObjectIdentifierSupport.newInstance(identifier, () -> ((Instantiator) DefaultInstantiator.getNextService().find(Instantiator.class)).newInstance(elementType));
+				}
 			}
-		}
+		}).visit(objectType);
 	}
 
 	// TODO: Should get it from ServiceLookup
