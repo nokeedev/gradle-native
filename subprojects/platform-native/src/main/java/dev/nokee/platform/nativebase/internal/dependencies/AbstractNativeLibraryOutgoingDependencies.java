@@ -20,11 +20,11 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.model.internal.ModelObject;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
-import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
@@ -56,21 +56,22 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 	private final Configuration linkElements;
 	private final Configuration runtimeElements;
 
-	protected AbstractNativeLibraryOutgoingDependencies(NativeVariantSpec variant, Configuration linkElements, Configuration runtimeElements, Project project) {
+	protected AbstractNativeLibraryOutgoingDependencies(VariantIdentifier variantIdentifier, Configuration linkElements, Configuration runtimeElements, Project project, Provider<String> exportBaseName) {
 		this.exportedHeaders = project.getObjects().fileCollection();
 		this.exportedSwiftModule = project.getObjects().fileProperty();
 		this.exportedBinary = project.getObjects().property(Binary.class);
 		this.linkElements = linkElements;
 		this.runtimeElements = runtimeElements;
 
-		final ModelObject<Sync> syncLinkLibraryTask = model(project, registryOf(Task.class)).register(variant.getIdentifier().child(TaskName.of("sync", "linkLibrary")), Sync.class);
+		final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
+		final ModelObject<Sync> syncLinkLibraryTask = model(project, registryOf(Task.class)).register(variantIdentifier.child(TaskName.of("sync", "linkLibrary")), Sync.class);
 		val linkLibraryName = finalizeValueOnRead(project.getObjects().property(String.class).value(project.provider(() -> {
 			val toolChainSelector = new ToolChainSelectorInternal(((ProjectInternal) project).getModelRegistry());
-			val platform = NativePlatformFactory.create(variant.getBuildVariant().getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
+			val platform = NativePlatformFactory.create(buildVariant.getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
 			val toolchain = toolChainSelector.select(platform);
 			val toolProvider = toolchain.select(platform);
-			val linkage = variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-			val baseName = ((HasBaseName) variant).getBaseName().get();
+			val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+			val baseName = exportBaseName.get();
 			if (linkage.isStatic()) {
 				return toolProvider.getStaticLibraryName(baseName);
 			} else if (linkage.isShared()) {
@@ -90,15 +91,15 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 		linkElements.getOutgoing().artifact(syncLinkLibraryTask.asProvider().map(it -> new File(it.getDestinationDir(), linkLibraryName.get())));
 
 
-		final ModelObject<Sync> syncRuntimeLibraryTask = model(project, registryOf(Task.class)).register(variant.getIdentifier().child(TaskName.of("sync", "runtimeLibrary")), Sync.class);
-		if (!variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).isStatic()) {
+		final ModelObject<Sync> syncRuntimeLibraryTask = model(project, registryOf(Task.class)).register(variantIdentifier.child(TaskName.of("sync", "runtimeLibrary")), Sync.class);
+		if (!buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).isStatic()) {
 			val runtimeLibraryName = finalizeValueOnRead(project.getObjects().property(String.class).value(project.provider(() -> {
 				val toolChainSelector = new ToolChainSelectorInternal(((ProjectInternal) project).getModelRegistry());
-				val platform = NativePlatformFactory.create(variant.getBuildVariant().getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
+				val platform = NativePlatformFactory.create(buildVariant.getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
 				val toolchain = toolChainSelector.select(platform);
 				val toolProvider = toolchain.select(platform);
-				val linkage = variant.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-				val baseName = ((HasBaseName) variant).getBaseName().get();
+				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+				val baseName = exportBaseName.get();
 				if (linkage.isShared()) {
 					return toolProvider.getSharedLibraryName(baseName);
 				} else {

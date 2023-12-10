@@ -16,13 +16,13 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.model.internal.names.TaskName;
-import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Sync;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -30,12 +30,12 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 
 public final class SwiftLibraryOutgoingDependencies extends AbstractNativeLibraryOutgoingDependencies implements NativeOutgoingDependencies {
-	public SwiftLibraryOutgoingDependencies(NativeVariantSpec variant, Configuration apiElements, Configuration linkElements, Configuration runtimeElements, Project project) {
-		super(variant, linkElements, runtimeElements, project);
+	public SwiftLibraryOutgoingDependencies(VariantIdentifier variantIdentifier, Configuration apiElements, Configuration linkElements, Configuration runtimeElements, Project project, Provider<String> exportedBaseName) {
+		super(variantIdentifier, linkElements, runtimeElements, project, exportedBaseName);
 
-		val syncTask = model(project, registryOf(Task.class)).register(variant.getIdentifier().child(TaskName.of("sync", "importModule")), Sync.class);
+		val syncTask = model(project, registryOf(Task.class)).register(variantIdentifier.child(TaskName.of("sync", "importModule")), Sync.class);
 		syncTask.configure(task -> {
-			task.from(getExportedSwiftModule(), spec -> spec.rename(it -> TextCaseUtils.toCamelCase(((HasBaseName) variant).getBaseName().get()) + ".swiftmodule"));
+			task.from(getExportedSwiftModule(), spec -> spec.rename(it -> TextCaseUtils.toCamelCase(exportedBaseName.get()) + ".swiftmodule"));
 			task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
 		});
 		apiElements.getOutgoing().artifact(syncTask.asProvider().map(Sync::getDestinationDir));

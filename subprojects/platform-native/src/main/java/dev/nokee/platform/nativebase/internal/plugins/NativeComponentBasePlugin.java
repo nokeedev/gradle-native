@@ -347,9 +347,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					final boolean hasSwift = ((LanguageSupportSpec) variant).getLanguageImplementations().stream().anyMatch(SwiftLanguageImplementation.class::isInstance);
 					NativeOutgoingDependencies outgoing = null;
 					if (hasSwift) {
-						outgoing = new SwiftLibraryOutgoingDependencies(variant, ((HasApiElementsDependencyBucket) variant).getApiElements().getAsConfiguration(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project);
+						outgoing = new SwiftLibraryOutgoingDependencies(variant.getIdentifier(), ((HasApiElementsDependencyBucket) variant).getApiElements().getAsConfiguration(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project, ((HasBaseName) variant).getBaseName());
 					} else {
-						outgoing = new NativeLibraryOutgoingDependencies(variant, ((HasApiElementsDependencyBucket) variant).getApiElements().getAsConfiguration(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project);
+						outgoing = new NativeLibraryOutgoingDependencies(variant.getIdentifier(), ((HasApiElementsDependencyBucket) variant).getApiElements().getAsConfiguration(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project, ((HasBaseName) variant).getBaseName());
 					}
 
 					if (hasSwift) {

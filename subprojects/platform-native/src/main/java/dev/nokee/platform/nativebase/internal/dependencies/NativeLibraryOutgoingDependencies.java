@@ -16,12 +16,13 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
 import dev.nokee.model.internal.names.TaskName;
-import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.runtime.nativebase.internal.NativeArtifactTypes;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Sync;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
@@ -31,13 +32,13 @@ import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 public final class NativeLibraryOutgoingDependencies extends AbstractNativeLibraryOutgoingDependencies implements NativeOutgoingDependencies {
 	private final Configuration apiElements;
 
-	public NativeLibraryOutgoingDependencies(NativeVariantSpec variant, Configuration apiElements, Configuration linkElements, Configuration runtimeElements, Project project) {
-		super(variant, linkElements, runtimeElements, project);
+	public NativeLibraryOutgoingDependencies(VariantIdentifier variantIdentifier, Configuration apiElements, Configuration linkElements, Configuration runtimeElements, Project project, Provider<String> exportedBaseName) {
+		super(variantIdentifier, linkElements, runtimeElements, project, exportedBaseName);
 
 		// TODO: Introduce compileOnlyApi which apiElements should extends from
 		this.apiElements = apiElements;
 
-		val syncTask = model(project, registryOf(Task.class)).register(variant.getIdentifier().child(TaskName.of("sync", "publicHeaders")), Sync.class);
+		val syncTask = model(project, registryOf(Task.class)).register(variantIdentifier.child(TaskName.of("sync", "publicHeaders")), Sync.class);
 		syncTask.configure(task -> {
 			task.from(getExportedHeaders());
 			task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
