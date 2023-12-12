@@ -517,6 +517,18 @@ public final class ModelMapAdapters {
 		public String toString() {
 			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identifier) + "' (" + implementationType.getSimpleName() + ")";
 		}
+
+		public static final class Factory {
+			private final ProviderFactory providers;
+
+			public Factory(ProviderFactory providers) {
+				this.providers = providers;
+			}
+
+			public ModelElementIdentity create(ModelObjectIdentifier identifier, Class<?> implementationType) {
+				return new ModelElementIdentity(identifier, implementationType, providers);
+			}
+		}
 	}
 
 	private static final class ContextualModelObjectIdentifier {

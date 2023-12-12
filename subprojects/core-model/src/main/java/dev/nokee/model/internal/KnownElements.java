@@ -35,13 +35,13 @@ public final class KnownElements {
 	private final ProjectIdentifier projectIdentifier;
 	private final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> knownElements;
 	private final NamedDomainObjectSet<KnownElement> mapping;
-	private final ProviderFactory providers;
+	private final ModelMapAdapters.ModelElementIdentity.Factory identityFactory;
 
-	public KnownElements(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers) {
+	public KnownElements(ProjectIdentifier projectIdentifier, ObjectFactory objects, ModelMapAdapters.ModelElementIdentity.Factory identityFactory) {
 		this.projectIdentifier = projectIdentifier;
 		this.knownElements = objects.domainObjectSet(ModelMapAdapters.ModelElementIdentity.class);
 		this.mapping = objects.namedDomainObjectSet(KnownElement.class);
-		this.providers = providers;
+		this.identityFactory = identityFactory;
 
 		knownElements.all(identity -> {
 			KnownElement element = mapping.findByName(identity.getName());
@@ -57,7 +57,7 @@ public final class KnownElements {
 	// TODO: Consider using NamedDomainObjectRegistry instead of Function
 	// TODO: Should it really return ModelObject?
 	public <S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, Function<? super String, ? extends NamedDomainObjectProvider<S>> factory) {
-		ModelMapAdapters.ModelElementIdentity identity = new ModelMapAdapters.ModelElementIdentity(identifier, type, providers);
+		ModelMapAdapters.ModelElementIdentity identity = identityFactory.create(identifier, type);
 		knownElements.add(identity);
 		identity.attachProvider(factory.apply(identity.getName()));
 		return identity.asModelObject(type);
@@ -66,7 +66,7 @@ public final class KnownElements {
 	public <S> S create(String name, Class<S> type, Function<? super KnownElement, ? extends S> factory) {
 		KnownElement element = mapping.findByName(name);
 		if (element == null) {
-			knownElements.add(new ModelMapAdapters.ModelElementIdentity(projectIdentifier.child(name), type, providers));
+			knownElements.add(identityFactory.create(projectIdentifier.child(name), type));
 			element = Objects.requireNonNull(mapping.findByName(name));
 		}
 
@@ -150,7 +150,7 @@ public final class KnownElements {
 
 		@Override
 		public KnownElements create() {
-			return new KnownElements(projectIdentifier, objects, providers);
+			return new KnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers));
 		}
 	}
 }
