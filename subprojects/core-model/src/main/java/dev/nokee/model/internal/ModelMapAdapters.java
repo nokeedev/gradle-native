@@ -336,8 +336,12 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
-			delegate.registerFactory(type, name -> knownElements.create(name, type, elementInstantiator.newInstance((Factory<U>) () -> factory.create(name))));
+			delegate.registerFactory(type, newFactory(type, factory));
 			creatableTypes.add(type);
+		}
+
+		private <U extends ElementType> NamedDomainObjectFactory<U> newFactory(Class<U> type, NamedDomainObjectFactory<? extends U> delegate) {
+			return name -> knownElements.create(name, type, elementInstantiator.newInstance((Factory<U>) () -> delegate.create(name)));
 		}
 
 		@Override
