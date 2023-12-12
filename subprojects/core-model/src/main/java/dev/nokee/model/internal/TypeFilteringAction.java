@@ -22,35 +22,80 @@ import org.gradle.api.reflect.TypeOf;
 import java.util.function.BiConsumer;
 
 public final class TypeFilteringAction<ElementType, FilteredType> implements Action<ElementType> {
-	private final TypeOf<FilteredType> type;
+	private final ActionTypeOf<FilteredType> type;
 	private final BiConsumer<? super ElementType, ? super FilteredType> action;
 
-	public TypeFilteringAction(TypeOf<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
+	public TypeFilteringAction(ActionTypeOf<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
 		this.type = type;
 		this.action = action;
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void execute(ElementType t) {
-		if (type.getConcreteClass().isAssignableFrom(t.getClass())) {
-			action.accept(t, (FilteredType) t);
+		if (type.isInstance(t)) {
+			action.accept(t, type.cast(t));
+		}
+	}
+
+	public interface ActionTypeOf<T> {
+		boolean isInstance(Object obj);
+		T cast(Object obj);
+	}
+
+	private static final class JavaClassTypeOf<T> implements ActionTypeOf<T> {
+		private final Class<T> type;
+
+		private JavaClassTypeOf(Class<T> type) {
+			this.type = type;
+		}
+
+		@Override
+		public boolean isInstance(Object obj) {
+			return type.isInstance(obj);
+		}
+
+		@Override
+		public T cast(Object obj) {
+			return type.cast(obj);
+		}
+	}
+
+	private static final class GradleTypeOf<T> implements ActionTypeOf<T> {
+		private final TypeOf<T> type;
+
+		private GradleTypeOf(TypeOf<T> type) {
+			this.type = type;
+		}
+
+		@Override
+		public boolean isInstance(Object obj) {
+			return type.getConcreteClass().isAssignableFrom(obj.getClass());
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public T cast(Object obj) {
+			return (T) obj;
 		}
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(Class<FilteredType> type, Action<? super FilteredType> action) {
-		return new TypeFilteringAction<>(TypeOf.typeOf(type), (__, t) -> action.execute(t));
+		return new TypeFilteringAction<>(new JavaClassTypeOf<>(type), (__, t) -> action.execute(t));
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(TypeOf<FilteredType> type, Action<? super FilteredType> action) {
-		return new TypeFilteringAction<>(type, (__, t) -> action.execute(t));
+		return new TypeFilteringAction<>(new GradleTypeOf<>(type), (__, t) -> action.execute(t));
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(Class<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
-		return new TypeFilteringAction<>(TypeOf.typeOf(type), action);
+		return new TypeFilteringAction<>(new JavaClassTypeOf<>(type), action);
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(TypeOf<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
-		return new TypeFilteringAction<>(type, action);
+		return new TypeFilteringAction<>(new GradleTypeOf<>(type), action);
+	}
+
+	public static <ElementType, FilteredType> Action<ElementType> ofType(ActionTypeOf<FilteredType> type, Action<? super FilteredType> action) {
+		return new TypeFilteringAction<>(type, (__, t) -> action.execute(t));
 	}
 }

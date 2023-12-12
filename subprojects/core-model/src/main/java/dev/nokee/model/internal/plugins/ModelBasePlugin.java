@@ -23,6 +23,7 @@ import dev.nokee.internal.services.ContextualModelObjectIdentifierAwareServiceLo
 import dev.nokee.internal.services.ExtensionBackedServiceLookup;
 import dev.nokee.internal.services.ServiceLookup;
 import dev.nokee.model.internal.DefaultModelObjects;
+import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.KnownElements;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMap;
@@ -63,6 +64,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		target.getExtensions().create("model", ModelExtension.class);
 		final ServiceLookup services = new ContextualModelObjectIdentifierAwareServiceLookup(new ExtensionBackedServiceLookup(model(target).getExtensions()));
 		model(target).getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
+		model(target).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements());
 	}
 
 	private void applyToSettings(Settings settings) {
@@ -76,7 +78,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		applyToAllTarget(project);
 
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
-		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(project.getObjects(), project, KnownElements.Factory.forProject(project), objects, project.getProviders()));
+		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(project.getObjects(), project, KnownElements.Factory.forProject(project), objects, project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class)));
 
 		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));

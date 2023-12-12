@@ -30,6 +30,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+
 public final class KnownElements {
 	private final ProjectIdentifier projectIdentifier;
 	private final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> knownElements;
@@ -121,19 +123,21 @@ public final class KnownElements {
 		private final ProjectIdentifier projectIdentifier;
 		private final ObjectFactory objects;
 		private final ProviderFactory providers;
+		private final DiscoveredElements discoveredElements;
 
-		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers) {
+		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers, DiscoveredElements discoveredElements) {
 			this.projectIdentifier = projectIdentifier;
 			this.objects = objects;
 			this.providers = providers;
+			this.discoveredElements = discoveredElements;
 		}
 
 		public static Factory forProject(Project project) {
-			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders());
+			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class));
 		}
 
 		public KnownElements create(ModelMapAdapters.ModelElementIdentity.ElementProvider elementProvider) {
-			return new KnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider));
+			return new KnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider, discoveredElements));
 		}
 	}
 }

@@ -56,12 +56,14 @@ public final class ModelMapAdapters {
 	// We need this implementation to access a NamedDomainObjectProvider<Project>
 	public static /*final*/ class ForProject implements ModelMap<Project> {
 		private final Project project;
+		private final DiscoveredElements discoveredElements;
 		private final ModelObject<Project> object;
 		private final Consumer<Runnable> onFinalize;
 
 		@Inject
-		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements) {
+		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements) {
 			this.project = project;
+			this.discoveredElements = discoveredElements;
 			this.object = knownElements.register(ProjectIdentifier.of(project), Project.class, name -> {
 				delegate.add(project);
 				return delegate.named(project.getName());
@@ -86,24 +88,22 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementKnown(Action<? super KnownModelObject<Project>> configureAction) {
-			configureAction.execute(new MyKnownModelObject<>((ModelElementIdentity) (ModelObject<?>) object));
+			discoveredElements.onKnown(configureAction, a -> a.execute(new MyKnownModelObject<>((ModelElementIdentity) (ModelObject<?>) object)));
 		}
 
 		@Override
 		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
-			if (((ModelElementIdentity) (ModelObject<?>) object).instanceOf(type)) {
-				configureAction.execute(new MyKnownModelObject<>((ModelElementIdentity) (ModelObject<?>) object));
-			}
+			discoveredElements.onKnown(ofType(new KnownModelObjectTypeOf<>(type), configureAction), a -> a.execute(new MyKnownModelObject<>((ModelElementIdentity) (ModelObject<?>) object)));
 		}
 
 		@Override
 		public void whenElementFinalized(Action<? super Project> finalizeAction) {
-			onFinalize.accept(() -> configureEach(finalizeAction));
+			discoveredElements.onFinalized(finalizeAction, a -> onFinalize.accept(() -> configureEach(a)));
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			onFinalize.accept(() -> configureEach(ofType(type, finalizeAction)));
+			discoveredElements.onFinalized(ofType(type, finalizeAction), a -> onFinalize.accept(() -> configureEach(a)));
 		}
 
 		@Override
@@ -120,13 +120,15 @@ public final class ModelMapAdapters {
 	public static /*final*/ class ForConfigurationContainer implements ForNamedDomainObjectContainer<Configuration>, HasPublicType {
 		private final KnownElements knownElements;
 		private final ConfigurationContainer delegate;
+		private final DiscoveredElements discoveredElements;
 		private final Consumer<Runnable> onFinalize;
 		private final ContextualModelObjectIdentifier identifierFactory;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, Project project) {
+		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
 			this.knownElements = knownElements;
 			this.delegate = delegate;
+			this.discoveredElements = discoveredElements;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 			this.identifierFactory = new ContextualModelObjectIdentifier(ProjectIdentifier.of(project));
 		}
@@ -135,9 +137,9 @@ public final class ModelMapAdapters {
 		@SuppressWarnings("unchecked")
 		public <RegistrableType extends Configuration> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
 			if (type.equals(Configuration.class)) {
-				return knownElements.register(identifier, type, name -> {
+				return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> {
 					return (NamedDomainObjectProvider<RegistrableType>) registerIfAbsent(delegate, name);
-				});
+				}));
 			} else {
 				throw new UnsupportedOperationException("registration type must be Configuration");
 			}
@@ -163,41 +165,39 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void configureEach(Action<? super Configuration> configureAction) {
-			delegate.configureEach(configureAction);
+			discoveredElements.onRealized(configureAction, a -> delegate.configureEach(a));
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
-			if (Configuration.class.isAssignableFrom(type)) {
-				delegate.withType((Class<? extends Configuration>) type).configureEach((Action<? super Configuration>) configureAction);
-			} else {
-				delegate.configureEach(ofType(type, configureAction));
-			}
-		}
-
-		@Override
-		public void whenElementKnown(Action<? super KnownModelObject<Configuration>> configureAction) {
-			knownElements.forEach(it -> configureAction.execute(new MyKnownModelObject<>(it)));
-		}
-
-		@Override
-		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
-			knownElements.forEach(it -> {
-				if (it.instanceOf(type)) {
-					configureAction.execute(new MyKnownModelObject<>(it));
+			discoveredElements.onRealized(ofType(type, configureAction), a -> {
+				if (Configuration.class.isAssignableFrom(type)) {
+					delegate.withType((Class<? extends Configuration>) type).configureEach((Action<? super Configuration>) configureAction);
+				} else {
+					delegate.configureEach(a);
 				}
 			});
 		}
 
 		@Override
+		public void whenElementKnown(Action<? super KnownModelObject<Configuration>> configureAction) {
+			discoveredElements.onKnown(configureAction, a -> knownElements.forEach(it -> a.execute(new MyKnownModelObject<>(it))));
+		}
+
+		@Override
+		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
+			discoveredElements.onKnown(ofType(new KnownModelObjectTypeOf<>(type), configureAction), a -> knownElements.forEach(it -> a.execute(new MyKnownModelObject<>(it))));
+		}
+
+		@Override
 		public void whenElementFinalized(Action<? super Configuration> finalizeAction) {
-			onFinalize.accept(() -> configureEach(finalizeAction));
+			discoveredElements.onFinalized(finalizeAction, a -> onFinalize.accept(() -> configureEach(a)));
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			onFinalize.accept(() -> configureEach(ofType(type, finalizeAction)));
+			discoveredElements.onFinalized(ofType(type, finalizeAction), a -> onFinalize.accept(() -> configureEach(a)));
 		}
 
 		@Override
@@ -222,16 +222,17 @@ public final class ModelMapAdapters {
 
 	public interface ForPolymorphicDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
-
 	public static /*final*/ class ForTaskContainer implements ForPolymorphicDomainObjectContainer<Task>, HasPublicType {
 		private final Class<Task> elementType;
 		private final KnownElements knownElements;
 		private final PolymorphicDomainObjectContainer<Task> delegate;
 		private final Consumer<Runnable> onFinalize;
 		private final ContextualModelObjectIdentifier identifierFactory;
+		private final DiscoveredElements discoveredElements;
 
 		@Inject
-		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, KnownElements knownElements, Project project) {
+		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
+			this.discoveredElements = discoveredElements;
 			this.elementType = Task.class;
 			this.knownElements = knownElements;
 			this.delegate = delegate;
@@ -241,7 +242,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends Task> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return knownElements.register(identifier, type, name -> registerIfAbsent(delegate, name, type));
+			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> registerIfAbsent(delegate, name, type)));
 		}
 
 		@Override
@@ -262,41 +263,39 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void configureEach(Action<? super Task> configureAction) {
-			delegate.configureEach(configureAction);
+			discoveredElements.onRealized(configureAction, a -> delegate.configureEach(a));
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
-			if (elementType.isAssignableFrom(type)) {
-				delegate.withType((Class<? extends Task>) type).configureEach((Action<? super Task>) configureAction);
-			} else {
-				delegate.configureEach(ofType(type, configureAction));
-			}
-		}
-
-		@Override
-		public void whenElementKnown(Action<? super KnownModelObject<Task>> configureAction) {
-			knownElements.forEach(it -> configureAction.execute(new MyKnownModelObject<>(it)));
-		}
-
-		@Override
-		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
-			knownElements.forEach(it -> {
-				if (it.instanceOf(type)) {
-					configureAction.execute(new MyKnownModelObject<>(it));
+			discoveredElements.onRealized(ofType(type, configureAction), a -> {
+				if (elementType.isAssignableFrom(type)) {
+					delegate.withType((Class<? extends Task>) type).configureEach((Action<? super Task>) configureAction);
+				} else {
+					delegate.configureEach(a);
 				}
 			});
 		}
 
 		@Override
+		public void whenElementKnown(Action<? super KnownModelObject<Task>> configureAction) {
+			discoveredElements.onKnown(configureAction, a -> knownElements.forEach(it -> a.execute(new MyKnownModelObject<>(it))));
+		}
+
+		@Override
+		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
+			discoveredElements.onKnown(ofType(new KnownModelObjectTypeOf<>(type), configureAction), a -> knownElements.forEach(it -> a.execute(new MyKnownModelObject<>(it))));
+		}
+
+		@Override
 		public void whenElementFinalized(Action<? super Task> finalizeAction) {
-			onFinalize.accept(() -> configureEach(finalizeAction));
+			discoveredElements.onFinalized(finalizeAction, a -> onFinalize.accept(() -> configureEach(a)));
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			onFinalize.accept(() -> configureEach(ofType(type, finalizeAction)));
+			discoveredElements.onFinalized(ofType(type, finalizeAction), a -> onFinalize.accept(() -> configureEach(a)));
 		}
 
 		@Override
@@ -315,6 +314,28 @@ public final class ModelMapAdapters {
 		}
 	}
 
+	private static final class KnownModelObjectTypeOf<T> implements TypeFilteringAction.ActionTypeOf<KnownModelObject<T>> {
+		private final Class<T> type;
+
+		private KnownModelObjectTypeOf(Class<T> type) {
+			this.type = type;
+		}
+
+		@Override
+		public boolean isInstance(Object obj) {
+			if (obj instanceof KnownModelObject) {
+				return ((KnownModelObject<?>) obj).getType().isSubtypeOf(type);
+			}
+			return false;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public KnownModelObject<T> cast(Object obj) {
+			return (KnownModelObject<T>) obj;
+		}
+	}
+
 	public interface ContextualModelElementInstantiator {
 		<S> Function<KnownElements.KnownElement, S> newInstance(Factory<S> factory);
 	}
@@ -325,16 +346,18 @@ public final class ModelMapAdapters {
 		private final ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate;
 		private final Set<Class<? extends ElementType>> creatableTypes = new LinkedHashSet<>();
 		private final ManagedFactoryProvider managedFactory;
+		private final DiscoveredElements discoveredElements;
 		private final ContextualModelElementInstantiator elementInstantiator;
 		private final Consumer<Runnable> onFinalize;
 		private final ContextualModelObjectIdentifier identifierFactory;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, ContextualModelElementInstantiator elementInstantiator, Project project) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project) {
 			this.elementType = elementType;
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
+			this.discoveredElements = discoveredElements;
 			this.elementInstantiator = elementInstantiator;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 			this.identifierFactory = new ContextualModelObjectIdentifier(ProjectIdentifier.of(project));
@@ -342,7 +365,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return knownElements.register(identifier, type, name -> registerIfAbsent(delegate, name, type));
+			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> registerIfAbsent(delegate, name, type)));
 		}
 
 		@Override
@@ -398,11 +421,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
-			knownElements.forEach(it -> {
-				if (it.instanceOf(type)) {
-					configureAction.execute(new MyKnownModelObject<>(it));
-				}
-			});
+			discoveredElements.onKnown(ofType(new KnownModelObjectTypeOf<>(type), configureAction), a -> knownElements.forEach(it -> a.execute(new MyKnownModelObject<>(it))));
 		}
 
 		@Override
@@ -444,13 +463,15 @@ public final class ModelMapAdapters {
 		private boolean forcedRealize = false;
 		private final ProviderFactory providers;
 		private final ElementProvider elementProviderEx;
+		private final DiscoveredElements discoveredElements;
 
 		// TODO: Reduce visibility
-		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType, ProviderFactory providers, ElementProvider elementProvider) {
+		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements) {
 			this.identifier = identifier;
 			this.implementationType = implementationType;
 			this.providers = providers;
 			this.elementProviderEx = elementProvider;
+			this.discoveredElements = discoveredElements;
 		}
 
 		public String getName() {
@@ -497,7 +518,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public ModelObject<Object> configure(Action<? super Object> configureAction) {
-			elementProviderEx.configure(getName(), implementationType, configureAction);
+			discoveredElements.onRealized(configureAction, a -> elementProviderEx.configure(getName(), implementationType, a));
 			return this;
 		}
 
@@ -534,14 +555,16 @@ public final class ModelMapAdapters {
 		public static final class Factory {
 			private final ProviderFactory providers;
 			private final ElementProvider elementProvider;
+			private final DiscoveredElements discoveredElements;
 
-			public Factory(ProviderFactory providers, ElementProvider elementProvider) {
+			public Factory(ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements) {
 				this.providers = providers;
 				this.elementProvider = elementProvider;
+				this.discoveredElements = discoveredElements;
 			}
 
 			public ModelElementIdentity create(ModelObjectIdentifier identifier, Class<?> implementationType) {
-				return new ModelElementIdentity(identifier, implementationType, providers, elementProvider);
+				return new ModelElementIdentity(identifier, implementationType, providers, elementProvider, discoveredElements);
 			}
 		}
 	}
