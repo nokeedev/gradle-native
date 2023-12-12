@@ -24,6 +24,7 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
+import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
@@ -449,15 +450,17 @@ public final class ModelMapAdapters {
 	public static final class ModelElementIdentity implements ModelObject<Object> {
 		private final ModelObjectIdentifier identifier;
 		private final Class<?> implementationType;
-		NamedDomainObjectProvider<?> elementProvider; // TODO: Reduce visibility
+		private NamedDomainObjectProvider<?> elementProvider;
 		private boolean forcedRealize = false;
 		private final ProviderFactory providers;
+		private final ElementProvider elementProviderEx;
 
 		// TODO: Reduce visibility
-		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType, ProviderFactory providers) {
+		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType, ProviderFactory providers, ElementProvider elementProvider) {
 			this.identifier = identifier;
 			this.implementationType = implementationType;
 			this.providers = providers;
+			this.elementProviderEx = elementProvider;
 		}
 
 		public String getName() {
@@ -487,17 +490,17 @@ public final class ModelMapAdapters {
 		@Override
 		@SuppressWarnings("unchecked")
 		public NamedDomainObjectProvider<Object> asProvider() {
-			return (NamedDomainObjectProvider<Object>) elementProvider;
+			return (NamedDomainObjectProvider<Object>) elementProviderEx.named(getName(), implementationType);
 		}
 
 		@Override
 		public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super Object> mapper) {
-			return providers.provider(() -> elementProvider.flatMap(mapper)).flatMap(it -> it);
+			return providers.provider(() -> asProvider().flatMap(mapper)).flatMap(it -> it);
 		}
 
 		@Override
 		public Object get() {
-			return elementProvider.get();
+			return asProvider().get();
 		}
 
 		public void realizeNow() {
@@ -509,7 +512,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public ModelObject<Object> configure(Action<? super Object> configureAction) {
-			elementProvider.configure(configureAction);
+			elementProviderEx.configure(getName(), implementationType, configureAction);
 			return this;
 		}
 
@@ -518,15 +521,42 @@ public final class ModelMapAdapters {
 			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identifier) + "' (" + implementationType.getSimpleName() + ")";
 		}
 
+		public static final class ElementProvider {
+			private final NamedDomainObjectCollection<Object> collection;
+
+			@SuppressWarnings("unchecked")
+			public ElementProvider(NamedDomainObjectCollection<?> collection) {
+				this.collection = (NamedDomainObjectCollection<Object>) collection;
+			}
+
+			public <S> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
+				return collection.named(name, type);
+			}
+
+			public <S> void configure(String name, Class<S> type, Action<? super S> configureAction) {
+				if (collection.getNames().contains(name)) {
+					collection.named(name, type, configureAction);
+				} else {
+					collection.configureEach(it -> {
+						if (collection.getNamer().determineName(it).equals(name)) {
+							configureAction.execute(type.cast(it));
+						}
+					});
+				}
+			}
+		}
+
 		public static final class Factory {
 			private final ProviderFactory providers;
+			private final ElementProvider elementProvider;
 
-			public Factory(ProviderFactory providers) {
+			public Factory(ProviderFactory providers, ElementProvider elementProvider) {
 				this.providers = providers;
+				this.elementProvider = elementProvider;
 			}
 
 			public ModelElementIdentity create(ModelObjectIdentifier identifier, Class<?> implementationType) {
-				return new ModelElementIdentity(identifier, implementationType, providers);
+				return new ModelElementIdentity(identifier, implementationType, providers, elementProvider);
 			}
 		}
 	}

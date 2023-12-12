@@ -21,7 +21,6 @@ import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
-import org.gradle.api.Namer;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -92,21 +91,6 @@ public final class KnownElements {
 		knownElements.all(configureAction);
 	}
 
-	public <S> Action<S> forCreatedElements(Namer<S> namer, Function<? super String, NamedDomainObjectProvider<?>> query) {
-		return it -> {
-			KnownElement element = mapping.findByName(namer.determineName(it));
-			if (element == null) {
-				return; // ignore these elements, they were not explicitly registered by us and are not created by our factories
-			}
-
-			element.identifiers.all(t -> {
-				if (t.elementProvider == null) {
-					t.attachProvider(query.apply(element.getName()));
-				}
-			});
-		};
-	}
-
 	public static final class KnownElement implements Named {
 		private final String name;
 		// TODO: Should reduce visibility
@@ -133,7 +117,7 @@ public final class KnownElements {
 		}
 	}
 
-	public static final class Factory implements dev.nokee.internal.Factory<KnownElements> {
+	public static final class Factory {
 		private final ProjectIdentifier projectIdentifier;
 		private final ObjectFactory objects;
 		private final ProviderFactory providers;
@@ -148,9 +132,8 @@ public final class KnownElements {
 			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders());
 		}
 
-		@Override
-		public KnownElements create() {
-			return new KnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers));
+		public KnownElements create(ModelMapAdapters.ModelElementIdentity.ElementProvider elementProvider) {
+			return new KnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider));
 		}
 	}
 }

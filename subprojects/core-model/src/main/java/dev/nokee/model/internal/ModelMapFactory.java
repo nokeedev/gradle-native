@@ -39,28 +39,27 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 public final class ModelMapFactory {
 	private final ObjectFactory objects;
 	private final Project project;
-	private final Factory<KnownElements> knownElementsFactory;
+	private final KnownElements.Factory knownElementsFactory;
 	private final ModelObjects modelObjects;
 	private final ProviderFactory providers;
 
-	public ModelMapFactory(ObjectFactory objects, Project project, Factory<KnownElements> knownElementsFactory, ModelObjects modelObjects, ProviderFactory providers) {
+	public ModelMapFactory(ObjectFactory objects, Project project, KnownElements.Factory knownElementsFactory, ModelObjects modelObjects, ProviderFactory providers) {
 		this.objects = objects;
 		this.project = project;
 		this.knownElementsFactory = knownElementsFactory;
 		this.modelObjects = modelObjects;
 		this.providers = providers;
 
-		val knownElements = knownElementsFactory.create();
 		val container = objects.namedDomainObjectSet(Project.class);
+		val knownElements = knownElementsFactory.create(new ModelMapAdapters.ModelElementIdentity.ElementProvider(container));
 		container.configureEach(new InjectModelElementAction<>(it -> it.getName(), knownElements));
 		modelObjects.register(objects.newInstance(ModelMapAdapters.ForProject.class, container, project, knownElements));
 	}
 
 	public ModelMapAdapters.ForPolymorphicDomainObjectContainer<Task> create(TaskContainer container) {
 		final Namer<Task> namer = new Task.Namer();
-		val knownElements = knownElementsFactory.create();
+		val knownElements = knownElementsFactory.create(new ModelMapAdapters.ModelElementIdentity.ElementProvider(container));
 
-		container.configureEach(knownElements.forCreatedElements(namer, container::named));
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
 		val result = objects.newInstance(ModelMapAdapters.ForTaskContainer.class, container, knownElements, project);
@@ -70,9 +69,8 @@ public final class ModelMapFactory {
 
 	public ModelMapAdapters.ForNamedDomainObjectContainer<Configuration> create(ConfigurationContainer container) {
 		final Namer<Configuration> namer = new Configuration.Namer();
-		val knownElements = knownElementsFactory.create();
+		val knownElements = knownElementsFactory.create(new ModelMapAdapters.ModelElementIdentity.ElementProvider(container));
 
-		container.configureEach(knownElements.forCreatedElements(namer, container::named));
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
 		val result = objects.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, knownElements, project);
@@ -83,9 +81,8 @@ public final class ModelMapFactory {
 	@SuppressWarnings("unchecked")
 	public <T extends Named> ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T> create(Class<T> elementType, ExtensiblePolymorphicDomainObjectContainer<T> container) {
 		final Namer<Named> namer = new Named.Namer();
-		val knownElements = knownElementsFactory.create();
+		val knownElements = knownElementsFactory.create(new ModelMapAdapters.ModelElementIdentity.ElementProvider(container));
 
-		container.configureEach(knownElements.forCreatedElements(namer, container::named));
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
 		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), knownElements, new ModelMapAdapters.ContextualModelElementInstantiator() {
