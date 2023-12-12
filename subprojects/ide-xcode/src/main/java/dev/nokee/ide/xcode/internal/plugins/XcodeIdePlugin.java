@@ -116,7 +116,7 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			@Override
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project));
-				model(project, mapOf(Component.class)).whenElementKnow(action);
+				model(project, mapOf(Component.class)).whenElementKnown(action);
 			}
 		};
 	}

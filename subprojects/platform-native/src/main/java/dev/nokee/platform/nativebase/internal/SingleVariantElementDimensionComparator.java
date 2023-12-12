@@ -15,14 +15,15 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.ModelMapAdapters;
+import dev.nokee.model.internal.KnownModelObject;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.runtime.core.CoordinateAxis;
 
 import java.util.Comparator;
 
-final class SingleVariantElementDimensionComparator<T> implements Comparator<ModelMapAdapters.ModelElementIdentity> {
+final class SingleVariantElementDimensionComparator<T> implements Comparator<KnownModelObject<? extends Variant>> {
 	private final CoordinateAxis<T> type;
 	private final Comparator<? super T> delegate;
 
@@ -32,7 +33,7 @@ final class SingleVariantElementDimensionComparator<T> implements Comparator<Mod
 	}
 
 	@Override
-	public final int compare(ModelMapAdapters.ModelElementIdentity lhs, ModelMapAdapters.ModelElementIdentity rhs) {
+	public final int compare(KnownModelObject<? extends Variant> lhs, KnownModelObject<? extends Variant> rhs) {
 		return compare((BuildVariantInternal) ((VariantIdentifier) lhs.getIdentifier()).getBuildVariant(), (BuildVariantInternal) ((VariantIdentifier) rhs.getIdentifier()).getBuildVariant());
 	}
 

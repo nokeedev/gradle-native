@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.rules;
 
-import dev.nokee.model.internal.ModelMapAdapters;
+import dev.nokee.model.internal.KnownModelObject;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.runtime.core.Coordinate;
@@ -31,18 +31,18 @@ import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.pr
 import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.preferHostOperatingSystemFamily;
 import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.preferSharedBinaryLinkage;
 
-public class BuildableDevelopmentVariantTransformer<T extends VariantInternal> implements Transformer<Provider<T>, Set<ModelMapAdapters.ModelElementIdentity>> {
+public class BuildableDevelopmentVariantTransformer<T extends VariantInternal> implements Transformer<Provider<T>, Set<KnownModelObject<VariantInternal>>> {
 	@Override
 	@SuppressWarnings("unchecked")
-	public Provider<T> transform(Set<ModelMapAdapters.ModelElementIdentity> it) {
-		final ModelMapAdapters.ModelElementIdentity result = StreamSupport.stream(it.spliterator(), false).min(preferHostOperatingSystemFamily().thenComparing(preferHostMachineArchitecture()).thenComparing(preferSharedBinaryLinkage()).thenComparing(preferDebugBuildType())).orElseThrow(() -> new RuntimeException("No variants available."));
+	public Provider<T> transform(Set<KnownModelObject<VariantInternal>> it) {
+		final KnownModelObject<VariantInternal> result = StreamSupport.stream(it.spliterator(), false).min(preferHostOperatingSystemFamily().thenComparing(preferHostMachineArchitecture()).thenComparing(preferSharedBinaryLinkage()).thenComparing(preferDebugBuildType())).orElseThrow(() -> new RuntimeException("No variants available."));
 		if (isBuildable(result)) {
-			return (Provider<T>) result.asModelObject(VariantInternal.class).asProvider();
+			return (Provider<T>) result.asProvider();
 		}
 		return null;
 	}
 
-	public boolean isBuildable(ModelMapAdapters.ModelElementIdentity variant) {
+	public boolean isBuildable(KnownModelObject<VariantInternal> variant) {
 		return ((VariantIdentifier) variant.getIdentifier()).getBuildVariant().hasAxisOf(Coordinate.of(OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS, OperatingSystemFamily.forName(System.getProperty("os.name"))));
 	}
 }

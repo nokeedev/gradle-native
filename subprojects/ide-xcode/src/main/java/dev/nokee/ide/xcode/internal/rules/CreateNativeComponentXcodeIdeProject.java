@@ -33,10 +33,11 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.swift.internal.SwiftLanguageImplementation;
+import dev.nokee.model.internal.KnownModelObject;
 import dev.nokee.model.internal.ModelElement;
-import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
@@ -94,7 +95,7 @@ import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 import static dev.nokee.utils.TransformerUtils.to;
 
-public final class CreateNativeComponentXcodeIdeProject implements Action<ModelMapAdapters.ModelElementIdentity> {
+public final class CreateNativeComponentXcodeIdeProject implements Action<KnownModelObject<Component>> {
 	private final XcodeIdeProjectExtension extension;
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objectFactory;
@@ -112,7 +113,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelM
 	}
 
 	@Override
-	public void execute(ModelMapAdapters.ModelElementIdentity knownComponent) {
+	public void execute(KnownModelObject<Component> knownComponent) {
 		registerXcodeIdeProjectIfAbsent(extension.getProjects(), projectIdentifier.getName().toString()).configure(configureXcodeIdeProject(knownComponent));
 	}
 
@@ -127,7 +128,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelM
 		return !StreamSupport.stream(container.getCollectionSchema().getElements().spliterator(), false).anyMatch(it -> it.getName().equals(name));
 	}
 
-	private Action<XcodeIdeProject> configureXcodeIdeProject(ModelMapAdapters.ModelElementIdentity knownComponent) {
+	private Action<XcodeIdeProject> configureXcodeIdeProject(KnownModelObject<Component> knownComponent) {
 		return new Action<XcodeIdeProject>() {
 			@Override
 			public void execute(XcodeIdeProject xcodeProject) {

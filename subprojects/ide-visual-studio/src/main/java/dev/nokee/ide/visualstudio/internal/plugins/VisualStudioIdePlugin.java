@@ -40,7 +40,7 @@ public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 			@Override
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val action = new CreateNativeComponentVisualStudioIdeProject(extension, project.getLayout(), project.getObjects(), project.getProviders());
-				model(project, mapOf(Component.class)).whenElementKnow(action);
+				model(project, mapOf(Component.class)).whenElementKnown(action);
 			}
 		};
 	}

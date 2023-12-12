@@ -27,12 +27,13 @@ public interface ModelObjects {
 	<T> void register(ModelMap<T> repository);
 
 	void configureEach(Action<? super Object> action);
-	void whenElementKnown(Action<? super ModelMapAdapters.ModelElementIdentity> action);
+	// TODO: Should we use KnownModelObject or simply introduce a new model?
+	void whenElementKnown(Action<? super KnownModelObject<? extends Object>> action);
 	void whenElementFinalized(Action<? super Object> action);
 
-	Stream<ModelMapAdapters.ModelElementIdentity> parentsOf(ModelObjectIdentifier identifier);
+	Stream<KnownModelObject<?>> parentsOf(ModelObjectIdentifier identifier);
 
 	<T> Provider<Set<T>> get(Class<T> type);
-	<T> Provider<Set<T>> get(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec);
-	<T> Provider<Set<ModelMapAdapters.ModelElementIdentity>> getElements(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec);
+	<T> Provider<Set<T>> get(Class<T> type, Spec<? super KnownModelObject<?>> spec);
+	<T> Provider<Set<KnownModelObject<T>>> getElements(Class<T> type, Spec<? super KnownModelObject<?>> spec);
 }

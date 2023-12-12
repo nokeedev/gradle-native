@@ -41,8 +41,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public /*final*/ class DefaultModelObjects implements ModelObjects {
-	private final Map<ModelObjectIdentifier, ModelMapAdapters.ModelElementIdentity> identifierToElements = new HashMap<>();
-	private final List<ModelMapAdapters.ModelElementIdentity> elements = new ArrayList<>();
+	private final Map<ModelObjectIdentifier, KnownModelObject<?>> identifierToElements = new HashMap<>();
+	private final List<KnownModelObject<?>> elements = new ArrayList<>();
 	private final ProviderFactory providers;
 	private final ObjectFactory objects;
 	@SuppressWarnings("rawtypes") private final DomainObjectSet<ModelMap> collections;
@@ -56,7 +56,7 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 
 	@Override
 	public <T> void register(ModelMap<T> repository) {
-		repository.whenElementKnow(it -> {
+		repository.whenElementKnown(it -> {
 			elements.add(it);
 			identifierToElements.put(it.getIdentifier(), it);
 		});
@@ -71,8 +71,8 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void whenElementKnown(Action<? super ModelMapAdapters.ModelElementIdentity> action) {
-		collections.all(it -> it.whenElementKnow(action));
+	public void whenElementKnown(Action<? super KnownModelObject<? extends Object>> action) {
+		collections.all(it -> it.whenElementKnown(action));
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 	}
 
 	@Override
-	public Stream<ModelMapAdapters.ModelElementIdentity> parentsOf(ModelObjectIdentifier identifier) {
+	public Stream<KnownModelObject<?>> parentsOf(ModelObjectIdentifier identifier) {
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new ParentIterator(identifier.getParent()), Spliterator.ORDERED), false).map(identifierToElements::get);
 	}
 
@@ -111,53 +111,56 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> Provider<Set<T>> get(Class<T> type) {
 		return providers.provider(() -> {
-			final List<ModelMapAdapters.ModelElementIdentity> result = new ArrayList<>();
+			final List<KnownModelObject<T>> result = new ArrayList<>();
 
 			forEachIdentity(it -> {
 				// TODO: Should provide automatic discovery
-				if (it.instanceOf(type)) {
-					result.add(it);
+				if (it.getType().isSubtypeOf(type)) {
+					result.add((KnownModelObject<T>) it);
 				}
 			});
 			return result;
 		}).flatMap(identities -> {
 			SetProperty<T> result = objects.setProperty(type);
-			identities.forEach(it -> result.add(it.asModelObject(type).asProvider()));
+			identities.forEach(it -> result.add(it.asProvider()));
 			return result;
 		});
 	}
 
 	@Override
-	public <T> Provider<Set<T>> get(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec) {
+	@SuppressWarnings("unchecked")
+	public <T> Provider<Set<T>> get(Class<T> type, Spec<? super KnownModelObject<?>> spec) {
 		return providers.provider(() -> {
-			final List<ModelMapAdapters.ModelElementIdentity> result = new ArrayList<>();
+			final List<KnownModelObject<T>> result = new ArrayList<>();
 
 			forEachIdentity(it -> {
 				if (spec.isSatisfiedBy(it)) {
-					if (it.instanceOf(type)) {
-						result.add(it);
+					if (it.getType().isSubtypeOf(type)) {
+						result.add((KnownModelObject<T>) it);
 					}
 				}
 			});
 			return result;
 		}).flatMap(identities -> {
 			SetProperty<T> result = objects.setProperty(type);
-			identities.forEach(it -> result.add(it.asModelObject(type).asProvider()));
+			identities.forEach(it -> result.add(it.asProvider()));
 			return result;
 		});
 	}
 
 	@Override
-	public <T> Provider<Set<ModelMapAdapters.ModelElementIdentity>> getElements(Class<T> type, Spec<? super ModelMapAdapters.ModelElementIdentity> spec) {
+	@SuppressWarnings("unchecked")
+	public <T> Provider<Set<KnownModelObject<T>>> getElements(Class<T> type, Spec<? super KnownModelObject<?>> spec) {
 		return providers.provider(() -> {
-			final Set<ModelMapAdapters.ModelElementIdentity> result = new LinkedHashSet<>();
+			final Set<KnownModelObject<T>> result = new LinkedHashSet<>();
 
 			forEachIdentity(it -> {
 				if (spec.isSatisfiedBy(it)) {
-					if (it.instanceOf(type)) {
-						result.add(it);
+					if (it.getType().isSubtypeOf(type)) {
+						result.add((KnownModelObject<T>) it);
 					}
 				}
 			});
@@ -165,7 +168,7 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 		});
 	}
 
-	private void forEachIdentity(Consumer<? super ModelMapAdapters.ModelElementIdentity> action) {
+	private void forEachIdentity(Consumer<? super KnownModelObject<?>> action) {
 		// WARNING: Don't listen to IntelliJ. It's retarded and a index loop is the only way...
 		//   Because more elements may appear in the list as they are discovered.
 		for (int i = 0; i < elements.size(); ++i) {

@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.KnownModelObject;
 import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.nativebase.BuildType;
@@ -34,19 +35,19 @@ public class NativeVariantComparators {
 		return new SingleVariantDimensionComparator<>(OPERATING_SYSTEM_COORDINATE_AXIS, new PreferHostOperatingSystemFamilyComparator());
 	}
 
-	public static Comparator<ModelMapAdapters.ModelElementIdentity> preferDebugBuildType() {
+	public static Comparator<KnownModelObject<? extends Variant>> preferDebugBuildType() {
 		return new SingleVariantElementDimensionComparator<>(BuildType.BUILD_TYPE_COORDINATE_AXIS, new PreferDebugBuildTypeComparator());
 	}
 
-	public static Comparator<ModelMapAdapters.ModelElementIdentity> preferSharedBinaryLinkage() {
+	public static Comparator<KnownModelObject<? extends Variant>> preferSharedBinaryLinkage() {
 		return new SingleVariantElementDimensionComparator<>(BINARY_LINKAGE_COORDINATE_AXIS, new PreferSharedBinaryLinkageComparator());
 	}
 
-	public static Comparator<ModelMapAdapters.ModelElementIdentity> preferHostMachineArchitecture() {
+	public static Comparator<KnownModelObject<? extends Variant>> preferHostMachineArchitecture() {
 		return new SingleVariantElementDimensionComparator<>(ARCHITECTURE_COORDINATE_AXIS, new PreferHostMachineArchitectureComparator());
 	}
 
-	public static Comparator<ModelMapAdapters.ModelElementIdentity> preferHostOperatingSystemFamily() {
+	public static Comparator<KnownModelObject<? extends Variant>> preferHostOperatingSystemFamily() {
 		return new SingleVariantElementDimensionComparator<>(OPERATING_SYSTEM_COORDINATE_AXIS, new PreferHostOperatingSystemFamilyComparator());
 	}
 }

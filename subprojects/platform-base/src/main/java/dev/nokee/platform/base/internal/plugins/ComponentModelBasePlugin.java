@@ -105,7 +105,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		// FIXME: This is temporary until we convert all entity
 		project.afterEvaluate(__ -> {
-			model(project, mapOf(Variant.class)).whenElementKnow(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
+			model(project, mapOf(Variant.class)).whenElementKnown(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
 		});
 
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class);
@@ -169,7 +169,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 					if (elementType.getSimpleName().equals("SourceCompile")) {
 						try {
 							Class<?> LanguageSourceSet = Class.forName("dev.nokee.language.base.LanguageSourceSet");
-							model(project, mapOf(LanguageSourceSet)).whenElementKnow(it -> {
+							model(project, mapOf(LanguageSourceSet)).whenElementKnown(it -> {
 								if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
 									it.realizeNow(); // force realize
 								}

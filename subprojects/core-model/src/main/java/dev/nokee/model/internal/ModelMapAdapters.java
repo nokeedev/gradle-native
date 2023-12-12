@@ -20,6 +20,7 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectFactory;
@@ -78,14 +79,14 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
-			configureAction.execute((ModelElementIdentity) (ModelObject<?>) object);
+		public void whenElementKnown(Action<? super KnownModelObject<Project>> configureAction) {
+			configureAction.execute(new MyKnownModelObject<>((ModelElementIdentity) (ModelObject<?>) object));
 		}
 
 		@Override
-		public <U> void whenElementKnow(Class<U> type, Action<? super ModelElementIdentity> configureAction) {
+		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
 			if (((ModelElementIdentity) (ModelObject<?>) object).instanceOf(type)) {
-				configureAction.execute((ModelElementIdentity) (ModelObject<?>) object);
+				configureAction.execute(new MyKnownModelObject<>((ModelElementIdentity) (ModelObject<?>) object));
 			}
 		}
 
@@ -166,15 +167,15 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
-			knownElements.forEach(configureAction);
+		public void whenElementKnown(Action<? super KnownModelObject<Configuration>> configureAction) {
+			knownElements.forEach(it -> configureAction.execute(new MyKnownModelObject<>(it)));
 		}
 
 		@Override
-		public <U> void whenElementKnow(Class<U> type, Action<? super ModelElementIdentity> configureAction) {
+		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
 			knownElements.forEach(it -> {
 				if (it.instanceOf(type)) {
-					configureAction.execute(it);
+					configureAction.execute(new MyKnownModelObject<>(it));
 				}
 			});
 		}
@@ -261,15 +262,15 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
-			knownElements.forEach(configureAction);
+		public void whenElementKnown(Action<? super KnownModelObject<Task>> configureAction) {
+			knownElements.forEach(it -> configureAction.execute(new MyKnownModelObject<>(it)));
 		}
 
 		@Override
-		public <U> void whenElementKnow(Class<U> type, Action<? super ModelElementIdentity> configureAction) {
+		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
 			knownElements.forEach(it -> {
 				if (it.instanceOf(type)) {
-					configureAction.execute(it);
+					configureAction.execute(new MyKnownModelObject<>(it));
 				}
 			});
 		}
@@ -369,15 +370,15 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public void whenElementKnow(Action<? super ModelElementIdentity> configureAction) {
-			knownElements.forEach(configureAction);
+		public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
+			knownElements.forEach(it -> configureAction.execute(new MyKnownModelObject<>(it)));
 		}
 
 		@Override
-		public <U> void whenElementKnow(Class<U> type, Action<? super ModelElementIdentity> configureAction) {
+		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
 			knownElements.forEach(it -> {
 				if (it.instanceOf(type)) {
-					configureAction.execute(it);
+					configureAction.execute(new MyKnownModelObject<>(it));
 				}
 			});
 		}
@@ -496,6 +497,46 @@ public final class ModelMapAdapters {
 
 		public <T> NamedDomainObjectFactory<T> create(Class<T> type) {
 			return __ -> instantiator.newInstance(type);
+		}
+	}
+
+	private static class MyKnownModelObject<ElementType> implements KnownModelObject<ElementType> {
+		private final ModelElementIdentity it;
+
+		public MyKnownModelObject(ModelElementIdentity it) {
+			this.it = it;
+		}
+
+		@Override
+		public ModelObjectIdentifier getIdentifier() {
+			return it.getIdentifier();
+		}
+
+		@Override
+		public ModelType<?> getType() {
+			return ModelType.of(it.implementationType);
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public ModelObject<ElementType> configure(Action<? super ElementType> configureAction) {
+			return ((ModelObject<ElementType>) it.asModelObject(it.implementationType)).configure(configureAction);
+		}
+
+		@Override
+		public void realizeNow() {
+			it.realizeNow();
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public Provider<ElementType> asProvider() {
+			return it.providers.provider(() -> it.elementProvider).flatMap(it -> (Provider<ElementType>) it);
+		}
+
+		@Override
+		public String getName() {
+			return it.getName();
 		}
 	}
 }

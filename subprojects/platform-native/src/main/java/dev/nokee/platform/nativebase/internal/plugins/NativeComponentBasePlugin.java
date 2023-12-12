@@ -30,9 +30,9 @@ import dev.nokee.language.swift.internal.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.SwiftLanguageImplementation;
 import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.KnownModelObject;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Artifact;
@@ -43,7 +43,6 @@ import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
@@ -103,7 +102,6 @@ import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigurationUtils;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -122,6 +120,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
@@ -233,17 +232,15 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
 				sources(project).withType(SwiftSourceSetSpec.class).configureEach(sourceSet -> {
 					if (ModelObjectIdentifiers.descendantOf(sourceSet.getIdentifier(), identifier)) {
-						sourceSet.getCompileTask().configure(task -> {
-							ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(id -> {
-								task.getModuleName().set(project.provider(() -> {
-									return model(project, objects()).parentsOf(id)
-										.filter(it -> it.instanceOf(HasBaseName.class))
-										.map(it -> (Provider<String>) it.asModelObject(HasBaseName.class).get().getBaseName())
-										.findFirst()
-										.orElseGet(() -> project.provider(() -> null));
-								}).flatMap(it -> it).map(TextCaseUtils::toCamelCase));
-							});
-						});
+						sourceSet.getCompileTask().configure(withElement((element, task) -> {
+							task.getModuleName().set(project.provider(() -> {
+								return element.getParents()
+									.filter(it -> it.instanceOf(HasBaseName.class))
+									.map(it -> it.safeAs(HasBaseName.class).flatMap(HasBaseName::getBaseName))
+									.findFirst()
+									.orElseGet(() -> project.provider(() -> null));
+							}).flatMap(it -> it).map(TextCaseUtils::toCamelCase));
+						}));
 					}
 				});
 
@@ -303,7 +300,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				}
 			}
 		});
-		variants(project).configureEach(variant -> {
+		variants(project).configureEach(withElement((element, variant) -> {
 			if (variant instanceof HasRuntimeElementsDependencyBucket) {
 				final ConsumableDependencyBucketSpec bucket = ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements();
 				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))).execute(bucket.getAsConfiguration());
@@ -319,7 +316,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			if (variant instanceof HasApiElementsDependencyBucket) {
 				final ConsumableDependencyBucketSpec bucket = ((HasApiElementsDependencyBucket) variant).getApiElements();
 				ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-					final boolean hasSwift = model(project, objects()).parentsOf(identifier).anyMatch(it -> ((ExtensionAware) it.get()).getExtensions().findByType(SupportSwiftSourceSetTag.class) != null) || project.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null;
+					final boolean hasSwift = element.getParents().anyMatch(it -> it.safeAs(ExtensionAware.class).map(a -> a.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null).getOrElse(false));
 					if (hasSwift) {
 						ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))).execute(bucket.getAsConfiguration());
 						ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
@@ -332,16 +329,16 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				});
 
 			}
-		});
+		}));
 		variants(project).withType(NativeVariantSpec.class).configureEach(variant -> {
 			if (variant instanceof NativeApplicationComponent && variant instanceof HasRuntimeElementsDependencyBucket) {
 				val outgoing = new NativeApplicationOutgoingDependencies(variant, ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project);
 				outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 			}
 		});
-		variants(project).withType(NativeVariantSpec.class).configureEach(new Action<NativeVariantSpec>() {
+		variants(project).withType(NativeVariantSpec.class).configureEach(withElement(new BiConsumer<ModelElement, NativeVariantSpec>() {
 			@Override
-			public void execute(NativeVariantSpec variant) {
+			public void accept(ModelElement element, NativeVariantSpec variant) {
 				if (variant instanceof NativeLibraryComponent) {
 					final VariantIdentifier variantIdentifier = (VariantIdentifier) ((ModelElement) variant).getIdentifier();
 					final boolean hasSwift = ((LanguageSupportSpec) variant).getLanguageImplementations().stream().anyMatch(SwiftLanguageImplementation.class::isInstance);
@@ -362,10 +359,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						}).flatMap(it -> it));
 					}
 					outgoing.getExportedHeaders().from((Callable<?>) () -> {
-						return model(project, objects()).parentsOf(variantIdentifier)
-							.map(it -> it.get())
+						return element.getParents()
+							.map(it -> it.safeAs(ExtensionAware.class).get())
 							.flatMap(it -> {
-								final FileCollection publicHeaders = (FileCollection) ((ExtensionAware) it).getExtensions().findByName("publicHeaders");
+								final FileCollection publicHeaders = (FileCollection) it.getExtensions().findByName("publicHeaders");
 								if (publicHeaders == null) {
 									return Stream.empty();
 								} else {
@@ -385,7 +382,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
 				return result;
 			}
-		});
+		}));
 
 		project.getPluginManager().apply(NativeCompileCapabilityPlugin.class);
 		project.getPluginManager().apply(NativeLinkCapabilityPlugin.class);
@@ -458,9 +455,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		})));
 
 		model(project, mapOf(Component.class)).configureEach(VariantComponentSpec.class, component -> {
-			final Provider<Set<ModelMapAdapters.ModelElementIdentity>> variants = model(project, objects()).getElements(VariantInternal.class, it -> {
+			final Provider<Set<KnownModelObject<VariantInternal>>> variants = model(project, objects()).getElements(VariantInternal.class, it -> {
 				if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), component.getIdentifier())) {
-					return it.instanceOf(VariantInternal.class);
+					return it.getType().isSubtypeOf(VariantInternal.class);
 				}
 				return false;
 			});

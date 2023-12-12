@@ -68,7 +68,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 		new TestableComponentCapabilityRule().execute(project);
 
 		// Register test suite's variant lifecycle task
-		model(project, mapOf(Variant.class)).whenElementKnow(HasTestSuiteLifecycleTask.class, identity -> {
+		model(project, mapOf(Variant.class)).whenElementKnown(HasTestSuiteLifecycleTask.class, identity -> {
 			final String testSuiteName = identity.getIdentifier().getName().toString();
 			final TaskName lifecycleTaskName = TaskName.of(testSuiteName);
 			final ModelObjectIdentifier lifecycleTaskIdentifier = identity.getIdentifier().getParent().child(lifecycleTaskName);

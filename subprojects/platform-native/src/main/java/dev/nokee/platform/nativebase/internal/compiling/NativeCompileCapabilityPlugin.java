@@ -64,7 +64,7 @@ public class NativeCompileCapabilityPlugin<T extends ExtensionAware & PluginAwar
 					final Provider<Iterable<? extends FileCollection>> objectFiles = objs.get(AbstractNativeCompileTask.class, it -> {
 						if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
 							it.realizeNow(); // realize to kickstart Task discover... we should be more smart about this
-							return it.instanceOf(AbstractNativeCompileTask.class);
+							return it.getType().isSubtypeOf(AbstractNativeCompileTask.class);
 						} else {
 							return false;
 						}

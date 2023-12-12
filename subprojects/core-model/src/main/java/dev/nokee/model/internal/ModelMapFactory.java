@@ -107,7 +107,7 @@ public final class ModelMapFactory {
 
 			@Override
 			public Stream<ModelElement> getParents() {
-				return modelObjects.parentsOf(element.getIdentifier()).map(it -> ModelElementSupport.asModelElement(it.get()));
+				return modelObjects.parentsOf(element.getIdentifier()).map(it -> it.asProvider().map(ModelElementSupport::asModelElement).get());
 			}
 
 			@Override

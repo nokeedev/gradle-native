@@ -31,8 +31,9 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.model.internal.ModelMapAdapters;
+import dev.nokee.model.internal.KnownModelObject;
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
@@ -79,7 +80,7 @@ import static dev.nokee.utils.TransformerUtils.to;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 
-public final class CreateNativeComponentVisualStudioIdeProject implements Action<ModelMapAdapters.ModelElementIdentity> {
+public final class CreateNativeComponentVisualStudioIdeProject implements Action<KnownModelObject<Component>> {
 	private final VisualStudioIdeProjectExtension extension;
 	private final ProjectLayout projectLayout;
 	private final ObjectFactory objectFactory;
@@ -93,13 +94,13 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 	}
 
 	@Override
-	public void execute(ModelMapAdapters.ModelElementIdentity knownComponent) {
+	public void execute(KnownModelObject<Component> knownComponent) {
 		// TODO: Do something about the casting of DomainObjectIdentifier
 		extension.getProjects().register(knownComponent.getName(), configureVisualStudioIdeProject(knownComponent));
 	}
 
 	@SuppressWarnings("unchecked")
-	private Action<VisualStudioIdeProject> configureVisualStudioIdeProject(ModelMapAdapters.ModelElementIdentity knownComponent) {
+	private Action<VisualStudioIdeProject> configureVisualStudioIdeProject(KnownModelObject<Component> knownComponent) {
 		return new Action<VisualStudioIdeProject>() {
 			@Override
 			public void execute(VisualStudioIdeProject visualStudioProject) {
