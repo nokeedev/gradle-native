@@ -172,11 +172,7 @@ public final class ModelMapAdapters {
 			if (Configuration.class.isAssignableFrom(type)) {
 				delegate.withType((Class<? extends Configuration>) type).configureEach((Action<? super Configuration>) configureAction);
 			} else {
-				delegate.configureEach(it -> {
-					if (type.isInstance(it)) {
-						configureAction.execute(type.cast(it));
-					}
-				});
+				delegate.configureEach(ofType(type, configureAction));
 			}
 		}
 
@@ -275,11 +271,7 @@ public final class ModelMapAdapters {
 			if (elementType.isAssignableFrom(type)) {
 				delegate.withType((Class<? extends Task>) type).configureEach((Action<? super Task>) configureAction);
 			} else {
-				delegate.configureEach(it -> {
-					if (type.isInstance(it)) {
-						configureAction.execute(type.cast(it));
-					}
-				});
+				delegate.configureEach(ofType(type, configureAction));
 			}
 		}
 
@@ -395,11 +387,7 @@ public final class ModelMapAdapters {
 			if (elementType.isAssignableFrom(type)) {
 				delegate.withType((Class<? extends ElementType>) type).configureEach((Action<? super ElementType>) configureAction);
 			} else {
-				delegate.configureEach(it -> {
-					if (type.isInstance(it)) {
-						configureAction.execute(type.cast(it));
-					}
-				});
+				delegate.configureEach(ofType(type, configureAction));
 			}
 		}
 
