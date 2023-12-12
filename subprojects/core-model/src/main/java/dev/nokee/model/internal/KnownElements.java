@@ -73,13 +73,13 @@ public final class KnownElements {
 	}
 
 	// TODO: How to deal with identity vs element
-	public ModelMapAdapters.ModelElementIdentity getById(ModelObjectIdentifier identifier) {
+	public <T> ModelObject<T> getById(ModelObjectIdentifier identifier, Class<T> type) {
 		KnownElement element = mapping.findByName(ModelObjectIdentifiers.asFullyQualifiedName(identifier).toString());
 		if (element == null) {
 			throw new RuntimeException("element not known");
 		}
 
-		return element.identifiers.stream().filter(it -> it.getIdentifier().equals(identifier)).findFirst().orElseThrow(() -> new RuntimeException("element with same name found but not same id"));
+		return element.identifiers.stream().filter(it -> it.getIdentifier().equals(identifier)).findFirst().orElseThrow(() -> new RuntimeException("element with same name found but not same id")).asModelObject(type);
 	}
 
 	@Nullable

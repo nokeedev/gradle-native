@@ -207,7 +207,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public ModelObject<Configuration> getById(ModelObjectIdentifier identifier) {
-			return knownElements.getById(identifier).asModelObject(Configuration.class);
+			return knownElements.getById(identifier, Configuration.class);
 		}
 
 		private static final class DefaultRegistrableType implements RegistrableTypes {
@@ -310,7 +310,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public ModelObject<Task> getById(ModelObjectIdentifier identifier) {
-			return knownElements.getById(identifier).asModelObject(Task.class);
+			return knownElements.getById(identifier, Task.class);
 		}
 
 		private static final class TaskContainerRegistrableTypes implements RegistrableTypes {
@@ -430,7 +430,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-			return knownElements.getById(identifier).asModelObject(elementType);
+			return knownElements.getById(identifier, elementType);
 		}
 
 		private final class DefaultRegistrableTypes implements RegistrableTypes {
