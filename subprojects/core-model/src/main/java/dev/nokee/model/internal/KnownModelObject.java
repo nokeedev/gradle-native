@@ -28,5 +28,6 @@ public interface KnownModelObject<ObjectType> extends Named {
 
 	void realizeNow(); // TODO: Remove once discovery works
 
-	Provider<ObjectType> asProvider(); // TODO: Should we also have map/flatMap method or simply focus on this convertible?
+	// TODO: Should we also have map/flatMap method or simply focus on this convertible?
+	Provider<ObjectType> asProvider();
 }

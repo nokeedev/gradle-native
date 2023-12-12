@@ -31,7 +31,6 @@ import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.provider.Provider;
@@ -494,11 +493,6 @@ public final class ModelMapAdapters {
 		@SuppressWarnings("unchecked")
 		public NamedDomainObjectProvider<Object> asProvider() {
 			return (NamedDomainObjectProvider<Object>) elementProviderEx.named(getName(), implementationType);
-		}
-
-		@Override
-		public <S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super Object> mapper) {
-			return providers.provider(() -> asProvider().flatMap(mapper)).flatMap(it -> it);
 		}
 
 		@Override
