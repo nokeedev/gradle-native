@@ -16,11 +16,15 @@
 
 package dev.nokee.model.internal;
 
+import dev.nokee.model.internal.names.ElementName;
 import org.gradle.api.Action;
 
 public interface ModelMap<ElementType> {
 //	Class<ElementType> getElementType();
-//	<T extends ElementType> ModelObject<ElementType> create(ElementName name, Class<T> type);
+	default <RegistrableType extends ElementType> ModelObject<RegistrableType> register(String name, Class<RegistrableType> type) {
+		return register(ElementName.of(name), type);
+	}
+	<RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type);
 	void configureEach(Action<? super ElementType> configureAction);
 	<U> void configureEach(Class<U> type, Action<? super U> configureAction);
 

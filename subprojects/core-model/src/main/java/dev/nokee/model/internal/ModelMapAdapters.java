@@ -20,6 +20,7 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
@@ -69,6 +70,11 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		public <RegistrableType extends Project> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
+			throw new UnsupportedOperationException("registering Gradle Project is not supported");
+		}
+
+		@Override
 		public void configureEach(Action<? super Project> configureAction) {
 			object.configure(configureAction);
 		}
@@ -115,12 +121,14 @@ public final class ModelMapAdapters {
 		private final KnownElements knownElements;
 		private final ConfigurationContainer delegate;
 		private final Consumer<Runnable> onFinalize;
+		private final ContextualModelObjectIdentifier identifierFactory;
 
 		@Inject
 		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, Project project) {
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
+			this.identifierFactory = new ContextualModelObjectIdentifier(ProjectIdentifier.of(project));
 		}
 
 		@Override
@@ -135,6 +143,11 @@ public final class ModelMapAdapters {
 			}
 
 			// TODO: Account for ConsumableConfiguration, ResolvableConfiguration, DependencyScopeConfiguration
+		}
+
+		@Override
+		public <RegistrableType extends Configuration> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
+			return identifierFactory.create(name, identifier -> register(identifier, type));
 		}
 
 		@Override
@@ -218,6 +231,7 @@ public final class ModelMapAdapters {
 		private final KnownElements knownElements;
 		private final PolymorphicDomainObjectContainer<Task> delegate;
 		private final Consumer<Runnable> onFinalize;
+		private final ContextualModelObjectIdentifier identifierFactory;
 
 		@Inject
 		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, KnownElements knownElements, Project project) {
@@ -225,11 +239,17 @@ public final class ModelMapAdapters {
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
+			this.identifierFactory = new ContextualModelObjectIdentifier(ProjectIdentifier.of(project));
 		}
 
 		@Override
 		public <RegistrableType extends Task> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
 			return knownElements.register(identifier, type, name -> registerIfAbsent(delegate, name, type));
+		}
+
+		@Override
+		public <RegistrableType extends Task> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
+			return identifierFactory.create(name, identifier -> register(identifier, type));
 		}
 
 		@Override
@@ -313,6 +333,7 @@ public final class ModelMapAdapters {
 		private final ManagedFactoryProvider managedFactory;
 		private final ContextualModelElementInstantiator elementInstantiator;
 		private final Consumer<Runnable> onFinalize;
+		private final ContextualModelObjectIdentifier identifierFactory;
 
 		@Inject
 		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, ContextualModelElementInstantiator elementInstantiator, Project project) {
@@ -322,11 +343,17 @@ public final class ModelMapAdapters {
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.elementInstantiator = elementInstantiator;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
+			this.identifierFactory = new ContextualModelObjectIdentifier(ProjectIdentifier.of(project));
 		}
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
 			return knownElements.register(identifier, type, name -> registerIfAbsent(delegate, name, type));
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
+			return identifierFactory.create(name, identifier -> register(identifier, type));
 		}
 
 		@Override
@@ -489,6 +516,18 @@ public final class ModelMapAdapters {
 		@Override
 		public String toString() {
 			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identifier) + "' (" + implementationType.getSimpleName() + ")";
+		}
+	}
+
+	private static final class ContextualModelObjectIdentifier {
+		private final ModelObjectIdentifier baseIdentifier;
+
+		private ContextualModelObjectIdentifier(ModelObjectIdentifier baseIdentifier) {
+			this.baseIdentifier = baseIdentifier;
+		}
+
+		public <R> R create(ElementName elementName, Function<? super ModelObjectIdentifier, ? extends R> action) {
+			return action.apply(baseIdentifier.child(elementName));
 		}
 	}
 
