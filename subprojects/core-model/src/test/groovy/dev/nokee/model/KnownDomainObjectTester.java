@@ -28,16 +28,12 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
-import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newSpy;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
-import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofProvider;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofTransformer;
 import static dev.nokee.utils.ProviderUtils.fixed;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -47,11 +43,6 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 	@Test
 	default void hasIdentifier() {
 		assertThat(subject().getIdentifier(), notNullValue(DomainObjectIdentifier.class));
-	}
-
-	@Test
-	default void hasType() {
-		assertThat(subject().getType(), is(type()));
 	}
 
 	@Test
@@ -80,22 +71,13 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 
 	@Test
 	default void returnsThisKnownObjectOnConfigure() {
-		assertAll(
-			() -> assertSame(subject(), subject().configure(newMock(ofAction(Object.class)).instance())),
-			() -> assertSame(subject(), subject().configure(newSpy(ofClosure(type())).instance()))
-		);
+		assertSame(subject(), subject().configure(newMock(ofAction(Object.class)).instance()));
 	}
 
 	@Test
 	default void doesNotThrowWhenConfigureUsingAction() {
 		val action = newMock(ofAction(Object.class)).instance();
 		assertDoesNotThrow(() -> subject().configure(action));
-	}
-
-	@Test
-	default void doesNotThrowWhenConfigureUsingClosure() {
-		val closure = newSpy(ofClosure(type())).instance();
-		assertDoesNotThrow(() -> subject().configure(closure));
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
