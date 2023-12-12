@@ -157,6 +157,7 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		@SuppressWarnings("UnstableApiUsage")
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForNamedDomainObjectContainer<Configuration>>() {}.getType());
 		}
@@ -259,6 +260,7 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		@SuppressWarnings("UnstableApiUsage")
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForPolymorphicDomainObjectContainer<Task>>() {}.getType());
 		}
@@ -378,6 +380,7 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		@SuppressWarnings("UnstableApiUsage")
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForExtensiblePolymorphicDomainObjectContainer<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getType());
 		}
