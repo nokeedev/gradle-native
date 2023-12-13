@@ -17,6 +17,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.model.internal.Discoverable;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.internal.ElementExportingSpec;
@@ -59,6 +60,7 @@ public abstract /*final*/ class DefaultNativeApplication extends NativeApplicati
 		}
 
 		@SuppressWarnings("unchecked")
+		@Discoverable(BinaryLifecycleTaskDiscovery.class)
 		public TaskProvider<Task> getBinaryLifecycleTask() {
 			return (TaskProvider<Task>) getExtensions().getByName("binaryLifecycleTask");
 		}

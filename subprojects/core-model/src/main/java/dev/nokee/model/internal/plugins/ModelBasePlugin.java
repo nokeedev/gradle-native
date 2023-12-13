@@ -34,6 +34,7 @@ import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -64,7 +65,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		target.getExtensions().create("model", ModelExtension.class);
 		final ServiceLookup services = new ContextualModelObjectIdentifierAwareServiceLookup(new ExtensionBackedServiceLookup(model(target).getExtensions()));
 		model(target).getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
-		model(target).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements());
+		model(target).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(model(target).getExtensions().getByType(Instantiator.class), objects));
 	}
 
 	private void applyToSettings(Settings settings) {
@@ -82,6 +83,8 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));
+
+		project.getTasks().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(Task.class));
 	}
 
 	public static ModelExtension model(ExtensionAware target) {

@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package dev.nokee.model.internal.decorators;
-
-import dev.nokee.model.internal.Discoverable;
+package dev.nokee.model.internal;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+// Add on methods that can be discovered when an element is registered
+@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-@Decorate(NestedObjectDecorator.class)
-@Discoverable // All nested object are discovered when registered
-public @interface NestedObject {
-	String value() default "";
+public @interface Discoverable {
+	Class<? extends ModelElementDiscovery> value() default ModelElementDiscovery.None.class;
 }

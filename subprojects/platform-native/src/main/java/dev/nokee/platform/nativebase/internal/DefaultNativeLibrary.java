@@ -17,6 +17,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.model.internal.Discoverable;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.internal.ElementExportingSpec;
@@ -25,7 +26,6 @@ import dev.nokee.platform.base.internal.ParentAware;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.nativebase.NativeBinary;
-import dev.nokee.platform.nativebase.internal.mixins.ApiElementsDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.mixins.LinkElementsDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.mixins.RuntimeElementsDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
@@ -43,7 +43,6 @@ public abstract /*final*/ class DefaultNativeLibrary extends NativeLibrarySpec i
 	public static abstract /*final*/ class Variant extends NativeLibrarySpec implements IVariantOf<NativeLibrarySpec>
 		, NativeVariantSpec
 		, NativeSourcesAware, ElementExportingSpec
-		, ApiElementsDependencyBucketMixIn
 		, LinkElementsDependencyBucketMixIn
 		, RuntimeElementsDependencyBucketMixIn
 		, HasBinaryLifecycleTask
@@ -73,6 +72,7 @@ public abstract /*final*/ class DefaultNativeLibrary extends NativeLibrarySpec i
 		}
 
 		@SuppressWarnings("unchecked")
+		@Discoverable(BinaryLifecycleTaskDiscovery.class)
 		public TaskProvider<Task> getBinaryLifecycleTask() {
 			return (TaskProvider<Task>) getExtensions().getByName("binaryLifecycleTask");
 		}

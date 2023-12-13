@@ -103,11 +103,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		model(project).getExtensions().add("dependencyBuckets", model(project).getExtensions().getByType(ModelMapFactory.class).create(DependencyBucket.class, dependencyBuckets(project)));
 		model(project).getExtensions().add("artifacts", model(project).getExtensions().getByType(ModelMapFactory.class).create(Artifact.class, artifacts(project)));
 
-		// FIXME: This is temporary until we convert all entity
-		project.afterEvaluate(__ -> {
-			model(project, mapOf(Variant.class)).whenElementKnown(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
-		});
-
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class);
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class);
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class);

@@ -35,29 +35,32 @@ interface DependencyBucketMixIn extends DependencyBucketInternal, ExtensionAware
 	ObjectFactory getObjects();
 
 	@Override
-	@SuppressWarnings("unchecked")
 	default DependencyBucketInternal extendsFrom(Object... buckets) {
 		for (Object bucket : buckets) {
-			Configuration parentConfiguration = null;
-			if (bucket instanceof DependencyBucket) {
-				parentConfiguration = ((DependencyBucket) bucket).getAsConfiguration();
-			} else if (bucket instanceof ProviderConvertible) {
-				parentConfiguration = ((ProviderConvertible<DependencyBucket>) bucket).asProvider().get().getAsConfiguration();
-			} else if (bucket instanceof Provider) {
-				parentConfiguration = ((Provider<DependencyBucket>) bucket).get().getAsConfiguration();
-			} else {
-				throw new UnsupportedOperationException("only accept DependencyBucket, ProviderConvertible<DependencyBucket> and Provider<DependencyBucket>");
-			}
+			final Configuration parentConfiguration = getConfig(bucket);
 
 			// Avoid cyclic extendsFrom
 			if (!getAsConfiguration().equals(parentConfiguration)) {
 				getAsConfiguration().extendsFrom(parentConfiguration);
 
 				// For discovery
-				getAsConfiguration().getDependencies().addAllLater(getObjects().listProperty(Dependency.class).value(parentConfiguration.getDependencies()));
+				getAsConfiguration().getDependencies().addAllLater(getObjects().listProperty(Dependency.class).value(getProviders().provider(() -> parentConfiguration.getDependencies())));
 			}
 		}
 		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	static Configuration getConfig(Object bucket) {
+		if (bucket instanceof DependencyBucket) {
+			return ((DependencyBucket) bucket).getAsConfiguration();
+		} else if (bucket instanceof ProviderConvertible) {
+			return ((ProviderConvertible<DependencyBucket>) bucket).asProvider().get().getAsConfiguration();
+		} else if (bucket instanceof Provider) {
+			return ((Provider<DependencyBucket>) bucket).get().getAsConfiguration();
+		} else {
+			throw new UnsupportedOperationException("only accept DependencyBucket, ProviderConvertible<DependencyBucket> and Provider<DependencyBucket>");
+		}
 	}
 
 	default Provider<Set<Dependency>> getDependencies() {

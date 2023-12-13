@@ -92,7 +92,6 @@ import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigurationUtils;
-import dev.nokee.utils.TaskUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -137,6 +136,7 @@ import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
+import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 import static dev.nokee.utils.TransformerUtils.to;
 import static java.util.Collections.singletonList;
 
@@ -275,10 +275,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))).execute(runtimeElements);
 				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variantIdentifier.getBuildVariant(), project.getObjects()).execute(runtimeElements);
 
-				final ModelObject<Sync> syncRuntimeLibraryTask = model(project, registryOf(Task.class)).register(knownVariant.getIdentifier().child(TaskName.of("sync", "runtimeLibrary")), Sync.class);
-
 				final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 				if (!buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).isStatic()) {
+					final ModelObject<Sync> syncRuntimeLibraryTask = model(project, registryOf(Task.class)).register(knownVariant.getIdentifier().child(TaskName.of("sync", "runtimeLibrary")), Sync.class);
 					val runtimeLibraryName = finalizeValueOnRead(project.getObjects().property(String.class).value(project.provider(() -> {
 						val toolChainSelector = new ToolChainSelectorInternal(((ProjectInternal) project).getModelRegistry());
 						val platform = NativePlatformFactory.create(buildVariant.getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
@@ -297,7 +296,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 					syncRuntimeLibraryTask.configure(task -> {
 						task.from(knownVariant.asProvider().map(to(HasDevelopmentBinary.class)).flatMap(HasDevelopmentBinary::getDevelopmentBinary).flatMap(this::getOutgoingRuntimeLibrary), spec -> spec.rename(it -> runtimeLibraryName.get()));
-						task.setDestinationDir(project.getLayout().getBuildDirectory().dir(TaskUtils.temporaryDirectoryPath(task)).get().getAsFile());
+						task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
 					});
 
 					runtimeElements.getOutgoing().artifact(syncRuntimeLibraryTask.asProvider().map(it -> new File(it.getDestinationDir(), runtimeLibraryName.get())));
@@ -357,7 +356,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				})));
 				syncLinkLibraryTask.configure(task -> {
 					task.from(knownVariant.asProvider().map(to(HasDevelopmentBinary.class)).flatMap(HasDevelopmentBinary::getDevelopmentBinary).flatMap(this::getOutgoingLinkLibrary), spec -> spec.rename(it -> linkLibraryName.get()));
-					task.setDestinationDir(project.getLayout().getBuildDirectory().dir(TaskUtils.temporaryDirectoryPath(task)).get().getAsFile());
+					task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
 				});
 				linkElements.getOutgoing().artifact(syncLinkLibraryTask.asProvider().map(it -> new File(it.getDestinationDir(), linkLibraryName.get())));
 			}

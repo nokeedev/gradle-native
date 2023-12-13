@@ -37,6 +37,7 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
@@ -94,6 +95,7 @@ import java.util.function.Consumer;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
@@ -125,6 +127,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JniJarBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JvmJarBinarySpec.class);
+
+		// FIXME: This is temporary until we convert all entity
+		project.afterEvaluate(__ -> {
+			model(project, mapOf(Variant.class)).whenElementKnown(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
+		});
 
 		components(project).withType(JniLibraryComponentInternal.class)
 			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
