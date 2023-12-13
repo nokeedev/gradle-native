@@ -68,7 +68,7 @@ public final class TaskName implements ElementName {
 
 	public static TaskName of(String taskName) {
 		requireNonNull(taskName);
-		checkArgument(!taskName.isEmpty());
+		checkArgument(!taskName.isEmpty(), "'taskName' must not be empty");
 		checkArgument(Character.isLowerCase(taskName.charAt(0)));
 		return new TaskName(taskName, null);
 	}
