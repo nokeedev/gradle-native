@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal.dependencies;
 
-import dev.nokee.platform.base.Binary;
-import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.provider.Property;
+package dev.nokee.platform.base.internal;
 
-public interface NativeOutgoingDependencies {
-	RegularFileProperty getExportedSwiftModule();
-	Property<Binary> getExportedBinary();
+// Mark a software component that exports elements
+public interface ElementExportingSpec {
 }

@@ -23,7 +23,7 @@ import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
+import dev.nokee.language.nativebase.internal.ConfigurationUtilsEx;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 

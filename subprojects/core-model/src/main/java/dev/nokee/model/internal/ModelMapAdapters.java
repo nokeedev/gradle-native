@@ -314,28 +314,6 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	private static final class KnownModelObjectTypeOf<T> implements TypeFilteringAction.ActionTypeOf<KnownModelObject<T>> {
-		private final Class<T> type;
-
-		private KnownModelObjectTypeOf(Class<T> type) {
-			this.type = type;
-		}
-
-		@Override
-		public boolean isInstance(Object obj) {
-			if (obj instanceof KnownModelObject) {
-				return ((KnownModelObject<?>) obj).getType().isSubtypeOf(type);
-			}
-			return false;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public KnownModelObject<T> cast(Object obj) {
-			return (KnownModelObject<T>) obj;
-		}
-	}
-
 	public interface ContextualModelElementInstantiator {
 		<S> Function<KnownElements.KnownElement, S> newInstance(Factory<S> factory);
 	}

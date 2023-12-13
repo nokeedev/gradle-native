@@ -35,7 +35,6 @@ import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.project.ProjectInternal;
@@ -50,14 +49,12 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public abstract class AbstractNativeLibraryOutgoingDependencies {
-	@Getter private final ConfigurableFileCollection exportedHeaders;
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
 	private final Configuration linkElements;
 	private final Configuration runtimeElements;
 
 	protected AbstractNativeLibraryOutgoingDependencies(VariantIdentifier variantIdentifier, Configuration linkElements, Configuration runtimeElements, Project project, Provider<String> exportBaseName) {
-		this.exportedHeaders = project.getObjects().fileCollection();
 		this.exportedSwiftModule = project.getObjects().fileProperty();
 		this.exportedBinary = project.getObjects().property(Binary.class);
 		this.linkElements = linkElements;

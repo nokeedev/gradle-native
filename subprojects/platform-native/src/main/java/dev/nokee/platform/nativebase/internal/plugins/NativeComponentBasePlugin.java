@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.nativebase.internal.ConfigurationUtilsEx;
 import dev.nokee.language.nativebase.internal.HasApiElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
@@ -79,7 +80,6 @@ import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
-import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependencies;
@@ -108,7 +108,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
@@ -123,7 +122,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.ModelElementAction.withElement;
@@ -286,15 +284,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					runtimeElements.extendsFrom(dependencies.getImplementation());
 				}
 
-				if (variant instanceof HasApiElementsDependencyBucket) {
-					final ConsumableDependencyBucketSpec apiElements = ((HasApiElementsDependencyBucket) variant).getApiElements();
-
-					// TODO: We should extends from CompileOnlyApi
-					if (variant instanceof HasApiDependencyBucket) {
-						apiElements.extendsFrom(((HasApiDependencyBucket) variant).getApi());
-					}
-				}
-
 				if (variant instanceof HasApiDependencyBucket) {
 					((DependencyBucketInternal) dependencies.getImplementation()).extendsFrom(((HasApiDependencyBucket) variant).getApi());
 				}
@@ -321,10 +310,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))).execute(bucket.getAsConfiguration());
 						ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
 						ConfigurationUtilsEx.configureAsGradleDebugCompatible(bucket.getAsConfiguration());
-					} else {
-						ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))).execute(bucket.getAsConfiguration());
-						ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
-						ConfigurationUtilsEx.configureAsGradleDebugCompatible(bucket.getAsConfiguration());
 					}
 				});
 
@@ -340,13 +325,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			@Override
 			public void accept(ModelElement element, NativeVariantSpec variant) {
 				if (variant instanceof NativeLibraryComponent) {
-					final VariantIdentifier variantIdentifier = (VariantIdentifier) ((ModelElement) variant).getIdentifier();
 					final boolean hasSwift = ((LanguageSupportSpec) variant).getLanguageImplementations().stream().anyMatch(SwiftLanguageImplementation.class::isInstance);
 					NativeOutgoingDependencies outgoing = null;
 					if (hasSwift) {
 						outgoing = new SwiftLibraryOutgoingDependencies(variant.getIdentifier(), ((HasApiElementsDependencyBucket) variant).getApiElements().getAsConfiguration(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project, ((HasBaseName) variant).getBaseName());
 					} else {
-						outgoing = new NativeLibraryOutgoingDependencies(variant.getIdentifier(), ((HasApiElementsDependencyBucket) variant).getApiElements().getAsConfiguration(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project, ((HasBaseName) variant).getBaseName());
+						outgoing = new NativeLibraryOutgoingDependencies(variant.getIdentifier(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project, ((HasBaseName) variant).getBaseName());
 					}
 
 					if (hasSwift) {
@@ -358,19 +342,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 							return one(result);
 						}).flatMap(it -> it));
 					}
-					outgoing.getExportedHeaders().from((Callable<?>) () -> {
-						return element.getParents()
-							.map(it -> it.safeAs(ExtensionAware.class).get())
-							.flatMap(it -> {
-								final FileCollection publicHeaders = (FileCollection) it.getExtensions().findByName("publicHeaders");
-								if (publicHeaders == null) {
-									return Stream.empty();
-								} else {
-									return Stream.of(publicHeaders);
-								}
-							})
-							.findFirst().map(Object.class::cast).orElseGet(Collections::emptyList);
-					});
 					outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 				}
 			}
