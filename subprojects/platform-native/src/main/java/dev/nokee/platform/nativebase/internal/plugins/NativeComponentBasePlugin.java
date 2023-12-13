@@ -165,19 +165,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		variants(project).configureEach(new RuntimeLibrariesExtendsFromParentDependencyBucketAction<>());
 
 		variants(project).configureEach(variant -> {
-			if (variant instanceof SourceAwareComponent) {
-				final View<LanguageSourceSet> sources = ((SourceAwareComponent) variant).getSources();
-				sources.configureEach(sourceSet -> {
-					if (sourceSet instanceof HasHeaderSearchPaths) {
-						final Configuration headerSearchPaths = ((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().getAsConfiguration();
-						ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(headerSearchPaths);
-						ConfigurationUtilsEx.configureAsGradleDebugCompatible(headerSearchPaths);
-					}
-				});
-			}
-		});
-
-		variants(project).configureEach(variant -> {
 			ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(variantIdentifier -> {
 				model(project, mapOf(Task.class)).configureEach(AbstractNativeCompileTask.class, task -> {
 					ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {

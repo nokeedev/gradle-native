@@ -21,6 +21,7 @@ import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.nativebase.internal.BaseNativeSourceSetSpec;
 import dev.nokee.language.nativebase.internal.ConfigurationUtilsEx;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
@@ -105,6 +106,16 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 		})));
 
 		model(project, factoryRegistryOf(PropertySpec.class)).registerFactory(NativeHeaderProperty.class);
+
+		sources(project).withType(BaseNativeSourceSetSpec.class).configureEach(sourceSet -> {
+			if (sourceSet instanceof HasHeaderSearchPaths) {
+				sourceSet.getParents().filter(it -> it.getIdentifier() instanceof VariantIdentifier).findFirst().map(it -> (VariantIdentifier) it.getIdentifier()).ifPresent(variantIdentifier -> {
+					final Configuration headerSearchPaths = ((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().getAsConfiguration();
+					ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) variantIdentifier.getBuildVariant(), project.getObjects()).execute(headerSearchPaths);
+					ConfigurationUtilsEx.configureAsGradleDebugCompatible(headerSearchPaths);
+				});
+			}
+		});
 
 		model(project, objects()).whenElementKnown(ofType(new KnownModelObjectTypeOf<>(NativeSourcesAware.class), component -> {
 			if (component.getType().isSubtypeOf(ElementExportingSpec.class)) {
