@@ -48,6 +48,8 @@ public interface NativeProjectTasks {
 
 	List<String> getAllToLink();
 
+	List<String> getAllToApiElements();
+
 	List<String> getAllToLinkElements();
 
 	List<String> getAllToRuntimeElements();

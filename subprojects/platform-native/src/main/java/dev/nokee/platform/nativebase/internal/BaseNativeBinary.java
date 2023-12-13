@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildableComponentSpec;
@@ -28,6 +27,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
+import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
@@ -36,6 +36,7 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -65,7 +66,13 @@ public abstract class BaseNativeBinary extends ModelElementSupport implements Bi
 
 	public Provider<Set<FileSystemLocation>> getImportSearchPaths() {
 		return objects.fileCollection()
-			.from(getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).flatMap(toProviderOfIterable(objects::listProperty)))
+			.from(getCompileTasks().flatMap(it -> {
+				if (it instanceof SwiftCompile) {
+					return Collections.singletonList((SwiftCompile) it);
+				} else {
+					return Collections.emptyList();
+				}
+			}).map(transformEach(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile()))).flatMap(toProviderOfIterable(objects::listProperty)))
 			.getElements();
 	}
 
@@ -95,7 +102,7 @@ public abstract class BaseNativeBinary extends ModelElementSupport implements Bi
 			if (!getCompileTasks().filter(AbstractNativeCompileTask.class::isInstance).get().stream().map(AbstractNativeCompileTask.class::cast).allMatch(BaseNativeBinary::isBuildable)) {
 				return false;
 			}
-			if (!getCompileTasks().filter(SwiftCompileTask.class::isInstance).get().stream().map(SwiftCompileTask.class::cast).allMatch(BaseNativeBinary::isBuildable)) {
+			if (!getCompileTasks().filter(SwiftCompile.class::isInstance).get().stream().map(SwiftCompile.class::cast).allMatch(BaseNativeBinary::isBuildable)) {
 				return false;
 			}
 			return true;
@@ -108,7 +115,7 @@ public abstract class BaseNativeBinary extends ModelElementSupport implements Bi
 		return isBuildable(compileTask.getToolChain().get(), compileTask.getTargetPlatform().get());
 	}
 
-	private static boolean isBuildable(SwiftCompileTask compileTask) {
+	private static boolean isBuildable(SwiftCompile compileTask) {
 		return isBuildable(compileTask.getToolChain().get(), compileTask.getTargetPlatform().get());
 	}
 

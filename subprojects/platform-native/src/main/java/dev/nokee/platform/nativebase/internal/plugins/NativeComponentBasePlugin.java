@@ -15,22 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceAwareComponent;
-import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.internal.ConfigurationUtilsEx;
-import dev.nokee.language.nativebase.internal.HasApiElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
-import dev.nokee.language.swift.internal.HasImportModules;
-import dev.nokee.language.swift.internal.SupportSwiftSourceSetTag;
-import dev.nokee.language.swift.internal.SwiftLanguageImplementation;
-import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.KnownModelObject;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
@@ -57,7 +49,6 @@ import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.RegisterVariants;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
-import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
@@ -83,7 +74,6 @@ import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityP
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.SwiftLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.mixins.LinkOnlyDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantTransformer;
@@ -100,7 +90,6 @@ import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigurationUtils;
-import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
@@ -108,22 +97,19 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
@@ -192,19 +178,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		});
 
 		variants(project).configureEach(variant -> {
-			if (variant instanceof SourceAwareComponent) {
-				final View<LanguageSourceSet> sources = ((SourceAwareComponent) variant).getSources();
-				sources.configureEach(sourceSet -> {
-					if (sourceSet instanceof HasImportModules) {
-						final Configuration importModules = ((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().getAsConfiguration();
-						ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(importModules);
-						ConfigurationUtilsEx.configureAsGradleDebugCompatible(importModules);
-					}
-				});
-			}
-		});
-
-		variants(project).configureEach(variant -> {
 			ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(variantIdentifier -> {
 				model(project, mapOf(Task.class)).configureEach(AbstractNativeCompileTask.class, task -> {
 					ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
@@ -213,7 +186,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						}
 					});
 				});
-				model(project, mapOf(Task.class)).configureEach(SwiftCompileTask.class, task -> {
+				model(project, mapOf(Task.class)).configureEach(SwiftCompile.class, task -> {
 					ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
 						if (ModelObjectIdentifiers.descendantOf(taskIdentifier, variantIdentifier)) {
 							NativePlatformFactory.create(variant.getBuildVariant()).ifPresent(task.getTargetPlatform()::set);
@@ -228,20 +201,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			val identifier = ((ModelElement) variant).getIdentifier();
 
 			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-				sources(project).withType(SwiftSourceSetSpec.class).configureEach(sourceSet -> {
-					if (ModelObjectIdentifiers.descendantOf(sourceSet.getIdentifier(), identifier)) {
-						sourceSet.getCompileTask().configure(withElement((element, task) -> {
-							task.getModuleName().set(project.provider(() -> {
-								return element.getParents()
-									.filter(it -> it.instanceOf(HasBaseName.class))
-									.map(it -> it.safeAs(HasBaseName.class).flatMap(HasBaseName::getBaseName))
-									.findFirst()
-									.orElseGet(() -> project.provider(() -> null));
-							}).flatMap(it -> it).map(TextCaseUtils::toCamelCase));
-						}));
-					}
-				});
-
 				final BinaryLinkage linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 				if (linkage.isExecutable()) {
 					((ExtensionAware) variant).getExtensions().add("executable", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("executable")), NativeExecutableBinarySpec.class).asProvider());
@@ -254,7 +213,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				}
 
 				if (linkage.isShared() || linkage.isStatic()) {
-					project.getTasks().withType(SwiftCompileTask.class).configureEach(task -> {
+					project.getTasks().withType(SwiftCompile.class).configureEach(task -> {
 						ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
 							// TODO: Should check under the binary not the variant
 							if (ModelObjectIdentifiers.descendantOf(taskIdentifier, identifier)) {
@@ -301,57 +260,17 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))).execute(bucket.getAsConfiguration());
 				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
 			}
-
-			if (variant instanceof HasApiElementsDependencyBucket) {
-				final ConsumableDependencyBucketSpec bucket = ((HasApiElementsDependencyBucket) variant).getApiElements();
-				ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-					final boolean hasSwift = element.getParents().anyMatch(it -> it.safeAs(ExtensionAware.class).map(a -> a.getExtensions().findByType(SupportSwiftSourceSetTag.class) != null).getOrElse(false));
-					if (hasSwift) {
-						ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))).execute(bucket.getAsConfiguration());
-						ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
-						ConfigurationUtilsEx.configureAsGradleDebugCompatible(bucket.getAsConfiguration());
-					}
-				});
-
-			}
 		}));
 		variants(project).withType(NativeVariantSpec.class).configureEach(variant -> {
 			if (variant instanceof NativeApplicationComponent && variant instanceof HasRuntimeElementsDependencyBucket) {
-				val outgoing = new NativeApplicationOutgoingDependencies(variant, ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project);
+				final NativeApplicationOutgoingDependencies outgoing = new NativeApplicationOutgoingDependencies(variant, ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project);
 				outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 			}
 		});
-		variants(project).withType(NativeVariantSpec.class).configureEach(withElement(new BiConsumer<ModelElement, NativeVariantSpec>() {
-			@Override
-			public void accept(ModelElement element, NativeVariantSpec variant) {
-				if (variant instanceof NativeLibraryComponent) {
-					final boolean hasSwift = ((LanguageSupportSpec) variant).getLanguageImplementations().stream().anyMatch(SwiftLanguageImplementation.class::isInstance);
-					NativeOutgoingDependencies outgoing = null;
-					if (hasSwift) {
-						outgoing = new SwiftLibraryOutgoingDependencies(variant.getIdentifier(), ((HasApiElementsDependencyBucket) variant).getApiElements().getAsConfiguration(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project, ((HasBaseName) variant).getBaseName());
-					} else {
-						outgoing = new NativeLibraryOutgoingDependencies(variant.getIdentifier(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project, ((HasBaseName) variant).getBaseName());
-					}
-
-					if (hasSwift) {
-						outgoing.getExportedSwiftModule().convention(project.provider(() -> {
-							List<? extends Provider<RegularFile>> result = variant.getBinaries().withType(NativeBinary.class).flatMap(binary -> {
-								List<? extends Provider<RegularFile>> modules = binary.getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile()).get();
-								return modules;
-							}).get();
-							return one(result);
-						}).flatMap(it -> it));
-					}
-					outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
-				}
-			}
-
-			private <T> T one(Iterable<T> c) {
-				Iterator<T> iterator = c.iterator();
-				Preconditions.checkArgument(iterator.hasNext(), "collection needs to have one element, was empty");
-				T result = iterator.next();
-				Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
-				return result;
+		variants(project).withType(NativeVariantSpec.class).configureEach(withElement((element, variant) -> {
+			if (variant instanceof NativeLibraryComponent) {
+				final NativeOutgoingDependencies outgoing = new NativeLibraryOutgoingDependencies(variant.getIdentifier(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project, ((HasBaseName) variant).getBaseName());
+				outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 			}
 		}));
 

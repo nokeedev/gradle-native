@@ -163,6 +163,10 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 		return [compile, linkOrCreate]
 	}
 
+	List<String> getAllToApiElements() {
+		return [compile, syncApiElements]
+	}
+
 	List<String> getAllToLinkElements() {
 		return allToLinkOrCreate + [syncApiElements, syncLinkElements]
 	}

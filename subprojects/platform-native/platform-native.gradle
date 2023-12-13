@@ -40,11 +40,8 @@ gradlePlugin {
 		implementation project(':coreUtils')
 		api project(':platformBase')
 		api project(':runtimeNative')
-		implementation project(':languageC')
-		implementation project(':languageCpp')
-		implementation project(':languageObjectiveC')
-		implementation project(':languageObjectiveCpp')
-		implementation project(':languageSwift')
+		implementation project(':languageC') // because of NativeApplicationPlugin/NativeLibraryPlugin
+		implementation project(':languageNative')
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 		implementation "commons-io:commons-io:${commonsIoVersion}"

@@ -32,6 +32,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.nativeplatform.tasks.CreateStaticLibrary;
 
@@ -61,10 +62,10 @@ public class NativeCompileCapabilityPlugin<T extends ExtensionAware & PluginAwar
 		public void execute(Artifact artifact) {
 			if (artifact instanceof HasObjectFilesToBinaryTask) {
 				ModelElementSupport.safeAsModelElement(artifact).map(ModelElement::getIdentifier).ifPresent(identifier -> {
-					final Provider<Iterable<? extends FileCollection>> objectFiles = objs.get(AbstractNativeCompileTask.class, it -> {
+					final Provider<Iterable<? extends FileCollection>> objectFiles = objs.get(Task.class, it -> {
 						if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
 							it.realizeNow(); // realize to kickstart Task discover... we should be more smart about this
-							return it.getType().isSubtypeOf(AbstractNativeCompileTask.class);
+							return it.getType().isSubtypeOf(AbstractNativeCompileTask.class) || it.getType().isSubtypeOf(SwiftCompile.class);
 						} else {
 							return false;
 						}

@@ -32,6 +32,7 @@ gradlePlugin {
 		implementation project(':coreUtils')
 		api project(':languageNative')
 		implementation project(':platformBase')
+		implementation project(':platformNative')
 		implementation project(':coreExec')
 		implementation project(':runtimeNative')
 		implementation "com.google.guava:guava:${guavaVersion}"

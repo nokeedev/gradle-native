@@ -17,14 +17,18 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.base.Suppliers;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.platform.nativebase.*;
+import dev.nokee.platform.nativebase.BundleBinary;
+import dev.nokee.platform.nativebase.ExecutableBinary;
+import dev.nokee.platform.nativebase.NativeBinary;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -92,8 +96,8 @@ public final class NativeBinaryBuildable {
 	private static boolean isBuildable(SourceCompile task) {
 		if (task instanceof AbstractNativeCompileTask) {
 			return isBuildable((AbstractNativeCompileTask) task);
-		} else if (task instanceof SwiftCompileTask) {
-			return isBuildable((SwiftCompileTask) task);
+		} else if (task instanceof SwiftCompile) {
+			return isBuildable((SwiftCompile) task);
 		} else {
 			return true; // assume buildable
 		}
@@ -103,7 +107,7 @@ public final class NativeBinaryBuildable {
 		return isBuildable(compileTask.getToolChain().get(), compileTask.getTargetPlatform().get());
 	}
 
-	private static boolean isBuildable(SwiftCompileTask compileTask) {
+	private static boolean isBuildable(SwiftCompile compileTask) {
 		return isBuildable(compileTask.getToolChain().get(), compileTask.getTargetPlatform().get());
 	}
 
