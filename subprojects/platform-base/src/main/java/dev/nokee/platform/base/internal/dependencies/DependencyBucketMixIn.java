@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.platform.base.DependencyBucket;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderConvertible;
@@ -29,6 +30,9 @@ import java.util.Set;
 interface DependencyBucketMixIn extends DependencyBucketInternal, ExtensionAware {
 	@Inject
 	ProviderFactory getProviders();
+
+	@Inject
+	ObjectFactory getObjects();
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -48,6 +52,9 @@ interface DependencyBucketMixIn extends DependencyBucketInternal, ExtensionAware
 			// Avoid cyclic extendsFrom
 			if (!getAsConfiguration().equals(parentConfiguration)) {
 				getAsConfiguration().extendsFrom(parentConfiguration);
+
+				// For discovery
+				getAsConfiguration().getDependencies().addAllLater(getObjects().listProperty(Dependency.class).value(parentConfiguration.getDependencies()));
 			}
 		}
 		return this;

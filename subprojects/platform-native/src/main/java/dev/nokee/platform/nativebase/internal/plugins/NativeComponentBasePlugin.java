@@ -15,10 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.language.nativebase.internal.ConfigurationUtilsEx;
-import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
@@ -26,23 +23,25 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.model.internal.KnownModelObject;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObject;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.DeclarableDependencyBucket;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasApiDependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTask;
-import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -50,6 +49,7 @@ import dev.nokee.platform.base.internal.plugins.RegisterVariants;
 import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
@@ -57,6 +57,7 @@ import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRul
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplication;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibrary;
 import dev.nokee.platform.nativebase.internal.HasBinaryLifecycleTask;
+import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.NativeBundleBinarySpec;
@@ -71,9 +72,6 @@ import dev.nokee.platform.nativebase.internal.ObjectsTaskMixIn;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeLibraryOutgoingDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.mixins.LinkOnlyDependencyBucketMixIn;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantTransformer;
@@ -84,28 +82,41 @@ import dev.nokee.platform.nativebase.internal.rules.TargetedNativeComponentDimen
 import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
+import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
+import dev.nokee.platform.nativebase.tasks.LinkExecutable;
+import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigurationUtils;
+import dev.nokee.utils.TaskUtils;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
+import org.gradle.api.tasks.Sync;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
+import java.io.File;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
@@ -122,9 +133,11 @@ import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
+import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
+import static dev.nokee.utils.TransformerUtils.to;
 import static java.util.Collections.singletonList;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
@@ -215,51 +228,151 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		artifacts(project).configureEach(new RuntimeLibrariesConfigurationRegistrationRule(model(project, objects()), project.getObjects()));
 		variants(project).configureEach(new AttachAttributesToConfigurationRule(HasRuntimeLibrariesDependencyBucket.class, HasRuntimeLibrariesDependencyBucket::getRuntimeLibraries, project.getObjects(), model(project, mapOf(Artifact.class))));
 
+		model(project, objects()).whenElementKnown(it -> {
+			if (it.getType().isSubtypeOf(DependencyAwareComponent.class)) {
+				try {
+					Method getDependencies = it.getType().getConcreteType().getMethod("getDependencies");
+					Set<String> buckets = new LinkedHashSet<>();
+					for (Method method : getDependencies.getReturnType().getMethods()) {
+						if (DeclarableDependencyBucket.class.isAssignableFrom(method.getReturnType())) {
+							if (buckets.add(method.getName())) {
+								final String elementName = StringUtils.uncapitalize(method.getName().substring("get".length()));
+								final String configurationName = ModelObjectIdentifiers.asQualifyingName(it.getIdentifier().child(elementName)).toString();
+								final Configuration configuration = project.getConfigurations().maybeCreate(configurationName);
+								configuration.setCanBeConsumed(false);
+								configuration.setCanBeResolved(false);
+								configuration.withDependencies(__ -> it.realizeNow());
+							}
+						}
+					}
+				} catch (NoSuchMethodException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+
 		variants(project).configureEach(variant -> {
 			if (variant instanceof DependencyAwareComponent && ((DependencyAwareComponent<?>) variant).getDependencies() instanceof NativeComponentDependencies) {
 				final NativeComponentDependencies dependencies = ((DependencyAwareComponent<NativeComponentDependencies>) variant).getDependencies();
-
-				if (variant instanceof HasRuntimeElementsDependencyBucket) {
-					final ConsumableDependencyBucketSpec runtimeElements = ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements();
-					runtimeElements.extendsFrom(dependencies.getImplementation(), dependencies.getRuntimeOnly());
-				}
-
-				if (variant instanceof HasLinkElementsDependencyBucket) {
-					final ConsumableDependencyBucketSpec runtimeElements = ((HasLinkElementsDependencyBucket) variant).getLinkElements();
-					// TODO: We should extends from LinkOnlyApi
-					runtimeElements.extendsFrom(dependencies.getImplementation());
-				}
-
 				if (variant instanceof HasApiDependencyBucket) {
 					((DependencyBucketInternal) dependencies.getImplementation()).extendsFrom(((HasApiDependencyBucket) variant).getApi());
 				}
 			}
 		});
-		variants(project).configureEach(withElement((element, variant) -> {
-			if (variant instanceof HasRuntimeElementsDependencyBucket) {
-				final ConsumableDependencyBucketSpec bucket = ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements();
-				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))).execute(bucket.getAsConfiguration());
-				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
+		model(project, mapOf(Variant.class)).whenElementKnown(HasRuntimeElementsDependencyBucket.class, new Action<KnownModelObject<HasRuntimeElementsDependencyBucket>>() {
+			@Override
+			public void execute(KnownModelObject<HasRuntimeElementsDependencyBucket> knownVariant) {
+				final VariantIdentifier variantIdentifier = (VariantIdentifier) knownVariant.getIdentifier();
+				final Configuration runtimeElements = project.getConfigurations().maybeCreate(ModelObjectIdentifiers.asFullyQualifiedName(variantIdentifier.child("runtimeElements")).toString());
+
+				runtimeElements.setCanBeConsumed(true);
+				runtimeElements.setCanBeResolved(false);
+
+				project.getConfigurations().matching(it -> {
+					return it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(knownVariant.getIdentifier().child("implementation")).toString()) || it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(knownVariant.getIdentifier().child("runtimeOnly")).toString());
+				}).all(runtimeElements::extendsFrom);
+
+				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))).execute(runtimeElements);
+				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variantIdentifier.getBuildVariant(), project.getObjects()).execute(runtimeElements);
+
+				final ModelObject<Sync> syncRuntimeLibraryTask = model(project, registryOf(Task.class)).register(knownVariant.getIdentifier().child(TaskName.of("sync", "runtimeLibrary")), Sync.class);
+
+				final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
+				if (!buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).isStatic()) {
+					val runtimeLibraryName = finalizeValueOnRead(project.getObjects().property(String.class).value(project.provider(() -> {
+						val toolChainSelector = new ToolChainSelectorInternal(((ProjectInternal) project).getModelRegistry());
+						val platform = NativePlatformFactory.create(buildVariant.getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
+						val toolchain = toolChainSelector.select(platform);
+						val toolProvider = toolchain.select(platform);
+						val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+						val baseName = knownVariant.asProvider().map(to(HasBaseName.class)).flatMap(HasBaseName::getBaseName).get();
+						if (linkage.isExecutable()) {
+							return toolProvider.getExecutableName(baseName);
+						} else if (linkage.isShared()) {
+							return toolProvider.getSharedLibraryName(baseName);
+						} else {
+							throw new UnsupportedOperationException();
+						}
+					})));
+
+					syncRuntimeLibraryTask.configure(task -> {
+						task.from(knownVariant.asProvider().map(to(HasDevelopmentBinary.class)).flatMap(HasDevelopmentBinary::getDevelopmentBinary).flatMap(this::getOutgoingRuntimeLibrary), spec -> spec.rename(it -> runtimeLibraryName.get()));
+						task.setDestinationDir(project.getLayout().getBuildDirectory().dir(TaskUtils.temporaryDirectoryPath(task)).get().getAsFile());
+					});
+
+					runtimeElements.getOutgoing().artifact(syncRuntimeLibraryTask.asProvider().map(it -> new File(it.getDestinationDir(), runtimeLibraryName.get())));
+				}
 			}
 
-			if (variant instanceof HasLinkElementsDependencyBucket) {
-				final ConsumableDependencyBucketSpec bucket = ((HasLinkElementsDependencyBucket) variant).getLinkElements();
-				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))).execute(bucket.getAsConfiguration());
-				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variant.getBuildVariant(), project.getObjects()).execute(bucket.getAsConfiguration());
-			}
-		}));
-		variants(project).withType(NativeVariantSpec.class).configureEach(variant -> {
-			if (variant instanceof NativeApplicationComponent && variant instanceof HasRuntimeElementsDependencyBucket) {
-				final NativeApplicationOutgoingDependencies outgoing = new NativeApplicationOutgoingDependencies(variant, ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project);
-				outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
+			private Provider<RegularFile> getOutgoingRuntimeLibrary(Binary binary) {
+				if (binary instanceof NativeExecutableBinarySpec) {
+					return ((NativeExecutableBinarySpec) binary).getLinkTask().flatMap(LinkExecutable::getLinkedFile);
+				} else if (binary instanceof NativeSharedLibraryBinarySpec) {
+					return ((NativeSharedLibraryBinarySpec) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile);
+				} else if (binary instanceof StaticLibraryBinary) {
+					throw new UnsupportedOperationException();
+				} else if (binary instanceof HasOutputFile) {
+					return ((HasOutputFile) binary).getOutputFile();
+				}
+				throw new IllegalArgumentException("Unsupported binary to export");
 			}
 		});
-		variants(project).withType(NativeVariantSpec.class).configureEach(withElement((element, variant) -> {
-			if (variant instanceof NativeLibraryComponent) {
-				final NativeOutgoingDependencies outgoing = new NativeLibraryOutgoingDependencies(variant.getIdentifier(), ((HasLinkElementsDependencyBucket) variant).getLinkElements().getAsConfiguration(), ((HasRuntimeElementsDependencyBucket) variant).getRuntimeElements().getAsConfiguration(), project, ((HasBaseName) variant).getBaseName());
-				outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
+		model(project, mapOf(Variant.class)).whenElementKnown(HasLinkElementsDependencyBucket.class, new Action<KnownModelObject<HasLinkElementsDependencyBucket>>() {
+			@Override
+			public void execute(KnownModelObject<HasLinkElementsDependencyBucket> knownVariant) {
+				final VariantIdentifier variantIdentifier = (VariantIdentifier) knownVariant.getIdentifier();
+				final Configuration linkElements = project.getConfigurations().maybeCreate(ModelObjectIdentifiers.asFullyQualifiedName(variantIdentifier.child("linkElements")).toString());
+
+				linkElements.setCanBeConsumed(true);
+				linkElements.setCanBeResolved(false);
+
+				project.getConfigurations().matching(it -> {
+					// TODO: We should extends from LinkOnlyApi
+					return it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(knownVariant.getIdentifier().child("implementation")).toString());
+				}).all(linkElements::extendsFrom);
+
+				ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))).execute(linkElements);
+				ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variantIdentifier.getBuildVariant(), project.getObjects()).execute(linkElements);
+
+				final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
+				final ModelObject<Sync> syncLinkLibraryTask = model(project, registryOf(Task.class)).register(knownVariant.getIdentifier().child(TaskName.of("sync", "linkLibrary")), Sync.class);
+				val linkLibraryName = finalizeValueOnRead(project.getObjects().property(String.class).value(project.provider(() -> {
+					val toolChainSelector = new ToolChainSelectorInternal(((ProjectInternal) project).getModelRegistry());
+					val platform = NativePlatformFactory.create(buildVariant.getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
+					val toolchain = toolChainSelector.select(platform);
+					val toolProvider = toolchain.select(platform);
+					val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+					val baseName = knownVariant.asProvider().map(to(HasBaseName.class)).flatMap(HasBaseName::getBaseName).get();
+					if (linkage.isStatic()) {
+						return toolProvider.getStaticLibraryName(baseName);
+					} else if (linkage.isShared()) {
+						if (toolProvider.producesImportLibrary()) {
+							return toolProvider.getImportLibraryName(baseName);
+						} else {
+							return toolProvider.getSharedLibraryLinkFileName(baseName);
+						}
+					} else {
+						throw new UnsupportedOperationException();
+					}
+				})));
+				syncLinkLibraryTask.configure(task -> {
+					task.from(knownVariant.asProvider().map(to(HasDevelopmentBinary.class)).flatMap(HasDevelopmentBinary::getDevelopmentBinary).flatMap(this::getOutgoingLinkLibrary), spec -> spec.rename(it -> linkLibraryName.get()));
+					task.setDestinationDir(project.getLayout().getBuildDirectory().dir(TaskUtils.temporaryDirectoryPath(task)).get().getAsFile());
+				});
+				linkElements.getOutgoing().artifact(syncLinkLibraryTask.asProvider().map(it -> new File(it.getDestinationDir(), linkLibraryName.get())));
 			}
-		}));
+
+			private Provider<RegularFile> getOutgoingLinkLibrary(Binary binary) {
+				if (binary instanceof NativeSharedLibraryBinarySpec) {
+					return ((NativeSharedLibraryBinarySpec) binary).getLinkTask().flatMap(it -> it.getImportLibrary().orElse(it.getLinkedFile()));
+				} else if (binary instanceof StaticLibraryBinary) {
+					return ((StaticLibraryBinary) binary).getCreateTask().flatMap(CreateStaticLibrary::getOutputFile);
+				} else if (binary instanceof HasOutputFile) {
+					return ((HasOutputFile) binary).getOutputFile();
+				}
+				throw new IllegalArgumentException("Unsupported binary to export");
+			}
+		});
 
 		project.getPluginManager().apply(NativeCompileCapabilityPlugin.class);
 		project.getPluginManager().apply(NativeLinkCapabilityPlugin.class);
