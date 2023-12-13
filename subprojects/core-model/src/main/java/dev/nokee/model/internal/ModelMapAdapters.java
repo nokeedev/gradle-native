@@ -602,7 +602,7 @@ public final class ModelMapAdapters {
 		@Override
 		@SuppressWarnings("unchecked")
 		public Provider<ElementType> asProvider() {
-			return it.providers.provider(() -> it.elementProvider).flatMap(it -> (Provider<ElementType>) it);
+			return it.providers.provider(it::asProvider).flatMap(it -> (Provider<ElementType>) it);
 		}
 
 		@Override
