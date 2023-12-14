@@ -61,6 +61,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 
 // TODO: formalize headers visibility with export elements
@@ -121,7 +122,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 			if (component.getType().isSubtypeOf(ElementExportingSpec.class)) {
 				final String name = ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child(ElementName.of("headersElements"))).toString();
 
-				final Configuration apiElements = project.getConfigurations().maybeCreate(name);
+				final Configuration apiElements = createIfAbsent(project.getConfigurations(), name);
 				apiElements.setCanBeResolved(false);
 				apiElements.setCanBeConsumed(true);
 

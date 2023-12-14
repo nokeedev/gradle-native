@@ -135,6 +135,7 @@ import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
@@ -251,7 +252,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 							if (buckets.add(method.getName())) {
 								final String elementName = StringUtils.uncapitalize(method.getName().substring("get".length()));
 								final String configurationName = ModelObjectIdentifiers.asQualifyingName(it.getIdentifier().child(elementName)).toString();
-								final Configuration configuration = project.getConfigurations().maybeCreate(configurationName);
+								final Configuration configuration = createIfAbsent(project.getConfigurations(), configurationName);
 								configuration.setCanBeConsumed(false);
 								configuration.setCanBeResolved(false);
 								configuration.withDependencies(__ -> it.realizeNow());
@@ -276,7 +277,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			@Override
 			public void execute(KnownModelObject<HasRuntimeElementsDependencyBucket> knownVariant) {
 				final VariantIdentifier variantIdentifier = (VariantIdentifier) knownVariant.getIdentifier();
-				final Configuration runtimeElements = project.getConfigurations().maybeCreate(ModelObjectIdentifiers.asFullyQualifiedName(variantIdentifier.child("runtimeElements")).toString());
+				final Configuration runtimeElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(variantIdentifier.child("runtimeElements")).toString());
 
 				runtimeElements.setCanBeConsumed(true);
 				runtimeElements.setCanBeResolved(false);
@@ -333,7 +334,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			@Override
 			public void execute(KnownModelObject<HasLinkElementsDependencyBucket> knownVariant) {
 				final VariantIdentifier variantIdentifier = (VariantIdentifier) knownVariant.getIdentifier();
-				final Configuration linkElements = project.getConfigurations().maybeCreate(ModelObjectIdentifiers.asFullyQualifiedName(variantIdentifier.child("linkElements")).toString());
+				final Configuration linkElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(variantIdentifier.child("linkElements")).toString());
 
 				linkElements.setCanBeConsumed(true);
 				linkElements.setCanBeResolved(false);

@@ -61,6 +61,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 import static dev.nokee.utils.TransformerUtils.to;
 
@@ -106,7 +107,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 				if (component.getType().isSubtypeOf(ElementExportingSpec.class)) {
 					final String name = ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child(ElementName.of("importModuleElements"))).toString();
 
-					final Configuration apiElements = project.getConfigurations().maybeCreate(name);
+					final Configuration apiElements = createIfAbsent(project.getConfigurations(), name);
 					apiElements.setCanBeResolved(false);
 					apiElements.setCanBeConsumed(true);
 

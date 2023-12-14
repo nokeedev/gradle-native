@@ -17,17 +17,33 @@ package dev.nokee.utils;
 
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.gradle.api.*;
+import org.gradle.api.Action;
+import org.gradle.api.DomainObjectCollection;
+import org.gradle.api.InvalidUserDataException;
+import org.gradle.api.NamedDomainObjectCollection;
+import org.gradle.api.NamedDomainObjectCollectionSchema;
+import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.internal.DefaultDomainObjectCollection;
 import org.gradle.api.internal.DefaultNamedDomainObjectCollection;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public final class NamedDomainObjectCollectionUtils {
 	private NamedDomainObjectCollectionUtils() {}
 
 	//region createIfAbsent
+	// These methods will not trigger any rules on the container, it checks the elements already created/registered
+	public static <T> T createIfAbsent(NamedDomainObjectContainer<T> self, String name) {
+		return createIfAbsent(self, name, ActionUtils.doNothing());
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T> T createIfAbsent(NamedDomainObjectContainer<T> self, String name, Action<? super T> action) {
 		// TODO: Should assert the type base type
