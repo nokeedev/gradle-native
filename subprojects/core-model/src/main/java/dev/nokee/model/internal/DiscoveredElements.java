@@ -238,6 +238,15 @@ public class DiscoveredElements {
 		next.accept(action);
 	}
 
+	public void discoverAll(Class<?> baseType) {
+		for (int i = 0; i < elements.size(); ++i) {
+			Element candidate = Iterables.get(elements, i);
+			if (candidate.type.isSubtypeOf(baseType)) {
+				realize(candidate);
+			}
+		}
+	}
+
 	private boolean discoverDirectMatch(String name, Class<?> baseType) {
 		for (int i = 0; i < elements.size(); ++i) {
 			Element candidate = Iterables.get(elements, i);

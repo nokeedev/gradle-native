@@ -42,6 +42,8 @@ import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.concurrent.Callable;
 
 public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
 	private final PluginTargetSupport pluginScopes = PluginTargetSupport.builder()
@@ -85,6 +87,12 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));
 
 		project.getTasks().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(Task.class));
+		project.getTasks().named("tasks", task -> {
+			task.dependsOn((Callable<?>) () -> {
+				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Task.class);
+				return Collections.emptyList();
+			});
+		});
 	}
 
 	public static ModelExtension model(ExtensionAware target) {
