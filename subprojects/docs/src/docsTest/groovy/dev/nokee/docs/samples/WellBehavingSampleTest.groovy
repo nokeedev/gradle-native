@@ -64,7 +64,7 @@ import static org.junit.Assume.assumeTrue
 @CleanupTestDirectory
 abstract class WellBehavingSampleTest extends Specification {
 	@Rule
-	final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider(getClass())
+	TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider(getClass())
 
 	@Shared def fixture = new SampleContentFixture(sampleName)
 
