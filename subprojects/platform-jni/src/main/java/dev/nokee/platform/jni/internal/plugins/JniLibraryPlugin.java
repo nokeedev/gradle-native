@@ -122,36 +122,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 			}
 		});
-
-		project.afterEvaluate(proj -> {
-			// Ensure the variants are resolved so all tasks are registered.
-			getTasks().named("tasks", task -> {
-				task.dependsOn((Callable) () -> {
-					extension.getVariants().get();
-					return emptyList();
-				});
-			});
-			// Ensure the variants are resolved so all configurations and dependencies are registered.
-			getTasks().named("dependencies", task -> {
-				task.dependsOn((Callable) () -> {
-					extension.getVariants().get();
-					return emptyList();
-				});
-			});
-			getTasks().named("outgoingVariants", task -> {
-				task.dependsOn((Callable) () -> {
-					extension.getVariants().get();
-					return emptyList();
-				});
-			});
-		});
-		// Differ this rules until after the project is evaluated to avoid interfering with other plugins
-		project.afterEvaluate(proj -> {
-			// The previous trick doesn't work for dependencyInsight task and vice-versa.
-			project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
-				extension.getVariants().get();
-			});
-		});
 	}
 
 	private static boolean isNativeLanguagePlugin(Plugin<Project> appliedPlugin) {

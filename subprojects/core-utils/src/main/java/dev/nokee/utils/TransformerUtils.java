@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.util.internal.FlatTransformEachToCollectionAdapter;
@@ -32,6 +33,7 @@ import org.gradle.internal.Transformers;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -61,6 +63,18 @@ public final class TransformerUtils {
 
 	public static <T> Transformer<T, T> peek(Consumer<? super T> action) {
 		return ofTransformer(new PeekTransformer<>(action));
+	}
+
+	public static <T> Transformer<T, Iterable<T>> onlyElement() {
+		return ofTransformer(TransformerUtils::one);
+	}
+
+	private static <T> T one(Iterable<T> c) {
+		Iterator<T> iterator = c.iterator();
+		Preconditions.checkArgument(iterator.hasNext(), "collection needs to have one element, was empty");
+		T result = iterator.next();
+		Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
+		return result;
 	}
 
 	public static <OUT, IN extends OUT> Transformer<OUT, IN> noOpTransformer() {

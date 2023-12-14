@@ -31,18 +31,22 @@ import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.KnownModelObject;
+import dev.nokee.model.internal.ModelObject;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
-import dev.nokee.platform.jni.JniJarBinary;
+import dev.nokee.platform.jni.JarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.platform.jni.internal.ConfigureJniHeaderDirectoryOnJavaCompileAction;
@@ -63,7 +67,7 @@ import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import dev.nokee.util.internal.LazyPublishArtifact;
+import dev.nokee.util.provider.ZipProviderBuilder;
 import dev.nokee.utils.ConfigurationUtils;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
@@ -72,7 +76,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -80,6 +83,8 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
@@ -89,14 +94,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
+import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
@@ -108,10 +116,15 @@ import static dev.nokee.platform.jni.internal.actions.WhenPlugin.any;
 import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
 import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
+import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
+import static dev.nokee.utils.FileCollectionUtils.elementsOf;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
+import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
+import static dev.nokee.utils.TransformerUtils.onlyElement;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.Collections.emptyList;
 
@@ -128,9 +141,128 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JniJarBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JvmJarBinarySpec.class);
 
-		// FIXME: This is temporary until we convert all entity
-		project.afterEvaluate(__ -> {
-			model(project, mapOf(Variant.class)).whenElementKnown(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
+//		// FIXME: This is temporary until we convert all entity
+//		project.afterEvaluate(__ -> {
+//			model(project, mapOf(Variant.class)).whenElementKnown(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
+//		});
+
+		model(project, mapOf(Component.class)).whenElementKnown(JniLibraryComponentInternal.class, knownComponent -> {
+			final Configuration apiElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("apiElements")).toString());
+
+			apiElements.setCanBeConsumed(true);
+			apiElements.setCanBeResolved(false);
+
+			ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(apiElements);
+
+			project.getConfigurations().matching(it -> it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("api")).toString())).all(it -> {
+				apiElements.extendsFrom(it);
+			});
+		});
+
+		model(project, mapOf(Component.class)).whenElementFinalized(JniLibraryComponentInternal.class, component -> {
+			final Configuration runtimeElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child("runtimeElements")).toString());
+
+			runtimeElements.setCanBeConsumed(true);
+			runtimeElements.setCanBeResolved(false);
+
+			ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(runtimeElements);
+
+			project.getConfigurations().matching(it -> it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child("api")).toString()) || it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child("jvmRuntimeOnly")).toString())).all(it -> {
+				runtimeElements.extendsFrom(it);
+			});
+
+			// Attach Jni JARs
+			if (component.getBuildVariants().get().size() > 1 || (!project.getPluginManager().hasPlugin("java") && !project.getPluginManager().hasPlugin("groovy") && !project.getPluginManager().hasPlugin("org.jetbrains.kotlin.jvm"))) {
+				val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
+				// TODO: should be able to query KnownModelObject from the ModelMap
+				final Set<KnownModelObject<JniLibraryInternal>> allBuildableVariants = model(project, objects()).getElements(JniLibraryInternal.class, obj -> {
+					if (obj.getType().isSubtypeOf(JniLibraryInternal.class) && ModelObjectIdentifiers.descendantOf(obj.getIdentifier(), component.getIdentifier())) {
+						final VariantIdentifier variantIdentifier = (VariantIdentifier) obj.getIdentifier();
+						return toolChainSelector.canBuild(((BuildVariantInternal) variantIdentifier.getBuildVariant()).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
+					}
+					return false;
+				}).get();
+
+				final ModelObject<Sync> syncTask = model(project, registryOf(Task.class)).register(component.getIdentifier().child(TaskName.of("sync", "jniJars")), Sync.class);
+				syncTask.configure(task -> {
+					task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
+				});
+				for (KnownModelObject<JniLibraryInternal> buildableVariant : allBuildableVariants) {
+					final Provider<String> artifactFileName = component.getBaseName().map(baseName -> baseName + ((VariantIdentifier) buildableVariant.getIdentifier()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("")).map(it -> it + ".jar");
+
+					syncTask.configure(task -> {
+						task.from(buildableVariant.asProvider().flatMap(it -> it.getJar().getJarTask()), spec -> spec.rename(__ -> artifactFileName.get()));
+					});
+
+					final Provider<File> artifactFile = ZipProviderBuilder.newBuilder(project.getObjects())
+						.value(syncTask.asProvider().map(Sync::getDestinationDir))
+						.value(artifactFileName)
+						.zip((destinationDirectory, fileName) -> new File(destinationDirectory, fileName));
+
+					runtimeElements.getOutgoing().artifact(artifactFile);
+				}
+			}
+
+			if (project.getPluginManager().hasPlugin("java") || project.getPluginManager().hasPlugin("groovy") || project.getPluginManager().hasPlugin("org.jetbrains.kotlin.jvm")) {
+				project.getTasks().named(project.getExtensions().getByType(SourceSetContainer.class).getByName(component.getName()).getJarTaskName(), configureDependsOn((Callable<?>) () -> {
+					val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
+					return model(project, objects()).getElements(JniLibraryInternal.class, obj -> {
+						if (obj.getType().isSubtypeOf(JniLibraryInternal.class) && ModelObjectIdentifiers.descendantOf(obj.getIdentifier(), component.getIdentifier())) {
+							final VariantIdentifier variantIdentifier = (VariantIdentifier) obj.getIdentifier();
+							return toolChainSelector.canBuild(((BuildVariantInternal) variantIdentifier.getBuildVariant()).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
+						}
+						return false;
+					}).map(transformEach(it -> it.asProvider().flatMap(elementsOf(JniLibraryInternal::getNativeRuntimeFiles)))).map(toProviderOfIterable(project.getObjects()::listProperty));
+					// TODO: Should be same as bottom configuration
+//					return component.getVariants().get().stream().map(it -> it.getNativeRuntimeFiles()).collect(Collectors.toList()); // realize variant
+//					return Collections.emptyList();
+				}));
+			}
+		});
+
+		// Attach JVM Jar binary
+		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), __ -> {
+			model(project, mapOf(Component.class)).whenElementKnown(JniLibraryComponentInternal.class, knownComponent -> {
+				// Note: If it's not a main component, then we need to handle outgoing element that would normally be added by JVM plugins
+				if (!knownComponent.getIdentifier().getName().equals(ElementName.ofMain())) {
+					final Configuration apiElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("apiElements")).toString());
+					final Configuration runtimeElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("runtimeElements")).toString());
+
+					final ModelObject<Sync> syncTask = model(project, registryOf(Task.class)).register(knownComponent.getIdentifier().child(TaskName.of("sync", "jvmJar")), Sync.class);
+					syncTask.configure(task -> {
+						task.from(knownComponent.asProvider().flatMap(it -> it.getBinaries().withType(JvmJarBinary.class).getElements()).map(onlyElement()).flatMap(JarBinary::getJarTask));
+						task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
+					});
+
+					final Provider<File> artifactFile = ZipProviderBuilder.newBuilder(project.getObjects())
+						.value(syncTask.asProvider().map(Sync::getDestinationDir))
+						.value(knownComponent.asProvider().flatMap(HasBaseName::getBaseName))
+						.zip((destinationDirectory, baseName) -> new File(destinationDirectory, baseName + ".jar"));
+
+					apiElements.getOutgoing().artifact(artifactFile);
+					runtimeElements.getOutgoing().artifact(artifactFile);
+				}
+			});
+		}).execute(project);
+
+		project.getPluginManager().withPlugin("java", appliedPlugin -> {
+			model(project, mapOf(Component.class)).whenElementKnown(JniLibraryComponentInternal.class, knownComponent -> {
+				if (knownComponent.getIdentifier().getName().equals(ElementName.ofMain())) {
+					project.getConfigurations().getByName("implementation", configureExtendsFrom(createIfAbsent(project.getConfigurations(), "jvmImplementation")));
+					project.getConfigurations().getByName("runtimeOnly", configureExtendsFrom(createIfAbsent(project.getConfigurations(), "jvmRuntimeOnly")));
+				}
+			});
+		});
+
+		model(project, mapOf(Component.class)).whenElementKnown(JniLibraryComponentInternal.class, knownComponent -> {
+			final Configuration jvmImplementation = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("jvmImplementation")).toString());
+			final Configuration jvmRuntimeOnly = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("jvmRuntimeOnly")).toString());
+			final Configuration api = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("api")).toString());
+
+			ConfigurationUtils.configureAsDeclarable().execute(jvmImplementation);
+			ConfigurationUtils.configureAsDeclarable().execute(jvmRuntimeOnly);
+
+			jvmImplementation.extendsFrom(api);
 		});
 
 		components(project).withType(JniLibraryComponentInternal.class)
@@ -151,68 +283,19 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 					variant.getSources().configureEach(extendsFromParentCompileOnly(variantDependencies.getNative().getCompileOnly()));
 
-					variant.getBinaries().configureEach(binary -> {
-						ModelElementSupport.safeAsModelElement(binary).ifPresent(element -> {
-							if (binary instanceof HasLinkLibrariesDependencyBucket) {
-								((HasLinkLibrariesDependencyBucket) binary).getLinkLibraries().extendsFrom(variantDependencies.getNativeImplementation(), variantDependencies.getNativeLinkOnly());
-							}
-							if (binary instanceof HasRuntimeLibrariesDependencyBucket) {
-								((HasRuntimeLibrariesDependencyBucket) binary).getRuntimeLibraries().extendsFrom(variantDependencies.getNativeImplementation(), variantDependencies.getNativeRuntimeOnly());
-							}
-						});
-					});
+					variant.getBinaries().configureEach(withElement((element, binary) -> {
+						if (binary instanceof HasLinkLibrariesDependencyBucket) {
+							((HasLinkLibrariesDependencyBucket) binary).getLinkLibraries().extendsFrom(variantDependencies.getNativeImplementation(), variantDependencies.getNativeLinkOnly());
+						}
+						if (binary instanceof HasRuntimeLibrariesDependencyBucket) {
+							((HasRuntimeLibrariesDependencyBucket) binary).getRuntimeLibraries().extendsFrom(variantDependencies.getNativeImplementation(), variantDependencies.getNativeRuntimeOnly());
+						}
+					}));
 				});
-
-				dependencies.getJvmImplementation().extendsFrom(dependencies.getApi());
-
-				dependencies.getApiElements().extendsFrom(dependencies.getApi());
-				{
-					final ConsumableDependencyBucketSpec bucket = dependencies.getApiElements();
-					ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(bucket.getAsConfiguration());
-
-					component.getBinaries().configureEach(JvmJarBinary.class, binary -> {
-						bucket.getAsConfiguration().getOutgoing().artifact(binary.getJarTask());
-					});
-				}
-
-				dependencies.getRuntimeElements().extendsFrom(dependencies.getApi());
-				{
-					final ConsumableDependencyBucketSpec bucket = dependencies.getRuntimeElements();
-					ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(bucket.getAsConfiguration());
-
-					// Attach JvmJarBinary
-					component.getBinaries().configureEach(JvmJarBinary.class, binary -> {
-						bucket.getAsConfiguration().getOutgoing().artifact(binary.getJarTask());
-					});
-
-					// Attach buildable JniJarBinary
-					{
-						val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
-						val values = project.getObjects().listProperty(PublishArtifact.class);
-						Provider<? extends List<? extends JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine()));
-						Provider<Iterable<? extends JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
-						val allArtifacts = project.getObjects().listProperty(PublishArtifact.class);
-						allArtifacts.set(allJniJars.flatMap(binaries -> {
-							val result = project.getObjects().listProperty(PublishArtifact.class);
-							for (JniJarBinary binary : binaries) {
-								result.add(new LazyPublishArtifact(binary.getJarTask()));
-							}
-							return result;
-						}));
-						allArtifacts.finalizeValueOnRead();
-						values.addAll(allArtifacts);
-						bucket.getAsConfiguration().getOutgoing().getArtifacts().addAllLater(values);
-					}
-				}
 
 //			project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(appliedPlugin -> {
 //				// TODO: configure child headerSearchPaths to extends from nativeCompileOnly
 //			}));
-
-				project.getPluginManager().withPlugin("java", appliedPlugin -> {
-					project.getConfigurations().getByName("implementation", configureExtendsFrom(dependencies.getJvmImplementation().getAsConfiguration()));
-					project.getConfigurations().getByName("runtimeOnly", configureExtendsFrom(dependencies.getJvmRuntimeOnly().getAsConfiguration()));
-				});
 			}
 
 			private void configureFrameworkAwareness(DefaultNativeComponentDependencies dependencies) {
@@ -250,16 +333,14 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				component.getSources().configureEach(JavaSourceSetSpec.class, sourceSet -> {
 					sourceSet.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(component.getIdentifier(), project.getLayout()));
 				});
-				component.getSources().configureEach(sourceSet -> {
-					if (sourceSet instanceof HasHeaders) {
-						((HasHeaders) sourceSet).getHeaders().from((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).getElements().map(it -> {
-							final ConfigurableFileCollection result = project.getObjects().fileCollection();
-							for (JavaSourceSetSpec spec : it) {
-								result.from(spec.getCompileTask().flatMap(t -> t.getOptions().getHeaderOutputDirectory()));
-							}
-							return result;
-						})::get);
-					}
+				component.getSources().configureEach(HasHeaders.class, sourceSet -> {
+					sourceSet.getHeaders().from((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).getElements().map(it -> {
+						final ConfigurableFileCollection result = project.getObjects().fileCollection();
+						for (JavaSourceSetSpec spec : it) {
+							result.from(spec.getCompileTask().flatMap(t -> t.getOptions().getHeaderOutputDirectory()));
+						}
+						return result;
+					})::get);
 				});
 			});
 		});
@@ -268,10 +349,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
 		//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
 		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
-			variant.getSources().configureEach(sourceSet -> {
-				if (sourceSet instanceof HasCompileTask) {
-					((HasCompileTask) sourceSet).getCompileTask().configure(includeRoots(from(jvmIncludes())));
-				}
+			variant.getSources().configureEach(HasCompileTask.class, sourceSet -> {
+				sourceSet.getCompileTask().configure(includeRoots(from(jvmIncludes())));
 			});
 		});
 

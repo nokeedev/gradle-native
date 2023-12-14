@@ -17,6 +17,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.model.internal.Discoverable;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.ElementName;
@@ -103,6 +104,8 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	}
 
 	@SuppressWarnings("unchecked")
+	// Name is main!
+//	@Discoverable
 	public NativeSharedLibraryBinarySpec getSharedLibrary() {
 		return ((NamedDomainObjectProvider<NativeSharedLibraryBinarySpec>) getExtensions().getByName("sharedLibrary")).get();
 	}
@@ -113,11 +116,13 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	}
 
 	@SuppressWarnings("unchecked")
+	@Discoverable
 	public TaskProvider<Task> getSharedLibraryTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("sharedLibraryTask");
 	}
 
 	@SuppressWarnings("unchecked")
+	@Discoverable
 	public TaskProvider<Task> getObjectsTask() {
 		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
