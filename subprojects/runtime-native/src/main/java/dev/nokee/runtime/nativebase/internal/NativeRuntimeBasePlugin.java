@@ -30,6 +30,10 @@ public /*final*/ abstract class NativeRuntimeBasePlugin implements Plugin<Projec
 	public void apply(Project project) {
 		project.getPluginManager().apply(RuntimeBasePlugin.class);
 		project.getDependencies().attributesSchema(this::registerNativeAttributes);
+
+		project.getExtensions().add(TargetMachineFactory.class, "__nokee_machines", TARGET_MACHINE_FACTORY);
+		project.getExtensions().add(TargetLinkageFactory.class, "__nokee_linkages", TARGET_LINKAGE_FACTORY);
+		project.getExtensions().add(TargetBuildTypeFactory.class, "__nokee_buildTypes", TARGET_BUILD_TYPE_FACTORY);
 	}
 	private void registerNativeAttributes(AttributesSchema schema) {
 		schema.attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE);
