@@ -15,10 +15,13 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.nativebase.internal.ConfigurationUtilsEx;
 import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
 import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
+import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.model.internal.KnownModelObject;
 import dev.nokee.model.internal.ModelElement;
@@ -172,6 +175,16 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, mapOf(Variant.class)).configureEach(NativeComponentSpecEx.class, result -> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(((VariantInternal) result).getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
+
+		model(project, objects()).configureEach(ofType(NativeSourcesAware.class, component -> {
+			if (component instanceof NativeLibraryComponent) {
+				component.getSourceProperties().withType(NativeHeaderProperty.class).matching(it -> it.getIdentifier().getName().toString().equals("privateHeaders")).all(__ -> {
+					val publicHeaders = model(project, registryOf(PropertySpec.class)).register(component.getIdentifier().child("publicHeaders"), NativeHeaderProperty.class);
+					publicHeaders.configure(a -> a.getVisibility().set(NativeHeaderProperty.BasicVisibility.Public));
+					component.getSourceProperties().add(publicHeaders.get());
+				});
+			}
+		}));
 
 		components(project).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
 		variants(project).configureEach(new LinkLibrariesExtendsFromParentDependencyBucketAction<>());
