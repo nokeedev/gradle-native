@@ -34,7 +34,6 @@ import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Rule;
-import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.annotation.Nullable;
@@ -64,7 +63,7 @@ public class DiscoveredElements {
 		this.elements = objects.domainObjectSet(Element.class);
 	}
 
-	public Rule ruleFor(Class<Task> baseType) {
+	public Rule ruleFor(Class<?> baseType) {
 		return new Rule() {
 			@Override
 			public String getDescription() {

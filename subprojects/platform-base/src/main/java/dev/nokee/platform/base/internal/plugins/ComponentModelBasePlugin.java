@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal.plugins;
 
 import dev.nokee.internal.Factory;
+import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectIdentifier;
@@ -56,6 +57,9 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
+
+import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
@@ -106,6 +110,22 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class);
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class);
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(DeclarableDependencyBucketSpec.class);
+
+		project.getTasks().named("dependencies", task -> {
+			task.dependsOn((Callable<?>) () -> {
+				// TODO: We should use the discovery service
+				model(project, mapOf(Variant.class)).whenElementKnown(it -> it.realizeNow());
+				return Collections.emptyList();
+			});
+		});
+		project.getTasks().named("outgoingVariants", task -> {
+			task.dependsOn((Callable<?>) () -> {
+				// TODO: We should use the discovery service
+				model(project, mapOf(Variant.class)).whenElementKnown(it -> it.realizeNow());
+				return Collections.emptyList();
+			});
+		});
+		project.getConfigurations().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(DependencyBucket.class));
 
 		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, withElement(new ExtendsFromParentDependencyBucketAction<ApiDependencyBucketMixIn>() {
 			@Override
