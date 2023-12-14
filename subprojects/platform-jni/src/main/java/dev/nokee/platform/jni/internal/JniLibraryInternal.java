@@ -17,21 +17,20 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
-import dev.nokee.model.internal.Discoverable;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Artifact;
-import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
-import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.ParentAware;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.VariantSpec;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.DependentComponentSpec;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
@@ -51,7 +50,8 @@ import javax.inject.Inject;
 
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
-public /*final*/ abstract class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal
+public /*final*/ abstract class JniLibraryInternal extends ModelElementSupport implements JniLibrary, VariantInternal
+	, VariantSpec
 	, NativeSourcesAware
 	, TaskAwareComponentMixIn
 	, SourceComponentSpec
@@ -64,12 +64,13 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 {
 	@Inject
 	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {
-		getExtensions().add("developmentBinary", objects.property(Binary.class));
-		getExtensions().add("baseName", objects.property(String.class));
-		getExtensions().add("sharedLibraryTask", taskRegistry.register(getIdentifier().child(TaskName.of("sharedLibrary")), Task.class).asProvider());
-		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), NativeSharedLibraryBinarySpec.class).asProvider());
 		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), JniJarBinarySpec.class).asProvider());
+	}
+
+	@Override
+	public VariantIdentifier getIdentifier() {
+		return (VariantIdentifier) super.getIdentifier();
 	}
 
 	@Override
@@ -80,18 +81,6 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 	public abstract Property<String> getResourcePath();
 
 	public abstract ConfigurableFileCollection getNativeRuntimeFiles();
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public Property<Binary> getDevelopmentBinary() {
-		return (Property<Binary>) getExtensions().getByName("developmentBinary");
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public Property<String> getBaseName() {
-		return (Property<String>) getExtensions().getByName("baseName");
-	}
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -115,17 +104,11 @@ public /*final*/ abstract class JniLibraryInternal extends BaseVariant implement
 		action.execute(getSharedLibrary());
 	}
 
-	@SuppressWarnings("unchecked")
-	@Discoverable
-	public TaskProvider<Task> getSharedLibraryTask() {
-		return (TaskProvider<Task>) getExtensions().getByName("sharedLibraryTask");
-	}
+	@NestedObject
+	public abstract TaskProvider<Task> getSharedLibraryTask();
 
-	@SuppressWarnings("unchecked")
-	@Discoverable
-	public TaskProvider<Task> getObjectsTask() {
-		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
-	}
+	@NestedObject
+	public abstract TaskProvider<Task> getObjectsTask();
 
 	public TargetMachine getTargetMachine() {
 		return getBuildVariant().getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);

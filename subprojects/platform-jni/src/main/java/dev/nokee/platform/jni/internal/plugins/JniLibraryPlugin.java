@@ -28,7 +28,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.IncompatiblePluginUsage;
@@ -137,7 +136,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			it.getVariants().configureEach(variant -> {
 				variant.getResourcePath().convention(project.provider(() -> {
 					val group = getResourcePath(project.getGroup());
-					val dimensions = ((BaseVariant) variant).getIdentifier().getAmbiguousDimensions().getAsKebabCase();
+					val dimensions = variant.getIdentifier().getAmbiguousDimensions().getAsKebabCase();
 					return group.map(lhs -> dimensions.map(rhs -> lhs + "/" + rhs).orElse(lhs)).orElse(dimensions.orElse(""));
 				}));
 			});
