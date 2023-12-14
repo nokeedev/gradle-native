@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -88,6 +89,14 @@ public class DiscoveredElements {
 		private Key(ModelObjectIdentifier identifier, ModelType<?> type) {
 			this.identifier = identifier;
 			this.type = type;
+		}
+
+		@Override
+		public String toString() {
+			return "Key{" +
+				"identifier=" + ModelObjectIdentifiers.asPath(identifier) +
+				", type=" + type +
+				'}';
 		}
 	}
 
@@ -274,7 +283,8 @@ public class DiscoveredElements {
 		}
 
 		realize(e.parent);
-		objects.get(new Key(e.identifier, e.type)).get(); // realize
+		// Failure here may be because of identifier mismatch regarding main identifier vs non-main identifier
+		Objects.requireNonNull(objects.get(e.key), () -> "no model object for " + e.key).get(); // realize
 	}
 
 	public static final class DiscoverableElement {
@@ -296,11 +306,13 @@ public class DiscoveredElements {
 		private final ModelObjectIdentifier identifier;
 		private final ModelType<?> type;
 		@Nullable private final Element parent;
+		private final Key key;
 
 		public Element(ModelObjectIdentifier identifier, ModelType<?> type, @Nullable Element parent) {
 			this.identifier = identifier;
 			this.type = type;
 			this.parent = parent;
+			this.key = new Key(identifier, type);
 		}
 
 		@Override
