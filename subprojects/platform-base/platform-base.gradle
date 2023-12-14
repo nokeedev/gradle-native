@@ -27,7 +27,7 @@ gradlePlugin {
 		api project(':coreModel')
 		implementation project(':coreUtils')
 		implementation project(':runtimeBase')
-		api 'dev.gradleplugins:gradle-backport-provider-convertible'
+		api "dev.gradleplugins:gradle-backport-provider-convertible:${gradleBackportVersion}"
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 		compileOnly gradleApi(minimumGradleVersion)

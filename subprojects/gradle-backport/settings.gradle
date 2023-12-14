@@ -11,6 +11,7 @@ dependencyResolutionManagement {
 
 gradle.allprojects {
 	group = 'dev.gradleplugins'
+	version = '1.0'
 
 	pluginManager.withPlugin('java-base') {
 		java {

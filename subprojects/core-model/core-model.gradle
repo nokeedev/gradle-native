@@ -26,7 +26,7 @@ gradlePlugin {
 
 	dependencies {
 		implementation project(':coreUtils')
-		api 'dev.gradleplugins:gradle-backport-provider-convertible'
+		api "dev.gradleplugins:gradle-backport-provider-convertible:${gradleBackportVersion}"
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 		implementation "org.ow2.asm:asm:9.6"
