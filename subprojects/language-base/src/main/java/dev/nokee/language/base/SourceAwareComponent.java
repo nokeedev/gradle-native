@@ -21,7 +21,6 @@ import org.gradle.api.Action;
 /**
  * A component with sources.
  *
- * @param <T>  the component sources type
  * @since 0.5
  */
 public interface SourceAwareComponent {

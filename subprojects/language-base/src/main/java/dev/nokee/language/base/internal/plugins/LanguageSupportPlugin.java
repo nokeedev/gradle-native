@@ -23,7 +23,7 @@ import org.gradle.api.Project;
 /**
  * Language plugin can register implementation on each component:
  * <code>
- *   plugins.withType(LanguageSupportPlugin) { languagePlugin ->
+ *   plugins.withType(LanguageSupportPlugin) { languagePlugin -&gt;
  *       components.withType(MyLanguageSupportType).configureEach {
  *           languagePlugin.registerImplementation(it)
  *       }
