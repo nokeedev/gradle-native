@@ -16,12 +16,10 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.platform.base.internal.BuildableComponentSpec;
 import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 
@@ -29,16 +27,13 @@ import javax.inject.Inject;
 
 public /*final*/ abstract class JvmJarBinarySpec extends ModelElementSupport implements JvmJarBinary, BuildableComponentSpec {
 	@Inject
-	public JvmJarBinarySpec(ModelObjectRegistry<Task> taskRegistry) {
-		getExtensions().add("jarTask", taskRegistry.register(getIdentifier().child(TaskName.of("jar")), Jar.class).asProvider());
+	public JvmJarBinarySpec() {
 		getBuildDependencies().add(TaskDependencyUtils.of(getJarTask()));
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public TaskProvider<Jar> getJarTask() {
-		return (TaskProvider<Jar>) getExtensions().getByName("jarTask");
-	}
+	@NestedObject
+	public abstract TaskProvider<Jar> getJarTask();
 
 	@Override
 	protected String getTypeName() {

@@ -41,7 +41,11 @@ public final class DeriveNameFromPropertyNameNamer implements DomainObjectNamer 
 			}
 			return TaskName.of(taskName);
 		} else if (Provider.class.isAssignableFrom(returnType.getRawType()) || Named.class.isAssignableFrom(returnType.getRawType())) {
-			return ElementName.of(propertyName);
+			if (details.getAnnotations().anyMatch(it -> it.annotationType().equals(MainModelObject.class))) {
+				return ElementName.ofMain(propertyName);
+			} else {
+				return ElementName.of(propertyName);
+			}
 		} else {
 			return null;
 		}

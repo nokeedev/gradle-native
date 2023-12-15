@@ -31,7 +31,11 @@ public final class NestedObjectNamer implements DomainObjectNamer {
 		if (nestedObject == null || nestedObject.value().length() == 0) {
 			return delegate.determineName(details);
 		} else {
-			return ElementName.of(nestedObject.value());
+			if (details.getAnnotations().anyMatch(it -> it.annotationType().equals(MainModelObject.class))) {
+				return ElementName.ofMain(nestedObject.value());
+			} else {
+				return ElementName.of(nestedObject.value());
+			}
 		}
 	}
 }

@@ -18,10 +18,8 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.language.base.internal.SourceComponentSpec;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.decorators.MainModelObject;
 import dev.nokee.model.internal.decorators.NestedObject;
-import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.HasDevelopmentBinary;
 import dev.nokee.platform.base.internal.DependentComponentSpec;
@@ -33,7 +31,6 @@ import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
-import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
@@ -42,11 +39,8 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskProvider;
-
-import javax.inject.Inject;
 
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
@@ -62,12 +56,6 @@ public /*final*/ abstract class JniLibraryInternal extends ModelElementSupport i
 	, AssembleTaskMixIn
 	, ParentAware
 {
-	@Inject
-	public JniLibraryInternal(ObjectFactory objects, ModelObjectRegistry<Task> taskRegistry, ModelObjectRegistry<Artifact> artifactRegistry) {
-		getExtensions().add("sharedLibrary", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("sharedLibrary")), NativeSharedLibraryBinarySpec.class).asProvider());
-		getExtensions().add("jniJar", artifactRegistry.register(getIdentifier().child(ElementName.ofMain("jniJar")), JniJarBinarySpec.class).asProvider());
-	}
-
 	@Override
 	public VariantIdentifier getIdentifier() {
 		return (VariantIdentifier) super.getIdentifier();
@@ -83,20 +71,20 @@ public /*final*/ abstract class JniLibraryInternal extends ModelElementSupport i
 	public abstract ConfigurableFileCollection getNativeRuntimeFiles();
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public JniJarBinary getJavaNativeInterfaceJar() {
-		return ((NamedDomainObjectProvider<JniJarBinarySpec>) getExtensions().getByName("jniJar")).get();
+	public JniJarBinarySpec getJavaNativeInterfaceJar() {
+		return getJar().get();
 	}
 
-	public JniJarBinary getJar() {
-		return getJavaNativeInterfaceJar();
-	}
+	@MainModelObject
+	@NestedObject("jniJar")
+	public abstract NamedDomainObjectProvider<JniJarBinarySpec> getJar();
 
-	@SuppressWarnings("unchecked")
-	// Name is main!
-//	@Discoverable
+	@MainModelObject
+	@NestedObject("sharedLibrary")
+	public abstract NamedDomainObjectProvider<NativeSharedLibraryBinarySpec> getSharedLibraryBinary();
+
 	public NativeSharedLibraryBinarySpec getSharedLibrary() {
-		return ((NamedDomainObjectProvider<NativeSharedLibraryBinarySpec>) getExtensions().getByName("sharedLibrary")).get();
+		return getSharedLibraryBinary().get();
 	}
 
 	@Override

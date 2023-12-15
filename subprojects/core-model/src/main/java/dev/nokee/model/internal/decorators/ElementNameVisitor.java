@@ -44,8 +44,10 @@ public final class ElementNameVisitor {
 			}, () -> {
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(TaskName.class), "of", "(Ljava/lang/String;)Ldev/nokee/model/internal/names/TaskName;", false);
 			});
+		} else if (elementName instanceof MainName) {
+			mv.visitLdcInsn(elementName.toString());
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(ElementName.class), "ofMain", "(Ljava/lang/String;)Ldev/nokee/model/internal/names/ElementName;", true);
 		} else {
-			assert !(elementName instanceof MainName);
 			mv.visitLdcInsn(elementName.toString());
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, org.objectweb.asm.Type.getInternalName(ElementName.class), "of", "(Ljava/lang/String;)Ldev/nokee/model/internal/names/ElementName;", true);
 		}

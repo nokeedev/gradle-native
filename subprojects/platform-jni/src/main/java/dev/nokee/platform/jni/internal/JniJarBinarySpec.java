@@ -16,33 +16,24 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.platform.base.internal.BuildableComponentSpec;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.Task;
-import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 
 import javax.inject.Inject;
 
-public /*final*/ abstract class JniJarBinarySpec extends ModelElementSupport implements JniJarBinary {
+public /*final*/ abstract class JniJarBinarySpec extends ModelElementSupport implements JniJarBinary, BuildableComponentSpec {
 	@Inject
-	public JniJarBinarySpec(ModelObjectRegistry<Task> taskRegistry) {
-		getExtensions().add("jarTask", taskRegistry.register(getIdentifier().child(TaskName.of("jar")), Jar.class).asProvider());
+	public JniJarBinarySpec() {
+		getBuildDependencies().add(TaskDependencyUtils.of(getJarTask()));
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public TaskProvider<Jar> getJarTask() {
-		return (TaskProvider<Jar>) getExtensions().getByName("jarTask");
-	}
-
-	@Override
-	public TaskDependency getBuildDependencies() {
-		return TaskDependencyUtils.of(getJarTask());
-	}
+	@NestedObject
+	public abstract TaskProvider<Jar> getJarTask();
 
 	@Override
 	protected String getTypeName() {

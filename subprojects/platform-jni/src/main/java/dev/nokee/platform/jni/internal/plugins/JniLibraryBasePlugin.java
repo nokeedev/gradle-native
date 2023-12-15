@@ -191,7 +191,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					final Provider<String> artifactFileName = component.getBaseName().map(baseName -> baseName + ((VariantIdentifier) buildableVariant.getIdentifier()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("")).map(it -> it + ".jar");
 
 					syncTask.configure(task -> {
-						task.from(buildableVariant.asProvider().flatMap(it -> it.getJar().getJarTask()), spec -> spec.rename(__ -> artifactFileName.get()));
+						task.from(buildableVariant.asProvider().flatMap(it -> it.getJavaNativeInterfaceJar().getJarTask()), spec -> spec.rename(__ -> artifactFileName.get()));
 					});
 
 					final Provider<File> artifactFile = ZipProviderBuilder.newBuilder(project.getObjects())
@@ -203,7 +203,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				}
 			}
 
-			if (project.getPluginManager().hasPlugin("java") || project.getPluginManager().hasPlugin("groovy") || project.getPluginManager().hasPlugin("org.jetbrains.kotlin.jvm")) {
+			if ((project.getPluginManager().hasPlugin("java") || project.getPluginManager().hasPlugin("groovy") || project.getPluginManager().hasPlugin("org.jetbrains.kotlin.jvm")) && component.getBuildVariants().get().size() == 1) {
 				project.getTasks().named(project.getExtensions().getByType(SourceSetContainer.class).getByName(component.getName()).getJarTaskName(), configureDependsOn((Callable<?>) () -> {
 					val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
 					return model(project, objects()).getElements(JniLibraryInternal.class, obj -> {
@@ -528,7 +528,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
 			component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
-				variant.getJar().getJarTask().configure(configureJarTaskUsing(project.provider(() -> variant), unbuildableWarningService.map(it -> {
+				variant.getJavaNativeInterfaceJar().getJarTask().configure(configureJarTaskUsing(project.provider(() -> variant), unbuildableWarningService.map(it -> {
 					it.warn(component.getIdentifier());
 					return null;
 				})));
