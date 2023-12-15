@@ -404,12 +404,12 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-			onFinalize.accept(() -> configureEach(finalizeAction));
+			discoveredElements.onFinalized(finalizeAction, a -> onFinalize.accept(() -> configureEach(a)));
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			onFinalize.accept(() -> configureEach(ofType(type, finalizeAction)));
+			discoveredElements.onFinalized(ofType(type, finalizeAction), a -> onFinalize.accept(() -> configureEach(a)));
 		}
 
 		@Override
