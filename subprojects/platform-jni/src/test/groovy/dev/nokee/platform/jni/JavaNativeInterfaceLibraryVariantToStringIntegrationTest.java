@@ -17,7 +17,6 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Variant;
@@ -40,7 +39,7 @@ class JavaNativeInterfaceLibraryVariantToStringIntegrationTest extends AbstractP
 
 	@BeforeEach
 	void createSubject() {
-		val componentIdentifier = ModelObjectIdentifier.builder().name(ElementName.of("zagi")).withParent(ProjectIdentifier.of(project)).build();
+		val componentIdentifier = ProjectIdentifier.of(project).child(ElementName.of("zagi"));
 		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(TargetMachines.of("macos-x64")), componentIdentifier);
 		subject = model(project, registryOf(Variant.class)).register(variantIdentifier, JniLibraryInternal.class).get();
 

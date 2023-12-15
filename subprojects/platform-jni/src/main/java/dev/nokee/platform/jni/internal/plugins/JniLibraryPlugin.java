@@ -23,7 +23,6 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
-import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.Component;
@@ -128,7 +127,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JavaNativeInterfaceLibrary registerExtension(Project project) {
-		val identifier = ModelObjectIdentifier.builder().name(ElementName.ofMain()).withParent(ProjectIdentifier.of(project)).build();
+		val identifier = ProjectIdentifier.of(project).child(ElementName.ofMain());
 
 		final NamedDomainObjectProvider<JniLibraryComponentInternal> component = model(project, registryOf(Component.class)).register(identifier,  JniLibraryComponentInternal.class).asProvider();
 		component.configure(it -> it.getBaseName().convention(project.getName()));

@@ -22,10 +22,6 @@ import dev.nokee.model.internal.names.ElementName;
 import javax.annotation.Nullable;
 
 public interface ModelObjectIdentifier extends DomainObjectIdentifier {
-	static ModelObjectIdentifierBuilder builder() {
-		return new ModelObjectIdentifierBuilder();
-	}
-
 	@Nullable
 	ModelObjectIdentifier getParent();
 	ElementName getName();
