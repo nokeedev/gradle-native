@@ -16,19 +16,23 @@
 
 package dev.nokee.model.internal;
 
-import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
-import org.gradle.api.Named;
-import org.gradle.api.provider.Provider;
 
-public interface KnownModelObject<ObjectType> extends Named {
-	ModelObjectIdentifier getIdentifier();
-	ModelType<?> getType();
-	KnownModelObject<ObjectType> configure(Action<? super ObjectType> configureAction);
-	KnownModelObject<ObjectType> whenFinalized(Action<? super ObjectType> finalizeAction);
+import java.util.HashSet;
+import java.util.Set;
 
-	void realizeNow(); // TODO: Remove once discovery works
+public final class ExecuteOncePerElementAction<T> implements Action<T> {
+	private final Set<T> executedOnElements = new HashSet<>();
+	private final Action<? super T> delegate;
 
-	// TODO: Should we also have map/flatMap method or simply focus on this convertible?
-	Provider<ObjectType> asProvider();
+	public ExecuteOncePerElementAction(Action<? super T> delegate) {
+		this.delegate = delegate;
+	}
+
+	@Override
+	public void execute(T element) {
+		 if (executedOnElements.add(element)) {
+			 delegate.execute(element);
+		 }
+	}
 }

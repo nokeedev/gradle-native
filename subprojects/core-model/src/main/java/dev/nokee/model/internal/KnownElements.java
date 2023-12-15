@@ -124,20 +124,22 @@ public final class KnownElements {
 		private final ObjectFactory objects;
 		private final ProviderFactory providers;
 		private final DiscoveredElements discoveredElements;
+		private final Project project;
 
-		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers, DiscoveredElements discoveredElements) {
+		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers, DiscoveredElements discoveredElements, Project project) {
 			this.projectIdentifier = projectIdentifier;
 			this.objects = objects;
 			this.providers = providers;
 			this.discoveredElements = discoveredElements;
+			this.project = project;
 		}
 
 		public static Factory forProject(Project project) {
-			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class));
+			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class), project);
 		}
 
 		public KnownElements create(ModelMapAdapters.ModelElementIdentity.ElementProvider elementProvider) {
-			return new KnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider, discoveredElements));
+			return new KnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider, discoveredElements, project));
 		}
 	}
 }

@@ -39,7 +39,9 @@ import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -56,6 +58,7 @@ public final class ModelMapAdapters {
 	// We need this implementation to access a NamedDomainObjectProvider<Project>
 	public static /*final*/ class ForProject implements ModelMap<Project> {
 		private final Project project;
+		private final KnownElements knownElements;
 		private final DiscoveredElements discoveredElements;
 		private final ModelObject<Project> object;
 		private final Consumer<Runnable> onFinalize;
@@ -63,6 +66,7 @@ public final class ModelMapAdapters {
 		@Inject
 		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements) {
 			this.project = project;
+			this.knownElements = knownElements;
 			this.discoveredElements = discoveredElements;
 			this.object = knownElements.register(ProjectIdentifier.of(project), Project.class, name -> {
 				delegate.add(project);
@@ -98,12 +102,15 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super Project> finalizeAction) {
-			discoveredElements.onFinalized(finalizeAction, a -> onFinalize.accept(() -> configureEach(a)));
+			discoveredElements.onFinalized(finalizeAction, a -> {
+				onFinalize.accept(() -> configureEach(a));
+				knownElements.forEach(it -> it.addFinalizer(a));
+			});
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			discoveredElements.onFinalized(ofType(type, finalizeAction), a -> onFinalize.accept(() -> configureEach(a)));
+			whenElementFinalized(ofType(type, finalizeAction));
 		}
 
 		@Override
@@ -192,12 +199,15 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super Configuration> finalizeAction) {
-			discoveredElements.onFinalized(finalizeAction, a -> onFinalize.accept(() -> configureEach(a)));
+			discoveredElements.onFinalized(new ExecuteOncePerElementAction<>(finalizeAction), a -> {
+				onFinalize.accept(() -> configureEach(a));
+				knownElements.forEach(it -> it.addFinalizer(a));
+			});
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			discoveredElements.onFinalized(ofType(type, finalizeAction), a -> onFinalize.accept(() -> configureEach(a)));
+			whenElementFinalized(ofType(type, finalizeAction));
 		}
 
 		@Override
@@ -290,12 +300,15 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super Task> finalizeAction) {
-			discoveredElements.onFinalized(finalizeAction, a -> onFinalize.accept(() -> configureEach(a)));
+			discoveredElements.onFinalized(new ExecuteOncePerElementAction<>(finalizeAction), a -> {
+				onFinalize.accept(() -> configureEach(a));
+				knownElements.forEach(it -> it.addFinalizer(a));
+			});
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			discoveredElements.onFinalized(ofType(type, finalizeAction), a -> onFinalize.accept(() -> configureEach(a)));
+			whenElementFinalized(ofType(type, finalizeAction));
 		}
 
 		@Override
@@ -404,12 +417,15 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-			discoveredElements.onFinalized(finalizeAction, a -> onFinalize.accept(() -> configureEach(a)));
+			discoveredElements.onFinalized(new ExecuteOncePerElementAction<>(finalizeAction), a -> {
+				onFinalize.accept(() -> configureEach(a));
+				knownElements.forEach(it -> it.addFinalizer(finalizeAction));
+			});
 		}
 
 		@Override
 		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			discoveredElements.onFinalized(ofType(type, finalizeAction), a -> onFinalize.accept(() -> configureEach(a)));
+			whenElementFinalized(ofType(type, finalizeAction));
 		}
 
 		@Override
@@ -435,6 +451,7 @@ public final class ModelMapAdapters {
 	}
 
 	public static final class ModelElementIdentity implements ModelObject<Object> {
+		private final List<Action<?>> finalizeActions = new ArrayList<>();
 		private final ModelObjectIdentifier identifier;
 		private final Class<?> implementationType;
 		private NamedDomainObjectProvider<?> elementProvider;
@@ -442,14 +459,16 @@ public final class ModelMapAdapters {
 		private final ProviderFactory providers;
 		private final ElementProvider elementProviderEx;
 		private final DiscoveredElements discoveredElements;
+		private final Consumer<Runnable> onFinalize;
 
 		// TODO: Reduce visibility
-		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements) {
+		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project) {
 			this.identifier = identifier;
 			this.implementationType = implementationType;
 			this.providers = providers;
 			this.elementProviderEx = elementProvider;
 			this.discoveredElements = discoveredElements;
+			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 		}
 
 		public String getName() {
@@ -496,13 +515,25 @@ public final class ModelMapAdapters {
 
 		@Override
 		public ModelObject<Object> configure(Action<? super Object> configureAction) {
+			// TODO: notify the action execute for a specific Key
 			discoveredElements.onRealized(configureAction, a -> elementProviderEx.configure(getName(), implementationType, a));
+			return this;
+		}
+
+		@Override
+		public ModelObject<Object> whenFinalized(Action<? super Object> finalizeAction) {
+			// TODO: notify the action execute for a specific Key
+			discoveredElements.onFinalized(finalizeAction, a -> onFinalize.accept(() -> configure(a)));
 			return this;
 		}
 
 		@Override
 		public String toString() {
 			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identifier) + "' (" + implementationType.getSimpleName() + ")";
+		}
+
+		public void addFinalizer(Action<?> finalizeAction) {
+			finalizeActions.add(finalizeAction);
 		}
 
 		public static final class ElementProvider {
@@ -534,15 +565,17 @@ public final class ModelMapAdapters {
 			private final ProviderFactory providers;
 			private final ElementProvider elementProvider;
 			private final DiscoveredElements discoveredElements;
+			private final Project project;
 
-			public Factory(ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements) {
+			public Factory(ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project) {
 				this.providers = providers;
 				this.elementProvider = elementProvider;
 				this.discoveredElements = discoveredElements;
+				this.project = project;
 			}
 
 			public ModelElementIdentity create(ModelObjectIdentifier identifier, Class<?> implementationType) {
-				return new ModelElementIdentity(identifier, implementationType, providers, elementProvider, discoveredElements);
+				return new ModelElementIdentity(identifier, implementationType, providers, elementProvider, discoveredElements, project);
 			}
 		}
 	}
@@ -590,8 +623,16 @@ public final class ModelMapAdapters {
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public ModelObject<ElementType> configure(Action<? super ElementType> configureAction) {
-			return ((ModelObject<ElementType>) it.asModelObject(it.implementationType)).configure(configureAction);
+		public KnownModelObject<ElementType> configure(Action<? super ElementType> configureAction) {
+			((ModelObject<ElementType>) it.asModelObject(it.implementationType)).configure(configureAction);
+			return this;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public KnownModelObject<ElementType> whenFinalized(Action<? super ElementType> finalizeAction) {
+			((ModelObject<ElementType>) it.asModelObject(it.implementationType)).whenFinalized(finalizeAction);
+			return this;
 		}
 
 		@Override
