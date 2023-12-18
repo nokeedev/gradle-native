@@ -46,6 +46,7 @@ import org.gradle.api.tasks.TaskContainer;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -118,7 +119,7 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Project> delegate;
 
 		@Inject
-		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, DefaultKnownElements knownElements, DiscoveredElements discoveredElements) {
+		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements) {
 			this.delegate = new BaseModelMap<>(Project.class, null, knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, null);
 			knownElements.register(ofIdentity(ProjectIdentifier.of(project), Project.class), new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
@@ -161,7 +162,7 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Configuration> delegate;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, DefaultKnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
+		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
 			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
 		}
 
@@ -183,7 +184,7 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Task> delegate;
 
 		@Inject
-		public ForTaskContainer(TaskContainer delegate, DefaultKnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
+		public ForTaskContainer(TaskContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
 			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
 		}
 
@@ -206,16 +207,18 @@ public final class ModelMapAdapters {
 	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ForwardingModelMap<ElementType>, ForwardingModelObjectFactory<ElementType>, ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, HasPublicType {
 		private final Class<ElementType> elementType;
 		private final ExtensiblePolymorphicDomainObjectContainerRegistry<ElementType> registry;
-		private final DefaultKnownElements knownElements;
+		private final KnownElements knownElements;
+		private final DefaultKnownElements knownElementsEx;
 		private final ManagedFactoryProvider managedFactory;
 		private final ContextualModelElementInstantiator elementInstantiator;
 		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DefaultKnownElements knownElements, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, DefaultKnownElements knownElementsEx, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project) {
 			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
 			this.elementType = elementType;
 			this.knownElements = knownElements;
+			this.knownElementsEx = knownElementsEx;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.elementInstantiator = elementInstantiator;
 			this.registry = new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate);
@@ -232,7 +235,7 @@ public final class ModelMapAdapters {
 		}
 
 		private <U extends ElementType> NamedDomainObjectFactory<U> newFactory(Class<U> type, NamedDomainObjectFactory<? extends U> delegate) {
-			return name -> knownElements.create(name, type, elementInstantiator.newInstance((Factory<U>) () -> delegate.create(name)));
+			return name -> knownElementsEx.create(name, type, elementInstantiator.newInstance((Factory<U>) () -> delegate.create(name)));
 		}
 
 		@Override
@@ -477,7 +480,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void configureEach(Action<? super ElementType> configureAction) {
-			discoveredElements.onRealized(configureAction, a -> delegate.configureEach(a));
+			discoveredElements.onRealized(configureAction, a -> delegate.configureEach(onlyKnown(a)));
 		}
 
 		@Override
@@ -498,7 +501,7 @@ public final class ModelMapAdapters {
 		@Override
 		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
 			discoveredElements.onFinalized(new ExecuteOncePerElementAction<>(finalizeAction), a -> {
-				onFinalize.accept(() -> configureEach(a));
+				onFinalize.accept(() -> configureEach(onlyKnown(a)));
 				knownElements.forEach(it -> it.addFinalizer(a));
 			});
 		}
@@ -511,6 +514,25 @@ public final class ModelMapAdapters {
 		@Override
 		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
 			return knownElements.getById(identifier, elementType);
+		}
+
+		private <T> Action<T> onlyKnown(Action<? super T> action) {
+			return new ModelElementAction<>(new OnlyIfKnownAction<>(action));
+		}
+
+		private final class OnlyIfKnownAction<T> implements BiConsumer<ModelElement, T> {
+			private final Action<? super T> delegate;
+
+			public OnlyIfKnownAction(Action<? super T> delegate) {
+				this.delegate = delegate;
+			}
+
+			@Override
+			public void accept(ModelElement element, T t) {
+				if (knownElements.isKnown(element.getIdentifier(), elementType)) {
+					delegate.execute(t);
+				}
+			}
 		}
 	}
 }

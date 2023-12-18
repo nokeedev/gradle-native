@@ -27,7 +27,9 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,6 +37,7 @@ import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 
 public final class DefaultKnownElements implements KnownElements {
+	private final Set<ModelObjectIdentifier> knownIdentifiers = new HashSet<>();
 	private final DomainObjectSet<RealizableElement> realizableElements;
 	private final ProjectIdentifier projectIdentifier;
 	private final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> knownElements;
@@ -83,6 +86,8 @@ public final class DefaultKnownElements implements KnownElements {
 
 	// TODO: Should it really return ModelObject?
 	public <S> ModelObject<S> register(ModelObjectIdentity<S> identity, PolymorphicDomainObjectRegistry<? super S> factory) {
+		// TODO: assert the identifier is not already known
+		knownIdentifiers.add(identity.getIdentifier());
 		ModelMapAdapters.ModelElementIdentity legacyIdentity = identityFactory.create(identity, new MyRealizeListener());
 		knownElements.add(legacyIdentity);
 		final NamedDomainObjectProvider<S> provider = factory.registerIfAbsent(legacyIdentity.getName(), identity.getType().getConcreteType());
@@ -108,6 +113,12 @@ public final class DefaultKnownElements implements KnownElements {
 		}
 
 		return element.identifiers.stream().filter(it -> it.getIdentifier().equals(identifier)).findFirst().orElseThrow(() -> new RuntimeException("element with same name found but not same id")).asModelObject(type);
+	}
+
+	@Override
+	public boolean isKnown(ModelObjectIdentifier identifier, Class<?> type) {
+		// Note: we ignore the type here because this instance is a one-to-one match with the ModelMap.
+		return knownIdentifiers.contains(identifier);
 	}
 
 	@Nullable

@@ -88,7 +88,7 @@ public final class ModelMapFactory {
 
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), new BaseKnownElements(knownElements, discoveredElements), new ModelMapAdapters.ContextualModelElementInstantiator() {
+		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), new BaseKnownElements(knownElements, discoveredElements), knownElements, discoveredElements, new ModelMapAdapters.ContextualModelElementInstantiator() {
 			@Override
 			public <S> Function<DefaultKnownElements.KnownElement, S> newInstance(Factory<S> factory) {
 				return element -> ModelElementSupport.newInstance(create(element), factory);
@@ -155,6 +155,11 @@ public final class ModelMapFactory {
 		@Override
 		public <T> ModelObject<T> getById(ModelObjectIdentifier identifier, Class<T> type) {
 			return knownElements.getById(identifier, type);
+		}
+
+		@Override
+		public boolean isKnown(ModelObjectIdentifier identifier, Class<?> type) {
+			return knownElements.isKnown(identifier, type);
 		}
 	}
 
