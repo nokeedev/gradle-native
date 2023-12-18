@@ -39,12 +39,12 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 public final class ModelMapFactory {
 	private final ObjectFactory objects;
 	private final Project project;
-	private final KnownElements.Factory knownElementsFactory;
+	private final DefaultKnownElements.Factory knownElementsFactory;
 	private final ModelObjects modelObjects;
 	private final ProviderFactory providers;
 	private final DiscoveredElements discoveredElements;
 
-	public ModelMapFactory(ObjectFactory objects, Project project, KnownElements.Factory knownElementsFactory, ModelObjects modelObjects, ProviderFactory providers, DiscoveredElements discoveredElements) {
+	public ModelMapFactory(ObjectFactory objects, Project project, DefaultKnownElements.Factory knownElementsFactory, ModelObjects modelObjects, ProviderFactory providers, DiscoveredElements discoveredElements) {
 		this.objects = objects;
 		this.project = project;
 		this.knownElementsFactory = knownElementsFactory;
@@ -89,7 +89,7 @@ public final class ModelMapFactory {
 
 		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), knownElements, discoveredElements, new ModelMapAdapters.ContextualModelElementInstantiator() {
 			@Override
-			public <S> Function<KnownElements.KnownElement, S> newInstance(Factory<S> factory) {
+			public <S> Function<DefaultKnownElements.KnownElement, S> newInstance(Factory<S> factory) {
 				return element -> ModelElementSupport.newInstance(create(element), factory);
 			}
 		}, project);
@@ -97,7 +97,7 @@ public final class ModelMapFactory {
 		return result;
 	}
 
-	private ModelElement create(KnownElements.KnownElement element) {
+	private ModelElement create(DefaultKnownElements.KnownElement element) {
 		return new ModelElement() {
 			@Override
 			public ModelObjectIdentifier getIdentifier() {
@@ -133,16 +133,16 @@ public final class ModelMapFactory {
 
 	private final class InjectModelElementAction<S> implements Action<S> {
 		private final Namer<S> namer;
-		private final KnownElements knownElements;
+		private final DefaultKnownElements knownElements;
 
-		private InjectModelElementAction(Namer<S> namer, KnownElements knownElements) {
+		private InjectModelElementAction(Namer<S> namer, DefaultKnownElements knownElements) {
 			this.namer = namer;
 			this.knownElements = knownElements;
 		}
 
 		@Override
 		public void execute(S it) {
-			final KnownElements.KnownElement element = knownElements.findByName(namer.determineName(it));
+			final DefaultKnownElements.KnownElement element = knownElements.findByName(namer.determineName(it));
 			if (element != null) {
 				ModelElementSupport.injectIdentifier(it, create(element));
 			}

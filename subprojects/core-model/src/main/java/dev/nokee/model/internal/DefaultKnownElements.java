@@ -31,16 +31,17 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 
-public final class KnownElements {
+public final class DefaultKnownElements {
 	private final DomainObjectSet<RealizableElement> realizableElements;
 	private final ProjectIdentifier projectIdentifier;
 	private final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> knownElements;
 	private final NamedDomainObjectSet<KnownElement> mapping;
 	private final ModelMapAdapters.ModelElementIdentity.Factory identityFactory;
 
-	public KnownElements(ProjectIdentifier projectIdentifier, ObjectFactory objects, ModelMapAdapters.ModelElementIdentity.Factory identityFactory) {
+	public DefaultKnownElements(ProjectIdentifier projectIdentifier, ObjectFactory objects, ModelMapAdapters.ModelElementIdentity.Factory identityFactory) {
 		this.projectIdentifier = projectIdentifier;
 		this.knownElements = objects.domainObjectSet(ModelMapAdapters.ModelElementIdentity.class);
 		this.mapping = objects.namedDomainObjectSet(KnownElement.class);
@@ -92,7 +93,7 @@ public final class KnownElements {
 	public <S> S create(String name, Class<S> type, Function<? super KnownElement, ? extends S> factory) {
 		KnownElement element = mapping.findByName(name);
 		if (element == null) {
-			knownElements.add(identityFactory.create(ModelObjectIdentity.ofIdentity(projectIdentifier.child(name), type), new MyRealizeListener()));
+			knownElements.add(identityFactory.create(ofIdentity(projectIdentifier.child(name), type), new MyRealizeListener()));
 			element = Objects.requireNonNull(mapping.findByName(name));
 		}
 
@@ -163,8 +164,8 @@ public final class KnownElements {
 			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class), project);
 		}
 
-		public KnownElements create(ModelMapAdapters.ModelElementIdentity.ElementProvider elementProvider) {
-			return new KnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider, discoveredElements, project));
+		public DefaultKnownElements create(ModelMapAdapters.ModelElementIdentity.ElementProvider elementProvider) {
+			return new DefaultKnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider, discoveredElements, project));
 		}
 	}
 }
