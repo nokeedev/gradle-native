@@ -246,25 +246,29 @@ public final class ModelMapAdapters {
 		}
 	}
 
+	public interface RealizeListener {
+		void onRealize(ModelObjectIdentifier identifier, Class<?> type);
+	}
+
 	public static final class ModelElementIdentity implements ModelObject<Object> {
 		private final List<Action<?>> finalizeActions = new ArrayList<>();
 		private final ModelObjectIdentifier identifier;
 		private final Class<?> implementationType;
-		private NamedDomainObjectProvider<?> elementProvider;
-		private boolean forcedRealize = false;
 		private final ProviderFactory providers;
 		private final ElementProvider elementProviderEx;
 		private final DiscoveredElements discoveredElements;
 		private final Consumer<Runnable> onFinalize;
+		private final RealizeListener realizeListener;
 
 		// TODO: Reduce visibility
-		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project) {
+		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project, RealizeListener realizeListener) {
 			this.identifier = identifier;
 			this.implementationType = implementationType;
 			this.providers = providers;
 			this.elementProviderEx = elementProvider;
 			this.discoveredElements = discoveredElements;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
+			this.realizeListener = realizeListener;
 		}
 
 		public String getName() {
@@ -277,13 +281,6 @@ public final class ModelMapAdapters {
 
 		public boolean instanceOf(Class<?> type) {
 			return type.isAssignableFrom(implementationType);
-		}
-
-		public void attachProvider(NamedDomainObjectProvider<?> elementProvider) {
-			this.elementProvider = elementProvider;
-			if (forcedRealize) {
-				elementProvider.get();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -303,10 +300,7 @@ public final class ModelMapAdapters {
 		}
 
 		public void realizeNow() {
-			forcedRealize = true;
-			if (elementProvider != null) {
-				elementProvider.get();
-			}
+			realizeListener.onRealize(identifier, implementationType);
 		}
 
 		@Override
@@ -370,8 +364,8 @@ public final class ModelMapAdapters {
 				this.project = project;
 			}
 
-			public ModelElementIdentity create(ModelObjectIdentifier identifier, Class<?> implementationType) {
-				return new ModelElementIdentity(identifier, implementationType, providers, elementProvider, discoveredElements, project);
+			public ModelElementIdentity create(ModelObjectIdentifier identifier, Class<?> implementationType, RealizeListener realizeListener) {
+				return new ModelElementIdentity(identifier, implementationType, providers, elementProvider, discoveredElements, project, realizeListener);
 			}
 		}
 	}

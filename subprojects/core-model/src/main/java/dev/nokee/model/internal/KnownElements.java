@@ -20,6 +20,7 @@ import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Named;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 
 public final class KnownElements {
+	private final DomainObjectSet<RealizableElement> realizableElements;
 	private final ProjectIdentifier projectIdentifier;
 	private final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> knownElements;
 	private final NamedDomainObjectSet<KnownElement> mapping;
@@ -43,6 +45,7 @@ public final class KnownElements {
 		this.knownElements = objects.domainObjectSet(ModelMapAdapters.ModelElementIdentity.class);
 		this.mapping = objects.namedDomainObjectSet(KnownElement.class);
 		this.identityFactory = identityFactory;
+		this.realizableElements = objects.domainObjectSet(RealizableElement.class);
 
 		knownElements.all(identity -> {
 			KnownElement element = mapping.findByName(identity.getName());
@@ -55,19 +58,44 @@ public final class KnownElements {
 		});
 	}
 
+	private static final class RealizableElement {
+		private final ModelObjectIdentifier identifier;
+		private final Class<?> type;
+		private final NamedDomainObjectProvider<?> provider;
+
+		private RealizableElement(ModelObjectIdentifier identifier, Class<?> type, NamedDomainObjectProvider<?> provider) {
+			this.identifier = identifier;
+			this.type = type;
+			this.provider = provider;
+		}
+
+		public void realizeNow() {
+			provider.get();
+		}
+	}
+
+	private final class MyRealizeListener implements ModelMapAdapters.RealizeListener {
+		@Override
+		public void onRealize(ModelObjectIdentifier identifier, Class<?> type) {
+			realizableElements.matching(it -> it.identifier.equals(identifier) && it.type.equals(type))
+				.all(RealizableElement::realizeNow);
+		}
+	}
+
 	// TODO: Consider using NamedDomainObjectRegistry instead of Function
 	// TODO: Should it really return ModelObject?
 	public <S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, PolymorphicDomainObjectRegistry<? super S> factory) {
-		ModelMapAdapters.ModelElementIdentity identity = identityFactory.create(identifier, type);
+		ModelMapAdapters.ModelElementIdentity identity = identityFactory.create(identifier, type, new MyRealizeListener());
 		knownElements.add(identity);
-		identity.attachProvider(factory.registerIfAbsent(identity.getName(), type));
+		final NamedDomainObjectProvider<S> provider = factory.registerIfAbsent(identity.getName(), type);
+		realizableElements.add(new RealizableElement(identifier, type, provider));
 		return identity.asModelObject(type);
 	}
 
 	public <S> S create(String name, Class<S> type, Function<? super KnownElement, ? extends S> factory) {
 		KnownElement element = mapping.findByName(name);
 		if (element == null) {
-			knownElements.add(identityFactory.create(projectIdentifier.child(name), type));
+			knownElements.add(identityFactory.create(projectIdentifier.child(name), type, new MyRealizeListener()));
 			element = Objects.requireNonNull(mapping.findByName(name));
 		}
 
