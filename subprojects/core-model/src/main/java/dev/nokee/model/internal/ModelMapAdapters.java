@@ -119,7 +119,7 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, DefaultKnownElements knownElements, DiscoveredElements discoveredElements) {
-			this.delegate = new BaseModelMap<>(Project.class, null, new BaseKnownElements(knownElements, discoveredElements), discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, null);
+			this.delegate = new BaseModelMap<>(Project.class, null, knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, null);
 			knownElements.register(ofIdentity(ProjectIdentifier.of(project), Project.class), new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
 				@SuppressWarnings("unchecked")
@@ -162,7 +162,7 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForConfigurationContainer(ConfigurationContainer delegate, DefaultKnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
-			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), new BaseKnownElements(knownElements, discoveredElements), discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
+			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
 		}
 
 		@Override
@@ -184,7 +184,7 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForTaskContainer(TaskContainer delegate, DefaultKnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
-			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), new BaseKnownElements(knownElements, discoveredElements), discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
+			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
 		}
 
 		@Override
@@ -213,7 +213,7 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DefaultKnownElements knownElements, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project) {
-			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), new BaseKnownElements(knownElements, discoveredElements), discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
+			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
 			this.elementType = elementType;
 			this.knownElements = knownElements;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
@@ -438,32 +438,6 @@ public final class ModelMapAdapters {
 		@Override
 		public String getName() {
 			return it.getName();
-		}
-	}
-
-	private static final class BaseKnownElements implements KnownElements {
-		private final DefaultKnownElements knownElements;
-		private final DiscoveredElements discoveredElements;
-
-		private BaseKnownElements(DefaultKnownElements knownElements, DiscoveredElements discoveredElements) {
-			this.knownElements = knownElements;
-			this.discoveredElements = discoveredElements;
-		}
-
-		@Override
-		public <ObjectType> ModelObject<ObjectType> register(ModelObjectIdentity<ObjectType> identity, PolymorphicDomainObjectRegistry<? super ObjectType> registry) {
-			return discoveredElements.discover(identity, () -> knownElements.register(identity, registry));
-
-		}
-
-		@Override
-		public void forEach(Action<? super ModelElementIdentity> configureAction) {
-			knownElements.forEach(configureAction);
-		}
-
-		@Override
-		public <T> ModelObject<T> getById(ModelObjectIdentifier identifier, Class<T> type) {
-			return knownElements.getById(identifier, type);
 		}
 	}
 
