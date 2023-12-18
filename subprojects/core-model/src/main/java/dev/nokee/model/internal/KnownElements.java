@@ -17,7 +17,12 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
+import org.gradle.api.Action;
 
 public interface KnownElements {
 	<ObjectType> ModelObject<ObjectType> register(ModelObjectIdentity<ObjectType> identity, PolymorphicDomainObjectRegistry<? super ObjectType> registry);
+
+	void forEach(Action<? super ModelMapAdapters.ModelElementIdentity> configureAction);
+
+	<T> ModelObject<T> getById(ModelObjectIdentifier identifier, Class<T> type);
 }
