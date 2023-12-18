@@ -33,7 +33,6 @@ import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
-import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -55,37 +54,72 @@ import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 public final class ModelMapAdapters {
 	private ModelMapAdapters() {}
 
-	private interface ModelMapMixIn<ElementType> extends ModelMap<ElementType> {
+	private interface ForwardingModelMap<ElementType> extends ModelMap<ElementType> {
+		ModelMap<ElementType> delegate();
+
+		@Override
+		default <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
+			return delegate().register(name, type);
+		}
+
+		@Override
+		default void configureEach(Action<? super ElementType> configureAction) {
+			delegate().configureEach(configureAction);
+		}
+
 		@Override
 		default <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
-			configureEach(ofType(type, configureAction));
+			delegate().configureEach(type, configureAction);
+		}
+
+		@Override
+		default void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
+			delegate().whenElementKnown(configureAction);
 		}
 
 		@Override
 		default <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
-			whenElementKnown(ofType(new KnownModelObjectTypeOf<>(type), configureAction));
+			delegate().whenElementKnown(type, configureAction);
+		}
+
+		@Override
+		default void whenElementFinalized(Action<? super ElementType> finalizeAction) {
+			delegate().whenElementFinalized(finalizeAction);
 		}
 
 		@Override
 		default <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			whenElementFinalized(ofType(type, finalizeAction));
+			delegate().whenElementFinalized(type, finalizeAction);
+		}
+
+		@Override
+		default ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
+			return delegate().getById(identifier);
+		}
+	}
+
+	private interface ForwardingModelObjectFactory<ElementType> extends ModelObjectRegistry<ElementType> {
+		ModelObjectRegistry<ElementType> delegate();
+
+		@Override
+		default <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
+			return delegate().register(identifier, type);
+		}
+
+		@Override
+		default RegistrableTypes getRegistrableTypes() {
+			return delegate().getRegistrableTypes();
 		}
 	}
 
 	// We need this implementation to access a NamedDomainObjectProvider<Project>
-	public static /*final*/ class ForProject implements ModelMapMixIn<Project> {
-		private final Project project;
-		private final KnownElements knownElements;
-		private final DiscoveredElements discoveredElements;
-		private final ModelObject<Project> object;
-		private final Consumer<Runnable> onFinalize;
+	public static /*final*/ class ForProject implements ForwardingModelMap<Project> {
+		private final BaseModelMap<Project> delegate;
 
 		@Inject
 		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements) {
-			this.project = project;
-			this.knownElements = knownElements;
-			this.discoveredElements = discoveredElements;
-			this.object = knownElements.register(ProjectIdentifier.of(project), Project.class, new PolymorphicDomainObjectRegistry<Project>() {
+			this.delegate = new BaseModelMap<>(Project.class, null, knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, null);
+			knownElements.register(ProjectIdentifier.of(project), Project.class, new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
 				@SuppressWarnings("unchecked")
 				public <S extends Project> NamedDomainObjectProvider<S> register(String name, Class<S> type) throws InvalidUserDataException {
@@ -107,74 +141,32 @@ public final class ModelMapAdapters {
 					return Project.class::equals;
 				}
 			});
-			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
+		}
+
+		@Override
+		public ModelMap<Project> delegate() {
+			return delegate;
 		}
 
 		@Override
 		public <RegistrableType extends Project> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
 			throw new UnsupportedOperationException("registering Gradle Project is not supported");
 		}
-
-		@Override
-		public void configureEach(Action<? super Project> configureAction) {
-			object.configure(configureAction);
-		}
-
-		@Override
-		public void whenElementKnown(Action<? super KnownModelObject<Project>> configureAction) {
-			discoveredElements.onKnown(configureAction, a -> a.execute(new MyKnownModelObject<>((ModelElementIdentity) (ModelObject<?>) object)));
-		}
-
-		@Override
-		public void whenElementFinalized(Action<? super Project> finalizeAction) {
-			discoveredElements.onFinalized(finalizeAction, a -> {
-				onFinalize.accept(() -> configureEach(a));
-				knownElements.forEach(it -> it.addFinalizer(a));
-			});
-		}
-
-		@Override
-		public ModelObject<Project> getById(ModelObjectIdentifier identifier) {
-			if (identifier.equals(ProjectIdentifier.of(project))) {
-				return object;
-			}
-			throw new RuntimeException();
-		}
 	}
 
 	public interface ForNamedDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
-	public static /*final*/ class ForConfigurationContainer implements ForNamedDomainObjectContainer<Configuration>, HasPublicType, ModelMapMixIn<Configuration> {
-		private final PolymorphicDomainObjectRegistry<Configuration> registry;
-		private final KnownElements knownElements;
-		private final ConfigurationContainer delegate;
-		private final DiscoveredElements discoveredElements;
-		private final Consumer<Runnable> onFinalize;
-		private final ContextualModelObjectIdentifier identifierFactory;
+	public static /*final*/ class ForConfigurationContainer implements ForwardingModelMap<Configuration>, ForwardingModelObjectFactory<Configuration>, ForNamedDomainObjectContainer<Configuration>, HasPublicType {
+		private final BaseModelMap<Configuration> delegate;
 
 		@Inject
 		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
-			this.registry = new ConfigurationRegistry(delegate);
-			this.knownElements = knownElements;
-			this.delegate = delegate;
-			this.discoveredElements = discoveredElements;
-			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
-			this.identifierFactory = new ContextualModelObjectIdentifier(ProjectIdentifier.of(project));
+			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
 		}
 
 		@Override
-		public <RegistrableType extends Configuration> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, registry));
-		}
-
-		@Override
-		public <RegistrableType extends Configuration> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
-			return identifierFactory.create(name, identifier -> register(identifier, type));
-		}
-
-		@Override
-		public RegistrableTypes getRegistrableTypes() {
-			return registry.getRegistrableTypes()::canRegisterType;
+		public BaseModelMap<Configuration> delegate() {
+			return delegate;
 		}
 
 		@Override
@@ -182,64 +174,21 @@ public final class ModelMapAdapters {
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForNamedDomainObjectContainer<Configuration>>() {}.getType());
 		}
-
-		@Override
-		public void configureEach(Action<? super Configuration> configureAction) {
-			discoveredElements.onRealized(configureAction, a -> delegate.configureEach(a));
-		}
-
-		@Override
-		public void whenElementKnown(Action<? super KnownModelObject<Configuration>> configureAction) {
-			discoveredElements.onKnown(configureAction, a -> knownElements.forEach(it -> a.execute(new MyKnownModelObject<>(it))));
-		}
-
-		@Override
-		public void whenElementFinalized(Action<? super Configuration> finalizeAction) {
-			discoveredElements.onFinalized(new ExecuteOncePerElementAction<>(finalizeAction), a -> {
-				onFinalize.accept(() -> configureEach(a));
-				knownElements.forEach(it -> it.addFinalizer(a));
-			});
-		}
-
-		@Override
-		public ModelObject<Configuration> getById(ModelObjectIdentifier identifier) {
-			return knownElements.getById(identifier, Configuration.class);
-		}
 	}
 
 	public interface ForPolymorphicDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
-	public static /*final*/ class ForTaskContainer implements ForPolymorphicDomainObjectContainer<Task>, HasPublicType, ModelMapMixIn<Task> {
-		private final PolymorphicDomainObjectRegistry<Task> registry;
-		private final KnownElements knownElements;
-		private final PolymorphicDomainObjectContainer<Task> delegate;
-		private final Consumer<Runnable> onFinalize;
-		private final ContextualModelObjectIdentifier identifierFactory;
-		private final DiscoveredElements discoveredElements;
+	public static /*final*/ class ForTaskContainer implements ForwardingModelMap<Task>, ForwardingModelObjectFactory<Task>, ForPolymorphicDomainObjectContainer<Task>, HasPublicType {
+		private final BaseModelMap<Task> delegate;
 
 		@Inject
 		public ForTaskContainer(TaskContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
-			this.registry = new TaskRegistry(delegate);
-			this.discoveredElements = discoveredElements;
-			this.knownElements = knownElements;
-			this.delegate = delegate;
-			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
-			this.identifierFactory = new ContextualModelObjectIdentifier(ProjectIdentifier.of(project));
+			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
 		}
 
 		@Override
-		public <RegistrableType extends Task> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, registry));
-		}
-
-		@Override
-		public <RegistrableType extends Task> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
-			return identifierFactory.create(name, identifier -> register(identifier, type));
-		}
-
-		@Override
-		public RegistrableTypes getRegistrableTypes() {
-			return registry.getRegistrableTypes()::canRegisterType;
+		public BaseModelMap<Task> delegate() {
+			return delegate;
 		}
 
 		@Override
@@ -247,72 +196,33 @@ public final class ModelMapAdapters {
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForPolymorphicDomainObjectContainer<Task>>() {}.getType());
 		}
-
-		@Override
-		public void configureEach(Action<? super Task> configureAction) {
-			discoveredElements.onRealized(configureAction, a -> delegate.configureEach(a));
-		}
-
-		@Override
-		public void whenElementKnown(Action<? super KnownModelObject<Task>> configureAction) {
-			discoveredElements.onKnown(configureAction, a -> knownElements.forEach(it -> a.execute(new MyKnownModelObject<>(it))));
-		}
-
-		@Override
-		public void whenElementFinalized(Action<? super Task> finalizeAction) {
-			discoveredElements.onFinalized(new ExecuteOncePerElementAction<>(finalizeAction), a -> {
-				onFinalize.accept(() -> configureEach(a));
-				knownElements.forEach(it -> it.addFinalizer(a));
-			});
-		}
-
-		@Override
-		public ModelObject<Task> getById(ModelObjectIdentifier identifier) {
-			return knownElements.getById(identifier, Task.class);
-		}
 	}
 
 	public interface ContextualModelElementInstantiator {
 		<S> Function<KnownElements.KnownElement, S> newInstance(Factory<S> factory);
 	}
 
-	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, ModelMapMixIn<ElementType>, HasPublicType {
+	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ForwardingModelMap<ElementType>, ForwardingModelObjectFactory<ElementType>, ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, HasPublicType {
 		private final Class<ElementType> elementType;
 		private final ExtensiblePolymorphicDomainObjectContainerRegistry<ElementType> registry;
 		private final KnownElements knownElements;
-		private final ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate;
 		private final ManagedFactoryProvider managedFactory;
-		private final DiscoveredElements discoveredElements;
 		private final ContextualModelElementInstantiator elementInstantiator;
-		private final Consumer<Runnable> onFinalize;
-		private final ContextualModelObjectIdentifier identifierFactory;
+		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
 		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project) {
+			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
 			this.elementType = elementType;
 			this.knownElements = knownElements;
-			this.delegate = delegate;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
-			this.discoveredElements = discoveredElements;
 			this.elementInstantiator = elementInstantiator;
-			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
-			this.identifierFactory = new ContextualModelObjectIdentifier(ProjectIdentifier.of(project));
 			this.registry = new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate);
 		}
 
 		@Override
-		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, registry));
-		}
-
-		@Override
-		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
-			return identifierFactory.create(name, identifier -> register(identifier, type));
-		}
-
-		@Override
-		public RegistrableTypes getRegistrableTypes() {
-			return registry.getRegistrableTypes()::canRegisterType;
+		public BaseModelMap<ElementType> delegate() {
+			return delegate;
 		}
 
 		@Override
@@ -333,29 +243,6 @@ public final class ModelMapAdapters {
 		@SuppressWarnings("UnstableApiUsage")
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForExtensiblePolymorphicDomainObjectContainer<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getType());
-		}
-
-		@Override
-		public void configureEach(Action<? super ElementType> configureAction) {
-			delegate.configureEach(configureAction);
-		}
-
-		@Override
-		public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
-			knownElements.forEach(it -> configureAction.execute(new MyKnownModelObject<>(it)));
-		}
-
-		@Override
-		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-			discoveredElements.onFinalized(new ExecuteOncePerElementAction<>(finalizeAction), a -> {
-				onFinalize.accept(() -> configureEach(a));
-				knownElements.forEach(it -> it.addFinalizer(finalizeAction));
-			});
-		}
-
-		@Override
-		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-			return knownElements.getById(identifier, elementType);
 		}
 	}
 
@@ -558,6 +445,79 @@ public final class ModelMapAdapters {
 		@Override
 		public String getName() {
 			return it.getName();
+		}
+	}
+
+	private static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType> {
+		private final Class<ElementType> elementType;
+		private final PolymorphicDomainObjectRegistry<ElementType> registry;
+		private final KnownElements knownElements;
+		private final DiscoveredElements discoveredElements;
+		private final Consumer<Runnable> onFinalize;
+		private final NamedDomainObjectSet<ElementType> delegate;
+		private final ContextualModelObjectIdentifier identifierFactory;
+
+		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, Consumer<Runnable> onFinalize, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory) {
+			this.elementType = elementType;
+			this.registry = registry;
+			this.knownElements = knownElements;
+			this.discoveredElements = discoveredElements;
+			this.onFinalize = onFinalize;
+			this.delegate = delegate;
+			this.identifierFactory = identifierFactory;
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
+			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, registry));
+		}
+
+		@Override
+		public RegistrableTypes getRegistrableTypes() {
+			return registry.getRegistrableTypes()::canRegisterType;
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
+			return identifierFactory.create(name, identifier -> register(identifier, type));
+		}
+
+		@Override
+		public void configureEach(Action<? super ElementType> configureAction) {
+			discoveredElements.onRealized(configureAction, a -> delegate.configureEach(a));
+		}
+
+		@Override
+		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
+			configureEach(ofType(type, configureAction));
+		}
+
+		@Override
+		public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
+			discoveredElements.onKnown(configureAction, a -> knownElements.forEach(it -> a.execute(new MyKnownModelObject<>(it))));
+		}
+
+		@Override
+		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
+			whenElementKnown(ofType(new KnownModelObjectTypeOf<>(type), configureAction));
+		}
+
+		@Override
+		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
+			discoveredElements.onFinalized(new ExecuteOncePerElementAction<>(finalizeAction), a -> {
+				onFinalize.accept(() -> configureEach(a));
+				knownElements.forEach(it -> it.addFinalizer(a));
+			});
+		}
+
+		@Override
+		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
+			whenElementFinalized(ofType(type, finalizeAction));
+		}
+
+		@Override
+		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
+			return knownElements.getById(identifier, elementType);
 		}
 	}
 }
