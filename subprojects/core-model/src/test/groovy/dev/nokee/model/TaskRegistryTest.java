@@ -29,7 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TaskContainerRegistryTest implements PolymorphicDomainObjectRegistryTester<Task> {
+class TaskRegistryTest implements PolymorphicDomainObjectRegistryTester<Task> {
 	private PolymorphicDomainObjectRegistry<Task> subject;
 	private NamedDomainObjectProvider<MyTask.A> e0;
 	private NamedDomainObjectProvider<MyTask.B> e1;
@@ -40,7 +40,7 @@ class TaskContainerRegistryTest implements PolymorphicDomainObjectRegistryTester
 	void setup() {
 		val container = rootProject().getTasks();
 
-		subject =  PolymorphicDomainObjectRegistry.of(container);
+		subject =  new TaskRegistry(container);
 		e0 = container.register("a", MyTask.A.class);
 		e1 = container.register("b", MyTask.B.class);
 		e2 = container.register("c", MyTask.C.class);

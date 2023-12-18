@@ -20,6 +20,10 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.model.ConfigurationRegistry;
+import dev.nokee.model.ExtensiblePolymorphicDomainObjectContainerRegistry;
+import dev.nokee.model.PolymorphicDomainObjectRegistry;
+import dev.nokee.model.TaskRegistry;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
@@ -122,6 +126,7 @@ public final class ModelMapAdapters {
 	public interface ForNamedDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
 	public static /*final*/ class ForConfigurationContainer implements ForNamedDomainObjectContainer<Configuration>, HasPublicType, ModelMapMixIn<Configuration> {
+		private final PolymorphicDomainObjectRegistry<Configuration> registry;
 		private final KnownElements knownElements;
 		private final ConfigurationContainer delegate;
 		private final DiscoveredElements discoveredElements;
@@ -130,6 +135,7 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
+			this.registry = new ConfigurationRegistry(delegate);
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.discoveredElements = discoveredElements;
@@ -138,17 +144,10 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
 		public <RegistrableType extends Configuration> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			if (type.equals(Configuration.class)) {
-				return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> {
-					return (NamedDomainObjectProvider<RegistrableType>) registerIfAbsent(delegate, name);
+			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> {
+					return registry.registerIfAbsent(name, type);
 				}));
-			} else {
-				throw new UnsupportedOperationException("registration type must be Configuration");
-			}
-
-			// TODO: Account for ConsumableConfiguration, ResolvableConfiguration, DependencyScopeConfiguration
 		}
 
 		@Override
@@ -158,7 +157,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public RegistrableTypes getRegistrableTypes() {
-			return new DefaultRegistrableType(Configuration.class);
+			return registry.getRegistrableTypes()::canRegisterType;
 		}
 
 		@Override
@@ -189,26 +188,12 @@ public final class ModelMapAdapters {
 		public ModelObject<Configuration> getById(ModelObjectIdentifier identifier) {
 			return knownElements.getById(identifier, Configuration.class);
 		}
-
-		private static final class DefaultRegistrableType implements RegistrableTypes {
-			private final SupportedType registrableType;
-
-			private DefaultRegistrableType(Class<?> containerType) {
-				this.registrableType = instanceOf(containerType);
-			}
-
-			@Override
-			public boolean canRegisterType(Class<?> type) {
-				Objects.requireNonNull(type);
-				return registrableType.supports(type);
-			}
-		}
 	}
 
 	public interface ForPolymorphicDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
 	public static /*final*/ class ForTaskContainer implements ForPolymorphicDomainObjectContainer<Task>, HasPublicType, ModelMapMixIn<Task> {
-		private final Class<Task> elementType;
+		private final PolymorphicDomainObjectRegistry<Task> registry;
 		private final KnownElements knownElements;
 		private final PolymorphicDomainObjectContainer<Task> delegate;
 		private final Consumer<Runnable> onFinalize;
@@ -216,9 +201,9 @@ public final class ModelMapAdapters {
 		private final DiscoveredElements discoveredElements;
 
 		@Inject
-		public ForTaskContainer(PolymorphicDomainObjectContainer<Task> delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
+		public ForTaskContainer(TaskContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
+			this.registry = new TaskRegistry(delegate);
 			this.discoveredElements = discoveredElements;
-			this.elementType = Task.class;
 			this.knownElements = knownElements;
 			this.delegate = delegate;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
@@ -227,7 +212,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends Task> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> registerIfAbsent(delegate, name, type)));
+			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> registry.registerIfAbsent(name, type)));
 		}
 
 		@Override
@@ -237,7 +222,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public RegistrableTypes getRegistrableTypes() {
-			return new TaskContainerRegistrableTypes();
+			return registry.getRegistrableTypes()::canRegisterType;
 		}
 
 		@Override
@@ -268,16 +253,6 @@ public final class ModelMapAdapters {
 		public ModelObject<Task> getById(ModelObjectIdentifier identifier) {
 			return knownElements.getById(identifier, Task.class);
 		}
-
-		private static final class TaskContainerRegistrableTypes implements RegistrableTypes {
-			private final SupportedType registrableTypes = SupportedTypes.anySubtypeOf(Task.class);
-
-			@Override
-			public boolean canRegisterType(Class<?> type) {
-				Objects.requireNonNull(type);
-				return registrableTypes.supports(type);
-			}
-		}
 	}
 
 	public interface ContextualModelElementInstantiator {
@@ -286,9 +261,9 @@ public final class ModelMapAdapters {
 
 	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, ModelMapMixIn<ElementType>, HasPublicType {
 		private final Class<ElementType> elementType;
+		private final ExtensiblePolymorphicDomainObjectContainerRegistry<ElementType> registry;
 		private final KnownElements knownElements;
 		private final ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate;
-		private final Set<Class<? extends ElementType>> creatableTypes = new LinkedHashSet<>();
 		private final ManagedFactoryProvider managedFactory;
 		private final DiscoveredElements discoveredElements;
 		private final ContextualModelElementInstantiator elementInstantiator;
@@ -305,11 +280,12 @@ public final class ModelMapAdapters {
 			this.elementInstantiator = elementInstantiator;
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 			this.identifierFactory = new ContextualModelObjectIdentifier(ProjectIdentifier.of(project));
+			this.registry = new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate);
 		}
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> registerIfAbsent(delegate, name, type)));
+			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> registry.registerIfAbsent(name, type)));
 		}
 
 		@Override
@@ -319,13 +295,12 @@ public final class ModelMapAdapters {
 
 		@Override
 		public RegistrableTypes getRegistrableTypes() {
-			return new DefaultRegistrableTypes();
+			return registry.getRegistrableTypes()::canRegisterType;
 		}
 
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
-			delegate.registerFactory(type, newFactory(type, factory));
-			creatableTypes.add(type);
+			registry.registerFactory(type, newFactory(type, factory));
 		}
 
 		private <U extends ElementType> NamedDomainObjectFactory<U> newFactory(Class<U> type, NamedDomainObjectFactory<? extends U> delegate) {
@@ -364,22 +339,6 @@ public final class ModelMapAdapters {
 		@Override
 		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
 			return knownElements.getById(identifier, elementType);
-		}
-
-		private final class DefaultRegistrableTypes implements RegistrableTypes {
-			@Override
-			public boolean canRegisterType(Class<?> type) {
-				Objects.requireNonNull(type);
-				return getSupportedTypes().anyMatch(it -> it.supports(type));
-			}
-
-			private Stream<SupportedType> getSupportedTypes() {
-				return getCreatableType().stream().map(SupportedTypes::instanceOf);
-			}
-
-			private Set<? extends Class<?>> getCreatableType() {
-				return creatableTypes;
-			}
 		}
 	}
 

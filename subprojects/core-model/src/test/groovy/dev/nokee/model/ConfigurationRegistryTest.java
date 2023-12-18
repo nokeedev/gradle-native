@@ -27,7 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ConfigurationContainerRegistryTest implements NamedDomainObjectRegistryTester<Configuration> {
+class ConfigurationRegistryTest implements NamedDomainObjectRegistryTester<Configuration> {
 	private NamedDomainObjectRegistry<Configuration> subject;
 	private NamedDomainObjectProvider<Configuration> e0;
 	private NamedDomainObjectProvider<Configuration> e1;
@@ -36,7 +36,7 @@ class ConfigurationContainerRegistryTest implements NamedDomainObjectRegistryTes
 	@BeforeEach
 	void setup() {
 		val container = rootProject().getConfigurations();
-		subject = NamedDomainObjectRegistry.of(container);
+		subject = new ConfigurationRegistry(container);
 		e0 = container.register("a");
 		e1 = container.register("b");
 		e2 = container.register("c");
