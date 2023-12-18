@@ -28,6 +28,7 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
+import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -84,9 +85,27 @@ public final class ModelMapAdapters {
 			this.project = project;
 			this.knownElements = knownElements;
 			this.discoveredElements = discoveredElements;
-			this.object = knownElements.register(ProjectIdentifier.of(project), Project.class, name -> {
-				delegate.add(project);
-				return delegate.named(project.getName());
+			this.object = knownElements.register(ProjectIdentifier.of(project), Project.class, new PolymorphicDomainObjectRegistry<Project>() {
+				@Override
+				@SuppressWarnings("unchecked")
+				public <S extends Project> NamedDomainObjectProvider<S> register(String name, Class<S> type) throws InvalidUserDataException {
+					assert type.equals(Project.class);
+					delegate.add(project);
+					return (NamedDomainObjectProvider<S>) delegate.named(project.getName());
+				}
+
+				@Override
+				@SuppressWarnings("unchecked")
+				public <S extends Project> NamedDomainObjectProvider<S> registerIfAbsent(String name, Class<S> type) {
+					assert type.equals(Project.class);
+					delegate.add(project);
+					return (NamedDomainObjectProvider<S>) delegate.named(project.getName());
+				}
+
+				@Override
+				public RegistrableTypes getRegistrableTypes() {
+					return Project.class::equals;
+				}
 			});
 			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
 		}
@@ -145,9 +164,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends Configuration> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> {
-					return registry.registerIfAbsent(name, type);
-				}));
+			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, registry));
 		}
 
 		@Override
@@ -212,7 +229,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends Task> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> registry.registerIfAbsent(name, type)));
+			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, registry));
 		}
 
 		@Override
@@ -285,7 +302,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, name -> registry.registerIfAbsent(name, type)));
+			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, registry));
 		}
 
 		@Override

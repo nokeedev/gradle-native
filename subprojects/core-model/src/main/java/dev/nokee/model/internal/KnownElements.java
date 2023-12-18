@@ -16,10 +16,10 @@
 
 package dev.nokee.model.internal;
 
+import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -57,10 +57,10 @@ public final class KnownElements {
 
 	// TODO: Consider using NamedDomainObjectRegistry instead of Function
 	// TODO: Should it really return ModelObject?
-	public <S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, Function<? super String, ? extends NamedDomainObjectProvider<S>> factory) {
+	public <S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, PolymorphicDomainObjectRegistry<? super S> factory) {
 		ModelMapAdapters.ModelElementIdentity identity = identityFactory.create(identifier, type);
 		knownElements.add(identity);
-		identity.attachProvider(factory.apply(identity.getName()));
+		identity.attachProvider(factory.registerIfAbsent(identity.getName(), type));
 		return identity.asModelObject(type);
 	}
 
