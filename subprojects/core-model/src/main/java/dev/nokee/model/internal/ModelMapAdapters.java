@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 
 public final class ModelMapAdapters {
@@ -119,7 +120,7 @@ public final class ModelMapAdapters {
 		@Inject
 		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements) {
 			this.delegate = new BaseModelMap<>(Project.class, null, knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, null);
-			knownElements.register(ProjectIdentifier.of(project), Project.class, new PolymorphicDomainObjectRegistry<Project>() {
+			knownElements.register(ofIdentity(ProjectIdentifier.of(project), Project.class), new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
 				@SuppressWarnings("unchecked")
 				public <S extends Project> NamedDomainObjectProvider<S> register(String name, Class<S> type) throws InvalidUserDataException {
@@ -247,13 +248,12 @@ public final class ModelMapAdapters {
 	}
 
 	public interface RealizeListener {
-		void onRealize(ModelObjectIdentifier identifier, Class<?> type);
+		void onRealize(ModelObjectIdentity<?> identity);
 	}
 
 	public static final class ModelElementIdentity implements ModelObject<Object> {
 		private final List<Action<?>> finalizeActions = new ArrayList<>();
-		private final ModelObjectIdentifier identifier;
-		private final Class<?> implementationType;
+		private final ModelObjectIdentity<?> identity;
 		private final ProviderFactory providers;
 		private final ElementProvider elementProviderEx;
 		private final DiscoveredElements discoveredElements;
@@ -261,9 +261,8 @@ public final class ModelMapAdapters {
 		private final RealizeListener realizeListener;
 
 		// TODO: Reduce visibility
-		ModelElementIdentity(ModelObjectIdentifier identifier, Class<?> implementationType, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project, RealizeListener realizeListener) {
-			this.identifier = identifier;
-			this.implementationType = implementationType;
+		ModelElementIdentity(ModelObjectIdentity<?> identity, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project, RealizeListener realizeListener) {
+			this.identity = identity;
 			this.providers = providers;
 			this.elementProviderEx = elementProvider;
 			this.discoveredElements = discoveredElements;
@@ -272,15 +271,15 @@ public final class ModelMapAdapters {
 		}
 
 		public String getName() {
-			return ModelObjectIdentifiers.asFullyQualifiedName(identifier).toString();
+			return ModelObjectIdentifiers.asFullyQualifiedName(identity.getIdentifier()).toString();
 		}
 
 		public ModelObjectIdentifier getIdentifier() {
-			return identifier;
+			return identity.getIdentifier();
 		}
 
 		public boolean instanceOf(Class<?> type) {
-			return type.isAssignableFrom(implementationType);
+			return identity.getType().isSubtypeOf(type);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -291,7 +290,7 @@ public final class ModelMapAdapters {
 		@Override
 		@SuppressWarnings("unchecked")
 		public NamedDomainObjectProvider<Object> asProvider() {
-			return (NamedDomainObjectProvider<Object>) elementProviderEx.named(getName(), implementationType);
+			return (NamedDomainObjectProvider<Object>) elementProviderEx.named(getName(), identity.getType().getConcreteType());
 		}
 
 		@Override
@@ -300,13 +299,13 @@ public final class ModelMapAdapters {
 		}
 
 		public void realizeNow() {
-			realizeListener.onRealize(identifier, implementationType);
+			realizeListener.onRealize(identity);
 		}
 
 		@Override
 		public ModelObject<Object> configure(Action<? super Object> configureAction) {
 			// TODO: notify the action execute for a specific Key
-			discoveredElements.onRealized(configureAction, a -> elementProviderEx.configure(getName(), implementationType, a));
+			discoveredElements.onRealized(configureAction, a -> elementProviderEx.configure(getName(), identity.getType().getConcreteType(), a));
 			return this;
 		}
 
@@ -319,7 +318,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public String toString() {
-			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identifier) + "' (" + implementationType.getSimpleName() + ")";
+			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identity.getIdentifier()) + "' (" + identity.getType().getConcreteType().getSimpleName() + ")";
 		}
 
 		public void addFinalizer(Action<?> finalizeAction) {
@@ -364,8 +363,8 @@ public final class ModelMapAdapters {
 				this.project = project;
 			}
 
-			public ModelElementIdentity create(ModelObjectIdentifier identifier, Class<?> implementationType, RealizeListener realizeListener) {
-				return new ModelElementIdentity(identifier, implementationType, providers, elementProvider, discoveredElements, project, realizeListener);
+			public ModelElementIdentity create(ModelObjectIdentity<?> identity, RealizeListener realizeListener) {
+				return new ModelElementIdentity(identity, providers, elementProvider, discoveredElements, project, realizeListener);
 			}
 		}
 	}
@@ -408,20 +407,20 @@ public final class ModelMapAdapters {
 
 		@Override
 		public ModelType<?> getType() {
-			return ModelType.of(it.implementationType);
+			return it.identity.getType();
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public KnownModelObject<ElementType> configure(Action<? super ElementType> configureAction) {
-			((ModelObject<ElementType>) it.asModelObject(it.implementationType)).configure(configureAction);
+			((ModelObject<ElementType>) it.asModelObject(it.identity.getType().getConcreteType())).configure(configureAction);
 			return this;
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public KnownModelObject<ElementType> whenFinalized(Action<? super ElementType> finalizeAction) {
-			((ModelObject<ElementType>) it.asModelObject(it.implementationType)).whenFinalized(finalizeAction);
+			((ModelObject<ElementType>) it.asModelObject(it.identity.getType().getConcreteType())).whenFinalized(finalizeAction);
 			return this;
 		}
 
@@ -463,7 +462,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return discoveredElements.discover(identifier, type, () -> knownElements.register(identifier, type, registry));
+			return discoveredElements.discover(ofIdentity(identifier, type), () -> knownElements.register(ofIdentity(identifier, type), registry));
 		}
 
 		@Override

@@ -59,13 +59,11 @@ public final class KnownElements {
 	}
 
 	private static final class RealizableElement {
-		private final ModelObjectIdentifier identifier;
-		private final Class<?> type;
+		private final ModelObjectIdentity<?> identity;
 		private final NamedDomainObjectProvider<?> provider;
 
-		private RealizableElement(ModelObjectIdentifier identifier, Class<?> type, NamedDomainObjectProvider<?> provider) {
-			this.identifier = identifier;
-			this.type = type;
+		private RealizableElement(ModelObjectIdentity<?> identity, NamedDomainObjectProvider<?> provider) {
+			this.identity = identity;
 			this.provider = provider;
 		}
 
@@ -76,25 +74,25 @@ public final class KnownElements {
 
 	private final class MyRealizeListener implements ModelMapAdapters.RealizeListener {
 		@Override
-		public void onRealize(ModelObjectIdentifier identifier, Class<?> type) {
-			realizableElements.matching(it -> it.identifier.equals(identifier) && it.type.equals(type))
+		public void onRealize(ModelObjectIdentity<?> identity) {
+			realizableElements.matching(it -> it.identity.equals(identity))
 				.all(RealizableElement::realizeNow);
 		}
 	}
 
 	// TODO: Should it really return ModelObject?
-	public <S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, PolymorphicDomainObjectRegistry<? super S> factory) {
-		ModelMapAdapters.ModelElementIdentity identity = identityFactory.create(identifier, type, new MyRealizeListener());
-		knownElements.add(identity);
-		final NamedDomainObjectProvider<S> provider = factory.registerIfAbsent(identity.getName(), type);
-		realizableElements.add(new RealizableElement(identifier, type, provider));
-		return identity.asModelObject(type);
+	public <S> ModelObject<S> register(ModelObjectIdentity<S> identity, PolymorphicDomainObjectRegistry<? super S> factory) {
+		ModelMapAdapters.ModelElementIdentity legacyIdentity = identityFactory.create(identity, new MyRealizeListener());
+		knownElements.add(legacyIdentity);
+		final NamedDomainObjectProvider<S> provider = factory.registerIfAbsent(legacyIdentity.getName(), identity.getType().getConcreteType());
+		realizableElements.add(new RealizableElement(identity, provider));
+		return legacyIdentity.asModelObject(identity.getType().getConcreteType());
 	}
 
 	public <S> S create(String name, Class<S> type, Function<? super KnownElement, ? extends S> factory) {
 		KnownElement element = mapping.findByName(name);
 		if (element == null) {
-			knownElements.add(identityFactory.create(projectIdentifier.child(name), type, new MyRealizeListener()));
+			knownElements.add(identityFactory.create(ModelObjectIdentity.ofIdentity(projectIdentifier.child(name), type), new MyRealizeListener()));
 			element = Objects.requireNonNull(mapping.findByName(name));
 		}
 

@@ -54,10 +54,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
+
 public class DiscoveredElements {
 	private final Instantiator instantiator;
 	private final DomainObjectSet<Element> elements;
-	private final Map<Key, ModelObject<?>> objects = new HashMap<>();
+	private final Map<ModelObjectIdentity<?>, ModelObject<?>> objects = new HashMap<>();
 
 	public DiscoveredElements(Instantiator instantiator, ObjectFactory objects) {
 		this.instantiator = instantiator;
@@ -81,38 +83,19 @@ public class DiscoveredElements {
 		};
 	}
 
-	@EqualsAndHashCode
-	private static final class Key {
-		private final ModelObjectIdentifier identifier;
-		private final ModelType<?> type;
-
-		private Key(ModelObjectIdentifier identifier, ModelType<?> type) {
-			this.identifier = identifier;
-			this.type = type;
-		}
-
-		@Override
-		public String toString() {
-			return "Key{" +
-				"identifier=" + ModelObjectIdentifiers.asPath(identifier) +
-				", type=" + type +
-				'}';
-		}
-	}
-
-	public <RegistrableType> ModelObject<RegistrableType> discover(ModelObjectIdentifier identifier, Class<RegistrableType> type, Factory<ModelObject<RegistrableType>> factory) {
-		elements.addAll(discover(identifier, type));
+	public <RegistrableType> ModelObject<RegistrableType> discover(ModelObjectIdentity<RegistrableType> identity, Factory<ModelObject<RegistrableType>> factory) {
+		elements.addAll(discover(identity));
 		final ModelObject<RegistrableType> result = factory.create();
-		objects.put(new Key(identifier, ModelType.of(type)), result);
+		objects.put(identity, result);
 		return result;
 	}
 
-	private List<Element> discover(ModelObjectIdentifier identifier, Class<?> type) {
+	private List<Element> discover(ModelObjectIdentity<?> identity) {
 		List<Element> result = new ArrayList<>();
-		Element parent = new Element(identifier, ModelType.of(type), null);
+		Element parent = new Element(identity, null);
 		result.add(parent);
-		for (DiscoverableElement it : discoverEx(identifier, type)) {
-			Element e = it.resolve(identifier, parent);
+		for (DiscoverableElement it : discoverEx(identity.getIdentifier(), identity.getType().getConcreteType())) {
+			Element e = it.resolve(identity.getIdentifier(), parent);
 			result.add(e);
 			result.addAll(discover(e));
 		}
@@ -121,8 +104,8 @@ public class DiscoveredElements {
 
 	private List<Element> discover(Element ee) {
 		List<Element> result = new ArrayList<>();
-		for (DiscoverableElement it : discoverEx(ee.identifier, ee.type.getConcreteType())) {
-			Element e = it.resolve(ee.identifier, ee);
+		for (DiscoverableElement it : discoverEx(ee.getIdentifier(), ee.getType().getConcreteType())) {
+			Element e = it.resolve(ee.getIdentifier(), ee);
 			result.add(e);
 			result.addAll(discover(e));
 		}
@@ -249,7 +232,7 @@ public class DiscoveredElements {
 	public void discoverAll(Class<?> baseType) {
 		for (int i = 0; i < elements.size(); ++i) {
 			Element candidate = Iterables.get(elements, i);
-			if (candidate.type.isSubtypeOf(baseType)) {
+			if (candidate.getType().isSubtypeOf(baseType)) {
 				realize(candidate);
 			}
 		}
@@ -258,7 +241,7 @@ public class DiscoveredElements {
 	private boolean discoverDirectMatch(String name, Class<?> baseType) {
 		for (int i = 0; i < elements.size(); ++i) {
 			Element candidate = Iterables.get(elements, i);
-			if (candidate.type.isSubtypeOf(baseType) && ModelObjectIdentifiers.asFullyQualifiedName(candidate.identifier).toString().equals(name)) {
+			if (candidate.getType().isSubtypeOf(baseType) && ModelObjectIdentifiers.asFullyQualifiedName(candidate.getIdentifier()).toString().equals(name)) {
 				realize(candidate);
 				return true;
 			}
@@ -269,7 +252,7 @@ public class DiscoveredElements {
 	private boolean discoverPrefix(String name, Class<?> baseType) {
 		for (int i = 0; i < elements.size(); ++i) {
 			Element candidate = Iterables.get(elements, i);
-			if (candidate.type.isSubtypeOf(baseType) && ModelObjectIdentifiers.asFullyQualifiedName(candidate.identifier).toString().startsWith(name)) {
+			if (candidate.getType().isSubtypeOf(baseType) && ModelObjectIdentifiers.asFullyQualifiedName(candidate.getIdentifier()).toString().startsWith(name)) {
 				realize(candidate);
 				return true;
 			}
@@ -284,7 +267,7 @@ public class DiscoveredElements {
 
 		realize(e.parent);
 		// Failure here may be because of identifier mismatch regarding main identifier vs non-main identifier
-		Objects.requireNonNull(objects.get(e.key), () -> "no model object for " + e.key).get(); // realize
+		Objects.requireNonNull(objects.get(e.identity), () -> "no model object for " + e.identity).get(); // realize
 	}
 
 	public static final class DiscoverableElement {
@@ -297,29 +280,33 @@ public class DiscoveredElements {
 		}
 
 		public Element resolve(ModelObjectIdentifier baseIdentifier, Element parent) {
-			return new Element(identifierResolver.resolve(baseIdentifier), type, parent);
+			return new Element(ofIdentity(identifierResolver.resolve(baseIdentifier), type), parent);
 		}
 	}
 
 	@EqualsAndHashCode
 	private static final class Element {
-		private final ModelObjectIdentifier identifier;
-		private final ModelType<?> type;
+		private final ModelObjectIdentity<?> identity;
 		@Nullable private final Element parent;
-		private final Key key;
 
-		public Element(ModelObjectIdentifier identifier, ModelType<?> type, @Nullable Element parent) {
-			this.identifier = identifier;
-			this.type = type;
+		public Element(ModelObjectIdentity<?> identity, @Nullable Element parent) {
+			this.identity = identity;
 			this.parent = parent;
-			this.key = new Key(identifier, type);
+		}
+
+		public ModelObjectIdentifier getIdentifier() {
+			return identity.getIdentifier();
+		}
+
+		public ModelType<?> getType() {
+			return identity.getType();
 		}
 
 		@Override
 		public String toString() {
 			return "Element{" +
-				"identifier=" + ModelObjectIdentifiers.asFullyQualifiedName(identifier) +
-				", type=" + type +
+				"identifier=" + ModelObjectIdentifiers.asFullyQualifiedName(identity.getIdentifier()) +
+				", type=" + identity.getType() +
 				", parent=" + parent +
 				'}';
 		}
