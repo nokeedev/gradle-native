@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 
-public final class DefaultKnownElements {
+public final class DefaultKnownElements implements KnownElements {
 	private final DomainObjectSet<RealizableElement> realizableElements;
 	private final ProjectIdentifier projectIdentifier;
 	private final DomainObjectSet<ModelMapAdapters.ModelElementIdentity> knownElements;
