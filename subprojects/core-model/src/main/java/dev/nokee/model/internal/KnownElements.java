@@ -82,7 +82,6 @@ public final class KnownElements {
 		}
 	}
 
-	// TODO: Consider using NamedDomainObjectRegistry instead of Function
 	// TODO: Should it really return ModelObject?
 	public <S> ModelObject<S> register(ModelObjectIdentifier identifier, Class<S> type, PolymorphicDomainObjectRegistry<? super S> factory) {
 		ModelMapAdapters.ModelElementIdentity identity = identityFactory.create(identifier, type, new MyRealizeListener());
