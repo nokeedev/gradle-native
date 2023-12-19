@@ -465,7 +465,8 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			return knownElements.register(ofIdentity(identifier, type), registry);
+			final ModelObjectIdentity<RegistrableType> identity = ofIdentity(identifier, type);
+			return discoveredElements.discover(identity, () -> knownElements.register(identity, registry));
 		}
 
 		@Override
