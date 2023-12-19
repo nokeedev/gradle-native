@@ -139,7 +139,7 @@ public class DiscoveredElements {
 
 						result.add(new DiscoverableElement(childIdentifier, unpackDomainObjectType(returnType.getType())));
 					} else {
-						result.addAll(instantiator.newInstance(((Discoverable) annotation).value()).discover(identifier));
+						result.addAll(instantiator.newInstance(((Discoverable) annotation).value()).discover(ofIdentity(identifier, type)));
 					}
 				});
 			}

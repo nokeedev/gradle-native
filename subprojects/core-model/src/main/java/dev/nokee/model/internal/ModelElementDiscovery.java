@@ -19,11 +19,11 @@ package dev.nokee.model.internal;
 import java.util.List;
 
 public interface ModelElementDiscovery {
-	List<DiscoveredElements.DiscoverableElement> discover(ModelObjectIdentifier identifier);
+	List<DiscoveredElements.DiscoverableElement> discover(ModelObjectIdentity<?> identity);
 
 	class None implements ModelElementDiscovery {
 		@Override
-		public List<DiscoveredElements.DiscoverableElement> discover(ModelObjectIdentifier identifier) {
+		public List<DiscoveredElements.DiscoverableElement> discover(ModelObjectIdentity<?> identity) {
 			throw new UnsupportedOperationException();
 		}
 	}

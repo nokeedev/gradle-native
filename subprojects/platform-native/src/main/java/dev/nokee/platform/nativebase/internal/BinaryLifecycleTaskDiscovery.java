@@ -18,7 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.ModelElementDiscovery;
-import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentity;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -31,9 +31,9 @@ import java.util.List;
 
 public /*final*/ class BinaryLifecycleTaskDiscovery implements ModelElementDiscovery {
 	@Override
-	public List<DiscoveredElements.DiscoverableElement> discover(ModelObjectIdentifier identifier) {
-		assert identifier instanceof VariantIdentifier;
-		final BuildVariantInternal buildVariant = (BuildVariantInternal) ((VariantIdentifier) identifier).getBuildVariant();
+	public List<DiscoveredElements.DiscoverableElement> discover(ModelObjectIdentity<?> identity) {
+		assert identity.getIdentifier() instanceof VariantIdentifier;
+		final BuildVariantInternal buildVariant = (BuildVariantInternal) ((VariantIdentifier) identity.getIdentifier()).getBuildVariant();
 		final BinaryLinkage linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 		if (linkage.isExecutable()) {
 			return Collections.singletonList(new DiscoveredElements.DiscoverableElement(id -> id.child(TaskName.of("executable")), ModelType.of(Task.class)));
