@@ -100,7 +100,7 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	private interface ForwardingModelObjectFactory<ElementType> extends ModelObjectRegistry<ElementType> {
+	private interface ForwardingModelObjectRegistry<ElementType> extends ModelObjectRegistry<ElementType> {
 		ModelObjectRegistry<ElementType> delegate();
 
 		@Override
@@ -158,7 +158,7 @@ public final class ModelMapAdapters {
 
 	public interface ForNamedDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
-	public static /*final*/ class ForConfigurationContainer implements ForwardingModelMap<Configuration>, ForwardingModelObjectFactory<Configuration>, ForNamedDomainObjectContainer<Configuration>, HasPublicType {
+	public static /*final*/ class ForConfigurationContainer implements ForwardingModelMap<Configuration>, ForwardingModelObjectRegistry<Configuration>, ForNamedDomainObjectContainer<Configuration>, HasPublicType {
 		private final BaseModelMap<Configuration> delegate;
 
 		@Inject
@@ -180,7 +180,7 @@ public final class ModelMapAdapters {
 
 	public interface ForPolymorphicDomainObjectContainer<ElementType> extends ModelObjectRegistry<ElementType>, ModelMap<ElementType> {}
 
-	public static /*final*/ class ForTaskContainer implements ForwardingModelMap<Task>, ForwardingModelObjectFactory<Task>, ForPolymorphicDomainObjectContainer<Task>, HasPublicType {
+	public static /*final*/ class ForTaskContainer implements ForwardingModelMap<Task>, ForwardingModelObjectRegistry<Task>, ForPolymorphicDomainObjectContainer<Task>, HasPublicType {
 		private final BaseModelMap<Task> delegate;
 
 		@Inject
@@ -204,7 +204,7 @@ public final class ModelMapAdapters {
 		<S> Function<DefaultKnownElements.KnownElement, S> newInstance(Factory<S> factory);
 	}
 
-	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ForwardingModelMap<ElementType>, ForwardingModelObjectFactory<ElementType>, ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, HasPublicType {
+	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ForwardingModelMap<ElementType>, ForwardingModelObjectRegistry<ElementType>, ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, HasPublicType {
 		private final Class<ElementType> elementType;
 		private final ExtensiblePolymorphicDomainObjectContainerRegistry<ElementType> registry;
 		private final KnownElements knownElements;
