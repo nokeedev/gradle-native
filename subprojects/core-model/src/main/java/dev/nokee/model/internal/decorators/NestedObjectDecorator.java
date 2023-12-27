@@ -16,7 +16,6 @@
 
 package dev.nokee.model.internal.decorators;
 
-import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.reflect.DefaultInstantiator;
@@ -41,13 +40,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static dev.nokee.internal.reflect.SignatureUtils.getGenericSignature;
 import static dev.nokee.internal.reflect.SignatureUtils.getterSignature;
 
 public /*final*/ class NestedObjectDecorator implements Decorator {
-	private final Instantiator instantiator;
+	private final DomainObjectNamer namer;
 	// TODO: Make sure objectType can be generic type
 	// GENERATE <objectType> get<prop>() {
 	//      if (this._nokee_<prop> == null) {
@@ -61,8 +59,8 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 	// <init> => NestedObjectDecorator.create(TaskName/ElementName.of('name'), <objectType>)
 
 	@Inject
-	public NestedObjectDecorator(Instantiator instantiator) {
-		this.instantiator = instantiator;
+	public NestedObjectDecorator(DomainObjectNamer namer) {
+		this.namer = namer;
 	}
 
 	public static boolean isTaskType(Type type) {
@@ -87,7 +85,7 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 			public void visitFieldsInitialization(String ownerInternalName, MethodVisitor mv) {
 				mv.visitVarInsn(Opcodes.ALOAD, 0); // Load 'this' to set the field on
 
-				final ElementName elementName = method.getAnnotations().flatMap(it -> it instanceof ObjectName ? Stream.of((ObjectName) it) : Stream.empty()).collect(MoreCollectors.toOptional()).map(it -> (DomainObjectNamer) instantiator.newInstance(it.value())).orElseGet(() -> new NestedObjectNamer(new DeriveNameFromPropertyNameNamer())).determineName(method);
+				final ElementName elementName = namer.determineName(method);
 				new ElementNameVisitor(mv).visitElementName(elementName);
 
 				if (returnType.getType() instanceof ParameterizedType) {

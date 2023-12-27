@@ -31,6 +31,9 @@ import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
+import dev.nokee.model.internal.decorators.DeriveNameFromPropertyNameNamer;
+import dev.nokee.model.internal.decorators.NestedObjectNamer;
+import dev.nokee.model.internal.decorators.ReflectiveDomainObjectNamer;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -68,6 +71,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		final ServiceLookup services = new ContextualModelObjectIdentifierAwareServiceLookup(new ExtensionBackedServiceLookup(model(target).getExtensions()));
 		model(target).getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
 		model(target).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(model(target).getExtensions().getByType(Instantiator.class), objects));
+		model(target).getExtensions().add("__nokee_objectNamer", new ReflectiveDomainObjectNamer(model(target).getExtensions().getByType(Instantiator.class), new NestedObjectNamer(new DeriveNameFromPropertyNameNamer())));
 	}
 
 	private void applyToSettings(Settings settings) {
