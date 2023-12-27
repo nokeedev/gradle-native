@@ -153,7 +153,7 @@ public final class DefaultInstantiator implements Instantiator {
 				private ModelType<?> returnTypeOf(Method method) {
 					try {
 						Method m = method.getDeclaringClass().getMethod(method.getName());
-						return ModelType.of(TypeToken.of(ModelTypeUtils.toUndecoratedType(type)).resolveType(m.getGenericReturnType()).getType());
+						return ModelType.of(TypeToken.of(type).resolveType(m.getGenericReturnType()).getType());
 					} catch (NoSuchMethodException e) {
 						throw new RuntimeException(e);
 					}
