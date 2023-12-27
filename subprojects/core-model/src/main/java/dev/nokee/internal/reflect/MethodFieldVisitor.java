@@ -16,10 +16,13 @@
 
 package dev.nokee.internal.reflect;
 
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.ModelTypeHierarchy;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-public final class MethodFieldVisitor implements ClassVisitor {
+public final class MethodFieldVisitor implements ModelTypeHierarchy.Visitor {
 	private final ClassMethodFieldVisitor visitor;
 
 	public MethodFieldVisitor(ClassMethodFieldVisitor visitor) {
@@ -27,6 +30,10 @@ public final class MethodFieldVisitor implements ClassVisitor {
 	}
 
 	@Override
+	public void visitType(ModelType<?> type) {
+		visitClass(type.getConcreteType());
+	}
+
 	public void visitClass(Class<?> type) {
 		visitor.visitClass(type);
 

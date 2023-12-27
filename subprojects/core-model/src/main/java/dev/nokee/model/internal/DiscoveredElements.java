@@ -22,13 +22,13 @@ import dev.nokee.internal.Factory;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.internal.reflect.MethodFieldVisitor;
 import dev.nokee.internal.reflect.NotPrivateOrStaticMethodsVisitor;
-import dev.nokee.internal.reflect.SuperClassFirstClassVisitor;
 import dev.nokee.model.internal.decorators.Decorator;
 import dev.nokee.model.internal.decorators.DeriveNameFromPropertyNameNamer;
 import dev.nokee.model.internal.decorators.NestedObjectNamer;
 import dev.nokee.model.internal.decorators.ObjectTypeVisitor;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.ModelTypeHierarchy;
 import dev.nokee.model.internal.type.ModelTypeUtils;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
@@ -114,7 +114,7 @@ public class DiscoveredElements {
 
 	private List<DiscoverableElement> discoverEx(ModelObjectIdentifier identifier, Class<?> type) {
 		final List<DiscoverableElement> result = new ArrayList<>();
-		new SuperClassFirstClassVisitor(new MethodFieldVisitor(new NotPrivateOrStaticMethodsVisitor(new MethodFieldVisitor.ClassMethodFieldVisitor() {
+		ModelTypeHierarchy.supertypeFirst(new MethodFieldVisitor(new NotPrivateOrStaticMethodsVisitor(new MethodFieldVisitor.ClassMethodFieldVisitor() {
 			@Override
 			public void visitClass(Class<?> type) {
 
@@ -213,7 +213,7 @@ public class DiscoveredElements {
 				}
 				return seen.stream();
 			}
-		}))).visitClass(type);
+		}))).walk(ModelType.of(type));
 		return result;
 	}
 

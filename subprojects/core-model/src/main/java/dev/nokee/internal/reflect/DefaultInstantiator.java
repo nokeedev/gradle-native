@@ -24,6 +24,7 @@ import dev.nokee.model.internal.decorators.Decorator;
 import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.ModelTypeHierarchy;
 import dev.nokee.model.internal.type.ModelTypeUtils;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -130,7 +131,7 @@ public final class DefaultInstantiator implements Instantiator {
 			Set<GeneratedMethod> result = new LinkedHashSet<>();
 			Set<Annotation> inheritedAnnotations = new LinkedHashSet<>();
 
-			new SuperClassFirstClassVisitor(new MethodFieldVisitor(new NotPrivateOrStaticMethodsVisitor(new OnlyNestedOrInjectGetterMethod(new NestedOrInjectVisitor() {
+			ModelTypeHierarchy.supertypeFirst(new MethodFieldVisitor(new NotPrivateOrStaticMethodsVisitor(new OnlyNestedOrInjectGetterMethod(new NestedOrInjectVisitor() {
 				@Override
 				public void visitClass(Class<?> type) {
 					for (Annotation annotation : type.getDeclaredAnnotations()) {
@@ -165,7 +166,7 @@ public final class DefaultInstantiator implements Instantiator {
 
 				@Override
 				public void visitEnd() {}
-			})))).visitClass(type);
+			})))).walk(ModelType.of(type));
 
 			return new ClassInspection() {
 				@Override
