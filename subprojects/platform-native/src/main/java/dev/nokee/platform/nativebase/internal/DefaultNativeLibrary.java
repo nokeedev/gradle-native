@@ -17,8 +17,8 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
-import dev.nokee.model.internal.Discoverable;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.discover.Discover;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.internal.ElementExportingSpec;
 import dev.nokee.platform.base.internal.IVariantOf;
@@ -40,6 +40,7 @@ public abstract /*final*/ class DefaultNativeLibrary extends NativeLibrarySpec i
 	, VariantComponentSpec<DefaultNativeLibrary.Variant>
 	, NativeSourcesAware
 {
+	@Discover(BinaryLifecycleTaskDiscovery.class)
 	public static abstract /*final*/ class Variant extends NativeLibrarySpec implements IVariantOf<NativeLibrarySpec>
 		, NativeVariantSpec
 		, NativeSourcesAware, ElementExportingSpec
@@ -72,7 +73,6 @@ public abstract /*final*/ class DefaultNativeLibrary extends NativeLibrarySpec i
 		}
 
 		@SuppressWarnings("unchecked")
-		@Discoverable(BinaryLifecycleTaskDiscovery.class)
 		public TaskProvider<Task> getBinaryLifecycleTask() {
 			return (TaskProvider<Task>) getExtensions().getByName("binaryLifecycleTask");
 		}

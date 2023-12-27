@@ -22,9 +22,10 @@ import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.internal.services.ContextualModelObjectIdentifierAwareServiceLookup;
 import dev.nokee.internal.services.ExtensionBackedServiceLookup;
 import dev.nokee.internal.services.ServiceLookup;
+import dev.nokee.model.internal.DefaultKnownElements;
 import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.DiscoveredElements;
-import dev.nokee.model.internal.DefaultKnownElements;
+import dev.nokee.model.internal.DiscoveryService;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMap;
 import dev.nokee.model.internal.ModelMapFactory;
@@ -70,7 +71,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		target.getExtensions().create("model", ModelExtension.class);
 		final ServiceLookup services = new ContextualModelObjectIdentifierAwareServiceLookup(new ExtensionBackedServiceLookup(model(target).getExtensions()));
 		model(target).getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
-		model(target).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(model(target).getExtensions().getByType(Instantiator.class), objects));
+		model(target).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(objects, new DiscoveryService(model(target).getExtensions().getByType(Instantiator.class))));
 		model(target).getExtensions().add("__nokee_objectNamer", new ReflectiveDomainObjectNamer(model(target).getExtensions().getByType(Instantiator.class), new NestedObjectNamer(new DeriveNameFromPropertyNameNamer())));
 	}
 

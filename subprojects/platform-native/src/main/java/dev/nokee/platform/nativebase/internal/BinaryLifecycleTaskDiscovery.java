@@ -16,9 +16,12 @@
 
 package dev.nokee.platform.nativebase.internal;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.DiscoveredElements;
-import dev.nokee.model.internal.ModelElementDiscovery;
+import dev.nokee.model.internal.DiscoveryService;
 import dev.nokee.model.internal.ModelObjectIdentity;
+import dev.nokee.model.internal.discover.Discovery;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -29,19 +32,112 @@ import org.gradle.api.Task;
 import java.util.Collections;
 import java.util.List;
 
-public /*final*/ class BinaryLifecycleTaskDiscovery implements ModelElementDiscovery {
+public /*final*/ class BinaryLifecycleTaskDiscovery implements Discovery {
 	@Override
-	public List<DiscoveredElements.DiscoverableElement> discover(ModelObjectIdentity<?> identity) {
-		assert identity.getIdentifier() instanceof VariantIdentifier;
-		final BuildVariantInternal buildVariant = (BuildVariantInternal) ((VariantIdentifier) identity.getIdentifier()).getBuildVariant();
-		final BinaryLinkage linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-		if (linkage.isExecutable()) {
-			return Collections.singletonList(new DiscoveredElements.DiscoverableElement(id -> id.child(TaskName.of("executable")), ModelType.of(Task.class)));
-		} else if (linkage.isShared()) {
-			return Collections.singletonList(new DiscoveredElements.DiscoverableElement(id -> id.child(TaskName.of("sharedLibrary")), ModelType.of(Task.class)));
-		} else if (linkage.isStatic()) {
-			return Collections.singletonList(new DiscoveredElements.DiscoverableElement(id -> id.child(TaskName.of("staticLibrary")), ModelType.of(Task.class)));
-		}
-		throw new UnsupportedOperationException();
+	public <T> List<DiscoveryService.DiscoveredEl> discover(ModelType<T> discoveringType) {
+		return ImmutableList.of(
+			new DiscoveryService.DiscoveredEl() {
+				@Override
+				public ElementName getName() {
+					return TaskName.of("executable");
+				}
+
+				@Override
+				public ModelType<?> getType() {
+					return ModelType.of(Task.class);
+				}
+
+				@Override
+				public DiscoveryService.Scope getTarget() {
+					return DiscoveryService.Scope.Registered;
+				}
+
+				@Override
+				public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
+					if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
+						final VariantIdentifier variantIdentifier = (VariantIdentifier) identity.getIdentifier();
+						final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
+						return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isExecutable).map(__ -> {
+							return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
+								@Override
+								public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
+									return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(variantIdentifier.child(getName()), getType()), parent);
+								}
+							});
+						}).orElse(Collections.emptyList());
+					} else {
+						return Collections.emptyList();
+					}
+				}
+			},
+			new DiscoveryService.DiscoveredEl() {
+				@Override
+				public ElementName getName() {
+					return TaskName.of("sharedLibrary");
+				}
+
+				@Override
+				public ModelType<?> getType() {
+					return ModelType.of(Task.class);
+				}
+
+				@Override
+				public DiscoveryService.Scope getTarget() {
+					return DiscoveryService.Scope.Registered;
+				}
+
+				@Override
+				public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
+					if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
+						final VariantIdentifier variantIdentifier = (VariantIdentifier) identity.getIdentifier();
+						final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
+						return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isShared).map(__ -> {
+							return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
+								@Override
+								public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
+									return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(variantIdentifier.child(getName()), getType()), parent);
+								}
+							});
+						}).orElse(Collections.emptyList());
+					} else {
+						return Collections.emptyList();
+					}
+				}
+			},
+			new DiscoveryService.DiscoveredEl() {
+				@Override
+				public ElementName getName() {
+					return TaskName.of("staticLibrary");
+				}
+
+				@Override
+				public ModelType<?> getType() {
+					return ModelType.of(Task.class);
+				}
+
+				@Override
+				public DiscoveryService.Scope getTarget() {
+					return DiscoveryService.Scope.Registered;
+				}
+
+				@Override
+				public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
+					if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
+						final VariantIdentifier variantIdentifier = (VariantIdentifier) identity.getIdentifier();
+						final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
+						return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isStatic).map(__ -> {
+							return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
+								@Override
+								public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
+									return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(variantIdentifier.child(getName()), getType()), parent);
+								}
+							});
+						}).orElse(Collections.emptyList());
+					} else {
+						return Collections.emptyList();
+					}
+				}
+			}
+		);
 	}
 }

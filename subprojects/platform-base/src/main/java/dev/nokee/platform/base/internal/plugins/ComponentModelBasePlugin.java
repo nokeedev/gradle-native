@@ -22,6 +22,7 @@ import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Component;

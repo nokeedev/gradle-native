@@ -18,6 +18,8 @@ package dev.nokee.model.internal;
 
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.decorators.ModelObjectIdentifierSupport;
+import dev.nokee.model.internal.discover.Discover;
+import dev.nokee.model.internal.discover.DiscoverableStrategy;
 import dev.nokee.model.internal.type.ModelTypeUtils;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
@@ -26,6 +28,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@Discover(DiscoverableStrategy.class)
 public abstract class ModelElementSupport implements ModelElement, ExtensionAware {
 	private static final ThreadLocal<ModelElement> nextIdentity = new ThreadLocal<>();
 	private final ModelElement delegate;

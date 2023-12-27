@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.PropertySpec;
 import dev.nokee.language.nativebase.internal.ConfigurationUtilsEx;
 import dev.nokee.language.nativebase.internal.HasLinkElementsDependencyBucket;
@@ -23,13 +24,21 @@ import dev.nokee.language.nativebase.internal.NativeHeaderProperty;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.NativeSourcesAware;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
+import dev.nokee.model.internal.DiscoveredElements;
+import dev.nokee.model.internal.DiscoveryService;
 import dev.nokee.model.internal.KnownModelObject;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelObject;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
+import dev.nokee.model.internal.ModelObjectIdentity;
+import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.discover.Discover;
+import dev.nokee.model.internal.discover.Discovery;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Component;
@@ -110,6 +119,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.Sync;
+import org.gradle.api.tasks.TaskCollection;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -119,6 +129,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
@@ -210,34 +221,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		variants(project).withType(NativeVariantSpec.class).configureEach(variant -> {
-			val buildVariant = variant.getBuildVariant();
-			val identifier = ((ModelElement) variant).getIdentifier();
-
-			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-				final BinaryLinkage linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-				if (linkage.isExecutable()) {
-					((ExtensionAware) variant).getExtensions().add("executable", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("executable")), NativeExecutableBinarySpec.class).asProvider());
-				} else if (linkage.isShared()) {
-					((ExtensionAware) variant).getExtensions().add("sharedLibrary", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("sharedLibrary")), NativeSharedLibraryBinarySpec.class).asProvider());
-				} else if (linkage.isBundle()) {
-					((ExtensionAware) variant).getExtensions().add("bundle", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("bundle")), NativeBundleBinarySpec.class).asProvider());
-				} else if (linkage.isStatic()) {
-					((ExtensionAware) variant).getExtensions().add("staticLibrary", model(project, registryOf(Artifact.class)).register(identifier.child(ElementName.ofMain("staticLibrary")), NativeStaticLibraryBinarySpec.class).asProvider());
-				}
-
-				if (linkage.isShared() || linkage.isStatic()) {
-					project.getTasks().withType(SwiftCompile.class).configureEach(task -> {
-						ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
-							// TODO: Should check under the binary not the variant
-							if (ModelObjectIdentifiers.descendantOf(taskIdentifier, identifier)) {
-								task.getCompilerArgs().add("-parse-as-library");
-							}
-						});
-					});
-				}
-			}
-		});
+		model(project, mapOf(Variant.class)).configureEach(NativeVariantSpec.class, new RegisterNativeBinariesRule(model(project, registryOf(Artifact.class)), project.getTasks()));
 
 		artifacts(project).configureEach(new RuntimeLibrariesConfigurationRegistrationRule(model(project, objects()), project.getObjects()));
 		variants(project).configureEach(new AttachAttributesToConfigurationRule(HasRuntimeLibrariesDependencyBucket.class, HasRuntimeLibrariesDependencyBucket::getRuntimeLibraries, project.getObjects(), model(project, mapOf(Artifact.class))));
@@ -508,5 +492,188 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			binary.getLinkedFile().disallowChanges();
 			binary.getLinkedFile().finalizeValueOnRead();
 		});
+	}
+
+	@Discover(RegisterNativeBinariesRule.DiscoverNativeBinaries.class)
+	private static class RegisterNativeBinariesRule implements Action<NativeVariantSpec> {
+		private final ModelObjectRegistry<Artifact> artifactRegistry;
+		private final TaskCollection<Task> tasks;
+
+		public RegisterNativeBinariesRule(ModelObjectRegistry<Artifact> artifactRegistry, TaskCollection<Task> tasks) {
+			this.artifactRegistry = artifactRegistry;
+			this.tasks = tasks;
+		}
+
+		@Override
+		public void execute(NativeVariantSpec variant) {
+			final BuildVariantInternal buildVariant = variant.getBuildVariant();
+			final ModelObjectIdentifier identifier = variant.getIdentifier();
+
+			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+				final BinaryLinkage linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+				if (linkage.isExecutable()) {
+					((ExtensionAware) variant).getExtensions().add("executable", artifactRegistry.register(identifier.child(ElementName.ofMain("executable")), NativeExecutableBinarySpec.class).asProvider());
+				} else if (linkage.isShared()) {
+					((ExtensionAware) variant).getExtensions().add("sharedLibrary", artifactRegistry.register(identifier.child(ElementName.ofMain("sharedLibrary")), NativeSharedLibraryBinarySpec.class).asProvider());
+				} else if (linkage.isBundle()) {
+					((ExtensionAware) variant).getExtensions().add("bundle", artifactRegistry.register(identifier.child(ElementName.ofMain("bundle")), NativeBundleBinarySpec.class).asProvider());
+				} else if (linkage.isStatic()) {
+					((ExtensionAware) variant).getExtensions().add("staticLibrary", artifactRegistry.register(identifier.child(ElementName.ofMain("staticLibrary")), NativeStaticLibraryBinarySpec.class).asProvider());
+				}
+
+				if (linkage.isShared() || linkage.isStatic()) {
+					tasks.withType(SwiftCompile.class).configureEach(withElement((element, task) -> {
+						final ModelObjectIdentifier taskIdentifier = element.getIdentifier();
+						// TODO: Should check under the binary not the variant
+						if (ModelObjectIdentifiers.descendantOf(taskIdentifier, identifier)) {
+							task.getCompilerArgs().add("-parse-as-library");
+						}
+					}));
+				}
+			}
+		}
+
+		static class DiscoverNativeBinaries implements Discovery {
+			@Override
+			public <T> List<DiscoveryService.DiscoveredEl> discover(ModelType<T> type) {
+				return ImmutableList.of(
+					new DiscoveryService.DiscoveredEl() {
+						@Override
+						public ElementName getName() {
+							return ElementName.ofMain("executable");
+						}
+
+						@Override
+						public ModelType<?> getType() {
+							return ModelType.of(NativeExecutableBinarySpec.class);
+						}
+
+						@Override
+						public DiscoveryService.Scope getTarget() {
+							return DiscoveryService.Scope.Registered;
+						}
+
+						@Override
+						public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
+							if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
+								final VariantIdentifier identifier = (VariantIdentifier) identity.getIdentifier();
+								final BuildVariantInternal buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
+								return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isExecutable).map(__ -> {
+									return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
+										@Override
+										public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
+											return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(identifier.child(getName()), getType()), parent);
+										}
+									});
+								}).orElse(Collections.emptyList());
+							} else {
+								return Collections.emptyList();
+							}
+						}
+					},
+					new DiscoveryService.DiscoveredEl() {
+						@Override
+						public ElementName getName() {
+							return ElementName.ofMain("sharedLibrary");
+						}
+
+						@Override
+						public ModelType<?> getType() {
+							return ModelType.of(NativeSharedLibraryBinarySpec.class);
+						}
+
+						@Override
+						public DiscoveryService.Scope getTarget() {
+							return DiscoveryService.Scope.Registered;
+						}
+
+						@Override
+						public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
+							if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
+								final VariantIdentifier identifier = (VariantIdentifier) identity.getIdentifier();
+								final BuildVariantInternal buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
+								return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isShared).map(__ -> {
+									return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
+										@Override
+										public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
+											return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(identifier.child(getName()), getType()), parent);
+										}
+									});
+								}).orElse(Collections.emptyList());
+							} else {
+								return Collections.emptyList();
+							}
+						}
+					},
+					new DiscoveryService.DiscoveredEl() {
+						@Override
+						public ElementName getName() {
+							return ElementName.ofMain("staticLibrary");
+						}
+
+						@Override
+						public ModelType<?> getType() {
+							return ModelType.of(NativeStaticLibraryBinarySpec.class);
+						}
+
+						@Override
+						public DiscoveryService.Scope getTarget() {
+							return DiscoveryService.Scope.Registered;
+						}
+
+						@Override
+						public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
+							if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
+								final VariantIdentifier identifier = (VariantIdentifier) identity.getIdentifier();
+								final BuildVariantInternal buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
+								return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isStatic).map(__ -> {
+									return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
+										@Override
+										public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
+											return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(identifier.child(getName()), getType()), parent);
+										}
+									});
+								}).orElse(Collections.emptyList());
+							} else {
+								return Collections.emptyList();
+							}
+						}
+					},
+					new DiscoveryService.DiscoveredEl() {
+						@Override
+						public ElementName getName() {
+							return ElementName.ofMain("bundle");
+						}
+
+						@Override
+						public ModelType<?> getType() {
+							return ModelType.of(NativeBundleBinarySpec.class);
+						}
+
+						@Override
+						public DiscoveryService.Scope getTarget() {
+							return DiscoveryService.Scope.Registered;
+						}
+
+						@Override
+						public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
+							if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
+								final VariantIdentifier identifier = (VariantIdentifier) identity.getIdentifier();
+								final BuildVariantInternal buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
+								return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isBundle).map(__ -> {
+									return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
+										@Override
+										public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
+											return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(identifier.child(getName()), getType()), parent);
+										}
+									});
+								}).orElse(Collections.emptyList());
+							} else {
+								return Collections.emptyList();
+							}
+						}
+					});
+			}
+		}
 	}
 }

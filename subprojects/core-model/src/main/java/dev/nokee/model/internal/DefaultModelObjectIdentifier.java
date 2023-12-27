@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 @EqualsAndHashCode
 public final class DefaultModelObjectIdentifier implements ModelObjectIdentifier, HasName {
@@ -35,7 +36,7 @@ public final class DefaultModelObjectIdentifier implements ModelObjectIdentifier
 	}
 
 	public DefaultModelObjectIdentifier(ElementName name, @Nullable ModelObjectIdentifier parentIdentifier) {
-		this.name = name;
+		this.name = Objects.requireNonNull(name, "'name' must not be null");
 		this.parentIdentifier = parentIdentifier;
 	}
 

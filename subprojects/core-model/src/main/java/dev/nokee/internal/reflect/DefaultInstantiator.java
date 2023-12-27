@@ -25,7 +25,6 @@ import dev.nokee.model.internal.decorators.InjectService;
 import dev.nokee.model.internal.decorators.NestedObject;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeHierarchy;
-import dev.nokee.model.internal.type.ModelTypeUtils;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.model.ObjectFactory;
@@ -39,6 +38,7 @@ import org.objectweb.asm.Type;
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -48,6 +48,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -225,6 +227,21 @@ public final class DefaultInstantiator implements Instantiator {
 		Object newInstance(ServiceLookup serviceLookup, ObjectFactory objects, Object[] params) throws InvocationTargetException, IllegalAccessException, InstantiationException;
 	}
 
+	private static void processAnnotation(AnnotationVisitor av, Annotation annotation) {
+		for (Method method : annotation.annotationType().getDeclaredMethods()) {
+			try {
+				final Object value = method.invoke(annotation);
+				if (value instanceof Class) {
+					av.visit(method.getName(), Type.getType((Class<?>) value));
+				} else {
+					throw new RuntimeException();
+				}
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
 	public static byte[] generateSubclass(Class<?> superClass, Collection<GeneratedMethod> methods, Collection<Annotation> annotations) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
@@ -233,21 +250,26 @@ public final class DefaultInstantiator implements Instantiator {
 
 		cw.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT, subclassNameInternal, null, superClassNameInternal, null);
 
-		for (Annotation annotation : annotations) {
-			AnnotationVisitor av = cw.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
-			for (Method method : annotation.annotationType().getDeclaredMethods()) {
-				try {
-					final Object value = method.invoke(annotation);
-					if (value instanceof Class) {
-						av.visit(method.getName(), Type.getType((Class<?>) value));
-					} else {
-						throw new RuntimeException();
-					}
-				} catch (IllegalAccessException | InvocationTargetException e) {
-					throw new RuntimeException(e);
+		for (Map.Entry<? extends Class<? extends Annotation>, List<Annotation>> annotationEntry : annotations.stream().collect(Collectors.groupingBy(Annotation::annotationType)).entrySet()) {
+			final Class<? extends Annotation> annotationType = annotationEntry.getKey();
+			final Optional<Class<? extends Annotation>> repeatableAnnotationType = Optional.ofNullable(annotationType.getAnnotation(Repeatable.class)).map(Repeatable::value);
+			if (repeatableAnnotationType.isPresent()) {
+				AnnotationVisitor rav = cw.visitAnnotation(Type.getDescriptor(repeatableAnnotationType.get()), true);
+				AnnotationVisitor aav = rav.visitArray("value");
+				for (Annotation annotation : annotationEntry.getValue()) {
+					AnnotationVisitor av = aav.visitAnnotation(null, Type.getDescriptor(annotation.annotationType()));
+					processAnnotation(av, annotation);
+					av.visitEnd();
 				}
+				aav.visitEnd();
+				rav.visitEnd();
+			} else {
+				AnnotationVisitor av = cw.visitAnnotation(Type.getDescriptor(annotationType), true);
+				assert annotationEntry.getValue().size() == 1;
+				Annotation annotation = annotationEntry.getValue().get(0);
+				processAnnotation(av, annotation);
+				av.visitEnd();
 			}
-			av.visitEnd();
 		}
 
 		boolean injectConstructorFound = false;

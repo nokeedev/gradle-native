@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.discover;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// Add on methods that can be discovered when an element is registered
-@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Discoverable {
+@Documented
+@Inherited
+public @interface Discoveries {
+	Discover[] value();
 }

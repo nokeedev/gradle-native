@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.discover;
+
+import dev.nokee.model.internal.DiscoveryService;
+import dev.nokee.model.internal.type.ModelType;
 
 import java.util.List;
 
-public interface ModelElementDiscovery {
-	List<DiscoveredElements.DiscoverableElement> discover(ModelObjectIdentity<?> identity);
-
-	class None implements ModelElementDiscovery {
-		@Override
-		public List<DiscoveredElements.DiscoverableElement> discover(ModelObjectIdentity<?> identity) {
-			throw new UnsupportedOperationException();
-		}
-	}
+public interface Discovery {
+	<T> List<DiscoveryService.DiscoveredEl> discover(ModelType<T> discoveringType);
 }
