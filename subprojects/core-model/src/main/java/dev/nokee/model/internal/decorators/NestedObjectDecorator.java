@@ -28,7 +28,6 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Task;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -62,11 +61,7 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 	// <init> => NestedObjectDecorator.create(TaskName/ElementName.of('name'), <objectType>)
 
 	@Inject
-	public NestedObjectDecorator(ObjectFactory objects) {
-		this(objects::newInstance);
-	}
-
-	private NestedObjectDecorator(Instantiator instantiator) {
+	public NestedObjectDecorator(Instantiator instantiator) {
 		this.instantiator = instantiator;
 	}
 

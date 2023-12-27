@@ -147,7 +147,7 @@ public final class DefaultInstantiator implements Instantiator {
 
 				@Override
 				public void visitDecoratedProperty(Class<? extends Decorator> decoratorType, Method method) {
-					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), objects.newInstance(decoratorType), method.getAnnotations()));
+					result.add(new GeneratedMethod(returnTypeOf(method), method.getName(), propertyNameOf(method), DefaultInstantiator.this.newInstance(decoratorType), method.getAnnotations()));
 				}
 
 				private ModelType<?> returnTypeOf(Method method) {
