@@ -16,6 +16,7 @@
 
 package dev.nokee.model.internal.decorators;
 
+import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.reflect.DefaultInstantiator;
@@ -27,6 +28,7 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Task;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -35,15 +37,18 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static dev.nokee.internal.reflect.SignatureUtils.getGenericSignature;
 import static dev.nokee.internal.reflect.SignatureUtils.getterSignature;
 
 public /*final*/ class NestedObjectDecorator implements Decorator {
+	private final Instantiator instantiator;
 	// TODO: Make sure objectType can be generic type
 	// GENERATE <objectType> get<prop>() {
 	//      if (this._nokee_<prop> == null) {
@@ -55,6 +60,15 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 	// GENERATE private <objectType> _nokee_<prop> = <init>;
 
 	// <init> => NestedObjectDecorator.create(TaskName/ElementName.of('name'), <objectType>)
+
+	@Inject
+	public NestedObjectDecorator(ObjectFactory objects) {
+		this(objects::newInstance);
+	}
+
+	private NestedObjectDecorator(Instantiator instantiator) {
+		this.instantiator = instantiator;
+	}
 
 	public static boolean isTaskType(Type type) {
 		if (TaskProvider.class.isAssignableFrom(TypeToken.of(type).getRawType())) {
@@ -78,7 +92,7 @@ public /*final*/ class NestedObjectDecorator implements Decorator {
 			public void visitFieldsInitialization(String ownerInternalName, MethodVisitor mv) {
 				mv.visitVarInsn(Opcodes.ALOAD, 0); // Load 'this' to set the field on
 
-				final ElementName elementName = new NestedObjectNamer(new DeriveNameFromPropertyNameNamer()).determineName(method);
+				final ElementName elementName = method.getAnnotations().flatMap(it -> it instanceof ObjectName ? Stream.of((ObjectName) it) : Stream.empty()).collect(MoreCollectors.toOptional()).map(it -> (DomainObjectNamer) instantiator.newInstance(it.value())).orElseGet(() -> new NestedObjectNamer(new DeriveNameFromPropertyNameNamer())).determineName(method);
 				new ElementNameVisitor(mv).visitElementName(elementName);
 
 				if (returnType.getType() instanceof ParameterizedType) {

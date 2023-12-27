@@ -16,18 +16,10 @@
 
 package dev.nokee.model.internal.decorators;
 
-import dev.nokee.model.internal.Discoverable;
-
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-@Decorate(NestedObjectDecorator.class)
-@ObjectName(NestedObjectNamer.class)
-@Discoverable // All nested object are discovered when registered
-public @interface NestedObject {
-	String value() default "";
+@Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+public @interface ObjectName {
+	Class<? extends DomainObjectNamer> value();
 }
