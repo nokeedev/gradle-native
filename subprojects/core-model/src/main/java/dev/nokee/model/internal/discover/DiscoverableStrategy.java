@@ -49,7 +49,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public /*final*/ class DiscoverableStrategy implements Discovery {
+public final class DiscoverableStrategy implements Discovery {
 	@Override
 	public <T> List<DiscoveryService.DiscoveredEl> discover(ModelType<T> discoveringType) {
 		final List<DiscoveryService.DiscoveredEl> result = new ArrayList<>();

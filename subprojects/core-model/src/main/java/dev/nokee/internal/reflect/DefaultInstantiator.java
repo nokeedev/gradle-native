@@ -79,14 +79,20 @@ public final class DefaultInstantiator implements Instantiator {
 	@SuppressWarnings("unchecked")
 	public <T> T newInstance(Class<? extends T> type, Object... parameters) throws ObjectInstantiationException {
 		if (Modifier.isFinal(type.getModifiers())) {
+			Constructor<?> defaultConstructor = null;
 			Constructor<?> selectedConstructor = null;
 			for (Constructor<?> constructor : type.getConstructors()) {
 				if (constructor.isAnnotationPresent(Inject.class)) {
 					assert selectedConstructor == null;
 					selectedConstructor = constructor;
+				} else if (constructor.getParameterCount() == 0) {
+					defaultConstructor = constructor;
 				}
 			}
-			assert selectedConstructor != null;
+			if (selectedConstructor == null) {
+				selectedConstructor = defaultConstructor;
+			}
+			assert selectedConstructor != null : "no constructor selected to create instance of final class";
 			try {
 				return (T) selectedConstructor.newInstance(paramsOf(serviceLookup, type, parameters));
 			} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
