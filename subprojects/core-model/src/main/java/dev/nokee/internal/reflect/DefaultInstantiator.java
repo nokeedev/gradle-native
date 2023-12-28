@@ -78,18 +78,30 @@ public final class DefaultInstantiator implements Instantiator {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T newInstance(Class<? extends T> type, Object... parameters) throws ObjectInstantiationException {
-		// TODO: Inspect @Inject constructor and pass along Nokee build service
-		try {
-			return (T) generateSubType(type).newInstance(serviceLookup, objects, parameters);
-		} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
-			throw new ObjectInstantiationException(type, e);
+		if (Modifier.isFinal(type.getModifiers())) {
+			Constructor<?> selectedConstructor = null;
+			for (Constructor<?> constructor : type.getConstructors()) {
+				if (constructor.isAnnotationPresent(Inject.class)) {
+					assert selectedConstructor == null;
+					selectedConstructor = constructor;
+				}
+			}
+			assert selectedConstructor != null;
+			try {
+				return (T) selectedConstructor.newInstance(paramsOf(serviceLookup, type, parameters));
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			try {
+				return (T) generateSubType(type).newInstance(serviceLookup, objects, parameters);
+			} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+				throw new ObjectInstantiationException(type, e);
+			}
 		}
 	}
 
 	private <T> InstantiationStrategy generateSubType(Class<? extends T> type) {
-		// TODO: If the type implements ModelMixIn or ModelMixInSupport do not decorate, else decorate
-		// TODO: We should merge decorator with this class so we register the decorator here
-		// TODO: If type is final, do direct instantiator
 		return new ClassInspector().inspectType(type).generateClass(classLoader);
 	}
 
