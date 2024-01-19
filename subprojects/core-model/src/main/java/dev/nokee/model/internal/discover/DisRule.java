@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 the original author or authors.
+ * Copyright 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,20 @@
 
 package dev.nokee.model.internal.discover;
 
+import dev.nokee.model.internal.ModelObjectIdentity;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.List;
+public interface DisRule {
+	void execute(Details details);
 
-public interface Discovery {
-	<T> List<DisRule> discover(ModelType<T> discoveringType);
+	interface Details {
+		CandidateElement getCandidate();
+
+		void newCandidate(ModelObjectIdentity<?> knownIdentity);
+
+		void newCandidate(ElementName elementName, ModelType<?> produceType);
+
+		void newCandidate(ElementName elementName, ModelType<?> produceType, CandidateElement.DiscoverChain.Act action);
+	}
 }

@@ -20,10 +20,6 @@ import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.reflect.MethodFieldVisitor;
 import dev.nokee.internal.reflect.NotPrivateOrStaticMethodsVisitor;
 import dev.nokee.model.internal.Discoverable;
-import dev.nokee.model.internal.DiscoveredElements;
-import dev.nokee.model.internal.DiscoveryService;
-import dev.nokee.model.internal.ModelObject;
-import dev.nokee.model.internal.ModelObjectIdentity;
 import dev.nokee.model.internal.decorators.Decorator;
 import dev.nokee.model.internal.decorators.DeriveNameFromPropertyNameNamer;
 import dev.nokee.model.internal.decorators.NestedObjectNamer;
@@ -31,7 +27,6 @@ import dev.nokee.model.internal.decorators.ObjectTypeVisitor;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeHierarchy;
-import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
@@ -46,13 +41,12 @@ import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public final class DiscoverableStrategy implements Discovery {
 	@Override
-	public <T> List<DiscoveryService.DiscoveredEl> discover(ModelType<T> discoveringType) {
-		final List<DiscoveryService.DiscoveredEl> result = new ArrayList<>();
+	public <T> List<DisRule> discover(ModelType<T> discoveringType) {
+		final List<GroupRule.Entry> result = new ArrayList<>();
 		ModelTypeHierarchy.supertypeFirst(new MethodFieldVisitor(new NotPrivateOrStaticMethodsVisitor(new MethodFieldVisitor.ClassMethodFieldVisitor() {
 			@Override
 			public void visitClass(Class<?> type) {
@@ -70,44 +64,8 @@ public final class DiscoverableStrategy implements Discovery {
 					ModelType<?> returnType = returnTypeOf(method);
 					ElementName elementName = elementNameOf(method);
 
-					final DiscoveredElements.ModelObjectIdentifierResolver childIdentifier = ((Supplier<DiscoveredElements.ModelObjectIdentifierResolver>) () -> {
-						if (elementName == null) {
-							return (DiscoveredElements.ModelObjectIdentifierResolver) identifier -> identifier;
-						} else {
-							return identifier -> identifier.child(elementName);
-						}
-					}).get();
-
-					result.add(new DiscoveryService.DiscoveredEl() {
-						@Override
-						public ElementName getName() {
-							return elementName;
-						}
-
-						@Override
-						public ModelType<?> getType() {
-							return unpackDomainObjectType(returnType.getType());
-						}
-
-						@Override
-						public DiscoveryService.Scope getTarget() {
-							return returnType.isSubtypeOf(Provider.class) || returnType.isSubtypeOf(ModelObject.class) ? DiscoveryService.Scope.Registered : DiscoveryService.Scope.Realized;
-						}
-
-						@Override
-						public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
-							if (identity.getType().equals(discoveringType)) {
-								return Collections.singletonList(new DiscoveryService.RealizedDiscoveredEl() {
-									@Override
-									public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
-										return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(childIdentifier.resolve(identity.getIdentifier()), getType()), parent);
-									}
-								});
-							} else {
-								return Collections.emptyList();
-							}
-						}
-					});
+					// FIXME(discovery): Deal with null ElementName... somewhat fixed
+					result.add(new GroupRule.Entry(elementName, unpackDomainObjectType(returnType.getType())));
 				});
 			}
 
@@ -180,6 +138,6 @@ public final class DiscoverableStrategy implements Discovery {
 				return seen.stream();
 			}
 		}))).walk(discoveringType);
-		return result;
+		return Collections.singletonList(new RealizeRule(new GroupRule(discoveringType, result)));
 	}
 }

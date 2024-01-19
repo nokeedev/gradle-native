@@ -60,6 +60,7 @@ public class ViewAdapter<T> implements View<T> {
 
 	@Override
 	public void configureEach(Spec<? super T> spec, Action<? super T> action) {
+		// FIXME(discovery): Make SpecFilteringAction unpackable
 		strategy.configureEach(elementType, new SpecFilteringAction<>(spec, action));
 	}
 
@@ -125,6 +126,7 @@ public class ViewAdapter<T> implements View<T> {
 		<T> void configureEach(Class<T> elementType, Action<? super T> action);
 		<T> Provider<Set<T>> getElements(Class<T> elementType);
 		<T> void whenElementKnown(Class<T> elementType, Action<? super KnownDomainObject<T>> action);
+		// FIXME(discovery): Return ModelObject instead to allow discovery of single action
 		<T> NamedDomainObjectProvider<T> named(String name, Class<T> elementType);
 	}
 }

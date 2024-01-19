@@ -35,7 +35,7 @@ import java.util.function.Supplier;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
 public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
-	private final NamedDomainObjectCollection<?> collection;
+	private final NamedDomainObjectCollection<?> collection; // FIXME(discovery): Use ModelMap instead
 	private final Runnable realize;
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objects;
@@ -53,6 +53,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 
 	@Override
 	public <T> void configureEach(Class<T> elementType, Action<? super T> action) {
+		// FIXME(discovery): Use unpackable action
 		collection.configureEach(object -> {
 			if (elementType.isInstance(object)) {
 				ModelElementSupport.safeAsModelElement(object).ifPresent(element -> {

@@ -19,15 +19,24 @@ package dev.nokee.model.internal;
 import org.gradle.api.Action;
 import org.gradle.api.reflect.TypeOf;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public final class TypeFilteringAction<ElementType, FilteredType> implements Action<ElementType> {
 	private final ActionTypeOf<FilteredType> type;
 	private final BiConsumer<? super ElementType, ? super FilteredType> action;
+	@Nullable private final Action<?> delegate;
 
-	public TypeFilteringAction(ActionTypeOf<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
+	public TypeFilteringAction(ActionTypeOf<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action, @Nullable Action<?> nestedAction) {
 		this.type = type;
 		this.action = action;
+		this.delegate = nestedAction;
+	}
+
+	// FIXME(discovery): Improve unpackable-ity for action inspection
+	public Optional<Action<?>> getDelegate() {
+		return Optional.ofNullable(delegate);
 	}
 
 	@Override
@@ -80,22 +89,22 @@ public final class TypeFilteringAction<ElementType, FilteredType> implements Act
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(Class<FilteredType> type, Action<? super FilteredType> action) {
-		return new TypeFilteringAction<>(new JavaClassTypeOf<>(type), (__, t) -> action.execute(t));
+		return new TypeFilteringAction<>(new JavaClassTypeOf<>(type), (__, t) -> action.execute(t), action);
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(TypeOf<FilteredType> type, Action<? super FilteredType> action) {
-		return new TypeFilteringAction<>(new GradleTypeOf<>(type), (__, t) -> action.execute(t));
+		return new TypeFilteringAction<>(new GradleTypeOf<>(type), (__, t) -> action.execute(t), action);
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(Class<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
-		return new TypeFilteringAction<>(new JavaClassTypeOf<>(type), action);
+		return new TypeFilteringAction<>(new JavaClassTypeOf<>(type), action, null);
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(TypeOf<FilteredType> type, BiConsumer<? super ElementType, ? super FilteredType> action) {
-		return new TypeFilteringAction<>(new GradleTypeOf<>(type), action);
+		return new TypeFilteringAction<>(new GradleTypeOf<>(type), action, null);
 	}
 
 	public static <ElementType, FilteredType> Action<ElementType> ofType(ActionTypeOf<FilteredType> type, Action<? super FilteredType> action) {
-		return new TypeFilteringAction<>(type, (__, t) -> action.execute(t));
+		return new TypeFilteringAction<>(type, (__, t) -> action.execute(t), action);
 	}
 }

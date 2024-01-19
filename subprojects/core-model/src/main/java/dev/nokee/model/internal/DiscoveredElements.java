@@ -16,33 +16,52 @@
 
 package dev.nokee.model.internal;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.Factory;
+import dev.nokee.model.internal.discover.CandidateElement;
+import dev.nokee.model.internal.discover.DelegateDisRule;
+import dev.nokee.model.internal.discover.DisRule;
+import dev.nokee.model.internal.discover.FinalizeRule;
+import dev.nokee.model.internal.discover.GroupRule;
+import dev.nokee.model.internal.discover.KnownElementRule;
+import dev.nokee.model.internal.discover.KnownRule;
+import dev.nokee.model.internal.discover.RealizeRule;
+import dev.nokee.model.internal.discover.SelectRule;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
-import lombok.EqualsAndHashCode;
+import dev.nokee.utils.Optionals;
+import lombok.val;
 import org.gradle.api.Action;
-import org.gradle.api.DomainObjectSet;
+import org.gradle.api.Project;
 import org.gradle.api.Rule;
-import org.gradle.api.model.ObjectFactory;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public class DiscoveredElements {
-	private final DomainObjectSet<Element> elements;
 	private final Map<ModelObjectIdentity<?>, ModelObject<?>> objects = new HashMap<>();
 	private final DiscoveryService service;
+	private final ProjectIdentifier rootIdentifier;
+	// FIXME(discovery): Ensure no duplicated rules are added
+	private final List<DisRule> rules = new ArrayList<>();
+	private final Set<ModelObjectIdentity<?>> realizedElements = new HashSet<>();
+	private final Set<ModelObjectIdentity<?>> finalizedElements = new HashSet<>();
 
-	public DiscoveredElements(ObjectFactory objects, DiscoveryService service) {
-		this.elements = objects.domainObjectSet(Element.class);
+	public DiscoveredElements(DiscoveryService service, ProjectIdentifier rootIdentifier) {
 		this.service = service;
-
-		this.elements.all(it -> {
-			discoverType(it.getType());
-		});
+		this.rootIdentifier = rootIdentifier;
 	}
 
 	public Rule ruleFor(Class<?> baseType) {
@@ -52,118 +71,185 @@ public class DiscoveredElements {
 				return "discover elements";
 			}
 
+			private boolean has(Predicate<? super String> name, Class<?> baseType) {
+				for (DisRule rule : rules) {
+					if (rule instanceof KnownElementRule) {
+						if (name.test(ModelObjectIdentifiers.asFullyQualifiedName(((KnownElementRule) rule).getIdentity().getIdentifier()).toString()) && ((KnownElementRule) rule).getIdentity().getType().isSubtypeOf(baseType)) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+
 			@Override
 			public void apply(String domainObjectName) {
-				if (!discoverDirectMatch(domainObjectName, baseType)) {
-					discoverPrefix(domainObjectName, baseType);
-					// TODO: Maybe discover task-name inference
+				while (!has(it -> it.equals(domainObjectName), baseType)) {
+					List<CandidateElement> r = find(domainObjectName, ModelType.of(baseType));
+					if (r.isEmpty()) {
+						break; // nothing to do
+					} else {
+						val action = r.stream().map(CandidateElement::getActions).filter(it -> !it.isEmpty()).map(it -> it.get(0)).filter(it -> it.getAction().equals(CandidateElement.DiscoverChain.Act.REALIZE)).findFirst();
+						if (action.isPresent()) {
+							objects.get(action.get().getTargetIdentity()).get();
+						} else {
+							break;
+						}
+					}
 				}
+
+				// FIXME(discovery): Discover prefixed (request `objects` which can match `objectsDebug`)
+				// FIXME(discovery): Maybe discover task-name inference
 			}
 		};
 	}
 
 	public <RegistrableType> ModelObject<RegistrableType> discover(ModelObjectIdentity<RegistrableType> identity, Factory<ModelObject<RegistrableType>> factory) {
-		elements.add(new Element(identity, null));
+		rules.add(new KnownElementRule(identity));
+		service.discover(identity.getType()).stream().flatMap(this::discover).forEach(rules::add);
 		final ModelObject<RegistrableType> result = factory.create();
+		result.configure(__ -> realizedElements.add(identity)); // FIXME(discovery): Streamline realize/finalize listeners
 		objects.put(identity, result);
 		return result;
 	}
 
-	private void discoverType(ModelType<?> type) {
-		for (DiscoveryService.DiscoveredEl discoveredEl : service.discover(type)) {
-			elements.all(e -> {
-				for (DiscoveryService.RealizedDiscoveredEl realizedDiscoveredEl : discoveredEl.execute(e.identity)) {
-					elements.add(realizedDiscoveredEl.toElement(e));
-				}
-			});
+	private Stream<DisRule> discoverType(Action<?> action) {
+		return Stream.of(action).flatMap(it -> {
+			Stream<Action<?>> nestedRules = Stream.empty();
+			if (it instanceof TypeFilteringAction) {
+				nestedRules = Optionals.stream(((TypeFilteringAction<?, ?>) it).getDelegate());
+			} else if (it instanceof ExecuteOncePerElementAction) {
+				nestedRules = Stream.of(((ExecuteOncePerElementAction<?>) it).getDelegate());
+			}
+			return Stream.concat(Stream.of(it).flatMap(t -> service.discover(ModelType.typeOf(t)).stream()), nestedRules.flatMap(this::discoverType));
+		});
+	}
+
+	public Stream<DisRule> discover(DisRule rule) {
+		ImmutableList.Builder<DisRule> builder = ImmutableList.<DisRule>builder().add(rule);
+		producerTypeOf(rule, it -> builder.addAll(service.discover(it)));
+		return builder.build().stream();
+	}
+
+	private void producerTypeOf(DisRule rule, Consumer<? super ModelType<?>> next) {
+		if (rule instanceof DelegateDisRule) {
+			producerTypeOf(((DelegateDisRule) rule).getDelegate(), next);
+		} else if (rule instanceof GroupRule) {
+			for (GroupRule.Entry entry : ((GroupRule) rule).getEntries()) {
+				next.accept(entry.getProduceType());
+			}
+		} else if (rule instanceof SelectRule) {
+			for (SelectRule.Case aCase : ((SelectRule) rule).getCases()) {
+				next.accept(aCase.getProduceType());
+			}
 		}
 	}
 
 	public <T> void onRealized(Action<? super T> action, Consumer<? super Action<? super T>> next) {
-		discoverType(ModelType.typeOf(action));
+		// FIXME(discovery): extract type filter from action
+		discoverType(action).map(RealizeRule::new).flatMap(this::discover).forEach(rules::add);
 		next.accept(action);
 	}
 
 	public <T> void onKnown(Action<? super KnownModelObject<T>> action, Consumer<? super Action<? super KnownModelObject<T>>> next) {
-		discoverType(ModelType.typeOf(action));
+		// FIXME(discovery): extract type filter from action
+		discoverType(action).map(KnownRule::new).flatMap(this::discover).forEach(rules::add);
 		next.accept(action);
 	}
 
 	public <T> void onFinalized(Action<? super T> action, Consumer<? super Action<? super T>> next) {
-		discoverType(ModelType.typeOf(action));
+		// FIXME(discovery): extract type filter from action
+		discoverType(action).map(FinalizeRule::new).flatMap(this::discover).forEach(rules::add);
 		next.accept(action);
 	}
 
+	//region FIXME(discovery): streamline discovery
+	private boolean discoverableElements(Class<?> baseType) {
+		return findAll(ModelType.of(baseType)).stream().anyMatch(it -> !it.getActions().isEmpty() && it.getActions().get(0).getAction().equals(CandidateElement.DiscoverChain.Act.REALIZE));
+	}
+
 	public void discoverAll(Class<?> baseType) {
-		for (int i = 0; i < elements.size(); ++i) {
-			Element candidate = Iterables.get(elements, i);
-			if (candidate.getType().isSubtypeOf(baseType)) {
-				realize(candidate);
+		while (discoverableElements(baseType)) {
+			for (CandidateElement candidateElement : findAll(of(baseType))) {
+				if (!candidateElement.getActions().isEmpty()) {
+					objects.get(candidateElement.getActions().get(0).getTargetIdentity()).get();
+				}
 			}
 		}
 	}
 
-	private boolean discoverDirectMatch(String name, Class<?> baseType) {
-		for (int i = 0; i < elements.size(); ++i) {
-			Element candidate = Iterables.get(elements, i);
-			if (candidate.getType().isSubtypeOf(baseType) && ModelObjectIdentifiers.asFullyQualifiedName(candidate.getIdentifier()).toString().equals(name)) {
-				realize(candidate);
-				return true;
+	private List<CandidateElement> find(String fullyQualifiedName, ModelType<?> type) {
+		List<CandidateElement> r = new ArrayList<>();
+
+		final CandidateElement current = new CandidateElement(rootIdentifier, of(Project.class), true, realizedElements::contains, finalizedElements::contains, Collections.emptyList(), null);
+		List<CandidateElement> result = new ArrayList<>();
+		list(result, current);
+
+		for (CandidateElement candidateElement : result) {
+			String candidateName = ModelObjectIdentifiers.asFullyQualifiedName(candidateElement.getIdentifier()).toString();
+			if (candidateName.contains("*")) {
+				Pattern p = Pattern.compile("^" + candidateName.replace("*", ".*") + "$");
+				if (p.matcher(fullyQualifiedName).matches() && candidateElement.getType().isSubtypeOf(type)) {
+					r.add(candidateElement);
+				}
+			} else if (candidateName.equals(fullyQualifiedName) && candidateElement.getType().isSubtypeOf(type)) {
+				r.add(candidateElement);
 			}
 		}
-		return false;
+
+		return r;
 	}
 
-	private boolean discoverPrefix(String name, Class<?> baseType) {
-		for (int i = 0; i < elements.size(); ++i) {
-			Element candidate = Iterables.get(elements, i);
-			if (candidate.getType().isSubtypeOf(baseType) && ModelObjectIdentifiers.asFullyQualifiedName(candidate.getIdentifier()).toString().startsWith(name)) {
-				realize(candidate);
-				return true;
+	private List<CandidateElement> findAll(ModelType<?> type) {
+		List<CandidateElement> r = new ArrayList<>();
+
+		CandidateElement current = new CandidateElement(rootIdentifier, of(Project.class), true, realizedElements::contains, finalizedElements::contains, Collections.emptyList(), null);
+		List<CandidateElement> result = new ArrayList<>();
+		list(result, current);
+
+		for (CandidateElement candidateElement : result) {
+			if (candidateElement.getType().isSubtypeOf(type)) {
+				r.add(candidateElement);
 			}
 		}
-		return false;
+
+		return r;
 	}
 
-	private void realize(Element e) {
-		if (e == null) {
-			return;
-		}
+	private void list(Collection<CandidateElement> result, CandidateElement current) {
+		result.add(current);
 
-		realize(e.parent);
-		// Failure here may be because of identifier mismatch regarding main identifier vs non-main identifier
-		Objects.requireNonNull(objects.get(e.identity), () -> "no model object for " + e.identity).get(); // realize
-	}
+		for (final DisRule rule : rules) {
+			rule.execute(new DisRule.Details() {
+				@Override
+				public CandidateElement getCandidate() {
+					return current;
+				}
 
-	@EqualsAndHashCode
-	public static final class Element {
-		private final ModelObjectIdentity<?> identity;
-		@Nullable private final Element parent;
+				@Override
+				public void newCandidate(ModelObjectIdentity<?> knownIdentity) {
+					list(result, new CandidateElement(knownIdentity.getIdentifier(), knownIdentity.getType(), true, realizedElements::contains, finalizedElements::contains, current.getActions(), rule));
+				}
 
-		public Element(ModelObjectIdentity<?> identity, @Nullable Element parent) {
-			this.identity = identity;
-			this.parent = parent;
-		}
+				@Override
+				public void newCandidate(ElementName elementName, ModelType<?> produceType) {
+					ModelObjectIdentifier identifier = current.getIdentifier();
+					if (elementName != null) {
+						identifier = current.getIdentifier().child(elementName);
+					}
+					list(result, new CandidateElement(identifier, produceType, false, realizedElements::contains, finalizedElements::contains, current.getActions(), rule));
+				}
 
-		public ModelObjectIdentifier getIdentifier() {
-			return identity.getIdentifier();
-		}
-
-		public ModelType<?> getType() {
-			return identity.getType();
-		}
-
-		@Override
-		public String toString() {
-			return "Element{" +
-				"identifier=" + ModelObjectIdentifiers.asFullyQualifiedName(identity.getIdentifier()) +
-				", type=" + identity.getType() +
-				", parent=" + parent +
-				'}';
+				@Override
+				public void newCandidate(ElementName elementName, ModelType<?> produceType, CandidateElement.DiscoverChain.Act action) {
+					ModelObjectIdentifier identifier = current.getIdentifier();
+					if (elementName != null) {
+						identifier = current.getIdentifier().child(elementName);
+					}
+					list(result, new CandidateElement(identifier, produceType, false, realizedElements::contains, finalizedElements::contains, ImmutableList.<CandidateElement.DiscoverChain>builder().addAll(current.getActions()).add(new CandidateElement.DiscoverChain(current, action)).build(), rule));
+				}
+			});
 		}
 	}
-
-	public interface ModelObjectIdentifierResolver {
-		ModelObjectIdentifier resolve(ModelObjectIdentifier baseIdentifier);
-	}
+	//endregion
 }

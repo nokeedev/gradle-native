@@ -18,7 +18,13 @@ package dev.nokee.platform.base.internal.plugins;
 
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.discover.DisRule;
+import dev.nokee.model.internal.discover.DiscoverRule;
+import dev.nokee.model.internal.discover.DiscoverableAction;
+import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeUtils;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -28,9 +34,14 @@ import lombok.SneakyThrows;
 import org.gradle.api.Action;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
+import static dev.nokee.model.internal.type.ModelType.of;
 
 @SuppressWarnings({"unchecked"})
-public final class RegisterVariants<T extends VariantComponentSpec<U>, U extends Variant> implements Action<T> {
+@DiscoverableAction
+@DiscoverRule(RegisterVariants.VariantRule.class)
+public final class RegisterVariants<T extends VariantComponentSpec<U>, U extends Variant> implements Action<VariantComponentSpec<? extends Variant>> {
 	private final ModelObjectRegistry<Variant> variantRegistry;
 
 	public RegisterVariants(ModelObjectRegistry<Variant> variantRegistry) {
@@ -38,7 +49,7 @@ public final class RegisterVariants<T extends VariantComponentSpec<U>, U extends
 	}
 
 	@Override
-	public void execute(T component) {
+	public void execute(VariantComponentSpec<? extends Variant> component) {
 		for (BuildVariant it : component.getDimensions().getBuildVariants().get()) {
 			final BuildVariantInternal buildVariant = (BuildVariantInternal) it;
 			final VariantIdentifier variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(((dev.nokee.model.internal.ModelElement) component).getIdentifier()).build();
@@ -49,5 +60,39 @@ public final class RegisterVariants<T extends VariantComponentSpec<U>, U extends
 	@SneakyThrows
 	private static <T extends Variant/*Spec*/> Class<T> variantTypeOf(VariantComponentSpec<T> component) {
 		return (Class<T>) ((ParameterizedType) TypeToken.of(ModelTypeUtils.toUndecoratedType(component.getClass())).resolveType(VariantComponentSpec.class.getMethod("getVariants").getGenericReturnType()).getType()).getActualTypeArguments()[0];
+	}
+
+	public static final class VariantRule implements DisRule {
+		private final ModelType<VariantComponentSpec<?>> targetType = ModelType.of(new TypeOf<VariantComponentSpec<?>>() {});
+
+		@Override
+		public void execute(Details details) {
+			ModelType<?> producedType = of(getGenericTypeFromInterface(details.getCandidate().getType().getRawType(), targetType.getRawType()));
+			details.newCandidate(ElementName.of("*"), producedType);
+		}
+
+		private static Type getGenericTypeFromInterface(Class<?> clazz, Class<?> genericInterface) {
+			Type[] interfaces = clazz.getGenericInterfaces();
+
+			for (Type type : interfaces) {
+				if (type instanceof ParameterizedType) {
+					ParameterizedType parameterizedType = (ParameterizedType) type;
+					Type rawType = parameterizedType.getRawType();
+
+					if (genericInterface.equals(rawType)) {
+						Type[] typeArguments = parameterizedType.getActualTypeArguments();
+						if (typeArguments.length > 0) {
+							return typeArguments[0];
+						}
+					}
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public String toString() {
+			return "produce 1 or more child of generic type T from VariantComponentSpec<T>";
+		}
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 the original author or authors.
+ * Copyright 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,28 @@ package dev.nokee.model.internal.discover;
 
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.List;
+public final class SubTypeOfRule implements DelegateDisRule {
+	private final ModelType<?> targetType;
+	private final DisRule delegate;
 
-public interface Discovery {
-	<T> List<DisRule> discover(ModelType<T> discoveringType);
+	public SubTypeOfRule(ModelType<?> targetType, DisRule delegate) {
+		this.targetType = targetType;
+		this.delegate = delegate;
+	}
+
+	public DisRule getDelegate() {
+		return delegate;
+	}
+
+	@Override
+	public void execute(Details details) {
+		if (details.getCandidate().getType().isSubtypeOf(targetType)) {
+			delegate.execute(details);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "any subtype of " + targetType.getConcreteType().getSimpleName() + " " + delegate;
+	}
 }

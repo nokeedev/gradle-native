@@ -19,8 +19,11 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.DiscoveryService;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentity;
+import dev.nokee.model.internal.discover.DisRule;
 import dev.nokee.model.internal.discover.Discovery;
+import dev.nokee.model.internal.discover.SelectRule;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.model.internal.type.ModelType;
@@ -28,116 +31,32 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import org.gradle.api.Task;
+import org.gradle.api.specs.Spec;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public /*final*/ class BinaryLifecycleTaskDiscovery implements Discovery {
-	@Override
-	public <T> List<DiscoveryService.DiscoveredEl> discover(ModelType<T> discoveringType) {
-		return ImmutableList.of(
-			new DiscoveryService.DiscoveredEl() {
-				@Override
-				public ElementName getName() {
-					return TaskName.of("executable");
-				}
-
-				@Override
-				public ModelType<?> getType() {
-					return ModelType.of(Task.class);
-				}
-
-				@Override
-				public DiscoveryService.Scope getTarget() {
-					return DiscoveryService.Scope.Registered;
-				}
-
-				@Override
-				public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
-					if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
-						final VariantIdentifier variantIdentifier = (VariantIdentifier) identity.getIdentifier();
-						final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
-						return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isExecutable).map(__ -> {
-							return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
-								@Override
-								public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
-									return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(variantIdentifier.child(getName()), getType()), parent);
-								}
-							});
-						}).orElse(Collections.emptyList());
-					} else {
-						return Collections.emptyList();
-					}
-				}
-			},
-			new DiscoveryService.DiscoveredEl() {
-				@Override
-				public ElementName getName() {
-					return TaskName.of("sharedLibrary");
-				}
-
-				@Override
-				public ModelType<?> getType() {
-					return ModelType.of(Task.class);
-				}
-
-				@Override
-				public DiscoveryService.Scope getTarget() {
-					return DiscoveryService.Scope.Registered;
-				}
-
-				@Override
-				public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
-					if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
-						final VariantIdentifier variantIdentifier = (VariantIdentifier) identity.getIdentifier();
-						final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
-						return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isShared).map(__ -> {
-							return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
-								@Override
-								public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
-									return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(variantIdentifier.child(getName()), getType()), parent);
-								}
-							});
-						}).orElse(Collections.emptyList());
-					} else {
-						return Collections.emptyList();
-					}
-				}
-			},
-			new DiscoveryService.DiscoveredEl() {
-				@Override
-				public ElementName getName() {
-					return TaskName.of("staticLibrary");
-				}
-
-				@Override
-				public ModelType<?> getType() {
-					return ModelType.of(Task.class);
-				}
-
-				@Override
-				public DiscoveryService.Scope getTarget() {
-					return DiscoveryService.Scope.Registered;
-				}
-
-				@Override
-				public List<DiscoveryService.RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity) {
-					if (identity.getType().isSubtypeOf(NativeVariantSpec.class) && identity.getIdentifier() instanceof VariantIdentifier) {
-						final VariantIdentifier variantIdentifier = (VariantIdentifier) identity.getIdentifier();
-						final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
-						return buildVariant.findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).filter(BinaryLinkage::isStatic).map(__ -> {
-							return Collections.<DiscoveryService.RealizedDiscoveredEl>singletonList(new DiscoveryService.RealizedDiscoveredEl() {
-								@Override
-								public DiscoveredElements.Element toElement(DiscoveredElements.Element parent) {
-									return new DiscoveredElements.Element(ModelObjectIdentity.ofIdentity(variantIdentifier.child(getName()), getType()), parent);
-								}
-							});
-						}).orElse(Collections.emptyList());
-					} else {
-						return Collections.emptyList();
-					}
-				}
+	private static Spec<ModelObjectIdentifier> linkageOf(Spec<? super BinaryLinkage> spec) {
+		return identifier -> {
+			if (identifier instanceof VariantIdentifier) {
+				return ((BuildVariantInternal) ((VariantIdentifier) identifier).getBuildVariant()).findAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).map(spec::isSatisfiedBy).filter(it -> it).orElse(false);
+			} else {
+				return false;
 			}
-		);
+		};
+	}
+
+	@Override
+	public <T> List<DisRule> discover(ModelType<T> discoveringType) {
+		DisRule rule = new SelectRule(discoveringType, Arrays.asList(
+			new SelectRule.Case(linkageOf(BinaryLinkage::isExecutable), TaskName.of("executable"), ModelType.of(Task.class)),
+			new SelectRule.Case(linkageOf(BinaryLinkage::isShared), TaskName.of("sharedLibrary"), ModelType.of(Task.class)),
+			new SelectRule.Case(linkageOf(BinaryLinkage::isStatic), TaskName.of("staticLibrary"), ModelType.of(Task.class)),
+			new SelectRule.Case(linkageOf(BinaryLinkage::isBundle), TaskName.of("bundle"), ModelType.of(Task.class))
+		));
+
+		return Collections.singletonList(rule);
 	}
 }

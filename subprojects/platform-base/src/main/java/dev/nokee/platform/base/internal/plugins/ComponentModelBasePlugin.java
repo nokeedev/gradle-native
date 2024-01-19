@@ -172,7 +172,10 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		model(project).getExtensions().add(new TypeOf<Factory<View<Binary>>>() {}, "__nokeeService_binaryFactory", (Factory<View<Binary>>) () -> {
 			Named.Namer namer = new Named.Namer();
 			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-			Runnable realizeNow = () -> {};
+			Runnable realizeNow = () -> {
+				// FIXME(discovery): Discover only the candidate under `identifier`
+				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Binary.class);
+			};
 			return instantiator(project).newInstance(ViewAdapter.class, Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier));
 		});
 

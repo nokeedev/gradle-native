@@ -17,14 +17,20 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.model.internal.discover.DisRule;
 import dev.nokee.model.internal.discover.Discover;
 import dev.nokee.model.internal.discover.Discovery;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.Collections;
+import java.lang.annotation.Annotation;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DiscoveryService implements Discovery {
 	private final Instantiator instantiator;
@@ -34,23 +40,24 @@ public class DiscoveryService implements Discovery {
 	}
 
 	@Override
-	public <T> List<DiscoveredEl> discover(ModelType<T> discoveringType) {
-		return Optional.ofNullable(discoveringType.getConcreteType().getAnnotation(Discover.class)).map(it -> instantiator.newInstance(it.value())).map(it -> it.discover(discoveringType)).orElse(Collections.emptyList());
+	public <T> List<DisRule> discover(ModelType<T> discoveringType) {
+		return annotationsOn(discoveringType.getConcreteType()).filter(Discover.class::isInstance)
+			.flatMap(it -> instantiator.newInstance(((Discover) it).value()).discover(discoveringType).stream()).collect(Collectors.toList());
 	}
 
-	public enum Scope {
-		Realized, Registered
-	}
+	// FIXME(discovery): Streamline meta-annotation discovery (most likely in utils)
+	private Stream<Annotation> annotationsOn(Class<?> type) {
+		Set<Annotation> seen = new LinkedHashSet<>();
+		Deque<Annotation> queue = new ArrayDeque<>();
 
-	public interface DiscoveredEl {
-		ElementName getName();
-		ModelType<?> getType();
-		Scope getTarget();
-
-		List<RealizedDiscoveredEl> execute(ModelObjectIdentity<?> identity);
-	}
-
-	public interface RealizedDiscoveredEl {
-		DiscoveredElements.Element toElement(DiscoveredElements.Element parent);
+		queue.addAll(Arrays.asList(type.getAnnotations()));
+		while (!queue.isEmpty()) {
+			Annotation current = queue.removeFirst();
+			if (!seen.add(current)) {
+				continue;
+			}
+			queue.addAll(Arrays.asList(current.annotationType().getAnnotations()));
+		}
+		return seen.stream();
 	}
 }

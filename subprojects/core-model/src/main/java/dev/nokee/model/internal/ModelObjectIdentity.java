@@ -48,7 +48,7 @@ public final class ModelObjectIdentity<ObjectType> {
 	@Override
 	public String toString() {
 		return "ModelObjectIdentity{" +
-			"identifier=" + identifier +
+			"identifier=" + ModelObjectIdentifiers.asPath(identifier) +
 			", implementationType=" + implementationType +
 			'}';
 	}

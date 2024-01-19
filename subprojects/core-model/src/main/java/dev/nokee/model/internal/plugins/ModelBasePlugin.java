@@ -32,6 +32,7 @@ import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.decorators.DeriveNameFromPropertyNameNamer;
 import dev.nokee.model.internal.decorators.NestedObjectNamer;
 import dev.nokee.model.internal.decorators.ReflectiveDomainObjectNamer;
@@ -71,7 +72,6 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		target.getExtensions().create("model", ModelExtension.class);
 		final ServiceLookup services = new ContextualModelObjectIdentifierAwareServiceLookup(new ExtensionBackedServiceLookup(model(target).getExtensions()));
 		model(target).getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
-		model(target).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(objects, new DiscoveryService(model(target).getExtensions().getByType(Instantiator.class))));
 		model(target).getExtensions().add("__nokee_objectNamer", new ReflectiveDomainObjectNamer(model(target).getExtensions().getByType(Instantiator.class), new NestedObjectNamer(new DeriveNameFromPropertyNameNamer())));
 	}
 
@@ -84,6 +84,8 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		project.getConfigurations().all(ActionUtils.doNothing()); // Because... don't get me started with this... :'(
 
 		applyToAllTarget(project);
+
+		model(project).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(new DiscoveryService(model(project).getExtensions().getByType(Instantiator.class)), ProjectIdentifier.of(project)));
 
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
 		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(project.getObjects(), project, DefaultKnownElements.Factory.forProject(project), objects, project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class)));

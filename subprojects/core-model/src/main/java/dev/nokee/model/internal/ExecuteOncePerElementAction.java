@@ -29,6 +29,11 @@ public final class ExecuteOncePerElementAction<T> implements Action<T> {
 		this.delegate = delegate;
 	}
 
+	// FIXME(discovery): Improve unpackable-ity for action inspection
+	public Action<?> getDelegate() {
+		return delegate;
+	}
+
 	@Override
 	public void execute(T element) {
 		 if (executedOnElements.add(element)) {
