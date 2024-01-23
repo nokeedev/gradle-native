@@ -20,17 +20,11 @@ import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.internal.discover.DisRule;
 import dev.nokee.model.internal.discover.Discover;
 import dev.nokee.model.internal.discover.Discovery;
+import dev.nokee.model.internal.type.Annotations;
 import dev.nokee.model.internal.type.ModelType;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DiscoveryService implements Discovery {
 	private final Instantiator instantiator;
@@ -41,23 +35,7 @@ public class DiscoveryService implements Discovery {
 
 	@Override
 	public <T> List<DisRule> discover(ModelType<T> discoveringType) {
-		return annotationsOn(discoveringType.getConcreteType()).filter(Discover.class::isInstance)
-			.flatMap(it -> instantiator.newInstance(((Discover) it).value()).discover(discoveringType).stream()).collect(Collectors.toList());
-	}
-
-	// FIXME(discovery): Streamline meta-annotation discovery (most likely in utils)
-	private Stream<Annotation> annotationsOn(Class<?> type) {
-		Set<Annotation> seen = new LinkedHashSet<>();
-		Deque<Annotation> queue = new ArrayDeque<>();
-
-		queue.addAll(Arrays.asList(type.getAnnotations()));
-		while (!queue.isEmpty()) {
-			Annotation current = queue.removeFirst();
-			if (!seen.add(current)) {
-				continue;
-			}
-			queue.addAll(Arrays.asList(current.annotationType().getAnnotations()));
-		}
-		return seen.stream();
+		return Annotations.forAnnotation(Discover.class).findOn(discoveringType.getConcreteType()).stream()
+			.flatMap(it -> instantiator.newInstance(it.value()).discover(discoveringType).stream()).collect(Collectors.toList());
 	}
 }

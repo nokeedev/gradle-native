@@ -25,6 +25,7 @@ import dev.nokee.model.internal.decorators.DeriveNameFromPropertyNameNamer;
 import dev.nokee.model.internal.decorators.NestedObjectNamer;
 import dev.nokee.model.internal.decorators.ObjectTypeVisitor;
 import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.type.Annotations;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.ModelTypeHierarchy;
 
@@ -33,14 +34,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public final class DiscoverableStrategy implements Discovery {
@@ -60,7 +57,7 @@ public final class DiscoverableStrategy implements Discovery {
 
 			@Override
 			public void visitMethod(Method method) {
-				annotationsOn(method).filter(Discoverable.class::isInstance).forEach(annotation -> {
+				Annotations.forAnnotation(Discoverable.class).findOn(method).forEach(annotation -> {
 					ModelType<?> returnType = returnTypeOf(method);
 					ElementName elementName = elementNameOf(method);
 
@@ -121,21 +118,6 @@ public final class DiscoverableStrategy implements Discovery {
 				} catch (NoSuchMethodException e) {
 					throw new RuntimeException(e);
 				}
-			}
-
-			private Stream<Annotation> annotationsOn(Method method) {
-				Set<Annotation> seen = new LinkedHashSet<>();
-				Deque<Annotation> queue = new ArrayDeque<>();
-
-				queue.addAll(Arrays.asList(method.getAnnotations()));
-				while (!queue.isEmpty()) {
-					Annotation current = queue.removeFirst();
-					if (!seen.add(current)) {
-						continue;
-					}
-					queue.addAll(Arrays.asList(current.annotationType().getAnnotations()));
-				}
-				return seen.stream();
 			}
 		}))).walk(discoveringType);
 		return Collections.singletonList(new RealizeRule(new GroupRule(discoveringType, result)));
