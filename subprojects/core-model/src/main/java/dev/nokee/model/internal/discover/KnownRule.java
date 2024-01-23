@@ -19,17 +19,15 @@ package dev.nokee.model.internal.discover;
 import dev.nokee.model.internal.ModelObjectIdentity;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 
-public final class KnownRule implements DelegateDisRule {
+@EqualsAndHashCode
+public final class KnownRule implements DisRule {
     private final DisRule delegate;
 
     public KnownRule(DisRule delegate) {
         this.delegate = delegate;
     }
-
-	public DisRule getDelegate() {
-		return delegate;
-	}
 
 	@Override
     public void execute(Details details) {

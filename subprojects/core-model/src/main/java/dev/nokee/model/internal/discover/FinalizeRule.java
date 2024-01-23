@@ -19,18 +19,16 @@ package dev.nokee.model.internal.discover;
 import dev.nokee.model.internal.ModelObjectIdentity;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 
 import static dev.nokee.model.internal.discover.CandidateElement.DiscoverChain.Act.FINALIZE;
 
-public final class FinalizeRule implements DelegateDisRule {
+@EqualsAndHashCode
+public final class FinalizeRule implements DisRule {
 	private final DisRule delegate;
 
 	public FinalizeRule(DisRule delegate) {
 		this.delegate = delegate;
-	}
-
-	public DisRule getDelegate() {
-		return delegate;
 	}
 
 	@Override

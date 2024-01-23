@@ -30,6 +30,7 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantComponentSpec;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import org.gradle.api.Action;
 
@@ -62,8 +63,9 @@ public final class RegisterVariants<T extends VariantComponentSpec<U>, U extends
 		return (Class<T>) ((ParameterizedType) TypeToken.of(ModelTypeUtils.toUndecoratedType(component.getClass())).resolveType(VariantComponentSpec.class.getMethod("getVariants").getGenericReturnType()).getType()).getActualTypeArguments()[0];
 	}
 
+	@EqualsAndHashCode
 	public static final class VariantRule implements DisRule {
-		private final ModelType<VariantComponentSpec<?>> targetType = ModelType.of(new TypeOf<VariantComponentSpec<?>>() {});
+		private static final ModelType<VariantComponentSpec<?>> targetType = ModelType.of(new TypeOf<VariantComponentSpec<?>>() {});
 
 		@Override
 		public void execute(Details details) {

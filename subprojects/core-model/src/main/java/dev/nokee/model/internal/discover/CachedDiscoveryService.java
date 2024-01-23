@@ -16,6 +16,21 @@
 
 package dev.nokee.model.internal.discover;
 
-public interface DelegateDisRule extends DisRule {
-	DisRule getDelegate();
+import dev.nokee.model.internal.type.ModelType;
+
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class CachedDiscoveryService implements Discovery {
+	private final ConcurrentHashMap<ModelType<?>, List<DisRule>> cache = new ConcurrentHashMap<>();
+	private final Discovery discovery;
+
+	public CachedDiscoveryService(Discovery discovery) {
+		this.discovery = discovery;
+	}
+
+	@Override
+	public <T> List<DisRule> discover(ModelType<T> discoveringType) {
+		return cache.computeIfAbsent(discoveringType, discovery::discover);
+	}
 }

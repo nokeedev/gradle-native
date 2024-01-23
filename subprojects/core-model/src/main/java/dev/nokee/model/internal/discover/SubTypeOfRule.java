@@ -17,18 +17,16 @@
 package dev.nokee.model.internal.discover;
 
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 
-public final class SubTypeOfRule implements DelegateDisRule {
+@EqualsAndHashCode
+public final class SubTypeOfRule implements DisRule {
 	private final ModelType<?> targetType;
 	private final DisRule delegate;
 
 	public SubTypeOfRule(ModelType<?> targetType, DisRule delegate) {
 		this.targetType = targetType;
 		this.delegate = delegate;
-	}
-
-	public DisRule getDelegate() {
-		return delegate;
 	}
 
 	@Override

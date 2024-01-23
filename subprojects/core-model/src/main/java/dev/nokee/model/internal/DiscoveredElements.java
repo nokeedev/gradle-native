@@ -17,16 +17,15 @@
 package dev.nokee.model.internal;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.Factory;
+import dev.nokee.model.internal.discover.CachedDiscoveryService;
 import dev.nokee.model.internal.discover.CandidateElement;
-import dev.nokee.model.internal.discover.DelegateDisRule;
 import dev.nokee.model.internal.discover.DisRule;
 import dev.nokee.model.internal.discover.FinalizeRule;
-import dev.nokee.model.internal.discover.GroupRule;
 import dev.nokee.model.internal.discover.KnownElementRule;
 import dev.nokee.model.internal.discover.KnownRule;
 import dev.nokee.model.internal.discover.RealizeRule;
-import dev.nokee.model.internal.discover.SelectRule;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.Optionals;
@@ -40,6 +39,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,14 +52,14 @@ import static dev.nokee.model.internal.type.ModelType.of;
 
 public class DiscoveredElements {
 	private final Map<ModelObjectIdentity<?>, ModelObject<?>> objects = new HashMap<>();
-	private final DiscoveryService service;
+	private final CachedDiscoveryService service;
 	private final ProjectIdentifier rootIdentifier;
 	// FIXME(discovery): Ensure no duplicated rules are added
-	private final List<DisRule> rules = new ArrayList<>();
+	private final LinkedHashSet<DisRule> rules = new LinkedHashSet<>();
 	private final Set<ModelObjectIdentity<?>> realizedElements = new HashSet<>();
 	private final Set<ModelObjectIdentity<?>> finalizedElements = new HashSet<>();
 
-	public DiscoveredElements(DiscoveryService service, ProjectIdentifier rootIdentifier) {
+	public DiscoveredElements(CachedDiscoveryService service, ProjectIdentifier rootIdentifier) {
 		this.service = service;
 		this.rootIdentifier = rootIdentifier;
 	}
@@ -106,7 +106,6 @@ public class DiscoveredElements {
 
 	public <RegistrableType> ModelObject<RegistrableType> discover(ModelObjectIdentity<RegistrableType> identity, Factory<ModelObject<RegistrableType>> factory) {
 		rules.add(new KnownElementRule(identity));
-		service.discover(identity.getType()).stream().flatMap(this::discover).forEach(rules::add);
 		final ModelObject<RegistrableType> result = factory.create();
 		result.configure(__ -> realizedElements.add(identity)); // FIXME(discovery): Streamline realize/finalize listeners
 		objects.put(identity, result);
@@ -125,41 +124,21 @@ public class DiscoveredElements {
 		});
 	}
 
-	public Stream<DisRule> discover(DisRule rule) {
-		ImmutableList.Builder<DisRule> builder = ImmutableList.<DisRule>builder().add(rule);
-		producerTypeOf(rule, it -> builder.addAll(service.discover(it)));
-		return builder.build().stream();
-	}
-
-	private void producerTypeOf(DisRule rule, Consumer<? super ModelType<?>> next) {
-		if (rule instanceof DelegateDisRule) {
-			producerTypeOf(((DelegateDisRule) rule).getDelegate(), next);
-		} else if (rule instanceof GroupRule) {
-			for (GroupRule.Entry entry : ((GroupRule) rule).getEntries()) {
-				next.accept(entry.getProduceType());
-			}
-		} else if (rule instanceof SelectRule) {
-			for (SelectRule.Case aCase : ((SelectRule) rule).getCases()) {
-				next.accept(aCase.getProduceType());
-			}
-		}
-	}
-
 	public <T> void onRealized(Action<? super T> action, Consumer<? super Action<? super T>> next) {
 		// FIXME(discovery): extract type filter from action
-		discoverType(action).map(RealizeRule::new).flatMap(this::discover).forEach(rules::add);
+		discoverType(action).map(RealizeRule::new).forEach(rules::add);
 		next.accept(action);
 	}
 
 	public <T> void onKnown(Action<? super KnownModelObject<T>> action, Consumer<? super Action<? super KnownModelObject<T>>> next) {
 		// FIXME(discovery): extract type filter from action
-		discoverType(action).map(KnownRule::new).flatMap(this::discover).forEach(rules::add);
+		discoverType(action).map(KnownRule::new).forEach(rules::add);
 		next.accept(action);
 	}
 
 	public <T> void onFinalized(Action<? super T> action, Consumer<? super Action<? super T>> next) {
 		// FIXME(discovery): extract type filter from action
-		discoverType(action).map(FinalizeRule::new).flatMap(this::discover).forEach(rules::add);
+		discoverType(action).map(FinalizeRule::new).forEach(rules::add);
 		next.accept(action);
 	}
 
@@ -183,7 +162,7 @@ public class DiscoveredElements {
 
 		final CandidateElement current = new CandidateElement(rootIdentifier, of(Project.class), true, realizedElements::contains, finalizedElements::contains, Collections.emptyList(), null);
 		List<CandidateElement> result = new ArrayList<>();
-		list(result, current);
+		list(result, current, rules);
 
 		for (CandidateElement candidateElement : result) {
 			String candidateName = ModelObjectIdentifiers.asFullyQualifiedName(candidateElement.getIdentifier()).toString();
@@ -204,8 +183,8 @@ public class DiscoveredElements {
 		List<CandidateElement> r = new ArrayList<>();
 
 		CandidateElement current = new CandidateElement(rootIdentifier, of(Project.class), true, realizedElements::contains, finalizedElements::contains, Collections.emptyList(), null);
-		List<CandidateElement> result = new ArrayList<>();
-		list(result, current);
+		Set<CandidateElement> result = new LinkedHashSet<>();
+		list(result, current, rules);
 
 		for (CandidateElement candidateElement : result) {
 			if (candidateElement.getType().isSubtypeOf(type)) {
@@ -216,7 +195,7 @@ public class DiscoveredElements {
 		return r;
 	}
 
-	private void list(Collection<CandidateElement> result, CandidateElement current) {
+	private void list(Collection<CandidateElement> result, CandidateElement current, Set<DisRule> rules) {
 		result.add(current);
 
 		for (final DisRule rule : rules) {
@@ -228,7 +207,7 @@ public class DiscoveredElements {
 
 				@Override
 				public void newCandidate(ModelObjectIdentity<?> knownIdentity) {
-					list(result, new CandidateElement(knownIdentity.getIdentifier(), knownIdentity.getType(), true, realizedElements::contains, finalizedElements::contains, current.getActions(), rule));
+					list(result, new CandidateElement(knownIdentity.getIdentifier(), knownIdentity.getType(), true, realizedElements::contains, finalizedElements::contains, current.getActions(), rule), ImmutableSet.<DisRule>builder().addAll(rules).addAll(service.discover(knownIdentity.getType())).build());
 				}
 
 				@Override
@@ -237,7 +216,7 @@ public class DiscoveredElements {
 					if (elementName != null) {
 						identifier = current.getIdentifier().child(elementName);
 					}
-					list(result, new CandidateElement(identifier, produceType, false, realizedElements::contains, finalizedElements::contains, current.getActions(), rule));
+					list(result, new CandidateElement(identifier, produceType, false, realizedElements::contains, finalizedElements::contains, current.getActions(), rule), ImmutableSet.<DisRule>builder().addAll(rules).addAll(service.discover(produceType)).build());
 				}
 
 				@Override
@@ -246,7 +225,7 @@ public class DiscoveredElements {
 					if (elementName != null) {
 						identifier = current.getIdentifier().child(elementName);
 					}
-					list(result, new CandidateElement(identifier, produceType, false, realizedElements::contains, finalizedElements::contains, ImmutableList.<CandidateElement.DiscoverChain>builder().addAll(current.getActions()).add(new CandidateElement.DiscoverChain(current, action)).build(), rule));
+					list(result, new CandidateElement(identifier, produceType, false, realizedElements::contains, finalizedElements::contains, ImmutableList.<CandidateElement.DiscoverChain>builder().addAll(current.getActions()).add(new CandidateElement.DiscoverChain(current, action)).build(), rule), ImmutableSet.<DisRule>builder().addAll(rules).addAll(service.discover(produceType)).build());
 				}
 			});
 		}

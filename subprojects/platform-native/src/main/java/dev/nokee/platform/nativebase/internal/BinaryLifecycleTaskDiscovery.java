@@ -16,15 +16,10 @@
 
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableList;
-import dev.nokee.model.internal.DiscoveredElements;
-import dev.nokee.model.internal.DiscoveryService;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectIdentity;
 import dev.nokee.model.internal.discover.DisRule;
 import dev.nokee.model.internal.discover.Discovery;
 import dev.nokee.model.internal.discover.SelectRule;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -47,14 +42,18 @@ public /*final*/ class BinaryLifecycleTaskDiscovery implements Discovery {
 			}
 		};
 	}
+	private static final Spec<ModelObjectIdentifier> EXECUTABLE_LINKAGE = linkageOf(BinaryLinkage::isExecutable);
+	private static final Spec<ModelObjectIdentifier> SHARED_LINKAGE = linkageOf(BinaryLinkage::isShared);
+	private static final Spec<ModelObjectIdentifier> STATIC_LINKAGE = linkageOf(BinaryLinkage::isStatic);
+	private static final Spec<ModelObjectIdentifier> BUNDLE_LINKAGE = linkageOf(BinaryLinkage::isBundle);
 
 	@Override
 	public <T> List<DisRule> discover(ModelType<T> discoveringType) {
-		DisRule rule = new SelectRule(discoveringType, Arrays.asList(
-			new SelectRule.Case(linkageOf(BinaryLinkage::isExecutable), TaskName.of("executable"), ModelType.of(Task.class)),
-			new SelectRule.Case(linkageOf(BinaryLinkage::isShared), TaskName.of("sharedLibrary"), ModelType.of(Task.class)),
-			new SelectRule.Case(linkageOf(BinaryLinkage::isStatic), TaskName.of("staticLibrary"), ModelType.of(Task.class)),
-			new SelectRule.Case(linkageOf(BinaryLinkage::isBundle), TaskName.of("bundle"), ModelType.of(Task.class))
+		final DisRule rule = new SelectRule(discoveringType, Arrays.asList(
+			new SelectRule.Case(EXECUTABLE_LINKAGE, TaskName.of("executable"), ModelType.of(Task.class)),
+			new SelectRule.Case(SHARED_LINKAGE, TaskName.of("sharedLibrary"), ModelType.of(Task.class)),
+			new SelectRule.Case(STATIC_LINKAGE, TaskName.of("staticLibrary"), ModelType.of(Task.class)),
+			new SelectRule.Case(BUNDLE_LINKAGE, TaskName.of("bundle"), ModelType.of(Task.class))
 		));
 
 		return Collections.singletonList(rule);

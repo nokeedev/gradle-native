@@ -36,6 +36,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.decorators.DeriveNameFromPropertyNameNamer;
 import dev.nokee.model.internal.decorators.NestedObjectNamer;
 import dev.nokee.model.internal.decorators.ReflectiveDomainObjectNamer;
+import dev.nokee.model.internal.discover.CachedDiscoveryService;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -85,7 +86,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		applyToAllTarget(project);
 
-		model(project).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(new DiscoveryService(model(project).getExtensions().getByType(Instantiator.class)), ProjectIdentifier.of(project)));
+		model(project).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(new CachedDiscoveryService(new DiscoveryService(model(project).getExtensions().getByType(Instantiator.class))), ProjectIdentifier.of(project)));
 
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
 		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(project.getObjects(), project, DefaultKnownElements.Factory.forProject(project), objects, project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class)));

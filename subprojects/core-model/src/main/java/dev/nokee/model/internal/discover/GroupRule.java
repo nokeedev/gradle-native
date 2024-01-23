@@ -18,10 +18,12 @@ package dev.nokee.model.internal.discover;
 
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode
 public final class GroupRule implements DisRule {
 	private final ModelType<?> targetType;
 	private final List<Entry> entries;
@@ -49,6 +51,7 @@ public final class GroupRule implements DisRule {
 		return "any subtype of " + targetType.getConcreteType().getSimpleName() + " will produce the following children: " + entries.stream().map(it -> it.elementName + " (" + it.produceType.getConcreteType().getSimpleName() + ")").collect(Collectors.joining(", "));
 	}
 
+	@EqualsAndHashCode
 	public static final class Entry {
 		private final ElementName elementName;
 		private final ModelType<?> produceType;

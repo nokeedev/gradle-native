@@ -20,12 +20,14 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.discover.DisRule;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 import org.gradle.api.specs.Spec;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 // Conditional rule based on known data
+@EqualsAndHashCode
 public final class SelectRule implements DisRule {
 	private final ModelType<?> targetType;
 	private final List<Case> cases;
@@ -62,6 +64,7 @@ public final class SelectRule implements DisRule {
 		return "any subtype of " + targetType.getConcreteType().getSimpleName() + " will produce one of the following child element: " + cases.stream().map(it -> "when " + it.spec + " produce '" + it.elementName + "' of type " + it.produceType.getConcreteType().getSimpleName()).collect(Collectors.joining(", "));
 	}
 
+	@EqualsAndHashCode
 	public static final class Case {
 		private final Spec<? super ModelObjectIdentifier> spec;
 		private final ElementName elementName;

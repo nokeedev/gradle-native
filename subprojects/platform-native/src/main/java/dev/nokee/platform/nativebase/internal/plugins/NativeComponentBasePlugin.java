@@ -30,7 +30,6 @@ import dev.nokee.model.internal.ModelObject;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectRegistry;
-import dev.nokee.model.internal.discover.DelegateDisRule;
 import dev.nokee.model.internal.discover.DisRule;
 import dev.nokee.model.internal.discover.DiscoverRule;
 import dev.nokee.model.internal.discover.DiscoverableAction;
@@ -103,6 +102,7 @@ import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ConfigurationUtils;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -533,8 +533,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		}
 
-		public static class DiscoverNativeBinariesRule implements DelegateDisRule {
-			private final DisRule delegate = new SelectRule(ModelType.of(Object.class), Arrays.asList(
+		@EqualsAndHashCode
+		public static class DiscoverNativeBinariesRule implements DisRule {
+			// NOTE: type doesn't really matter, because it will naturally be filtered by the fact the rule is part of an Action
+			private static final DisRule delegate = new SelectRule(ModelType.of(NativeVariantSpec.class), Arrays.asList(
 				new SelectRule.Case(linkageOf(BinaryLinkage::isExecutable), ElementName.ofMain("executable"), ModelType.of(NativeExecutableBinarySpec.class)),
 				new SelectRule.Case(linkageOf(BinaryLinkage::isShared), ElementName.ofMain("sharedLibrary"), ModelType.of(NativeSharedLibraryBinarySpec.class)),
 				new SelectRule.Case(linkageOf(BinaryLinkage::isStatic), ElementName.ofMain("staticLibrary"), ModelType.of(NativeStaticLibraryBinarySpec.class)),
@@ -549,11 +551,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						return false;
 					}
 				};
-			}
-
-			@Override
-			public DisRule getDelegate() {
-				return delegate;
 			}
 
 			@Override

@@ -20,17 +20,19 @@ import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectIdentity;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-// FIXME(discovery): makes candidate element equal/hashcode
+@EqualsAndHashCode
 public final class CandidateElement {
-	private final ModelObjectIdentifier identifier;
-	private final ModelType<?> type;
-	private final List<DiscoverChain> actions;
+	// FIXME(discovery): How to report where each elements comes from (the same would be where each rule comes from)
+	@EqualsAndHashCode.Include private final ModelObjectIdentifier identifier;
+	@EqualsAndHashCode.Include private final ModelType<?> type;
+	@EqualsAndHashCode.Include private final List<DiscoverChain> actions;
 	private final Object sourceRule;
 	private final boolean isKnown;
 	private final Predicate<ModelObjectIdentity<?>> realized;

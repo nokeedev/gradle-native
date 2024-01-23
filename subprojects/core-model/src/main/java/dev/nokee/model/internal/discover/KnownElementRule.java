@@ -18,10 +18,12 @@ package dev.nokee.model.internal.discover;
 
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.ModelObjectIdentity;
+import lombok.EqualsAndHashCode;
 import org.gradle.api.Project;
 
 import static dev.nokee.model.internal.type.ModelType.of;
 
+@EqualsAndHashCode
 public final class KnownElementRule implements DisRule {
 	private final ModelObjectIdentity<?> identity;
 
