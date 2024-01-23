@@ -17,38 +17,22 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelMap;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import lombok.val;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.Namer;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 
 import java.util.Set;
-import java.util.function.Supplier;
-
-import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
 public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
-	private final NamedDomainObjectCollection<?> collection; // FIXME(discovery): Use ModelMap instead
-	private final Runnable realize;
-	private final ProviderFactory providerFactory;
-	private final ObjectFactory objects;
-	private final Namer<? super Object> namer;
-	private final Supplier<ModelObjectIdentifier> baseIdentifierSupplier;
+	private final ModelMap<?> collection;
+	private final ModelObjectIdentifier baseIdentifier;
 
-	public ModelNodeBackedViewStrategy(Namer<? super Object> namer, NamedDomainObjectCollection<?> collection, ProviderFactory providerFactory, ObjectFactory objects, Runnable realize, ModelObjectIdentifier baseIdentifier) {
-		this.namer = namer;
+	public ModelNodeBackedViewStrategy(ModelMap<?> collection, ModelObjectIdentifier baseIdentifier) {
 		this.collection = collection;
-		this.providerFactory = providerFactory;
-		this.objects = objects;
-		this.realize = new RunOnceRunnable(realize);
-		this.baseIdentifierSupplier = () -> baseIdentifier;
+		this.baseIdentifier = baseIdentifier;
 	}
 
 	@Override
@@ -57,7 +41,6 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 		collection.configureEach(object -> {
 			if (elementType.isInstance(object)) {
 				ModelElementSupport.safeAsModelElement(object).ifPresent(element -> {
-					final ModelObjectIdentifier baseIdentifier = baseIdentifierSupplier.get();
 					if (ModelObjectIdentifiers.descendantOf(element.getIdentifier(), baseIdentifier)) {
 						action.execute(elementType.cast(object));
 					}
@@ -67,29 +50,13 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
-		return providerFactory.provider(() -> {
-			realize.run(); // TODO: Should move to some provider source or something
-
-			final SetProperty<T> result = objects.setProperty(elementType);
-			collection.matching(object -> {
-				if (elementType.isInstance(object)) {
-					return ModelElementSupport.safeAsModelElement(object).map(element -> {
-						final ModelObjectIdentifier baseIdentifier = baseIdentifierSupplier.get();
-						if (ModelObjectIdentifiers.descendantOf(element.getIdentifier(), baseIdentifier)) {
-							return true;
-						}
-						return false;
-					}).orElse(false);
-				}
-				return false;
-			}).forEach(it -> {
-				result.add(((NamedDomainObjectCollection<? super T>) collection).named(namer.determineName(it), elementType));
-			});
-
-			return result;
-		}).flatMap(noOpTransformer());
+		return collection.getElements(elementType, knownElement -> {
+			if (knownElement.getType().isSubtypeOf(elementType)) {
+				return ModelObjectIdentifiers.descendantOf(knownElement.getIdentifier(), baseIdentifier);
+			}
+			return false;
+		});
 	}
 
 	@Override
@@ -121,22 +88,5 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 //					return ((MapProperty<String, Object>) entity.get(GradlePropertyComponent.class).get()).getting(name);
 //				}))
 //			.build());
-	}
-
-	private static final class RunOnceRunnable implements Runnable {
-		private Runnable delegate;
-
-		public RunOnceRunnable(Runnable delegate) {
-			this.delegate = delegate;
-		}
-
-		@Override
-		public void run() {
-			if (delegate != null) {
-				val runnable = delegate;
-				delegate = null;
-				runnable.run();
-			}
-		}
 	}
 }

@@ -33,6 +33,7 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Rule;
+import org.gradle.api.specs.Spec;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -150,6 +151,20 @@ public class DiscoveredElements {
 	public void discoverAll(Class<?> baseType) {
 		while (discoverableElements(baseType)) {
 			for (CandidateElement candidateElement : findAll(of(baseType))) {
+				if (!candidateElement.getActions().isEmpty()) {
+					objects.get(candidateElement.getActions().get(0).getTargetIdentity()).get();
+				}
+			}
+		}
+	}
+
+	private boolean discoverableElements(Spec<? super ModelObjectIdentity<?>> spec) {
+		return findAll(ModelType.of(Object.class)).stream().anyMatch(it -> spec.isSatisfiedBy(ModelObjectIdentity.ofIdentity(it.getIdentifier(), it.getType())) && !it.getActions().isEmpty() && it.getActions().get(0).getAction().equals(CandidateElement.DiscoverChain.Act.REALIZE));
+	}
+
+	public void discoverAll(Spec<? super ModelObjectIdentity<?>> spec) {
+		while (discoverableElements(spec)) {
+			for (CandidateElement candidateElement : findAll(of(Object.class))) {
 				if (!candidateElement.getActions().isEmpty()) {
 					objects.get(candidateElement.getActions().get(0).getTargetIdentity()).get();
 				}

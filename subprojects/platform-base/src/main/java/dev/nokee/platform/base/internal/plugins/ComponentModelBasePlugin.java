@@ -20,9 +20,7 @@ import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectIdentifier;
-import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Component;
@@ -52,7 +50,6 @@ import dev.nokee.platform.base.internal.rules.ExtendsFromImplementationDependenc
 import dev.nokee.platform.base.internal.rules.ExtendsFromParentDependencyBucketAction;
 import dev.nokee.platform.base.internal.rules.ImplementationExtendsFromApiDependencyBucketAction;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
-import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -170,45 +167,23 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
 
 		model(project).getExtensions().add(new TypeOf<Factory<View<Binary>>>() {}, "__nokeeService_binaryFactory", (Factory<View<Binary>>) () -> {
-			Named.Namer namer = new Named.Namer();
-			ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-			Runnable realizeNow = () -> {
-				// FIXME(discovery): Discover only the candidate under `identifier`
-				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Binary.class);
-			};
-			return instantiator(project).newInstance(ViewAdapter.class, Binary.class, new ModelNodeBackedViewStrategy(it -> namer.determineName((Binary) it), artifacts(project), project.getProviders(), project.getObjects(), realizeNow, identifier));
+			final ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+			return instantiator(project).newInstance(ViewAdapter.class, Binary.class, new ModelNodeBackedViewStrategy(model(project, mapOf(Artifact.class)), identifier));
 		});
 
 		model(project).getExtensions().add(TaskViewFactory.class, "__nokeeService_taskViewFactory", new TaskViewFactory() {
 			@Override
 			public <T extends Task> View<T> create(Class<T> elementType) {
-				Task.Namer namer = new Task.Namer();
-				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-				Runnable realizeNow = () -> {
-					if (elementType.getSimpleName().equals("SourceCompile")) {
-						try {
-							Class<?> LanguageSourceSet = Class.forName("dev.nokee.language.base.LanguageSourceSet");
-							model(project, mapOf(LanguageSourceSet)).whenElementKnown(it -> {
-								if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), identifier)) {
-									it.realizeNow(); // force realize
-								}
-							});
-						} catch (ClassNotFoundException e) {
-							// ignore
-						}
-					}
-				};
-				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Task) it), project.getTasks(), project.getProviders(), project.getObjects(), realizeNow, identifier));
+				final ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(model(project, mapOf(Task.class)), identifier));
 			}
 		});
 
 		model(project).getExtensions().add(VariantViewFactory.class, "__nokeeService_variantViewFactory", new VariantViewFactory() {
 			@Override
 			public <T extends Variant> View<T> create(Class<T> elementType) {
-				Named.Namer namer = new Named.Namer();
-				ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-				Runnable realizeNow = () -> {};
-				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(it -> namer.determineName((Variant) it), variants(project), project.getProviders(), project.getObjects(), realizeNow, identifier));
+				final ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(model(project, mapOf(Variant.class)), identifier));
 			}
 		});
 

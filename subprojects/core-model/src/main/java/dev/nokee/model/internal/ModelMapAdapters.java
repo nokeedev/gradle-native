@@ -37,21 +37,26 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
+import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
 public final class ModelMapAdapters {
 	private ModelMapAdapters() {}
@@ -98,6 +103,11 @@ public final class ModelMapAdapters {
 		default ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
 			return delegate().getById(identifier);
 		}
+
+		@Override
+		default <U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec) {
+			return delegate().getElements(type, spec);
+		}
 	}
 
 	private interface ForwardingModelObjectRegistry<ElementType> extends ModelObjectRegistry<ElementType> {
@@ -119,8 +129,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Project> delegate;
 
 		@Inject
-		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements) {
-			this.delegate = new BaseModelMap<>(Project.class, null, knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, null);
+		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects) {
+			this.delegate = new BaseModelMap<>(Project.class, null, knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, null, providers, objects);
 			knownElements.register(ofIdentity(ProjectIdentifier.of(project), Project.class), new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
 				@SuppressWarnings("unchecked")
@@ -162,8 +172,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Configuration> delegate;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
-			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
+		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects) {
+			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
 		}
 
 		@Override
@@ -184,8 +194,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Task> delegate;
 
 		@Inject
-		public ForTaskContainer(TaskContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project) {
-			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
+		public ForTaskContainer(TaskContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects) {
+			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
 		}
 
 		@Override
@@ -214,8 +224,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, DefaultKnownElements knownElementsEx, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project) {
-			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)));
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, DefaultKnownElements knownElementsEx, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project, ProviderFactory providers, ObjectFactory objects) {
+			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
 			this.elementType = elementType;
 			this.knownElements = knownElements;
 			this.knownElementsEx = knownElementsEx;
@@ -452,8 +462,10 @@ public final class ModelMapAdapters {
 		private final Consumer<Runnable> onFinalize;
 		private final NamedDomainObjectSet<ElementType> delegate;
 		private final ContextualModelObjectIdentifier identifierFactory;
+		private final ProviderFactory providers;
+		private final ObjectFactory objects;
 
-		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, Consumer<Runnable> onFinalize, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory) {
+		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, Consumer<Runnable> onFinalize, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
 			this.elementType = elementType;
 			this.registry = registry;
 			this.knownElements = knownElements;
@@ -461,6 +473,8 @@ public final class ModelMapAdapters {
 			this.onFinalize = onFinalize;
 			this.delegate = delegate;
 			this.identifierFactory = identifierFactory;
+			this.providers = providers;
+			this.objects = objects;
 		}
 
 		@Override
@@ -515,6 +529,21 @@ public final class ModelMapAdapters {
 		@Override
 		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
 			return knownElements.getById(identifier, elementType);
+		}
+
+		@Override
+		public <U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec) {
+			return providers.provider(() -> {
+				final SetProperty<U> result = objects.setProperty(type);
+				discoveredElements.discoverAll(it -> it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(ModelObjectIdentity.ofIdentity(it.getIdentifier(), it.getType())));
+				knownElements.forEach(it -> {
+					if (it.identity.getType().isSubtypeOf(type) && spec.isSatisfiedBy(it.identity)) {
+						result.add(it.asModelObject(type).asProvider());
+					}
+				});
+
+				return result;
+			}).flatMap(noOpTransformer());
 		}
 
 		private <T> Action<T> onlyKnown(Action<? super T> action) {

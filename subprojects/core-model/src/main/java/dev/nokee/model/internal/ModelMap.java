@@ -18,6 +18,10 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.internal.names.ElementName;
 import org.gradle.api.Action;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.specs.Spec;
+
+import java.util.Set;
 
 public interface ModelMap<ElementType> {
 //	Class<ElementType> getElementType();
@@ -35,4 +39,6 @@ public interface ModelMap<ElementType> {
 	<U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction);
 
 	ModelObject<ElementType> getById(ModelObjectIdentifier identifier);
+
+	<U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec);
 }
