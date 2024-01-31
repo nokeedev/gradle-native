@@ -163,9 +163,9 @@ public final class DefaultKnownElements implements KnownElements {
 		private final ProviderFactory providers;
 		private final DiscoveredElements discoveredElements;
 		private final Project project;
-		private final Consumer<Runnable> onFinalize;
+		private final ModelElementFinalizer onFinalize;
 
-		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers, DiscoveredElements discoveredElements, Project project, Consumer<Runnable> onFinalize) {
+		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers, DiscoveredElements discoveredElements, Project project, ModelElementFinalizer onFinalize) {
 			this.projectIdentifier = projectIdentifier;
 			this.objects = objects;
 			this.providers = providers;
@@ -174,7 +174,7 @@ public final class DefaultKnownElements implements KnownElements {
 			this.onFinalize = onFinalize;
 		}
 
-		public static Factory forProject(Project project, Consumer<Runnable> onFinalize) {
+		public static Factory forProject(Project project, ModelElementFinalizer onFinalize) {
 			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class), project, onFinalize);
 		}
 
