@@ -118,8 +118,6 @@ public class DiscoveredElements {
 			Stream<Action<?>> nestedRules = Stream.empty();
 			if (it instanceof TypeFilteringAction) {
 				nestedRules = Optionals.stream(((TypeFilteringAction<?, ?>) it).getDelegate());
-			} else if (it instanceof ExecuteOncePerElementAction) {
-				nestedRules = Stream.of(((ExecuteOncePerElementAction<?>) it).getDelegate());
 			}
 			return Stream.concat(Stream.of(it).flatMap(t -> service.discover(ModelType.typeOf(t)).stream()), nestedRules.flatMap(this::discoverType));
 		});

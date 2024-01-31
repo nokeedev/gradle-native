@@ -47,8 +47,6 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -264,7 +262,6 @@ public final class ModelMapAdapters {
 	}
 
 	public static final class ModelElementIdentity implements ModelObject<Object> {
-		private final List<Action<?>> finalizeActions = new ArrayList<>();
 		private final ModelObjectIdentity<?> identity;
 		private final ProviderFactory providers;
 		private final ElementProvider elementProviderEx;
@@ -331,10 +328,6 @@ public final class ModelMapAdapters {
 		@Override
 		public String toString() {
 			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identity.getIdentifier()) + "' (" + identity.getType().getConcreteType().getSimpleName() + ")";
-		}
-
-		public void addFinalizer(Action<?> finalizeAction) {
-			finalizeActions.add(finalizeAction);
 		}
 
 		public static final class ElementProvider {
@@ -516,9 +509,8 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-			discoveredElements.onFinalized(new ExecuteOncePerElementAction<>(finalizeAction), a -> {
+			discoveredElements.onFinalized(finalizeAction, a -> {
 				onFinalize.accept(() -> configureEach(onlyKnown(a)));
-				knownElements.forEach(it -> it.addFinalizer(a));
 			});
 		}
 
