@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -162,24 +161,22 @@ public final class DefaultKnownElements implements KnownElements {
 		private final ObjectFactory objects;
 		private final ProviderFactory providers;
 		private final DiscoveredElements discoveredElements;
-		private final Project project;
 		private final ModelElementFinalizer onFinalize;
 
-		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers, DiscoveredElements discoveredElements, Project project, ModelElementFinalizer onFinalize) {
+		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers, DiscoveredElements discoveredElements, ModelElementFinalizer onFinalize) {
 			this.projectIdentifier = projectIdentifier;
 			this.objects = objects;
 			this.providers = providers;
 			this.discoveredElements = discoveredElements;
-			this.project = project;
 			this.onFinalize = onFinalize;
 		}
 
-		public static Factory forProject(Project project, ModelElementFinalizer onFinalize) {
-			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class), project, onFinalize);
+		public static Factory forProject(Project project) {
+			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class), model(project).getExtensions().getByType(ModelElementFinalizer.class));
 		}
 
 		public DefaultKnownElements create(ModelMapAdapters.ModelElementIdentity.ElementProvider elementProvider) {
-			return new DefaultKnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider, discoveredElements, project, onFinalize));
+			return new DefaultKnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider, discoveredElements, onFinalize));
 		}
 	}
 }

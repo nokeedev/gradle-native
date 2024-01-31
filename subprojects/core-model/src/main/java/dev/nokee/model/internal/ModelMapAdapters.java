@@ -270,7 +270,7 @@ public final class ModelMapAdapters {
 		private final RealizeListener realizeListener;
 
 		// TODO: Reduce visibility
-		ModelElementIdentity(ModelObjectIdentity<?> identity, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project, RealizeListener realizeListener, ModelElementFinalizer onFinalize) {
+		ModelElementIdentity(ModelObjectIdentity<?> identity, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, RealizeListener realizeListener, ModelElementFinalizer onFinalize) {
 			this.identity = identity;
 			this.providers = providers;
 			this.elementProviderEx = elementProvider;
@@ -359,19 +359,17 @@ public final class ModelMapAdapters {
 			private final ProviderFactory providers;
 			private final ElementProvider elementProvider;
 			private final DiscoveredElements discoveredElements;
-			private final Project project;
 			private final ModelElementFinalizer onFinalize;
 
-			public Factory(ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project, ModelElementFinalizer onFinalize) {
+			public Factory(ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, ModelElementFinalizer onFinalize) {
 				this.providers = providers;
 				this.elementProvider = elementProvider;
 				this.discoveredElements = discoveredElements;
-				this.project = project;
 				this.onFinalize = onFinalize;
 			}
 
 			public ModelElementIdentity create(ModelObjectIdentity<?> identity, RealizeListener realizeListener) {
-				return new ModelElementIdentity(identity, providers, elementProvider, discoveredElements, project, realizeListener, onFinalize);
+				return new ModelElementIdentity(identity, providers, elementProvider, discoveredElements, realizeListener, onFinalize);
 			}
 		}
 	}
