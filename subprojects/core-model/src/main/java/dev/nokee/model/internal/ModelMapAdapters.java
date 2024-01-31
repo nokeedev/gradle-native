@@ -129,8 +129,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Project> delegate;
 
 		@Inject
-		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects) {
-			this.delegate = new BaseModelMap<>(Project.class, null, knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, null, providers, objects);
+		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, Consumer<Runnable> onFinalize) {
+			this.delegate = new BaseModelMap<>(Project.class, null, knownElements, discoveredElements, onFinalize, delegate, null, providers, objects);
 			knownElements.register(ofIdentity(ProjectIdentifier.of(project), Project.class), new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
 				@SuppressWarnings("unchecked")
@@ -172,8 +172,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Configuration> delegate;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects) {
-			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
+		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, Consumer<Runnable> onFinalize) {
+			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), knownElements, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
 		}
 
 		@Override
@@ -194,8 +194,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Task> delegate;
 
 		@Inject
-		public ForTaskContainer(TaskContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects) {
-			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
+		public ForTaskContainer(TaskContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, Consumer<Runnable> onFinalize) {
+			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), knownElements, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
 		}
 
 		@Override
@@ -224,8 +224,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, DefaultKnownElements knownElementsEx, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project, ProviderFactory providers, ObjectFactory objects) {
-			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElements, discoveredElements, it -> project.afterEvaluate(__ -> it.run()), delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, DefaultKnownElements knownElementsEx, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project, ProviderFactory providers, ObjectFactory objects, Consumer<Runnable> onFinalize) {
+			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElements, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
 			this.elementType = elementType;
 			this.knownElements = knownElements;
 			this.knownElementsEx = knownElementsEx;
@@ -274,12 +274,12 @@ public final class ModelMapAdapters {
 		private final RealizeListener realizeListener;
 
 		// TODO: Reduce visibility
-		ModelElementIdentity(ModelObjectIdentity<?> identity, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project, RealizeListener realizeListener) {
+		ModelElementIdentity(ModelObjectIdentity<?> identity, ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project, RealizeListener realizeListener, Consumer<Runnable> onFinalize) {
 			this.identity = identity;
 			this.providers = providers;
 			this.elementProviderEx = elementProvider;
 			this.discoveredElements = discoveredElements;
-			this.onFinalize = it -> project.afterEvaluate(__ -> it.run());
+			this.onFinalize = onFinalize;
 			this.realizeListener = realizeListener;
 		}
 
@@ -368,16 +368,18 @@ public final class ModelMapAdapters {
 			private final ElementProvider elementProvider;
 			private final DiscoveredElements discoveredElements;
 			private final Project project;
+			private final Consumer<Runnable> onFinalize;
 
-			public Factory(ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project) {
+			public Factory(ProviderFactory providers, ElementProvider elementProvider, DiscoveredElements discoveredElements, Project project, Consumer<Runnable> onFinalize) {
 				this.providers = providers;
 				this.elementProvider = elementProvider;
 				this.discoveredElements = discoveredElements;
 				this.project = project;
+				this.onFinalize = onFinalize;
 			}
 
 			public ModelElementIdentity create(ModelObjectIdentity<?> identity, RealizeListener realizeListener) {
-				return new ModelElementIdentity(identity, providers, elementProvider, discoveredElements, project, realizeListener);
+				return new ModelElementIdentity(identity, providers, elementProvider, discoveredElements, project, realizeListener, onFinalize);
 			}
 		}
 	}

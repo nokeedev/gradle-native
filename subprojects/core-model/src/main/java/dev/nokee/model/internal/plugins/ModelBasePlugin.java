@@ -23,6 +23,7 @@ import dev.nokee.internal.services.ContextualModelObjectIdentifierAwareServiceLo
 import dev.nokee.internal.services.ExtensionBackedServiceLookup;
 import dev.nokee.internal.services.ServiceLookup;
 import dev.nokee.model.internal.DefaultKnownElements;
+import dev.nokee.model.internal.DefaultModelElementFinalizer;
 import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.DiscoveryService;
@@ -88,8 +89,9 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		model(project).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(new CachedDiscoveryService(new DiscoveryService(model(project).getExtensions().getByType(Instantiator.class))), ProjectIdentifier.of(project)));
 
+		final DefaultModelElementFinalizer finalizer = new DefaultModelElementFinalizer(project);
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
-		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(project.getObjects(), project, DefaultKnownElements.Factory.forProject(project), objects, project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class)));
+		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(project.getObjects(), project, DefaultKnownElements.Factory.forProject(project, finalizer), objects, project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class), finalizer));
 
 		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));

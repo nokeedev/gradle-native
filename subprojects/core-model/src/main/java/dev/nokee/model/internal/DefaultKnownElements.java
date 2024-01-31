@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -162,21 +163,23 @@ public final class DefaultKnownElements implements KnownElements {
 		private final ProviderFactory providers;
 		private final DiscoveredElements discoveredElements;
 		private final Project project;
+		private final Consumer<Runnable> onFinalize;
 
-		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers, DiscoveredElements discoveredElements, Project project) {
+		private Factory(ProjectIdentifier projectIdentifier, ObjectFactory objects, ProviderFactory providers, DiscoveredElements discoveredElements, Project project, Consumer<Runnable> onFinalize) {
 			this.projectIdentifier = projectIdentifier;
 			this.objects = objects;
 			this.providers = providers;
 			this.discoveredElements = discoveredElements;
 			this.project = project;
+			this.onFinalize = onFinalize;
 		}
 
-		public static Factory forProject(Project project) {
-			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class), project);
+		public static Factory forProject(Project project, Consumer<Runnable> onFinalize) {
+			return new Factory(ProjectIdentifier.of(project), project.getObjects(), project.getProviders(), model(project).getExtensions().getByType(DiscoveredElements.class), project, onFinalize);
 		}
 
 		public DefaultKnownElements create(ModelMapAdapters.ModelElementIdentity.ElementProvider elementProvider) {
-			return new DefaultKnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider, discoveredElements, project));
+			return new DefaultKnownElements(projectIdentifier, objects, new ModelMapAdapters.ModelElementIdentity.Factory(providers, elementProvider, discoveredElements, project, onFinalize));
 		}
 	}
 }

@@ -43,19 +43,21 @@ public final class ModelMapFactory {
 	private final ModelObjects modelObjects;
 	private final ProviderFactory providers;
 	private final DiscoveredElements discoveredElements;
+	private final ModelElementFinalizer finalizer;
 
-	public ModelMapFactory(ObjectFactory objects, Project project, DefaultKnownElements.Factory knownElementsFactory, ModelObjects modelObjects, ProviderFactory providers, DiscoveredElements discoveredElements) {
+	public ModelMapFactory(ObjectFactory objects, Project project, DefaultKnownElements.Factory knownElementsFactory, ModelObjects modelObjects, ProviderFactory providers, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer) {
 		this.objects = objects;
 		this.project = project;
 		this.knownElementsFactory = knownElementsFactory;
 		this.modelObjects = modelObjects;
 		this.providers = providers;
 		this.discoveredElements = discoveredElements;
+		this.finalizer = finalizer;
 
 		val container = objects.namedDomainObjectSet(Project.class);
 		val knownElements = knownElementsFactory.create(new ModelMapAdapters.ModelElementIdentity.ElementProvider(container));
 		container.configureEach(new InjectModelElementAction<>(it -> it.getName(), knownElements));
-		modelObjects.register(objects.newInstance(ModelMapAdapters.ForProject.class, container, project, knownElements, discoveredElements));
+		modelObjects.register(objects.newInstance(ModelMapAdapters.ForProject.class, container, project, knownElements, discoveredElements, finalizer));
 	}
 
 	public ModelMapAdapters.ForPolymorphicDomainObjectContainer<Task> create(TaskContainer container) {
@@ -64,7 +66,7 @@ public final class ModelMapFactory {
 
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = objects.newInstance(ModelMapAdapters.ForTaskContainer.class, container, knownElements, discoveredElements, project);
+		val result = objects.newInstance(ModelMapAdapters.ForTaskContainer.class, container, knownElements, discoveredElements, project, finalizer);
 		modelObjects.register(result);
 		return result;
 	}
@@ -75,7 +77,7 @@ public final class ModelMapFactory {
 
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = objects.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, knownElements, discoveredElements, project);
+		val result = objects.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, knownElements, discoveredElements, project, finalizer);
 		modelObjects.register(result);
 		return result;
 	}
@@ -92,7 +94,7 @@ public final class ModelMapFactory {
 			public <S> Function<DefaultKnownElements.KnownElement, S> newInstance(Factory<S> factory) {
 				return element -> ModelElementSupport.newInstance(create(element), factory);
 			}
-		}, project);
+		}, project, finalizer);
 		modelObjects.register(result);
 		return result;
 	}
