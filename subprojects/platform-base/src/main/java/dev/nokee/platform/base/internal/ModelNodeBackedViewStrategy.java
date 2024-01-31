@@ -15,20 +15,18 @@
  */
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.KnownModelObjectTypeOf;
-import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelMap;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
-import dev.nokee.model.internal.TypeFilteringAction;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
 import java.util.Set;
+
+import static dev.nokee.model.internal.IdentifierFilteringAction.descendantOf;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 
 public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	private final ModelMap<?> collection;
@@ -41,14 +39,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 
 	@Override
 	public <T> void configureEach(Class<T> elementType, Action<? super T> action) {
-		// FIXME(discovery): Use unpackable action
-		collection.configureEach(TypeFilteringAction.ofType(elementType, object -> {
-			ModelElementSupport.safeAsModelElement(object).ifPresent(element -> {
-				if (ModelObjectIdentifiers.descendantOf(element.getIdentifier(), baseIdentifier)) {
-					action.execute(elementType.cast(object));
-				}
-			});
-		}));
+		collection.configureEach(descendantOf(baseIdentifier, ofType(elementType, action)));
 	}
 
 	@Override
