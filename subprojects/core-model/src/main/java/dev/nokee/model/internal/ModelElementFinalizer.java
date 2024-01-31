@@ -16,7 +16,6 @@
 
 package dev.nokee.model.internal;
 
-import java.util.function.Consumer;
-
-public interface ModelElementFinalizer extends Consumer<Runnable> {
+public interface ModelElementFinalizer {
+	void accept(Runnable runnable);
 }

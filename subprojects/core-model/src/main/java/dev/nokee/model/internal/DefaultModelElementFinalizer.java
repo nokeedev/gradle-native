@@ -20,7 +20,6 @@ import org.gradle.api.Project;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public final class DefaultModelElementFinalizer implements ModelElementFinalizer {
 	private final List<Runnable> finalizingActions = new ArrayList<>();
