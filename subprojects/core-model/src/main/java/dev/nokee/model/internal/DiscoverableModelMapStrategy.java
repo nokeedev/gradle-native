@@ -16,7 +16,9 @@
 
 package dev.nokee.model.internal;
 
+import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Spec;
@@ -38,7 +40,7 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 
 	@Override
 	public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
-		return discoveredElements.discover(identity, () -> delegate.register(identity));
+		return new MObjectAdapter<>(discoveredElements.discover(identity, () -> delegate.register(identity)));
 	}
 
 	@Override
@@ -53,7 +55,7 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 
 	@Override
 	public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
-		discoveredElements.onKnown(configureAction, a -> delegate.whenElementKnown(a));
+		discoveredElements.onKnown(configureAction, a -> delegate.whenElementKnown(it -> a.execute(new KObjectAdapter<>(it))));
 	}
 
 	@Override
@@ -64,7 +66,7 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 	@Override
 	public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
 		// TODO: Discover identifier or return a discoverable ModelObject
-		return delegate.getById(identifier);
+		return new MObjectAdapter<>(delegate.getById(identifier));
 	}
 
 	@Override
@@ -73,5 +75,89 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 			discoveredElements.discoverAll(it -> it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(ModelObjectIdentity.ofIdentity(it.getIdentifier(), it.getType())));
 			return delegate.getElements(type, spec);
 		}).flatMap(noOpTransformer());
+	}
+
+	private final class KObjectAdapter<T> implements KnownModelObject<T> {
+		private final KnownModelObject<T> delegate;
+
+		private KObjectAdapter(KnownModelObject<T> delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public ModelObjectIdentifier getIdentifier() {
+			return delegate.getIdentifier();
+		}
+
+		@Override
+		public ModelType<?> getType() {
+			return delegate.getType();
+		}
+
+		@Override
+		public KnownModelObject<T> configure(Action<? super T> configureAction) {
+			// FIXME: Scope to identifier
+			discoveredElements.onRealized(configureAction, a -> delegate.configure(a));
+			return this;
+		}
+
+		@Override
+		public KnownModelObject<T> whenFinalized(Action<? super T> finalizeAction) {
+			// FIXME: Scope to identifier
+			discoveredElements.onFinalized(finalizeAction, a -> delegate.whenFinalized(a));
+			return this;
+		}
+
+		@Override
+		public void realizeNow() {
+			delegate.realizeNow();
+		}
+
+		@Override
+		public Provider<T> asProvider() {
+			return delegate.asProvider();
+		}
+
+		@Override
+		public String getName() {
+			return delegate.getName();
+		}
+	}
+
+	private final class MObjectAdapter<T> implements ModelObject<T> {
+		private final ModelObject<T> delegate;
+
+		private MObjectAdapter(ModelObject<T> delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public NamedDomainObjectProvider<T> asProvider() {
+			return delegate.asProvider();
+		}
+
+		@Override
+		public T get() {
+			return delegate.get();
+		}
+
+		@Override
+		public ModelObject<T> configure(Action<? super T> configureAction) {
+			// FIXME: Scope to identifier
+			discoveredElements.onRealized(configureAction, a -> delegate.configure(a));
+			return this;
+		}
+
+		@Override
+		public ModelObject<T> whenFinalized(Action<? super T> finalizeAction) {
+			// FIXME: Scope to identifier
+			discoveredElements.onFinalized(finalizeAction, a -> delegate.configure(a));
+			return this;
+		}
+
+		@Override
+		public String getName() {
+			return delegate.getName();
+		}
 	}
 }
