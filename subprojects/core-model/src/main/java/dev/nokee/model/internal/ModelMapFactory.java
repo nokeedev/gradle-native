@@ -89,7 +89,7 @@ public final class ModelMapFactory {
 
 		container.configureEach(new InjectModelElementAction<>(namer, knownElements));
 
-		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), knownElements, knownElements, discoveredElements, new ModelMapAdapters.ContextualModelElementInstantiator() {
+		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), knownElements, discoveredElements, new ModelMapAdapters.ContextualModelElementInstantiator() {
 			@Override
 			public <S> Function<DefaultKnownElements.KnownElement, S> newInstance(Factory<S> factory) {
 				return element -> ModelElementSupport.newInstance(create(element), factory);

@@ -215,17 +215,15 @@ public final class ModelMapAdapters {
 	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ForwardingModelMap<ElementType>, ForwardingModelObjectRegistry<ElementType>, ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, HasPublicType {
 		private final Class<ElementType> elementType;
 		private final ExtensiblePolymorphicDomainObjectContainerRegistry<ElementType> registry;
-		private final KnownElements knownElements;
 		private final DefaultKnownElements knownElementsEx;
 		private final ManagedFactoryProvider managedFactory;
 		private final ContextualModelElementInstantiator elementInstantiator;
 		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, KnownElements knownElements, DefaultKnownElements knownElementsEx, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize) {
-			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElements, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DefaultKnownElements knownElementsEx, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize) {
+			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElementsEx, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
 			this.elementType = elementType;
-			this.knownElements = knownElements;
 			this.knownElementsEx = knownElementsEx;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.elementInstantiator = elementInstantiator;
