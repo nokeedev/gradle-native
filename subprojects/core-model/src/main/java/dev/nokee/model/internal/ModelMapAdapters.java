@@ -447,67 +447,6 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	public interface ModelMapStrategy<ElementType> {
-		<RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity);
-		ModelObjectRegistry.RegistrableTypes getRegistrableTypes();
-		void configureEach(Action<? super ElementType> configureAction);
-		void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction);
-		void whenElementFinalized(Action<? super ElementType> finalizeAction);
-		ModelObject<ElementType> getById(ModelObjectIdentifier identifier);
-		<U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec);
-	}
-
-	private static final class DiscoveryStrategy<ElementType> implements ModelMapStrategy<ElementType> {
-		private final DiscoveredElements discoveredElements;
-		private final ProviderFactory providers;
-		private final ModelMapStrategy<ElementType> delegate;
-
-		private DiscoveryStrategy(DiscoveredElements discoveredElements, ProviderFactory providers, ModelMapStrategy<ElementType> delegate) {
-			this.discoveredElements = discoveredElements;
-			this.providers = providers;
-			this.delegate = delegate;
-		}
-
-		@Override
-		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
-			return discoveredElements.discover(identity, () -> delegate.register(identity));
-		}
-
-		@Override
-		public ModelObjectRegistry.RegistrableTypes getRegistrableTypes() {
-			return delegate.getRegistrableTypes();
-		}
-
-		@Override
-		public void configureEach(Action<? super ElementType> configureAction) {
-			discoveredElements.onRealized(configureAction, a -> delegate.configureEach(a));
-		}
-
-		@Override
-		public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
-			discoveredElements.onKnown(configureAction, a -> delegate.whenElementKnown(a));
-		}
-
-		@Override
-		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-			discoveredElements.onFinalized(finalizeAction, a -> delegate.whenElementFinalized(a));
-		}
-
-		@Override
-		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-			// TODO: Discover identifier or return a discoverable ModelObject
-			return delegate.getById(identifier);
-		}
-
-		@Override
-		public <U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec) {
-			return providers.provider(() -> {
-				discoveredElements.discoverAll(it -> it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(ModelObjectIdentity.ofIdentity(it.getIdentifier(), it.getType())));
-				return delegate.getElements(type, spec);
-			}).flatMap(noOpTransformer());
-		}
-	}
-
 	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
 		private final Class<ElementType> elementType;
 		private final PolymorphicDomainObjectRegistry<ElementType> registry;
@@ -596,7 +535,7 @@ public final class ModelMapAdapters {
 		private final ContextualModelObjectIdentifier identifierFactory;
 
 		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer onFinalize, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
-			this.strategy = new DiscoveryStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, registry, knownElements, onFinalize, delegate, providers, objects));
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, registry, knownElements, onFinalize, delegate, providers, objects));
 			this.identifierFactory = identifierFactory;
 		}
 
