@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedName;
 import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
@@ -280,7 +281,7 @@ public final class ModelMapAdapters {
 		}
 
 		public String getName() {
-			return ModelObjectIdentifiers.asFullyQualifiedName(identity.getIdentifier()).toString();
+			return asFullyQualifiedName(identity.getIdentifier()).toString();
 		}
 
 		public ModelObjectIdentifier getIdentifier() {
@@ -327,7 +328,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public String toString() {
-			return "object '" + ModelObjectIdentifiers.asFullyQualifiedName(identity.getIdentifier()) + "' (" + identity.getType().getConcreteType().getSimpleName() + ")";
+			return "object '" + asFullyQualifiedName(identity.getIdentifier()) + "' (" + identity.getType().getConcreteType().getSimpleName() + ")";
 		}
 
 		public static final class ElementProvider {
@@ -446,43 +447,45 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	private static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType> {
+	public interface ModelMapStrategy<ElementType> {
+		<RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity);
+		ModelObjectRegistry.RegistrableTypes getRegistrableTypes();
+		void configureEach(Action<? super ElementType> configureAction);
+		void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction);
+		void whenElementFinalized(Action<? super ElementType> finalizeAction);
+		ModelObject<ElementType> getById(ModelObjectIdentifier identifier);
+		<U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec);
+	}
+
+	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
 		private final Class<ElementType> elementType;
 		private final PolymorphicDomainObjectRegistry<ElementType> registry;
 		private final KnownElements knownElements;
 		private final DiscoveredElements discoveredElements;
 		private final ModelElementFinalizer onFinalize;
 		private final NamedDomainObjectSet<ElementType> delegate;
-		private final ContextualModelObjectIdentifier identifierFactory;
 		private final ProviderFactory providers;
 		private final ObjectFactory objects;
 
-		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer onFinalize, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
+		private DefaultModelMapStrategy(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer onFinalize, NamedDomainObjectSet<ElementType> delegate, ProviderFactory providers, ObjectFactory objects) {
 			this.elementType = elementType;
 			this.registry = registry;
 			this.knownElements = knownElements;
 			this.discoveredElements = discoveredElements;
 			this.onFinalize = onFinalize;
 			this.delegate = delegate;
-			this.identifierFactory = identifierFactory;
 			this.providers = providers;
 			this.objects = objects;
 		}
 
 		@Override
-		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
-			final ModelObjectIdentity<RegistrableType> identity = ofIdentity(identifier, type);
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
 			return discoveredElements.discover(identity, () -> knownElements.register(identity, registry));
 		}
 
 		@Override
-		public RegistrableTypes getRegistrableTypes() {
+		public ModelObjectRegistry.RegistrableTypes getRegistrableTypes() {
 			return registry.getRegistrableTypes()::canRegisterType;
-		}
-
-		@Override
-		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
-			return identifierFactory.create(name, identifier -> register(identifier, type));
 		}
 
 		@Override
@@ -491,30 +494,15 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
-			configureEach(ofType(type, configureAction));
-		}
-
-		@Override
 		public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
 			discoveredElements.onKnown(configureAction, a -> knownElements.forEach(it -> a.execute(new MyKnownModelObject<>(it))));
 		}
 
 		@Override
-		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
-			whenElementKnown(ofType(new KnownModelObjectTypeOf<>(type), configureAction));
-		}
-
-		@Override
 		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
 			discoveredElements.onFinalized(finalizeAction, a -> {
-				onFinalize.accept(() -> configureEach(onlyKnown(a)));
+				onFinalize.accept(() -> delegate.configureEach(onlyKnown(a)));
 			});
-		}
-
-		@Override
-		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
-			whenElementFinalized(ofType(type, finalizeAction));
 		}
 
 		@Override
@@ -554,6 +542,71 @@ public final class ModelMapAdapters {
 					delegate.execute(t);
 				}
 			}
+		}
+	}
+
+	private static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType> {
+		private final ModelMapStrategy<ElementType> strategy;
+		private final ContextualModelObjectIdentifier identifierFactory;
+
+		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer onFinalize, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
+			this.strategy = new DefaultModelMapStrategy<>(elementType, registry, knownElements, discoveredElements, onFinalize, delegate, providers, objects);
+			this.identifierFactory = identifierFactory;
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentifier identifier, Class<RegistrableType> type) {
+			return strategy.register(ofIdentity(identifier, type));
+		}
+
+		@Override
+		public RegistrableTypes getRegistrableTypes() {
+			return strategy.getRegistrableTypes();
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
+			return identifierFactory.create(name, identifier -> register(identifier, type));
+		}
+
+		@Override
+		public void configureEach(Action<? super ElementType> configureAction) {
+			strategy.configureEach(configureAction);
+		}
+
+		@Override
+		public <U> void configureEach(Class<U> type, Action<? super U> configureAction) {
+			strategy.configureEach(ofType(type, configureAction));
+		}
+
+		@Override
+		public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
+			strategy.whenElementKnown(configureAction);
+		}
+
+		@Override
+		public <U> void whenElementKnown(Class<U> type, Action<? super KnownModelObject<U>> configureAction) {
+			strategy.whenElementKnown(ofType(new KnownModelObjectTypeOf<>(type), configureAction));
+		}
+
+		@Override
+		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
+			strategy.whenElementFinalized(finalizeAction);
+		}
+
+		@Override
+		public <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
+			strategy.whenElementFinalized(ofType(type, finalizeAction));
+		}
+
+		@Override
+		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
+			return strategy.getById(identifier);
+		}
+
+		@Override
+		public <U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec) {
+			return strategy.getElements(type, spec);
 		}
 	}
 }
