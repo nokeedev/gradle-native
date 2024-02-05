@@ -37,6 +37,10 @@ public final class ModelObjectIdentity<ObjectType> {
 		return new ModelObjectIdentity<>(identifier, type);
 	}
 
+	public String getName() {
+		return ModelObjectIdentifiers.asFullyQualifiedName(identifier).toString();
+	}
+
 	public ModelObjectIdentifier getIdentifier() {
 		return identifier;
 	}
