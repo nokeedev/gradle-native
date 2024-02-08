@@ -16,7 +16,6 @@
 
 package dev.nokee.model.internal;
 
-import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Named;
@@ -81,17 +80,8 @@ public final class DefaultKnownElements implements KnownElements {
 		}
 	}
 
-	// TODO: Should it really return ModelObject?
-	public <S> ModelObject<S> register(ModelObjectIdentity<S> identity, PolymorphicDomainObjectRegistry<? super S> factory) {
-		// TODO: assert the identifier is not already known
-		ModelMapAdapters.ModelElementIdentity legacyIdentity = identityFactory.create(identity, new MyRealizeListener());
-		knownElements.add(legacyIdentity);
-		final NamedDomainObjectProvider<S> provider = factory.registerIfAbsent(legacyIdentity.getName(), identity.getType().getConcreteType());
-		realizableElements.add(new RealizableElement(identity, provider));
-		return legacyIdentity.asModelObject(identity.getType().getConcreteType());
-	}
-
 	@Override
+	// TODO: Should it really return ModelObject?
 	public <ObjectType> ModelObject<ObjectType> register(ModelObjectIdentity<ObjectType> identity, Function<? super ModelObjectIdentity<ObjectType>, ModelObject<ObjectType>> next) {
 		// TODO: assert the identifier is not already known
 		ModelMapAdapters.ModelElementIdentity legacyIdentity = identityFactory.create(identity, new MyRealizeListener());
