@@ -100,16 +100,6 @@ public final class DefaultKnownElements implements KnownElements {
 		return factory.apply(element);
 	}
 
-	// TODO: How to deal with identity vs element
-	public <T> ModelObject<T> getById(ModelObjectIdentifier identifier, Class<T> type) {
-		KnownElement element = mapping.findByName(ModelObjectIdentifiers.asFullyQualifiedName(identifier).toString());
-		if (element == null) {
-			throw new RuntimeException("element not known");
-		}
-
-		return element.identifiers.stream().filter(it -> it.getIdentifier().equals(identifier)).findFirst().orElseThrow(() -> new RuntimeException("element with same name found but not same id")).asModelObject(type);
-	}
-
 	@Nullable
 	public KnownElement findByName(String name) {
 		return mapping.findByName(name);

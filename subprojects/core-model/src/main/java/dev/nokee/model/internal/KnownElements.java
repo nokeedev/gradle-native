@@ -20,6 +20,4 @@ import java.util.function.Function;
 
 public interface KnownElements {
 	<ObjectType> ModelObject<ObjectType> register(ModelObjectIdentity<ObjectType> identity, Function<? super ModelObjectIdentity<ObjectType>, ModelObject<ObjectType>> next);
-
-	<T> ModelObject<T> getById(ModelObjectIdentifier identifier, Class<T> type);
 }

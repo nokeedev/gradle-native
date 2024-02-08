@@ -49,7 +49,9 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -614,8 +616,7 @@ public final class ModelMapAdapters {
 	}
 
 	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
-		private final Class<ElementType> elementType;
-		private final Set<ModelObjectIdentifier> knownIdentifiers = new HashSet<>();
+		private final Map<ModelObjectIdentifier, ModelObject<?>> knownObjects = new HashMap<>();
 		private final KnownElements legacyKnownElements;
 		private final ModelMapElementsProviderFactory providers;
 		private final GradleCollection<ElementType> delegate;
@@ -624,7 +625,6 @@ public final class ModelMapAdapters {
 
 		@SuppressWarnings({"unchecked", "UnstableApiUsage"})
 		private DefaultModelMapStrategy(Class<ElementType> elementType, KnownElements knownElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer finalizer, GradleCollection<ElementType> delegate) {
-			this.elementType = elementType;
 			this.legacyKnownElements = knownElements;
 			this.providers = new DefaultModelMapElementsProviderFactory(providers, objects);
 			this.delegate = delegate;
@@ -634,9 +634,10 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
-			knownIdentifiers.add(identity.getIdentifier());
 			knownElements.add(factory.create(identity));
-			return legacyKnownElements.register(identity, delegate::register);
+			final ModelObject<RegistrableType> result = legacyKnownElements.register(identity, delegate::register);
+			knownObjects.put(identity.getIdentifier(), result);
+			return result;
 		}
 
 		@Override
@@ -655,9 +656,9 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-			assert knownIdentifiers.contains(identifier);
-			return legacyKnownElements.getById(identifier, elementType);
+			return (ModelObject<ElementType>) knownObjects.computeIfAbsent(identifier, __ -> { throw new RuntimeException("not known"); });
 		}
 
 		@Override
