@@ -403,56 +403,11 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	private static class MyKnownModelObject<ElementType> implements KnownModelObject<ElementType> {
-		private final ModelElementIdentity it;
-
-		public MyKnownModelObject(ModelElementIdentity it) {
-			this.it = it;
-		}
-
-		@Override
-		public ModelObjectIdentifier getIdentifier() {
-			return it.getIdentifier();
-		}
-
-		@Override
-		public ModelType<?> getType() {
-			return it.identity.getType();
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public KnownModelObject<ElementType> configure(Action<? super ElementType> configureAction) {
-			((ModelObject<ElementType>) it.asModelObject(it.identity.getType().getConcreteType())).configure(configureAction);
-			return this;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public KnownModelObject<ElementType> whenFinalized(Action<? super ElementType> finalizeAction) {
-			((ModelObject<ElementType>) it.asModelObject(it.identity.getType().getConcreteType())).whenFinalized(finalizeAction);
-			return this;
-		}
-
-		@Override
-		public void realizeNow() {
-			it.realizeNow();
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public Provider<ElementType> asProvider() {
-			return it.providers.provider(it::asProvider).flatMap(it -> (Provider<ElementType>) it);
-		}
-
-		@Override
-		public String getName() {
-			return it.getName();
-		}
-	}
-
 	interface Elements<ElementType> {
 		void configureEach(Action<? super ElementType> configureAction);
+		<T extends ElementType> NamedDomainObjectProvider<T> named(String name, Class<T> type);
+		Set<String> getNames();
+		Namer<ElementType> getNamer();
 	}
 
 	private static final class GradleCollectionElements<ElementType> implements Elements<ElementType> {
@@ -466,6 +421,21 @@ public final class ModelMapAdapters {
 		public void configureEach(Action<? super ElementType> configureAction) {
 			collection.configureEach(configureAction);
 		}
+
+		@Override
+		public <T extends ElementType> NamedDomainObjectProvider<T> named(String name, Class<T> type) {
+			return collection.named(name, type);
+		}
+
+		@Override
+		public Set<String> getNames() {
+			return collection.getNames();
+		}
+
+		@Override
+		public Namer<ElementType> getNamer() {
+			return collection.getNamer();
+		}
 	}
 
 	private static final class FilterCollectionAdapter<ElementType> implements GradleCollection<ElementType> {
@@ -474,13 +444,33 @@ public final class ModelMapAdapters {
 		private final Elements<ElementType> collection;
 		private final GradleCollection<ElementType> delegate;
 
-		private FilterCollectionAdapter(Namer<ElementType> namer, GradleCollection<ElementType> delegate) {
-			this.namer = namer;
+		private FilterCollectionAdapter(GradleCollection<ElementType> delegate) {
+			this.namer = delegate.getElements().getNamer();
 			this.delegate = delegate;
 			this.collection = new Elements<ElementType>() {
+				private final Elements<ElementType> elements = delegate.getElements();
+
 				@Override
 				public void configureEach(Action<? super ElementType> configureAction) {
-					delegate.getElements().configureEach(new OnlyIfKnownAction<>(configureAction));
+					elements.configureEach(new OnlyIfKnownAction<>(configureAction));
+				}
+
+				@Override
+				public <T extends ElementType> NamedDomainObjectProvider<T> named(String name, Class<T> type) {
+					if (!knownElements.contains(name)) {
+						throw new IllegalArgumentException("not known");
+					}
+					return elements.named(name, type);
+				}
+
+				@Override
+				public Set<String> getNames() {
+					return knownElements; // we can just return the known names
+				}
+
+				@Override
+				public Namer<ElementType> getNamer() {
+					return elements.getNamer();
 				}
 			};
 		}
@@ -629,22 +619,23 @@ public final class ModelMapAdapters {
 		private final KnownElements legacyKnownElements;
 		private final ModelMapElementsProviderFactory providers;
 		private final GradleCollection<ElementType> delegate;
-		private final DomainObjectSet<KnownModelObject<ElementType>> knownElements;
+		private final DomainObjectSet<KnownModelObject<? extends ElementType>> knownElements;
+		private final KnownModelObjectFactory factory;
 
 		@SuppressWarnings({"unchecked", "UnstableApiUsage"})
-		private DefaultModelMapStrategy(Class<ElementType> elementType, KnownElements knownElements, ProviderFactory providers, ObjectFactory objects, GradleCollection<ElementType> delegate) {
+		private DefaultModelMapStrategy(Class<ElementType> elementType, KnownElements knownElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer finalizer, GradleCollection<ElementType> delegate) {
 			this.elementType = elementType;
 			this.legacyKnownElements = knownElements;
 			this.providers = new DefaultModelMapElementsProviderFactory(providers, objects);
 			this.delegate = delegate;
-			this.knownElements = (DomainObjectSet<KnownModelObject<ElementType>>) objects.domainObjectSet(new TypeToken<KnownModelObject<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getRawType());
-
-			knownElements.forEach(it -> this.knownElements.add(new MyKnownModelObject<>(it)));
+			this.knownElements = (DomainObjectSet<KnownModelObject<? extends ElementType>>) objects.domainObjectSet(new TypeToken<KnownModelObject<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getRawType());
+			this.factory = new KnownModelObjectFactory(providers, finalizer);
 		}
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
 			knownIdentifiers.add(identity.getIdentifier());
+			knownElements.add(factory.create(identity));
 			return legacyKnownElements.register(identity, delegate::register);
 		}
 
@@ -654,7 +645,7 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
+		public void whenElementKnown(Action<? super KnownModelObject<? extends ElementType>> configureAction) {
 			knownElements.all(configureAction);
 		}
 
@@ -680,6 +671,69 @@ public final class ModelMapAdapters {
 				});
 			});
 		}
+
+		private final class KnownModelObjectFactory {
+			private final ProviderFactory providers;
+			private final ModelElementFinalizer finalizer;
+
+			private KnownModelObjectFactory(ProviderFactory providers, ModelElementFinalizer finalizer) {
+				this.providers = providers;
+				this.finalizer = finalizer;
+			}
+
+			public <ObjectType extends ElementType> KnownModelObject<ObjectType> create(ModelObjectIdentity<ObjectType> identity) {
+				return new KnownModelObject<ObjectType>() {
+					private final Elements<ElementType> collection = delegate.getElements();
+					private final String name = identity.getName();
+					private final Class<ObjectType> type = identity.getType().getConcreteType();
+
+					@Override
+					public ModelObjectIdentifier getIdentifier() {
+						return identity.getIdentifier();
+					}
+
+					@Override
+					public ModelType<?> getType() {
+						return identity.getType();
+					}
+
+					@Override
+					public KnownModelObject<ObjectType> configure(Action<? super ObjectType> configureAction) {
+						if (collection.getNames().contains(name)) {
+							collection.named(name, type).configure(configureAction);
+						} else {
+							collection.configureEach(it -> {
+								if (collection.getNamer().determineName(it).equals(name)) {
+									configureAction.execute(type.cast(it));
+								}
+							});
+						}
+						return this;
+					}
+
+					@Override
+					public KnownModelObject<ObjectType> whenFinalized(Action<? super ObjectType> finalizeAction) {
+						finalizer.accept(() -> configure(finalizeAction));
+						return this;
+					}
+
+					@Override
+					public void realizeNow() {
+						asProvider().get();
+					}
+
+					@Override
+					public Provider<ObjectType> asProvider() {
+						return providers.provider(() -> delegate.getElements().named(name, type)).flatMap(noOpTransformer());
+					}
+
+					@Override
+					public String getName() {
+						return name;
+					}
+				};
+			}
+		}
 	}
 
 	private static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType> {
@@ -688,7 +742,7 @@ public final class ModelMapAdapters {
 		private final RegistrableTypes registrableTypes;
 
 		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, providers, objects, new FilterCollectionAdapter<>(delegate.getNamer(), new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer))));
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, providers, objects, finalizer, new FilterCollectionAdapter<>(new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer))));
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;
 		}
@@ -719,8 +773,10 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
-			strategy.whenElementKnown(configureAction);
+			// FIXME: Should we declare the method as KnownModelObject<? extends ElementType>???
+			strategy.whenElementKnown(it -> configureAction.execute((KnownModelObject<ElementType>) it));
 		}
 
 		@Override

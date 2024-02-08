@@ -56,8 +56,9 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 	}
 
 	@Override
-	public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
-		discoveredElements.onKnown(configureAction, a -> delegate.whenElementKnown(it -> a.execute(new KObjectAdapter<>(it))));
+	@SuppressWarnings("unchecked")
+	public void whenElementKnown(Action<? super KnownModelObject<? extends ElementType>> configureAction) {
+		discoveredElements.onKnown(configureAction, a -> delegate.whenElementKnown(it -> a.execute(new KObjectAdapter<>((KnownModelObject<ElementType>) it))));
 	}
 
 	@Override

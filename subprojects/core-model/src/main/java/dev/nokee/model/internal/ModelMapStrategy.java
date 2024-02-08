@@ -27,7 +27,7 @@ public interface ModelMapStrategy<ElementType> {
 
 	void configureEach(Action<? super ElementType> configureAction);
 
-	void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction);
+	void whenElementKnown(Action<? super KnownModelObject<? extends ElementType>> configureAction);
 
 	void whenElementFinalized(Action<? super ElementType> finalizeAction);
 
