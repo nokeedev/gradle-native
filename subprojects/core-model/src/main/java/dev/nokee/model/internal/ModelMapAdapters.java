@@ -452,7 +452,6 @@ public final class ModelMapAdapters {
 
 	interface Elements<ElementType> {
 		void configureEach(Action<? super ElementType> configureAction);
-		Namer<ElementType> getNamer();
 	}
 
 	private static final class GradleCollectionElements<ElementType> implements Elements<ElementType> {
@@ -466,31 +465,23 @@ public final class ModelMapAdapters {
 		public void configureEach(Action<? super ElementType> configureAction) {
 			collection.configureEach(configureAction);
 		}
-
-		@Override
-		public Namer<ElementType> getNamer() {
-			return collection.getNamer();
-		}
 	}
 
 	private static final class FilterCollectionAdapter<ElementType> implements GradleCollection<ElementType> {
 		private final Set<String> knownElements = new HashSet<>();
+		private final Namer<ElementType> namer;
 		private final Elements<ElementType> collection;
 		private final GradleCollection<ElementType> delegate;
 
-		private FilterCollectionAdapter(GradleCollection<ElementType> delegate) {
+		private FilterCollectionAdapter(Namer<ElementType> namer, GradleCollection<ElementType> delegate) {
+			this.namer = namer;
+			this.delegate = delegate;
 			this.collection = new Elements<ElementType>() {
 				@Override
 				public void configureEach(Action<? super ElementType> configureAction) {
 					delegate.getElements().configureEach(new OnlyIfKnownAction<>(configureAction));
 				}
-
-				@Override
-				public Namer<ElementType> getNamer() {
-					return delegate.getElements().getNamer();
-				}
 			};
-			this.delegate = delegate;
 		}
 
 		@Override
@@ -516,13 +507,9 @@ public final class ModelMapAdapters {
 				this.delegate = delegate;
 			}
 
-			private String determineName(T t) {
-				return FilterCollectionAdapter.this.delegate.getElements().getNamer().determineName(t);
-			}
-
 			@Override
 			public void execute(T t) {
-				if (knownElements.contains(determineName(t))) {
+				if (knownElements.contains(namer.determineName(t))) {
 					delegate.execute(t);
 				}
 			}
@@ -694,7 +681,7 @@ public final class ModelMapAdapters {
 		private final RegistrableTypes registrableTypes;
 
 		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, new DefaultModelMapElementsProviderFactory(providers, objects), new FilterCollectionAdapter<>(new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer))));
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, new DefaultModelMapElementsProviderFactory(providers, objects), new FilterCollectionAdapter<>(delegate.getNamer(), new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer))));
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;
 		}
