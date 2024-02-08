@@ -33,6 +33,7 @@ import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.NamedDomainObjectSet;
+import org.gradle.api.Namer;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -128,8 +129,7 @@ public final class ModelMapAdapters {
 
 		@Inject
 		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize) {
-			this.delegate = new BaseModelMap<>(Project.class, null, knownElements, discoveredElements, onFinalize, delegate, null, providers, objects);
-			knownElements.register(ofIdentity(ProjectIdentifier.of(project), Project.class), new PolymorphicDomainObjectRegistry<Project>() {
+			final PolymorphicDomainObjectRegistry<Project> registry = new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
 				@SuppressWarnings("unchecked")
 				public <S extends Project> NamedDomainObjectProvider<S> register(String name, Class<S> type) throws InvalidUserDataException {
@@ -150,7 +150,9 @@ public final class ModelMapAdapters {
 				public RegistrableTypes getRegistrableTypes() {
 					return Project.class::equals;
 				}
-			});
+			};
+			this.delegate = new BaseModelMap<>(Project.class, registry, knownElements, discoveredElements, onFinalize, delegate, null, providers, objects);
+			knownElements.register(ofIdentity(ProjectIdentifier.of(project), Project.class), registry);
 		}
 
 		@Override
@@ -445,33 +447,123 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
-		private final Class<ElementType> elementType;
-		private final PolymorphicDomainObjectRegistry<ElementType> registry;
-		private final KnownElements knownElements;
-		private final ModelElementFinalizer onFinalize;
-		private final NamedDomainObjectSet<ElementType> delegate;
-		private final ProviderFactory providers;
-		private final ObjectFactory objects;
+	interface Elements<ElementType> {
+		void configureEach(Action<? super ElementType> configureAction);
+		Namer<ElementType> getNamer();
+	}
 
-		private DefaultModelMapStrategy(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, ModelElementFinalizer onFinalize, NamedDomainObjectSet<ElementType> delegate, ProviderFactory providers, ObjectFactory objects) {
-			this.elementType = elementType;
-			this.registry = registry;
-			this.knownElements = knownElements;
-			this.onFinalize = onFinalize;
-			this.delegate = delegate;
-			this.providers = providers;
-			this.objects = objects;
-		}
+	private static final class GradleCollectionElements<ElementType> implements Elements<ElementType> {
+		private final NamedDomainObjectCollection<ElementType> collection;
 
-		@Override
-		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
-			return knownElements.register(identity, registry);
+		private GradleCollectionElements(NamedDomainObjectCollection<ElementType> collection) {
+			this.collection = collection;
 		}
 
 		@Override
 		public void configureEach(Action<? super ElementType> configureAction) {
-			delegate.configureEach(onlyKnown(configureAction));
+			collection.configureEach(configureAction);
+		}
+
+		@Override
+		public Namer<ElementType> getNamer() {
+			return collection.getNamer();
+		}
+	}
+
+	private static final class GradleCollectionAdapter<ElementType> implements GradleCollection<ElementType> {
+		private final PolymorphicDomainObjectRegistry<ElementType> registry;
+		private final Elements<ElementType> collection;
+		private final ModelElementFinalizer finalizer;
+
+		private GradleCollectionAdapter(PolymorphicDomainObjectRegistry<ElementType> registry, Elements<ElementType> collection, ModelElementFinalizer finalizer) {
+			this.registry = registry;
+			this.collection = collection;
+			this.finalizer = finalizer;
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
+			final NamedDomainObjectProvider<RegistrableType> provider = registry.registerIfAbsent(identity.getName(), identity.getType().getConcreteType());
+			return new DefaultModelObject<>(provider);
+		}
+
+		@Override
+		public Elements<ElementType> getElements() {
+			return collection;
+		}
+
+		@Override
+		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
+			finalizer.accept(() -> collection.configureEach(finalizeAction));
+		}
+
+		private final class DefaultModelObject<ObjectType> implements ModelObject<ObjectType> {
+			private final NamedDomainObjectProvider<ObjectType> provider;
+
+			private DefaultModelObject(NamedDomainObjectProvider<ObjectType> provider) {
+				this.provider = provider;
+			}
+
+			@Override
+			public NamedDomainObjectProvider<ObjectType> asProvider() {
+				return provider;
+			}
+
+			@Override
+			public ObjectType get() {
+				return provider.get();
+			}
+
+			@Override
+			public ModelObject<ObjectType> configure(Action<? super ObjectType> configureAction) {
+				provider.configure(configureAction);
+				return this;
+			}
+
+			@Override
+			public ModelObject<ObjectType> whenFinalized(Action<? super ObjectType> finalizeAction) {
+				finalizer.accept(() -> provider.configure(finalizeAction));
+				return this;
+			}
+
+			@Override
+			public String getName() {
+				return provider.getName();
+			}
+		}
+	}
+
+	private interface GradleCollection<ElementType> {
+		<RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity);
+
+		Elements<ElementType> getElements();
+
+		void whenElementFinalized(Action<? super ElementType> finalizeAction);
+	}
+
+	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
+		private final Class<ElementType> elementType;
+		private final KnownElements knownElements;
+		private final ProviderFactory providers;
+		private final ObjectFactory objects;
+		private final GradleCollection<ElementType> delegate;
+
+		private DefaultModelMapStrategy(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ProviderFactory providers, ObjectFactory objects) {
+			this.elementType = elementType;
+			this.knownElements = knownElements;
+			this.providers = providers;
+			this.objects = objects;
+			this.delegate = new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer);
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
+			return knownElements.register(identity, delegate::register);
+		}
+
+		@Override
+		public void configureEach(Action<? super ElementType> configureAction) {
+			delegate.getElements().configureEach(onlyKnown(configureAction));
 		}
 
 		@Override
@@ -481,7 +573,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-			onFinalize.accept(() -> delegate.configureEach(onlyKnown(finalizeAction)));
+			delegate.whenElementFinalized(onlyKnown(finalizeAction));
 		}
 
 		@Override

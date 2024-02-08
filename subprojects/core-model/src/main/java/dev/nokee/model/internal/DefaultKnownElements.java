@@ -95,6 +95,17 @@ public final class DefaultKnownElements implements KnownElements {
 		return legacyIdentity.asModelObject(identity.getType().getConcreteType());
 	}
 
+	@Override
+	public <ObjectType> ModelObject<ObjectType> register(ModelObjectIdentity<ObjectType> identity, Function<? super ModelObjectIdentity<ObjectType>, ModelObject<ObjectType>> next) {
+		// TODO: assert the identifier is not already known
+		knownIdentifiers.add(identity.getIdentifier());
+		ModelMapAdapters.ModelElementIdentity legacyIdentity = identityFactory.create(identity, new MyRealizeListener());
+		knownElements.add(legacyIdentity);
+		final NamedDomainObjectProvider<ObjectType> provider = next.apply(identity).asProvider();
+		realizableElements.add(new RealizableElement(identity, provider));
+		return legacyIdentity.asModelObject(identity.getType().getConcreteType());
+	}
+
 	public <S> S create(String name, Class<S> type, Function<? super KnownElement, ? extends S> factory) {
 		KnownElement element = mapping.findByName(name);
 		if (element == null) {
