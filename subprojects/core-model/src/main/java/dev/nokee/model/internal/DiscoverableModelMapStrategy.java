@@ -36,6 +36,13 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 		this.discoveredElements = discoveredElements;
 		this.providers = providers;
 		this.delegate = delegate;
+
+		// For book keeping...
+		delegate.configureEach(new ModelElementAction<>((e, it) -> discoveredElements.onRealizing(e)));
+		delegate.whenElementFinalized(new ModelElementAction<>((e, it) -> {
+			discoveredElements.onRealized(e);
+			discoveredElements.onFinalizing(e);
+		}));
 	}
 
 	@Override
@@ -60,7 +67,7 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 
 	@Override
 	public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-		// TODO: Discover identifier or return a discoverable ModelObject
+		// TODO: Discover identifier
 		return new MObjectAdapter<>(delegate.getById(identifier));
 	}
 
@@ -105,7 +112,11 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 
 		@Override
 		public void realizeNow() {
+			// FIXME(discover): Mark element as realizing/realized
+			//   Need to figure out what should be captured by the discovery service
+//			discoveredElements.onRealizing(delegate);
 			delegate.realizeNow();
+//			discoveredElements.onRealized(delegate);
 		}
 
 		@Override

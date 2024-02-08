@@ -133,6 +133,18 @@ public class DiscoveredElements {
 		next.accept(action);
 	}
 
+	public void onRealizing(ModelElement e) {
+		// FIXME(discover): mark element as realizing...
+	}
+
+	public void onRealized(ModelElement e) {
+		// FIXME(discover): mark element as realized...
+	}
+
+	public void onFinalizing(ModelElement e) {
+		// FIXME(discover): mark element as finalizing...
+	}
+
 	public <T> void onKnown(Action<? super KnownModelObject<T>> action, Consumer<? super Action<? super KnownModelObject<T>>> next) {
 		// FIXME(discovery): extract type filter from action
 		discoverType(action).map(KnownRule::new).forEach(rules::add);
