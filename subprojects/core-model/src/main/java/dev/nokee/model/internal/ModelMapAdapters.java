@@ -50,7 +50,6 @@ import org.gradle.api.tasks.TaskContainer;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -474,6 +473,62 @@ public final class ModelMapAdapters {
 		}
 	}
 
+	private static final class FilterCollectionAdapter<ElementType> implements GradleCollection<ElementType> {
+		private final Set<String> knownElements = new HashSet<>();
+		private final Elements<ElementType> collection;
+		private final GradleCollection<ElementType> delegate;
+
+		private FilterCollectionAdapter(GradleCollection<ElementType> delegate) {
+			this.collection = new Elements<ElementType>() {
+				@Override
+				public void configureEach(Action<? super ElementType> configureAction) {
+					delegate.getElements().configureEach(new OnlyIfKnownAction<>(configureAction));
+				}
+
+				@Override
+				public Namer<ElementType> getNamer() {
+					return delegate.getElements().getNamer();
+				}
+			};
+			this.delegate = delegate;
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
+			knownElements.add(identity.getName());
+			return delegate.register(identity);
+		}
+
+		@Override
+		public Elements<ElementType> getElements() {
+			return collection;
+		}
+
+		@Override
+		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
+			delegate.whenElementFinalized(new OnlyIfKnownAction<>(finalizeAction));
+		}
+
+		private final class OnlyIfKnownAction<T extends ElementType> implements Action<T> {
+			private final Action<? super T> delegate;
+
+			public OnlyIfKnownAction(Action<? super T> delegate) {
+				this.delegate = delegate;
+			}
+
+			private String determineName(T t) {
+				return FilterCollectionAdapter.this.delegate.getElements().getNamer().determineName(t);
+			}
+
+			@Override
+			public void execute(T t) {
+				if (knownElements.contains(determineName(t))) {
+					delegate.execute(t);
+				}
+			}
+		}
+	}
+
 	private static final class GradleCollectionAdapter<ElementType> implements GradleCollection<ElementType> {
 		private final PolymorphicDomainObjectRegistry<ElementType> registry;
 		private final Elements<ElementType> collection;
@@ -602,7 +657,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void configureEach(Action<? super ElementType> configureAction) {
-			delegate.getElements().configureEach(onlyKnown(configureAction));
+			delegate.getElements().configureEach(configureAction);
 		}
 
 		@Override
@@ -612,7 +667,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-			delegate.whenElementFinalized(onlyKnown(finalizeAction));
+			delegate.whenElementFinalized(finalizeAction);
 		}
 
 		@Override
@@ -631,25 +686,6 @@ public final class ModelMapAdapters {
 				});
 			});
 		}
-
-		private <T> Action<T> onlyKnown(Action<? super T> action) {
-			return new ModelElementAction<>(new OnlyIfKnownAction<>(action));
-		}
-
-		private final class OnlyIfKnownAction<T> implements BiConsumer<ModelElement, T> {
-			private final Action<? super T> delegate;
-
-			public OnlyIfKnownAction(Action<? super T> delegate) {
-				this.delegate = delegate;
-			}
-
-			@Override
-			public void accept(ModelElement element, T t) {
-				if (knownIdentifiers.contains(element.getIdentifier())) {
-					delegate.execute(t);
-				}
-			}
-		}
 	}
 
 	private static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType> {
@@ -658,7 +694,7 @@ public final class ModelMapAdapters {
 		private final RegistrableTypes registrableTypes;
 
 		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, new DefaultModelMapElementsProviderFactory(providers, objects), new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)));
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, new DefaultModelMapElementsProviderFactory(providers, objects), new FilterCollectionAdapter<>(new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer))));
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;
 		}
