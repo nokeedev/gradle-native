@@ -27,6 +27,7 @@ import dev.nokee.model.TaskRegistry;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.NamedDomainObjectCollection;
@@ -625,21 +626,26 @@ public final class ModelMapAdapters {
 	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
 		private final Class<ElementType> elementType;
 		private final Set<ModelObjectIdentifier> knownIdentifiers = new HashSet<>();
-		private final KnownElements knownElements;
+		private final KnownElements legacyKnownElements;
 		private final ModelMapElementsProviderFactory providers;
 		private final GradleCollection<ElementType> delegate;
+		private final DomainObjectSet<KnownModelObject<ElementType>> knownElements;
 
-		private DefaultModelMapStrategy(Class<ElementType> elementType, KnownElements knownElements, ModelMapElementsProviderFactory providers, GradleCollection<ElementType> delegate) {
+		@SuppressWarnings({"unchecked", "UnstableApiUsage"})
+		private DefaultModelMapStrategy(Class<ElementType> elementType, KnownElements knownElements, ProviderFactory providers, ObjectFactory objects, GradleCollection<ElementType> delegate) {
 			this.elementType = elementType;
-			this.knownElements = knownElements;
-			this.providers = providers;
+			this.legacyKnownElements = knownElements;
+			this.providers = new DefaultModelMapElementsProviderFactory(providers, objects);
 			this.delegate = delegate;
+			this.knownElements = (DomainObjectSet<KnownModelObject<ElementType>>) objects.domainObjectSet(new TypeToken<KnownModelObject<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getRawType());
+
+			knownElements.forEach(it -> this.knownElements.add(new MyKnownModelObject<>(it)));
 		}
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
 			knownIdentifiers.add(identity.getIdentifier());
-			return knownElements.register(identity, delegate::register);
+			return legacyKnownElements.register(identity, delegate::register);
 		}
 
 		@Override
@@ -649,7 +655,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction) {
-			knownElements.forEach(it -> configureAction.execute(new MyKnownModelObject<>(it)));
+			knownElements.all(configureAction);
 		}
 
 		@Override
@@ -660,15 +666,16 @@ public final class ModelMapAdapters {
 		@Override
 		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
 			assert knownIdentifiers.contains(identifier);
-			return knownElements.getById(identifier, elementType);
+			return legacyKnownElements.getById(identifier, elementType);
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public <U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec) {
 			return providers.provider(builder -> {
 				knownElements.forEach(it -> {
-					if (it.identity.getType().isSubtypeOf(type) && spec.isSatisfiedBy(it.identity)) {
-						builder.add(it.asModelObject(type).asProvider());
+					if (it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(ofIdentity(it.getIdentifier(), it.getType()))) {
+						builder.add((Provider<? extends U>) it.asProvider());
 					}
 				});
 			});
@@ -681,7 +688,7 @@ public final class ModelMapAdapters {
 		private final RegistrableTypes registrableTypes;
 
 		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, new DefaultModelMapElementsProviderFactory(providers, objects), new FilterCollectionAdapter<>(delegate.getNamer(), new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer))));
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, providers, objects, new FilterCollectionAdapter<>(delegate.getNamer(), new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer))));
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;
 		}
