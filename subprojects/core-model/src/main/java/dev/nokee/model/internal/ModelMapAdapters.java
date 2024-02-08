@@ -470,11 +470,6 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public ModelObjectRegistry.RegistrableTypes getRegistrableTypes() {
-			return registry.getRegistrableTypes()::canRegisterType;
-		}
-
-		@Override
 		public void configureEach(Action<? super ElementType> configureAction) {
 			delegate.configureEach(onlyKnown(configureAction));
 		}
@@ -531,10 +526,12 @@ public final class ModelMapAdapters {
 	private static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType> {
 		private final ModelMapStrategy<ElementType> strategy;
 		private final ContextualModelObjectIdentifier identifierFactory;
+		private final RegistrableTypes registrableTypes;
 
 		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer onFinalize, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
 			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, registry, knownElements, onFinalize, delegate, providers, objects));
 			this.identifierFactory = identifierFactory;
+			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;
 		}
 
 		@Override
@@ -544,7 +541,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public RegistrableTypes getRegistrableTypes() {
-			return strategy.getRegistrableTypes();
+			return registrableTypes;
 		}
 
 		@Override

@@ -44,11 +44,6 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 	}
 
 	@Override
-	public ModelObjectRegistry.RegistrableTypes getRegistrableTypes() {
-		return delegate.getRegistrableTypes();
-	}
-
-	@Override
 	public void configureEach(Action<? super ElementType> configureAction) {
 		discoveredElements.onRealized(configureAction, a -> delegate.configureEach(a));
 	}

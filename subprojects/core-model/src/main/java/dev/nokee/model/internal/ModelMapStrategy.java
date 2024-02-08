@@ -25,8 +25,6 @@ import java.util.Set;
 public interface ModelMapStrategy<ElementType> {
 	<RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity);
 
-	ModelObjectRegistry.RegistrableTypes getRegistrableTypes();
-
 	void configureEach(Action<? super ElementType> configureAction);
 
 	void whenElementKnown(Action<? super KnownModelObject<ElementType>> configureAction);
