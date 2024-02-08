@@ -50,6 +50,7 @@ import org.gradle.api.tasks.TaskContainer;
 import javax.inject.Inject;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedName;
@@ -543,18 +544,51 @@ public final class ModelMapAdapters {
 		void whenElementFinalized(Action<? super ElementType> finalizeAction);
 	}
 
+	private interface ModelMapElementsProviderFactory {
+		<T> Provider<Set<T>> provider(Consumer<? super Builder<T>> action);
+
+		interface Builder<T> {
+			Builder<T> add(Provider<? extends T> provider);
+		}
+	}
+
+	private static final class DefaultModelMapElementsProviderFactory implements ModelMapElementsProviderFactory {
+		private final ProviderFactory providers;
+		private final ObjectFactory objects;
+
+		private DefaultModelMapElementsProviderFactory(ProviderFactory providers, ObjectFactory objects) {
+			this.providers = providers;
+			this.objects = objects;
+		}
+
+		@Override
+		@SuppressWarnings({"unchecked", "UnstableApiUsage"})
+		public <T> Provider<Set<T>> provider(Consumer<? super Builder<T>> action) {
+			return providers.provider(() -> {
+				final SetProperty<Object> result = objects.setProperty(Object.class);
+				action.accept(new Builder<T>() {
+					@Override
+					public Builder<T> add(Provider<? extends T> provider) {
+						result.add(provider);
+						return this;
+					}
+				});
+
+				return (Provider<? extends Set<T>>) result;
+			}).flatMap(noOpTransformer());
+		}
+	}
+
 	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
 		private final Class<ElementType> elementType;
 		private final KnownElements knownElements;
-		private final ProviderFactory providers;
-		private final ObjectFactory objects;
+		private final ModelMapElementsProviderFactory providers;
 		private final GradleCollection<ElementType> delegate;
 
-		private DefaultModelMapStrategy(Class<ElementType> elementType, KnownElements knownElements, ProviderFactory providers, ObjectFactory objects, GradleCollection<ElementType> delegate) {
+		private DefaultModelMapStrategy(Class<ElementType> elementType, KnownElements knownElements, ModelMapElementsProviderFactory providers, GradleCollection<ElementType> delegate) {
 			this.elementType = elementType;
 			this.knownElements = knownElements;
 			this.providers = providers;
-			this.objects = objects;
 			this.delegate = delegate;
 		}
 
@@ -585,16 +619,13 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec) {
-			return providers.provider(() -> {
-				final SetProperty<U> result = objects.setProperty(type);
+			return providers.provider(builder -> {
 				knownElements.forEach(it -> {
 					if (it.identity.getType().isSubtypeOf(type) && spec.isSatisfiedBy(it.identity)) {
-						result.add(it.asModelObject(type).asProvider());
+						builder.add(it.asModelObject(type).asProvider());
 					}
 				});
-
-				return result;
-			}).flatMap(noOpTransformer());
+			});
 		}
 
 		private <T> Action<T> onlyKnown(Action<? super T> action) {
@@ -623,7 +654,7 @@ public final class ModelMapAdapters {
 		private final RegistrableTypes registrableTypes;
 
 		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, providers, objects, new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)));
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, new DefaultModelMapElementsProviderFactory(providers, objects), new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)));
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;
 		}
