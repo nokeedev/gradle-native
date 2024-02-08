@@ -106,11 +106,15 @@ public class DiscoveredElements {
 	}
 
 	public <RegistrableType> ModelObject<RegistrableType> discover(ModelObjectIdentity<RegistrableType> identity, Factory<ModelObject<RegistrableType>> factory) {
-		rules.add(new KnownElementRule(identity));
-		final ModelObject<RegistrableType> result = factory.create();
-		result.configure(__ -> realizedElements.add(identity)); // FIXME(discovery): Streamline realize/finalize listeners
-		objects.put(identity, result);
-		return result;
+		if (identity.getIdentifier() instanceof ProjectIdentifier) {
+			return factory.create();
+		} else {
+			rules.add(new KnownElementRule(identity));
+			final ModelObject<RegistrableType> result = factory.create();
+			result.configure(__ -> realizedElements.add(identity)); // FIXME(discovery): Streamline realize/finalize listeners
+			objects.put(identity, result);
+			return result;
+		}
 	}
 
 	private Stream<DisRule> discoverType(Action<?> action) {

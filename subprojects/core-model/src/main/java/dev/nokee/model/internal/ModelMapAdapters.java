@@ -133,6 +133,7 @@ public final class ModelMapAdapters {
 				@Override
 				@SuppressWarnings("unchecked")
 				public <S extends Project> NamedDomainObjectProvider<S> register(String name, Class<S> type) throws InvalidUserDataException {
+					assert name.equals(project.getName());
 					assert type.equals(Project.class);
 					delegate.add(project);
 					return (NamedDomainObjectProvider<S>) delegate.named(project.getName());
@@ -141,6 +142,7 @@ public final class ModelMapAdapters {
 				@Override
 				@SuppressWarnings("unchecked")
 				public <S extends Project> NamedDomainObjectProvider<S> registerIfAbsent(String name, Class<S> type) {
+					assert name.equals(project.getName());
 					assert type.equals(Project.class);
 					delegate.add(project);
 					return (NamedDomainObjectProvider<S>) delegate.named(project.getName());
@@ -152,7 +154,7 @@ public final class ModelMapAdapters {
 				}
 			};
 			this.delegate = new BaseModelMap<>(Project.class, registry, knownElements, discoveredElements, onFinalize, delegate, null, providers, objects);
-			knownElements.register(ofIdentity(ProjectIdentifier.of(project), Project.class), registry);
+			this.delegate.register(ProjectIdentifier.of(project), Project.class);
 		}
 
 		@Override
