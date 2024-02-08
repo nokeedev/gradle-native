@@ -550,12 +550,12 @@ public final class ModelMapAdapters {
 		private final ObjectFactory objects;
 		private final GradleCollection<ElementType> delegate;
 
-		private DefaultModelMapStrategy(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ProviderFactory providers, ObjectFactory objects) {
+		private DefaultModelMapStrategy(Class<ElementType> elementType, KnownElements knownElements, ProviderFactory providers, ObjectFactory objects, GradleCollection<ElementType> delegate) {
 			this.elementType = elementType;
 			this.knownElements = knownElements;
 			this.providers = providers;
 			this.objects = objects;
-			this.delegate = new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer);
+			this.delegate = delegate;
 		}
 
 		@Override
@@ -622,8 +622,8 @@ public final class ModelMapAdapters {
 		private final ContextualModelObjectIdentifier identifierFactory;
 		private final RegistrableTypes registrableTypes;
 
-		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer onFinalize, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, registry, knownElements, onFinalize, delegate, providers, objects));
+		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, providers, objects, new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)));
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;
 		}
