@@ -16,7 +16,6 @@
 
 package dev.nokee.model.internal;
 
-import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -114,10 +113,6 @@ public final class DefaultKnownElements implements KnownElements {
 	@Nullable
 	public KnownElement findByName(String name) {
 		return mapping.findByName(name);
-	}
-
-	public void forEach(Action<? super ModelMapAdapters.ModelElementIdentity> configureAction) {
-		knownElements.all(configureAction);
 	}
 
 	public static final class KnownElement implements Named {
