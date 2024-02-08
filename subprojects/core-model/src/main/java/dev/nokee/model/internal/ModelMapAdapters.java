@@ -48,6 +48,7 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -581,6 +582,7 @@ public final class ModelMapAdapters {
 
 	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
 		private final Class<ElementType> elementType;
+		private final Set<ModelObjectIdentifier> knownIdentifiers = new HashSet<>();
 		private final KnownElements knownElements;
 		private final ModelMapElementsProviderFactory providers;
 		private final GradleCollection<ElementType> delegate;
@@ -594,6 +596,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
+			knownIdentifiers.add(identity.getIdentifier());
 			return knownElements.register(identity, delegate::register);
 		}
 
@@ -614,6 +617,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
+			assert knownIdentifiers.contains(identifier);
 			return knownElements.getById(identifier, elementType);
 		}
 
@@ -641,7 +645,7 @@ public final class ModelMapAdapters {
 
 			@Override
 			public void accept(ModelElement element, T t) {
-				if (knownElements.isKnown(element.getIdentifier(), elementType)) {
+				if (knownIdentifiers.contains(element.getIdentifier())) {
 					delegate.execute(t);
 				}
 			}

@@ -28,6 +28,4 @@ public interface KnownElements {
 	void forEach(Action<? super ModelMapAdapters.ModelElementIdentity> configureAction);
 
 	<T> ModelObject<T> getById(ModelObjectIdentifier identifier, Class<T> type);
-
-	boolean isKnown(ModelObjectIdentifier identifier, Class<?> type);
 }
