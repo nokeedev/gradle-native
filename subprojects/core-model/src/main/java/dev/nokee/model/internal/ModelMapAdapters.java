@@ -16,6 +16,8 @@
 
 package dev.nokee.model.internal;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
@@ -49,12 +51,15 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedName;
 import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
@@ -132,7 +137,7 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Project> delegate;
 
 		@Inject
-		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize) {
+		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, KnownElements knownElements, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
 			final PolymorphicDomainObjectRegistry<Project> registry = new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
 				@SuppressWarnings("unchecked")
@@ -157,7 +162,7 @@ public final class ModelMapAdapters {
 					return Project.class::equals;
 				}
 			};
-			this.delegate = new BaseModelMap<>(Project.class, registry, knownElements, discoveredElements, onFinalize, delegate, null, providers, objects);
+			this.delegate = new BaseModelMap<>(Project.class, registry, knownElements, discoveredElements, onFinalize, delegate, null, providers, objects, elementParents);
 			this.delegate.register(ProjectIdentifier.of(project), Project.class);
 		}
 
@@ -178,8 +183,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Configuration> delegate;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize) {
-			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), knownElements, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
+		public ForConfigurationContainer(ConfigurationContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
+			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), knownElements, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents);
 		}
 
 		@Override
@@ -200,8 +205,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Task> delegate;
 
 		@Inject
-		public ForTaskContainer(TaskContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize) {
-			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), knownElements, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
+		public ForTaskContainer(TaskContainer delegate, KnownElements knownElements, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
+			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), knownElements, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents);
 		}
 
 		@Override
@@ -229,8 +234,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DefaultKnownElements knownElementsEx, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize) {
-			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElementsEx, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects);
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DefaultKnownElements knownElementsEx, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
+			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), knownElementsEx, discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents);
 			this.elementType = elementType;
 			this.knownElementsEx = knownElementsEx;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
@@ -737,13 +742,95 @@ public final class ModelMapAdapters {
 		}
 	}
 
+	public interface ModelElementParents {
+		Stream<ModelElement> parentOf(ModelObjectIdentifier identifier);
+	}
+
+	private static final class ModelElementDecorator<ElementType> implements GradleCollection<ElementType> {
+		private final ModelElementParents elementParents;
+		private final ModelMapAdapters.GradleCollection<ElementType> delegate;
+		private final Multimap<String, ModelObjectIdentity<?>> nameToIdentities = ArrayListMultimap.create();
+		private final Map<ModelObjectIdentity<?>, Provider<?>> identityToProviders = new HashMap<>();
+
+		public ModelElementDecorator(ModelElementParents elementParents, ProviderFactory providers, GradleCollection<ElementType> delegate) {
+			this.elementParents = elementParents;
+			this.delegate = delegate;
+
+			delegate.getElements().configureEach(new InjectModelElementAction<>(providers));
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
+			nameToIdentities.put(identity.getName(), identity);
+			final ModelObject<RegistrableType> result = delegate.register(identity);
+			identityToProviders.put(identity, result.asProvider());
+			return result;
+		}
+
+		@Override
+		public Elements<ElementType> getElements() {
+			return delegate.getElements();
+		}
+
+		@Override
+		public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
+			delegate.whenElementFinalized(finalizeAction);
+		}
+
+		private final class InjectModelElementAction<S extends ElementType> implements Action<S> {
+			private final Namer<ElementType> namer = delegate.getElements().getNamer();
+			private final ProviderFactory providers;
+
+			public InjectModelElementAction(ProviderFactory providers) {
+				this.providers = providers;
+			}
+
+			@Override
+			public void execute(S it) {
+				final String name = namer.determineName(it);
+				if (nameToIdentities.containsKey(name)) {
+					ModelElementSupport.injectIdentifier(it, new ModelElement() {
+						private final Collection<ModelObjectIdentity<?>> identities = nameToIdentities.get(name);
+
+						@Override
+						public ModelObjectIdentifier getIdentifier() {
+							assert identities.size() >= 1; // TODO: Need to figure out
+							return identities.iterator().next().getIdentifier();
+						}
+
+						@Override
+						public Stream<ModelElement> getParents() {
+							return elementParents.parentOf(getIdentifier());
+						}
+
+						@Override
+						public boolean instanceOf(Class<?> type) {
+							return nameToIdentities.get(name).stream().anyMatch(it -> it.getType().isSubtypeOf(type));
+						}
+
+						@Override
+						@SuppressWarnings("unchecked")
+						public <T> Provider<T> safeAs(Class<T> type) {
+							return providers.provider(() -> identities.stream().filter(it -> it.getType().isSubtypeOf(type)).findFirst().map(it -> (Provider<T>) identityToProviders.get(it)).orElse(null)).flatMap(it -> it);
+						}
+
+						@Override
+						public String getName() {
+							return name;
+						}
+					});
+				}
+			}
+		}
+	}
+
 	private static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType> {
 		private final ModelMapStrategy<ElementType> strategy;
 		private final ContextualModelObjectIdentifier identifierFactory;
 		private final RegistrableTypes registrableTypes;
 
-		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects) {
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, providers, objects, finalizer, new FilterCollectionAdapter<>(new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer))));
+		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, KnownElements knownElements, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents) {
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, knownElements, providers, objects, finalizer, new ModelElementDecorator<>(elementParents, providers, new FilterCollectionAdapter<>(new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)))));
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;
 		}
