@@ -26,7 +26,6 @@ import dev.nokee.model.internal.DefaultModelElementFinalizer;
 import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.DiscoveryService;
-import dev.nokee.model.internal.ModelElementFinalizer;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMap;
 import dev.nokee.model.internal.ModelMapFactory;
@@ -93,7 +92,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		model(project).getExtensions().add("__nokee_elementFinalizer", new DefaultModelElementFinalizer(project));
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class, model(project).getExtensions().getByType(SetProviderFactory.class));
-		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(model(project).getExtensions().getByType(Instantiator.class), project.getObjects(), project, objects, model(project).getExtensions().getByType(DiscoveredElements.class), model(project).getExtensions().getByType(ModelElementFinalizer.class), model(project).getExtensions().getByType(SetProviderFactory.class)));
+		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(model(project).getExtensions().getByType(Instantiator.class), project.getObjects(), project, objects, model(project).getExtensions().getByType(DiscoveredElements.class)));
 
 		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));

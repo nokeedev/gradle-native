@@ -36,8 +36,6 @@ public final class ModelMapFactory {
 	private final Project project;
 	private final ModelObjects modelObjects;
 	private final DiscoveredElements discoveredElements;
-	private final ModelElementFinalizer finalizer;
-	private final SetProviderFactory setProviders;
 	private final ModelMapAdapters.ModelElementParents elementParents = new ModelMapAdapters.ModelElementParents() {
 		@Override
 		public Stream<ModelElement> parentOf(ModelObjectIdentifier identifier) {
@@ -45,33 +43,31 @@ public final class ModelMapFactory {
 		}
 	};
 
-	public ModelMapFactory(Instantiator instantiator, ObjectFactory objects, Project project, ModelObjects modelObjects, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, SetProviderFactory setProviders) {
+	public ModelMapFactory(Instantiator instantiator, ObjectFactory objects, Project project, ModelObjects modelObjects, DiscoveredElements discoveredElements) {
 		this.instantiator = instantiator;
 		this.project = project;
 		this.modelObjects = modelObjects;
 		this.discoveredElements = discoveredElements;
-		this.finalizer = finalizer;
-		this.setProviders = setProviders;
 
 		val container = objects.namedDomainObjectSet(Project.class);
-		modelObjects.register(instantiator.newInstance(ModelMapAdapters.ForProject.class, container, project, discoveredElements, finalizer, elementParents, setProviders));
+		modelObjects.register(instantiator.newInstance(ModelMapAdapters.ForProject.class, container, project, discoveredElements, elementParents));
 	}
 
 	public ModelMapAdapters.ForPolymorphicDomainObjectContainer<Task> create(TaskContainer container) {
-		val result = instantiator.newInstance(ModelMapAdapters.ForTaskContainer.class, container, discoveredElements, project, finalizer, elementParents, setProviders);
+		val result = instantiator.newInstance(ModelMapAdapters.ForTaskContainer.class, container, discoveredElements, project, elementParents);
 		modelObjects.register(result);
 		return result;
 	}
 
 	public ModelMapAdapters.ForNamedDomainObjectContainer<Configuration> create(ConfigurationContainer container) {
-		val result = instantiator.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, discoveredElements, project, finalizer, elementParents, setProviders);
+		val result = instantiator.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, discoveredElements, project, elementParents);
 		modelObjects.register(result);
 		return result;
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends Named> ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T> create(Class<T> elementType, ExtensiblePolymorphicDomainObjectContainer<T> container) {
-		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) instantiator.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), discoveredElements, project, finalizer, elementParents, setProviders);
+		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) instantiator.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, discoveredElements, project, elementParents);
 		modelObjects.register(result);
 		return result;
 	}
