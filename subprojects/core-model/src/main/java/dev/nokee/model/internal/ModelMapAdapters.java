@@ -43,7 +43,6 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.specs.Spec;
@@ -56,7 +55,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -135,7 +133,7 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Project> delegate;
 
 		@Inject
-		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
+		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders) {
 			final PolymorphicDomainObjectRegistry<Project> registry = new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
 				@SuppressWarnings("unchecked")
@@ -160,7 +158,7 @@ public final class ModelMapAdapters {
 					return Project.class::equals;
 				}
 			};
-			this.delegate = new BaseModelMap<>(Project.class, registry, discoveredElements, onFinalize, delegate, null, providers, objects, elementParents);
+			this.delegate = new BaseModelMap<>(Project.class, registry, discoveredElements, onFinalize, delegate, null, providers, objects, elementParents, setProviders);
 			this.delegate.register(ProjectIdentifier.of(project), Project.class);
 		}
 
@@ -181,8 +179,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Configuration> delegate;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
-			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents);
+		public ForConfigurationContainer(ConfigurationContainer delegate, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders) {
+			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents, setProviders);
 		}
 
 		@Override
@@ -203,8 +201,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Task> delegate;
 
 		@Inject
-		public ForTaskContainer(TaskContainer delegate, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
-			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents);
+		public ForTaskContainer(TaskContainer delegate, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders) {
+			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents, setProviders);
 		}
 
 		@Override
@@ -231,8 +229,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
-			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents);
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders) {
+			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents, setProviders);
 			this.elementType = elementType;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.registry = new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate);
@@ -479,51 +477,16 @@ public final class ModelMapAdapters {
 		void whenElementFinalized(Action<? super ElementType> finalizeAction);
 	}
 
-	private interface ModelMapElementsProviderFactory {
-		<T> Provider<Set<T>> provider(Consumer<? super Builder<T>> action);
-
-		interface Builder<T> {
-			Builder<T> add(Provider<? extends T> provider);
-		}
-	}
-
-	private static final class DefaultModelMapElementsProviderFactory implements ModelMapElementsProviderFactory {
-		private final ProviderFactory providers;
-		private final ObjectFactory objects;
-
-		private DefaultModelMapElementsProviderFactory(ProviderFactory providers, ObjectFactory objects) {
-			this.providers = providers;
-			this.objects = objects;
-		}
-
-		@Override
-		@SuppressWarnings({"unchecked", "UnstableApiUsage"})
-		public <T> Provider<Set<T>> provider(Consumer<? super Builder<T>> action) {
-			return providers.provider(() -> {
-				final SetProperty<Object> result = objects.setProperty(Object.class);
-				action.accept(new Builder<T>() {
-					@Override
-					public Builder<T> add(Provider<? extends T> provider) {
-						result.add(provider);
-						return this;
-					}
-				});
-
-				return (Provider<? extends Set<T>>) result;
-			}).flatMap(noOpTransformer());
-		}
-	}
-
 	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
 		private final Map<ModelObjectIdentifier, ModelObject<?>> knownObjects = new HashMap<>();
-		private final ModelMapElementsProviderFactory providers;
+		private final SetProviderFactory setProviders;
 		private final GradleCollection<ElementType> delegate;
 		private final DomainObjectSet<KnownModelObject<? extends ElementType>> knownElements;
 		private final KnownModelObjectFactory factory;
 
 		@SuppressWarnings({"unchecked", "UnstableApiUsage"})
-		private DefaultModelMapStrategy(Class<ElementType> elementType, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer finalizer, GradleCollection<ElementType> delegate) {
-			this.providers = new DefaultModelMapElementsProviderFactory(providers, objects);
+		private DefaultModelMapStrategy(Class<ElementType> elementType, SetProviderFactory setProviders, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer finalizer, GradleCollection<ElementType> delegate) {
+			this.setProviders = setProviders;
 			this.delegate = delegate;
 			this.knownElements = (DomainObjectSet<KnownModelObject<? extends ElementType>>) objects.domainObjectSet(new TypeToken<KnownModelObject<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getRawType());
 			this.factory = new KnownModelObjectFactory(providers, finalizer);
@@ -561,7 +524,7 @@ public final class ModelMapAdapters {
 		@Override
 		@SuppressWarnings("unchecked")
 		public <U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec) {
-			return providers.provider(builder -> {
+			return setProviders.create(builder -> {
 				knownElements.forEach(it -> {
 					if (it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(ofIdentity(it.getIdentifier(), it.getType()))) {
 						builder.add((Provider<? extends U>) it.asProvider());
@@ -731,9 +694,9 @@ public final class ModelMapAdapters {
 		private final RegistrableTypes registrableTypes;
 		private final ModelElementLookup elementsLookup;
 
-		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents) {
+		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents, SetProviderFactory setProviders) {
 			final ModelElementDecorator<ElementType> elementsLookup = new ModelElementDecorator<>(elementParents, providers, new FilterCollectionAdapter<>(new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)));
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, providers, objects, finalizer, elementsLookup));
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, setProviders, providers, objects, finalizer, elementsLookup));
 			this.elementsLookup = elementsLookup;
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;

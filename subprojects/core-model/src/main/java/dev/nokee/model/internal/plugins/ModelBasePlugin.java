@@ -34,6 +34,7 @@ import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.SetProviderFactory;
 import dev.nokee.model.internal.decorators.DeriveNameFromPropertyNameNamer;
 import dev.nokee.model.internal.decorators.NestedObjectNamer;
 import dev.nokee.model.internal.decorators.ReflectiveDomainObjectNamer;
@@ -87,11 +88,12 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		applyToAllTarget(project);
 
+		model(project).getExtensions().add("__nokee_setProviders", SetProviderFactory.forProject(project));
 		model(project).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(new CachedDiscoveryService(new DiscoveryService(model(project).getExtensions().getByType(Instantiator.class))), ProjectIdentifier.of(project)));
 
 		model(project).getExtensions().add("__nokee_elementFinalizer", new DefaultModelElementFinalizer(project));
-		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class);
-		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(project.getObjects(), project, objects, model(project).getExtensions().getByType(DiscoveredElements.class), model(project).getExtensions().getByType(ModelElementFinalizer.class)));
+		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class, model(project).getExtensions().getByType(SetProviderFactory.class));
+		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(project.getObjects(), project, objects, model(project).getExtensions().getByType(DiscoveredElements.class), model(project).getExtensions().getByType(ModelElementFinalizer.class), model(project).getExtensions().getByType(SetProviderFactory.class)));
 
 		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));

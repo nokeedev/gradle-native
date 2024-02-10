@@ -21,7 +21,6 @@ import org.gradle.api.DomainObjectSet;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.specs.Spec;
 
 import javax.annotation.Nullable;
@@ -44,14 +43,14 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 	private final Map<ModelObjectIdentifier, KnownModelObject<?>> identifierToElements = new HashMap<>();
 	private final List<KnownModelObject<?>> elements = new ArrayList<>();
 	private final ProviderFactory providers;
-	private final ObjectFactory objects;
 	@SuppressWarnings("rawtypes") private final DomainObjectSet<ModelMap> collections;
+	private final SetProviderFactory setProviders;
 
 	@Inject
-	public DefaultModelObjects(ProviderFactory providers, ObjectFactory objects) {
+	public DefaultModelObjects(ProviderFactory providers, ObjectFactory objects, SetProviderFactory setProviders) {
 		this.providers = providers;
-		this.objects = objects;
 		this.collections = objects.domainObjectSet(ModelMap.class);
+		this.setProviders = setProviders;
 	}
 
 	@Override
@@ -113,41 +112,27 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> Provider<Set<T>> get(Class<T> type) {
-		return providers.provider(() -> {
-			final List<KnownModelObject<T>> result = new ArrayList<>();
-
+		return setProviders.create(builder -> {
 			forEachIdentity(it -> {
 				// TODO: Should provide automatic discovery
 				if (it.getType().isSubtypeOf(type)) {
-					result.add((KnownModelObject<T>) it);
+					builder.add(((KnownModelObject<T>) it).asProvider());
 				}
 			});
-			return result;
-		}).flatMap(identities -> {
-			SetProperty<T> result = objects.setProperty(type);
-			identities.forEach(it -> result.add(it.asProvider()));
-			return result;
 		});
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> Provider<Set<T>> get(Class<T> type, Spec<? super KnownModelObject<?>> spec) {
-		return providers.provider(() -> {
-			final List<KnownModelObject<T>> result = new ArrayList<>();
-
+		return setProviders.create(builder -> {
 			forEachIdentity(it -> {
 				if (spec.isSatisfiedBy(it)) {
 					if (it.getType().isSubtypeOf(type)) {
-						result.add((KnownModelObject<T>) it);
+						builder.add(((KnownModelObject<T>) it).asProvider());
 					}
 				}
 			});
-			return result;
-		}).flatMap(identities -> {
-			SetProperty<T> result = objects.setProperty(type);
-			identities.forEach(it -> result.add(it.asProvider()));
-			return result;
 		});
 	}
 
