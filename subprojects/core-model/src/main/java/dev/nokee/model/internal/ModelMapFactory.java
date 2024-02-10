@@ -16,7 +16,6 @@
 
 package dev.nokee.model.internal;
 
-import dev.nokee.internal.Factory;
 import lombok.val;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
@@ -27,7 +26,6 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
 
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
@@ -70,12 +68,7 @@ public final class ModelMapFactory {
 
 	@SuppressWarnings("unchecked")
 	public <T extends Named> ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T> create(Class<T> elementType, ExtensiblePolymorphicDomainObjectContainer<T> container) {
-		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), discoveredElements, new ModelMapAdapters.ContextualModelElementInstantiator() {
-			@Override
-			public <S> Function<ModelElement, S> newInstance(Factory<S> factory) {
-				return element -> ModelElementSupport.newInstance(element, factory);
-			}
-		}, project, finalizer, elementParents);
+		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) objects.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, instantiator(project), discoveredElements, project, finalizer, elementParents);
 		modelObjects.register(result);
 		return result;
 	}

@@ -20,7 +20,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
-import dev.nokee.internal.Factory;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.ConfigurationRegistry;
 import dev.nokee.model.ExtensiblePolymorphicDomainObjectContainerRegistry;
@@ -220,10 +219,6 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	public interface ContextualModelElementInstantiator {
-		<S> Function<ModelElement, S> newInstance(Factory<S> factory);
-	}
-
 	interface ModelElementLookup {
 		@Nullable
 		ModelElement find(String name);
@@ -233,15 +228,13 @@ public final class ModelMapAdapters {
 		private final Class<ElementType> elementType;
 		private final ExtensiblePolymorphicDomainObjectContainerRegistry<ElementType> registry;
 		private final ManagedFactoryProvider managedFactory;
-		private final ContextualModelElementInstantiator elementInstantiator;
 		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DiscoveredElements discoveredElements, ContextualModelElementInstantiator elementInstantiator, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents) {
 			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents);
 			this.elementType = elementType;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
-			this.elementInstantiator = elementInstantiator;
 			this.registry = new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate);
 		}
 
@@ -252,18 +245,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type, NamedDomainObjectFactory<? extends U> factory) {
-			registry.registerFactory(type, newFactory(type, factory));
-		}
-
-		private <U extends ElementType> NamedDomainObjectFactory<U> newFactory(Class<U> type, NamedDomainObjectFactory<? extends U> delegate) {
-			return name -> {
-				ModelElement element = delegate().find(name);
-				if (element == null) {
-					register(ElementName.of(name), type);
-					element = delegate().find(name);
-				}
-				return elementInstantiator.newInstance((Factory<U>) () -> delegate.create(name)).apply(element);
-			};
+			registry.registerFactory(type, new ModelObjectFactory<>(type, factory));
 		}
 
 		@Override
@@ -275,6 +257,26 @@ public final class ModelMapAdapters {
 		@SuppressWarnings("UnstableApiUsage")
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(new TypeToken<ForExtensiblePolymorphicDomainObjectContainer<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getType());
+		}
+
+		private final class ModelObjectFactory<T extends ElementType> implements NamedDomainObjectFactory<T> {
+			private final Class<T> type;
+			private final NamedDomainObjectFactory<? extends T> delegate;
+
+			private ModelObjectFactory(Class<T> type, NamedDomainObjectFactory<? extends T> delegate) {
+				this.type = type;
+				this.delegate = delegate;
+			}
+
+			@Override
+			public T create(String name) {
+				ModelElement element = delegate().find(name);
+				if (element == null) {
+					register(name, type);
+					element = delegate().find(name);
+				}
+				return ModelElementSupport.newInstance(element, () -> delegate.create(name));
+			}
 		}
 	}
 
