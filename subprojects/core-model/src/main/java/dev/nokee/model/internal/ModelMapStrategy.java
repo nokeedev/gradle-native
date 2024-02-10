@@ -22,6 +22,7 @@ import org.gradle.api.specs.Spec;
 
 import java.util.Set;
 
+// Layer 1: Responsible for the minimalist version of ModelMap APIs
 public interface ModelMapStrategy<ElementType> {
 	<RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity);
 

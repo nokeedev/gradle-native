@@ -304,9 +304,6 @@ public final class ModelMapAdapters {
 
 	interface Elements<ElementType> {
 		void configureEach(Action<? super ElementType> configureAction);
-		<T extends ElementType> NamedDomainObjectProvider<T> named(String name, Class<T> type);
-		Set<String> getNames();
-		Namer<ElementType> getNamer();
 	}
 
 	private static final class GradleCollectionElements<ElementType> implements Elements<ElementType> {
@@ -320,58 +317,18 @@ public final class ModelMapAdapters {
 		public void configureEach(Action<? super ElementType> configureAction) {
 			collection.configureEach(configureAction);
 		}
-
-		@Override
-		public <T extends ElementType> NamedDomainObjectProvider<T> named(String name, Class<T> type) {
-			return collection.named(name, type);
-		}
-
-		@Override
-		public Set<String> getNames() {
-			return collection.getNames();
-		}
-
-		@Override
-		public Namer<ElementType> getNamer() {
-			return collection.getNamer();
-		}
 	}
 
-	private static final class FilterCollectionAdapter<ElementType> implements GradleCollection<ElementType> {
+	// Responsible to limit configuration of domain objects to only those registered.
+	//   It's important to limit the extent of the configuration to ensure lifecycle ordering.
+	private static final class RegisteredOnlyModelElementContainer<ElementType> implements ModelElementContainer<ElementType> {
 		private final Set<String> knownElements = new HashSet<>();
 		private final Namer<ElementType> namer;
-		private final Elements<ElementType> collection;
-		private final GradleCollection<ElementType> delegate;
+		private final ModelElementContainer<ElementType> delegate;
 
-		private FilterCollectionAdapter(GradleCollection<ElementType> delegate) {
-			this.namer = delegate.getElements().getNamer();
+		private RegisteredOnlyModelElementContainer(Namer<ElementType> namer, ModelElementContainer<ElementType> delegate) {
+			this.namer = namer;
 			this.delegate = delegate;
-			this.collection = new Elements<ElementType>() {
-				private final Elements<ElementType> elements = delegate.getElements();
-
-				@Override
-				public void configureEach(Action<? super ElementType> configureAction) {
-					elements.configureEach(new OnlyIfKnownAction<>(configureAction));
-				}
-
-				@Override
-				public <T extends ElementType> NamedDomainObjectProvider<T> named(String name, Class<T> type) {
-					if (!knownElements.contains(name)) {
-						throw new IllegalArgumentException("not known");
-					}
-					return elements.named(name, type);
-				}
-
-				@Override
-				public Set<String> getNames() {
-					return knownElements; // we can just return the known names
-				}
-
-				@Override
-				public Namer<ElementType> getNamer() {
-					return elements.getNamer();
-				}
-			};
 		}
 
 		@Override
@@ -381,8 +338,8 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public Elements<ElementType> getElements() {
-			return collection;
+		public void configureEach(Action<? super ElementType> configureAction) {
+			delegate.configureEach(new OnlyIfKnownAction<>(configureAction));
 		}
 
 		@Override
@@ -406,7 +363,9 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	private static final class GradleCollectionAdapter<ElementType> implements GradleCollection<ElementType> {
+	// Responsible for bridging domain object registry and element lifecycle configuration, i.e. mutate, finalized, etc.
+	//   It's also responsible to adapt the NamedDomainObjectProvider into ModelObject.
+	private static final class GradleCollectionAdapter<ElementType> implements ModelElementContainer<ElementType> {
 		private final PolymorphicDomainObjectRegistry<ElementType> registry;
 		private final Elements<ElementType> collection;
 		private final ModelElementFinalizer finalizer;
@@ -424,8 +383,8 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public Elements<ElementType> getElements() {
-			return collection;
+		public void configureEach(Action<? super ElementType> configureAction) {
+			collection.configureEach(configureAction);
 		}
 
 		@Override
@@ -469,27 +428,80 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	private interface GradleCollection<ElementType> {
+	// Layer 0: Responsible for registration and configuration of ModelObject.
+	interface ModelElementContainer<ElementType> {
 		<RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity);
 
-		Elements<ElementType> getElements();
+		void configureEach(Action<? super ElementType> configureAction);
 
 		void whenElementFinalized(Action<? super ElementType> finalizeAction);
 	}
 
-	private static final class DefaultModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
+	interface ModelElementConfigurer<ElementType> {
+		<T extends ElementType> void configure(ModelObjectIdentity<T> identity, Action<? super T> configureAction);
+	}
+
+	interface ModelElementProvider<ElementType> {
+		<T extends ElementType> Provider<T> forIdentity(ModelObjectIdentity<T> identity);
+	}
+
+	private static final class GradleCollectionModelElementConfigurerAdapter<ElementType> implements ModelElementConfigurer<ElementType> {
+		private final NamedDomainObjectCollection<ElementType> collection;
+
+		private GradleCollectionModelElementConfigurerAdapter(NamedDomainObjectCollection<ElementType> collection) {
+			this.collection = collection;
+		}
+
+		@Override
+		public <T extends ElementType> void configure(ModelObjectIdentity<T> identity, Action<? super T> configureAction) {
+			final String name = identity.getName();
+			final Class<T> type = identity.getType().getConcreteType();
+
+			if (collection.getNames().contains(name)) {
+				collection.named(name, type).configure(configureAction);
+			} else {
+				collection.configureEach(it -> {
+					if (collection.getNamer().determineName(it).equals(name)) {
+						configureAction.execute(type.cast(it));
+					}
+				});
+			}
+		}
+	}
+
+	private static final class GradleCollectionModelElementProviderAdapter<ElementType> implements ModelElementProvider<ElementType> {
+		private final NamedDomainObjectCollection<ElementType> collection;
+		private final ProviderFactory providers;
+
+		private GradleCollectionModelElementProviderAdapter(NamedDomainObjectCollection<ElementType> collection, ProviderFactory providers) {
+			this.collection = collection;
+			this.providers = providers;
+		}
+
+		@Override
+		public <T extends ElementType> Provider<T> forIdentity(ModelObjectIdentity<T> identity) {
+			return providers.provider(() -> {
+				final String name = identity.getName();
+				final Class<T> type = identity.getType().getConcreteType();
+				return collection.named(name, type);
+			}).flatMap(noOpTransformer());
+		}
+	}
+
+	// Responsible for managing all APIs relying on the "known" objects, i.e. getElements, whenElementKnown, etc.
+	private static final class KnownElementModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
 		private final Map<ModelObjectIdentifier, ModelObject<?>> knownObjects = new HashMap<>();
 		private final SetProviderFactory setProviders;
-		private final GradleCollection<ElementType> delegate;
+		private final ModelElementContainer<ElementType> delegate;
 		private final DomainObjectSet<KnownModelObject<? extends ElementType>> knownElements;
 		private final KnownModelObjectFactory factory;
 
 		@SuppressWarnings({"unchecked", "UnstableApiUsage"})
-		private DefaultModelMapStrategy(Class<ElementType> elementType, SetProviderFactory setProviders, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer finalizer, GradleCollection<ElementType> delegate) {
+		private KnownElementModelMapStrategy(Class<ElementType> elementType, SetProviderFactory setProviders, ObjectFactory objects, ModelElementFinalizer finalizer, ModelElementConfigurer<ElementType> configurer, ModelElementProvider<ElementType> provider, ModelElementContainer<ElementType> delegate) {
 			this.setProviders = setProviders;
 			this.delegate = delegate;
 			this.knownElements = (DomainObjectSet<KnownModelObject<? extends ElementType>>) objects.domainObjectSet(new TypeToken<KnownModelObject<ElementType>>() {}.where(new TypeParameter<ElementType>() {}, elementType).getRawType());
-			this.factory = new KnownModelObjectFactory(providers, finalizer);
+			this.factory = new KnownModelObjectFactory(finalizer, configurer, provider);
 		}
 
 		@Override
@@ -502,7 +514,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public void configureEach(Action<? super ElementType> configureAction) {
-			delegate.getElements().configureEach(configureAction);
+			delegate.configureEach(configureAction);
 		}
 
 		@Override
@@ -534,20 +546,18 @@ public final class ModelMapAdapters {
 		}
 
 		private final class KnownModelObjectFactory {
-			private final ProviderFactory providers;
 			private final ModelElementFinalizer finalizer;
+			private final ModelElementConfigurer<ElementType> configurer;
+			private final ModelElementProvider<ElementType> provider;
 
-			private KnownModelObjectFactory(ProviderFactory providers, ModelElementFinalizer finalizer) {
-				this.providers = providers;
+			private KnownModelObjectFactory(ModelElementFinalizer finalizer, ModelElementConfigurer<ElementType> configurer, ModelElementProvider<ElementType> provider) {
 				this.finalizer = finalizer;
+				this.configurer = configurer;
+				this.provider = provider;
 			}
 
 			public <ObjectType extends ElementType> KnownModelObject<ObjectType> create(ModelObjectIdentity<ObjectType> identity) {
 				return new KnownModelObject<ObjectType>() {
-					private final Elements<ElementType> collection = delegate.getElements();
-					private final String name = identity.getName();
-					private final Class<ObjectType> type = identity.getType().getConcreteType();
-
 					@Override
 					public ModelObjectIdentifier getIdentifier() {
 						return identity.getIdentifier();
@@ -560,15 +570,7 @@ public final class ModelMapAdapters {
 
 					@Override
 					public KnownModelObject<ObjectType> configure(Action<? super ObjectType> configureAction) {
-						if (collection.getNames().contains(name)) {
-							collection.named(name, type).configure(configureAction);
-						} else {
-							collection.configureEach(it -> {
-								if (collection.getNamer().determineName(it).equals(name)) {
-									configureAction.execute(type.cast(it));
-								}
-							});
-						}
+						configurer.configure(identity, configureAction);
 						return this;
 					}
 
@@ -585,12 +587,12 @@ public final class ModelMapAdapters {
 
 					@Override
 					public Provider<ObjectType> asProvider() {
-						return providers.provider(() -> delegate.getElements().named(name, type)).flatMap(noOpTransformer());
+						return provider.forIdentity(identity);
 					}
 
 					@Override
 					public String getName() {
-						return name;
+						return identity.getName();
 					}
 				};
 			}
@@ -601,20 +603,22 @@ public final class ModelMapAdapters {
 		Stream<ModelElement> parentOf(ModelObjectIdentifier identifier);
 	}
 
-	private static final class ModelElementDecorator<ElementType> implements GradleCollection<ElementType>, ModelElementLookup {
+	// Responsible to decorate all domain objects with their respective ModelElement.
+	//   It doubles as a lookup for ModelElement required by "extensible" ModelMap's domain object factories.
+	private static final class ModelElementDecorator<ElementType> implements ModelElementContainer<ElementType>, ModelElementLookup {
 		private final Multimap<String, ModelObjectIdentity<?>> nameToIdentities = ArrayListMultimap.create();
 		private final Map<String, ModelElement> nameToElements = new HashMap<>();
 		private final Map<ModelObjectIdentity<?>, Provider<?>> identityToProviders = new HashMap<>();
-		private final ModelMapAdapters.GradleCollection<ElementType> delegate;
+		private final ModelElementContainer<ElementType> delegate;
 		private final ModelElementParents elementParents;
 		private final ProviderFactory providers;
 
-		public ModelElementDecorator(ModelElementParents elementParents, ProviderFactory providers, GradleCollection<ElementType> delegate) {
+		public ModelElementDecorator(Namer<ElementType> namer, ModelElementParents elementParents, ProviderFactory providers, ModelElementContainer<ElementType> delegate) {
 			this.elementParents = elementParents;
 			this.providers = providers;
 			this.delegate = delegate;
 
-			delegate.getElements().configureEach(new InjectModelElementAction<>());
+			delegate.configureEach(new InjectModelElementAction<>(namer));
 		}
 
 		@Override
@@ -627,8 +631,8 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
-		public Elements<ElementType> getElements() {
-			return delegate.getElements();
+		public void configureEach(Action<? super ElementType> configureAction) {
+			delegate.configureEach(configureAction);
 		}
 
 		@Override
@@ -643,7 +647,11 @@ public final class ModelMapAdapters {
 		}
 
 		private final class InjectModelElementAction<S extends ElementType> implements Action<S> {
-			private final Namer<ElementType> namer = delegate.getElements().getNamer();
+			private final Namer<ElementType> namer;
+
+			private InjectModelElementAction(Namer<ElementType> namer) {
+				this.namer = namer;
+			}
 
 			@Override
 			public void execute(S it) {
@@ -695,8 +703,8 @@ public final class ModelMapAdapters {
 		private final ModelElementLookup elementsLookup;
 
 		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents, SetProviderFactory setProviders) {
-			final ModelElementDecorator<ElementType> elementsLookup = new ModelElementDecorator<>(elementParents, providers, new FilterCollectionAdapter<>(new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)));
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new DefaultModelMapStrategy<>(elementType, setProviders, providers, objects, finalizer, elementsLookup));
+			final ModelElementDecorator<ElementType> elementsLookup = new ModelElementDecorator<>(delegate.getNamer(), elementParents, providers, new RegisteredOnlyModelElementContainer<>(delegate.getNamer(), new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)));
+			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new KnownElementModelMapStrategy<>(elementType, setProviders, objects, finalizer, new GradleCollectionModelElementConfigurerAdapter<>(delegate), new GradleCollectionModelElementProviderAdapter<>(delegate, providers), elementsLookup));
 			this.elementsLookup = elementsLookup;
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;
