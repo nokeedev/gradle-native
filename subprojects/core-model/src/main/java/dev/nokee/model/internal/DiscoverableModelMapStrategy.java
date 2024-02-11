@@ -168,7 +168,7 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 		@Override
 		public ModelObject<T> whenFinalized(Action<? super T> finalizeAction) {
 			// FIXME: Scope to identifier
-			discoveredElements.onFinalized(finalizeAction, a -> delegate.configure(a));
+			discoveredElements.onFinalized(finalizeAction, a -> delegate.whenFinalized(a));
 			return this;
 		}
 
