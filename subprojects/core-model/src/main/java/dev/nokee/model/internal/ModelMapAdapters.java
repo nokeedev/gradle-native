@@ -703,6 +703,13 @@ public final class ModelMapAdapters {
 		private final ModelElementLookup elementsLookup;
 
 		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents, SetProviderFactory setProviders) {
+			// This may seems like a very complicated "new soup" but there is a very good reason for this design.
+			//   Each class is responsible for one aspect of the whole ModelMap behaviour (separation of concerns).
+			//   There is three level of API:
+			//     1) Full ModelMap
+			//     2) Restricted ModelMap API (no overloading)
+			//     3) Elements handling of the ModelMap API
+			//   The various layer handle one behaviour.
 			final ModelElementDecorator<ElementType> elementsLookup = new ModelElementDecorator<>(delegate.getNamer(), elementParents, providers, new RegisteredOnlyModelElementContainer<>(delegate.getNamer(), new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)));
 			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new KnownElementModelMapStrategy<>(elementType, setProviders, objects, finalizer, new GradleCollectionModelElementConfigurerAdapter<>(delegate), new GradleCollectionModelElementProviderAdapter<>(delegate, providers), elementsLookup));
 			this.elementsLookup = elementsLookup;
