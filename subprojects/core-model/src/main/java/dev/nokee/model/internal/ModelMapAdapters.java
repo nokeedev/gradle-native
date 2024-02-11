@@ -178,8 +178,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Configuration> delegate;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders) {
-			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents, setProviders);
+		public ForConfigurationContainer(ConfigurationContainer delegate, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders, ModelObjectIdentifierFactory identifierFactory) {
+			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), discoveredElements, onFinalize, delegate, identifierFactory, providers, objects, elementParents, setProviders);
 		}
 
 		@Override
@@ -200,8 +200,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Task> delegate;
 
 		@Inject
-		public ForTaskContainer(TaskContainer delegate, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders) {
-			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents, setProviders);
+		public ForTaskContainer(TaskContainer delegate, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders, ModelObjectIdentifierFactory identifierFactory) {
+			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), discoveredElements, onFinalize, delegate, identifierFactory, providers, objects, elementParents, setProviders);
 		}
 
 		@Override
@@ -228,8 +228,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DiscoveredElements discoveredElements, Project project, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders) {
-			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), discoveredElements, onFinalize, delegate, new ContextualModelObjectIdentifier(ProjectIdentifier.of(project)), providers, objects, elementParents, setProviders);
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders, ModelObjectIdentifierFactory identifierFactory) {
+			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), discoveredElements, onFinalize, delegate, identifierFactory, providers, objects, elementParents, setProviders);
 			this.elementType = elementType;
 			this.managedFactory = new ManagedFactoryProvider(instantiator);
 			this.registry = new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate);
@@ -274,18 +274,6 @@ public final class ModelMapAdapters {
 				}
 				return ModelElementSupport.newInstance(element, () -> delegate.create(name));
 			}
-		}
-	}
-
-	private static final class ContextualModelObjectIdentifier {
-		private final ModelObjectIdentifier baseIdentifier;
-
-		private ContextualModelObjectIdentifier(ModelObjectIdentifier baseIdentifier) {
-			this.baseIdentifier = baseIdentifier;
-		}
-
-		public ModelObjectIdentifier create(ElementName elementName) {
-			return baseIdentifier.child(elementName);
 		}
 	}
 
@@ -697,11 +685,11 @@ public final class ModelMapAdapters {
 
 	private static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType>, ModelElementLookup {
 		private final ModelMapStrategy<ElementType> strategy;
-		private final ContextualModelObjectIdentifier identifierFactory;
+		private final ModelObjectIdentifierFactory identifierFactory;
 		private final RegistrableTypes registrableTypes;
 		private final ModelElementLookup elementsLookup;
 
-		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ContextualModelObjectIdentifier identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents, SetProviderFactory setProviders) {
+		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ModelObjectIdentifierFactory identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents, SetProviderFactory setProviders) {
 			// This may seems like a very complicated "new soup" but there is a very good reason for this design.
 			//   Each class is responsible for one aspect of the whole ModelMap behaviour (separation of concerns).
 			//   There is three level of API:

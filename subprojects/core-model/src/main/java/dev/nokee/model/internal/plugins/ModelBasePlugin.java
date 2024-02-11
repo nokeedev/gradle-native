@@ -34,6 +34,7 @@ import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
 import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifierFactory;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -95,6 +96,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		model(project).getExtensions().add("__nokee_setProviders", SetProviderFactory.forProject(project));
 		model(project).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(new CachedDiscoveryService(new DiscoveryService(model(project).getExtensions().getByType(Instantiator.class))), ProjectIdentifier.of(project)));
 
+		model(project).getExtensions().add("__nokee_baseIdentifier", new ModelObjectIdentifierFactory(ProjectIdentifier.of(project)));
 		model(project).getExtensions().add("__nokee_elementFinalizer", new DefaultModelElementFinalizer(project));
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class, model(project).getExtensions().getByType(SetProviderFactory.class));
 		model(project).getExtensions().add("__nokee_parentElements", new ModelMapAdapters.ModelElementParents() {
