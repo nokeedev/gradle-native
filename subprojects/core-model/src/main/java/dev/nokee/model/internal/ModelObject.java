@@ -16,11 +16,15 @@
 
 package dev.nokee.model.internal;
 
+import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectProvider;
 
 public interface ModelObject<ObjectType> extends Named {
+	ModelObjectIdentifier getIdentifier();
+	ModelType<?> getType();
+
 	// TODO: Should we also have map/flatMap method or simply focus on this convertible?
 	NamedDomainObjectProvider<ObjectType> asProvider();
 	ObjectType get();

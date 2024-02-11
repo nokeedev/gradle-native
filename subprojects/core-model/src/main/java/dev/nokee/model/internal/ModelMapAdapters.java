@@ -358,7 +358,7 @@ public final class ModelMapAdapters {
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
 			final NamedDomainObjectProvider<RegistrableType> provider = registry.registerIfAbsent(identity.getName(), identity.getType().getConcreteType());
-			return new DefaultModelObject<>(provider);
+			return new DefaultModelObject<>(identity, provider);
 		}
 
 		@Override
@@ -372,10 +372,22 @@ public final class ModelMapAdapters {
 		}
 
 		private final class DefaultModelObject<ObjectType> implements ModelObject<ObjectType> {
+			private final ModelObjectIdentity<ObjectType> identity;
 			private final NamedDomainObjectProvider<ObjectType> provider;
 
-			private DefaultModelObject(NamedDomainObjectProvider<ObjectType> provider) {
+			private DefaultModelObject(ModelObjectIdentity<ObjectType> identity, NamedDomainObjectProvider<ObjectType> provider) {
+				this.identity = identity;
 				this.provider = provider;
+			}
+
+			@Override
+			public ModelObjectIdentifier getIdentifier() {
+				return identity.getIdentifier();
+			}
+
+			@Override
+			public ModelType<?> getType() {
+				return identity.getType();
 			}
 
 			@Override

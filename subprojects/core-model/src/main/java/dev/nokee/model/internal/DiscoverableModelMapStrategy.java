@@ -139,6 +139,16 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 		}
 
 		@Override
+		public ModelObjectIdentifier getIdentifier() {
+			return delegate.getIdentifier();
+		}
+
+		@Override
+		public ModelType<?> getType() {
+			return delegate.getType();
+		}
+
+		@Override
 		public NamedDomainObjectProvider<T> asProvider() {
 			return delegate.asProvider();
 		}
