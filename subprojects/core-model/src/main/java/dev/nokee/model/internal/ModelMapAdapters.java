@@ -55,7 +55,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
@@ -285,8 +284,8 @@ public final class ModelMapAdapters {
 			this.baseIdentifier = baseIdentifier;
 		}
 
-		public <R> R create(ElementName elementName, Function<? super ModelObjectIdentifier, ? extends R> action) {
-			return action.apply(baseIdentifier.child(elementName));
+		public ModelObjectIdentifier create(ElementName elementName) {
+			return baseIdentifier.child(elementName);
 		}
 	}
 
@@ -734,7 +733,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
-			return identifierFactory.create(name, identifier -> register(identifier, type));
+			return register(identifierFactory.create(name), type);
 		}
 
 		@Override
