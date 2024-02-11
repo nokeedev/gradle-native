@@ -132,7 +132,8 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Project> delegate;
 
 		@Inject
-		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders) {
+		@SuppressWarnings("unchecked")
+		public ForProject(NamedDomainObjectSet<Project> delegate, Project project, Instantiator instantiator) {
 			final PolymorphicDomainObjectRegistry<Project> registry = new PolymorphicDomainObjectRegistry<Project>() {
 				@Override
 				@SuppressWarnings("unchecked")
@@ -157,7 +158,7 @@ public final class ModelMapAdapters {
 					return Project.class::equals;
 				}
 			};
-			this.delegate = new BaseModelMap<>(Project.class, registry, discoveredElements, onFinalize, delegate, null, providers, objects, elementParents, setProviders);
+			this.delegate = instantiator.newInstance(BaseModelMap.class, Project.class, registry, delegate);
 			this.delegate.register(ProjectIdentifier.of(project), Project.class);
 		}
 
@@ -178,8 +179,9 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Configuration> delegate;
 
 		@Inject
-		public ForConfigurationContainer(ConfigurationContainer delegate, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders, ModelObjectIdentifierFactory identifierFactory) {
-			this.delegate = new BaseModelMap<>(Configuration.class, new ConfigurationRegistry(delegate), discoveredElements, onFinalize, delegate, identifierFactory, providers, objects, elementParents, setProviders);
+		@SuppressWarnings("unchecked")
+		public ForConfigurationContainer(ConfigurationContainer delegate, Instantiator instantiator) {
+			this.delegate = instantiator.newInstance(BaseModelMap.class, Configuration.class, new ConfigurationRegistry(delegate), delegate);
 		}
 
 		@Override
@@ -200,8 +202,9 @@ public final class ModelMapAdapters {
 		private final BaseModelMap<Task> delegate;
 
 		@Inject
-		public ForTaskContainer(TaskContainer delegate, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders, ModelObjectIdentifierFactory identifierFactory) {
-			this.delegate = new BaseModelMap<>(Task.class, new TaskRegistry(delegate), discoveredElements, onFinalize, delegate, identifierFactory, providers, objects, elementParents, setProviders);
+		@SuppressWarnings("unchecked")
+		public ForTaskContainer(TaskContainer delegate, Instantiator instantiator) {
+			this.delegate = instantiator.newInstance(BaseModelMap.class, Task.class, new TaskRegistry(delegate), delegate);
 		}
 
 		@Override
@@ -224,15 +227,16 @@ public final class ModelMapAdapters {
 	public static /*final*/ class ForExtensiblePolymorphicDomainObjectContainer<ElementType> implements ForwardingModelMap<ElementType>, ForwardingModelObjectRegistry<ElementType>, ModelObjectRegistry<ElementType>, ModelObjectFactoryRegistry<ElementType>, HasPublicType {
 		private final Class<ElementType> elementType;
 		private final ExtensiblePolymorphicDomainObjectContainerRegistry<ElementType> registry;
-		private final ManagedFactoryProvider managedFactory;
+		private final ManagedNamedDomainObjectFactoryProvider managedFactory;
 		private final BaseModelMap<ElementType> delegate;
 
 		@Inject
-		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, DiscoveredElements discoveredElements, ProviderFactory providers, ObjectFactory objects, ModelElementFinalizer onFinalize, ModelElementParents elementParents, SetProviderFactory setProviders, ModelObjectIdentifierFactory identifierFactory) {
-			this.delegate = new BaseModelMap<>(elementType, new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate), discoveredElements, onFinalize, delegate, identifierFactory, providers, objects, elementParents, setProviders);
-			this.elementType = elementType;
-			this.managedFactory = new ManagedFactoryProvider(instantiator);
+		@SuppressWarnings("unchecked")
+		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, ManagedNamedDomainObjectFactoryProvider managedFactoryProvider) {
 			this.registry = new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate);
+			this.delegate = instantiator.newInstance(BaseModelMap.class, elementType, registry, delegate);
+			this.elementType = elementType;
+			this.managedFactory = managedFactoryProvider;
 		}
 
 		@Override
@@ -247,7 +251,7 @@ public final class ModelMapAdapters {
 
 		@Override
 		public <U extends ElementType> void registerFactory(Class<U> type) {
-			registerFactory(type, managedFactory.create(type));
+			registerFactory(type, managedFactory.get(type));
 		}
 
 		@Override
@@ -274,18 +278,6 @@ public final class ModelMapAdapters {
 				}
 				return ModelElementSupport.newInstance(element, () -> delegate.create(name));
 			}
-		}
-	}
-
-	private static final class ManagedFactoryProvider {
-		private final Instantiator instantiator;
-
-		public ManagedFactoryProvider(Instantiator instantiator) {
-			this.instantiator = instantiator;
-		}
-
-		public <T> NamedDomainObjectFactory<T> create(Class<T> type) {
-			return __ -> instantiator.newInstance(type);
 		}
 	}
 
@@ -683,13 +675,14 @@ public final class ModelMapAdapters {
 		}
 	}
 
-	private static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType>, ModelElementLookup {
+	public static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType>, ModelElementLookup {
 		private final ModelMapStrategy<ElementType> strategy;
 		private final ModelObjectIdentifierFactory identifierFactory;
 		private final RegistrableTypes registrableTypes;
 		private final ModelElementLookup elementsLookup;
 
-		private BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ModelObjectIdentifierFactory identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents, SetProviderFactory setProviders) {
+		@Inject
+		public BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ModelObjectIdentifierFactory identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents, SetProviderFactory setProviders) {
 			// This may seems like a very complicated "new soup" but there is a very good reason for this design.
 			//   Each class is responsible for one aspect of the whole ModelMap behaviour (separation of concerns).
 			//   There is three level of API:

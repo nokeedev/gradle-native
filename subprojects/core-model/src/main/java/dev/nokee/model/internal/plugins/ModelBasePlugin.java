@@ -26,6 +26,7 @@ import dev.nokee.model.internal.DefaultModelElementFinalizer;
 import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.DiscoveryService;
+import dev.nokee.model.internal.ManagedNamedDomainObjectFactoryProvider;
 import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelExtension;
@@ -79,7 +80,12 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
 		target.getExtensions().create("model", ModelExtension.class);
 		final ServiceLookup services = new ContextualModelObjectIdentifierAwareServiceLookup(new ExtensionBackedServiceLookup(model(target).getExtensions()));
+
+		// Required to instantiate final classes
+		model(target).getExtensions().add("__gradle_objectFactory", objects);
+
 		model(target).getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
+		model(target).getExtensions().add("__nokee_managedFactoryProvider", instantiator(target).newInstance(ManagedNamedDomainObjectFactoryProvider.class));
 		model(target).getExtensions().add("__nokee_objectNamer", new ReflectiveDomainObjectNamer(model(target).getExtensions().getByType(Instantiator.class), new NestedObjectNamer(new DeriveNameFromPropertyNameNamer())));
 	}
 
@@ -87,11 +93,13 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		applyToAllTarget(settings);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void applyToProject(Project project) {
 		project.getConfigurations().all(ActionUtils.doNothing()); // Because... don't get me started with this... :'(
 
 		applyToAllTarget(project);
+
+		// Required to instantiate final classes
+		model(project).getExtensions().add("__gradle_providerFactory", project.getProviders());
 
 		model(project).getExtensions().add("__nokee_setProviders", SetProviderFactory.forProject(project));
 		model(project).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(new CachedDiscoveryService(new DiscoveryService(model(project).getExtensions().getByType(Instantiator.class))), ProjectIdentifier.of(project)));
@@ -143,7 +151,7 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		return TypeOf.typeOf(new TypeToken<ModelMap<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
 	}
 
-	public static Instantiator instantiator(Project project) {
-		return model(project).getExtensions().getByType(Instantiator.class);
+	public static <S extends ExtensionAware & PluginAware> Instantiator instantiator(S target) {
+		return model(target).getExtensions().getByType(Instantiator.class);
 	}
 }

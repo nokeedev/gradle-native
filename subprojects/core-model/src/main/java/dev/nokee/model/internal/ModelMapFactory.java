@@ -30,12 +30,10 @@ import org.gradle.api.tasks.TaskContainer;
 
 public final class ModelMapFactory {
 	private final Instantiator instantiator;
-	private final Project project;
 	private final ModelObjects modelObjects;
 
 	public ModelMapFactory(Instantiator instantiator, ObjectFactory objects, Project project, ModelObjects modelObjects) {
 		this.instantiator = instantiator;
-		this.project = project;
 		this.modelObjects = modelObjects;
 
 		register(() -> {
@@ -45,16 +43,16 @@ public final class ModelMapFactory {
 	}
 
 	public ModelMapAdapters.ForPolymorphicDomainObjectContainer<Task> create(TaskContainer container) {
-		return register(() -> instantiator.newInstance(ModelMapAdapters.ForTaskContainer.class, container, project));
+		return register(() -> instantiator.newInstance(ModelMapAdapters.ForTaskContainer.class, container));
 	}
 
 	public ModelMapAdapters.ForNamedDomainObjectContainer<Configuration> create(ConfigurationContainer container) {
-		return register(() -> instantiator.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, project));
+		return register(() -> instantiator.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container));
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends Named> ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T> create(Class<T> elementType, ExtensiblePolymorphicDomainObjectContainer<T> container) {
-		return register(() -> (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) instantiator.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, project));
+		return register(() -> (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) instantiator.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container));
 	}
 
 	private <R extends ModelMap<T>, T> R register(Factory<R> action) {
