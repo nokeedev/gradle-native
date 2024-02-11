@@ -26,10 +26,14 @@ import dev.nokee.model.internal.DefaultModelElementFinalizer;
 import dev.nokee.model.internal.DefaultModelObjects;
 import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.DiscoveryService;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ModelExtension;
 import dev.nokee.model.internal.ModelMap;
+import dev.nokee.model.internal.ModelMapAdapters;
 import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectFactoryRegistry;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -51,6 +55,7 @@ import org.gradle.api.reflect.TypeOf;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
 	private final PluginTargetSupport pluginScopes = PluginTargetSupport.builder()
@@ -92,7 +97,13 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		model(project).getExtensions().add("__nokee_elementFinalizer", new DefaultModelElementFinalizer(project));
 		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class, model(project).getExtensions().getByType(SetProviderFactory.class));
-		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(model(project).getExtensions().getByType(Instantiator.class), project.getObjects(), project, objects, model(project).getExtensions().getByType(DiscoveredElements.class)));
+		model(project).getExtensions().add("__nokee_parentElements", new ModelMapAdapters.ModelElementParents() {
+			@Override
+			public Stream<ModelElement> parentOf(ModelObjectIdentifier identifier) {
+				return objects.parentsOf(identifier).map(it -> it.asProvider().map(ModelElementSupport::asModelElement).get());
+			}
+		});
+		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(model(project).getExtensions().getByType(Instantiator.class), project.getObjects(), project, objects));
 
 		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));

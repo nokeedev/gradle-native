@@ -16,10 +16,11 @@
 
 package dev.nokee.model.internal;
 
+import dev.nokee.internal.Factory;
 import dev.nokee.internal.reflect.Instantiator;
-import lombok.val;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Named;
+import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -27,47 +28,37 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
 
-import java.util.stream.Stream;
-
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
-
 public final class ModelMapFactory {
 	private final Instantiator instantiator;
 	private final Project project;
 	private final ModelObjects modelObjects;
-	private final DiscoveredElements discoveredElements;
-	private final ModelMapAdapters.ModelElementParents elementParents = new ModelMapAdapters.ModelElementParents() {
-		@Override
-		public Stream<ModelElement> parentOf(ModelObjectIdentifier identifier) {
-			return modelObjects.parentsOf(identifier).map(it -> it.asProvider().map(ModelElementSupport::asModelElement).get());
-		}
-	};
 
-	public ModelMapFactory(Instantiator instantiator, ObjectFactory objects, Project project, ModelObjects modelObjects, DiscoveredElements discoveredElements) {
+	public ModelMapFactory(Instantiator instantiator, ObjectFactory objects, Project project, ModelObjects modelObjects) {
 		this.instantiator = instantiator;
 		this.project = project;
 		this.modelObjects = modelObjects;
-		this.discoveredElements = discoveredElements;
 
-		val container = objects.namedDomainObjectSet(Project.class);
-		modelObjects.register(instantiator.newInstance(ModelMapAdapters.ForProject.class, container, project, discoveredElements, elementParents));
+		register(() -> {
+			final NamedDomainObjectSet<Project> container = objects.namedDomainObjectSet(Project.class);
+			return instantiator.newInstance(ModelMapAdapters.ForProject.class, container, project);
+		});
 	}
 
 	public ModelMapAdapters.ForPolymorphicDomainObjectContainer<Task> create(TaskContainer container) {
-		val result = instantiator.newInstance(ModelMapAdapters.ForTaskContainer.class, container, discoveredElements, project, elementParents);
-		modelObjects.register(result);
-		return result;
+		return register(() -> instantiator.newInstance(ModelMapAdapters.ForTaskContainer.class, container, project));
 	}
 
 	public ModelMapAdapters.ForNamedDomainObjectContainer<Configuration> create(ConfigurationContainer container) {
-		val result = instantiator.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, discoveredElements, project, elementParents);
-		modelObjects.register(result);
-		return result;
+		return register(() -> instantiator.newInstance(ModelMapAdapters.ForConfigurationContainer.class, container, project));
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends Named> ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T> create(Class<T> elementType, ExtensiblePolymorphicDomainObjectContainer<T> container) {
-		val result = (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) instantiator.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, discoveredElements, project, elementParents);
+		return register(() -> (ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer<T>) instantiator.newInstance(ModelMapAdapters.ForExtensiblePolymorphicDomainObjectContainer.class, elementType, container, project));
+	}
+
+	private <R extends ModelMap<T>, T> R register(Factory<R> action) {
+		final R result = action.create();
 		modelObjects.register(result);
 		return result;
 	}
