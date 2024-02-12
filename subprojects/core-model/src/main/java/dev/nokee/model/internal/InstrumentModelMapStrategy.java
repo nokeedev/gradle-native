@@ -16,10 +16,7 @@
 
 package dev.nokee.model.internal;
 
-import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.provider.Provider;
 
 public final class InstrumentModelMapStrategy<ElementType> extends ForwardingModelMapStrategy<ElementType> {
 	private final Instrument instrument;
@@ -71,7 +68,7 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 		<T> Action<T> onFinalized(ModelObjectIdentity<T> identity, Action<T> finalizeAction);
 	}
 
-	private final class KObjectAdapter<T> implements KnownModelObject<T> {
+	private final class KObjectAdapter<T> extends ForwardingKnownModelObject<T> {
 		private final KnownModelObject<T> delegate;
 
 		private KObjectAdapter(KnownModelObject<T> delegate) {
@@ -79,26 +76,21 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 		}
 
 		@Override
-		public ModelObjectIdentifier getIdentifier() {
-			return delegate.getIdentifier();
-		}
-
-		@Override
-		public ModelType<?> getType() {
-			return delegate.getType();
+		protected KnownModelObject<T> delegate() {
+			return delegate;
 		}
 
 		@Override
 		public KnownModelObject<T> configure(Action<? super T> configureAction) {
 			// FIXME: Scope to identifier
-			delegate.configure(instrument.onRealized(/*ofIdentity(getIdentifier(), getType()), */configureAction));
+			super.configure(instrument.onRealized(/*ofIdentity(getIdentifier(), getType()), */configureAction));
 			return this;
 		}
 
 		@Override
 		public KnownModelObject<T> whenFinalized(Action<? super T> finalizeAction) {
 			// FIXME: Scope to identifier
-			delegate.whenFinalized(instrument.onFinalized(/*ofIdentity(getIdentifier(), getType()), */finalizeAction));
+			super.whenFinalized(instrument.onFinalized(/*ofIdentity(getIdentifier(), getType()), */finalizeAction));
 			return this;
 		}
 
@@ -106,23 +98,13 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 		public void realizeNow() {
 			// FIXME(discover): Mark element as realizing/realized
 			//   Need to figure out what should be captured by the discovery service
-//			discoveredElements.onRealizing(delegate);
-			delegate.realizeNow();
-//			discoveredElements.onRealized(delegate);
-		}
-
-		@Override
-		public Provider<T> asProvider() {
-			return delegate.asProvider();
-		}
-
-		@Override
-		public String getName() {
-			return delegate.getName();
+//			listener.onRealizing(delegate);
+			super.realizeNow();
+//			listener.onRealized(delegate);
 		}
 	}
 
-	private final class MObjectAdapter<T> implements ModelObject<T> {
+	private final class MObjectAdapter<T> extends ForwardingModelObject<T> {
 		private final ModelObject<T> delegate;
 
 		private MObjectAdapter(ModelObject<T> delegate) {
@@ -130,42 +112,22 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 		}
 
 		@Override
-		public ModelObjectIdentifier getIdentifier() {
-			return delegate.getIdentifier();
-		}
-
-		@Override
-		public ModelType<?> getType() {
-			return delegate.getType();
-		}
-
-		@Override
-		public NamedDomainObjectProvider<T> asProvider() {
-			return delegate.asProvider();
-		}
-
-		@Override
-		public T get() {
-			return delegate.get();
+		protected ModelObject<T> delegate() {
+			return delegate;
 		}
 
 		@Override
 		public ModelObject<T> configure(Action<? super T> configureAction) {
 			// FIXME: Scope to identifier
-			delegate.configure(instrument.onRealized(/*ofIdentity(getIdentifier(), getType()), */configureAction));
+			super.configure(instrument.onRealized(/*ofIdentity(getIdentifier(), getType()), */configureAction));
 			return this;
 		}
 
 		@Override
 		public ModelObject<T> whenFinalized(Action<? super T> finalizeAction) {
 			// FIXME: Scope to identifier
-			delegate.whenFinalized(instrument.onFinalized(/*ofIdentity(getIdentifier(), getType()), */finalizeAction));
+			super.whenFinalized(instrument.onFinalized(/*ofIdentity(getIdentifier(), getType()), */finalizeAction));
 			return this;
-		}
-
-		@Override
-		public String getName() {
-			return delegate.getName();
 		}
 	}
 }
