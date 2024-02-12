@@ -134,7 +134,7 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 	}
 
 	@Override
-	public <T> Action<T> onRealized(ModelObjectIdentity<T> identity, Action<T> configureAction) {
+	public <T> Action<T> onRealized(ModelObjectIdentity<?> identity, Action<T> configureAction) {
 		// FIXME(discovery): Account for identity
 		return onRealized(configureAction);
 	}
@@ -169,7 +169,7 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 	}
 
 	@Override
-	public <T> Action<T> onFinalized(ModelObjectIdentity<T> identity, Action<T> finalizeAction) {
+	public <T> Action<T> onFinalized(ModelObjectIdentity<?> identity, Action<T> finalizeAction) {
 		// FIXME(discovery): Account for identity
 		return onFinalized(finalizeAction);
 	}

@@ -18,6 +18,8 @@ package dev.nokee.model.internal;
 
 import org.gradle.api.Action;
 
+import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
+
 public final class InstrumentModelMapStrategy<ElementType> extends ForwardingModelMapStrategy<ElementType> {
 	private final Instrument instrument;
 	private final ModelMapStrategy<ElementType> delegate;
@@ -62,17 +64,19 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 		<T> Action<KnownModelObject<? extends T>> onKnown(Action<KnownModelObject<? extends T>> action);
 
 		<T> Action<T> onRealized(Action<T> configureAction);
-		<T> Action<T> onRealized(ModelObjectIdentity<T> identity, Action<T> configureAction);
+		<T> Action<T> onRealized(ModelObjectIdentity<?> identity, Action<T> configureAction);
 
 		<T> Action<T> onFinalized(Action<T> finalizeAction);
-		<T> Action<T> onFinalized(ModelObjectIdentity<T> identity, Action<T> finalizeAction);
+		<T> Action<T> onFinalized(ModelObjectIdentity<?> identity, Action<T> finalizeAction);
 	}
 
 	private final class KObjectAdapter<T> extends ForwardingKnownModelObject<T> {
 		private final KnownModelObject<T> delegate;
+		private final ModelObjectIdentity<?> identity;
 
 		private KObjectAdapter(KnownModelObject<T> delegate) {
 			this.delegate = delegate;
+			this.identity = ofIdentity(getIdentifier(), getType());
 		}
 
 		@Override
@@ -83,14 +87,14 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 		@Override
 		public KnownModelObject<T> configure(Action<? super T> configureAction) {
 			// FIXME: Scope to identifier
-			super.configure(instrument.onRealized(/*ofIdentity(getIdentifier(), getType()), */configureAction));
+			super.configure(instrument.onRealized(identity, configureAction));
 			return this;
 		}
 
 		@Override
 		public KnownModelObject<T> whenFinalized(Action<? super T> finalizeAction) {
 			// FIXME: Scope to identifier
-			super.whenFinalized(instrument.onFinalized(/*ofIdentity(getIdentifier(), getType()), */finalizeAction));
+			super.whenFinalized(instrument.onFinalized(identity, finalizeAction));
 			return this;
 		}
 
@@ -106,9 +110,11 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 
 	private final class MObjectAdapter<T> extends ForwardingModelObject<T> {
 		private final ModelObject<T> delegate;
+		private final ModelObjectIdentity<?> identity;
 
 		private MObjectAdapter(ModelObject<T> delegate) {
 			this.delegate = delegate;
+			this.identity = ofIdentity(getIdentifier(), getType());
 		}
 
 		@Override
@@ -119,14 +125,14 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 		@Override
 		public ModelObject<T> configure(Action<? super T> configureAction) {
 			// FIXME: Scope to identifier
-			super.configure(instrument.onRealized(/*ofIdentity(getIdentifier(), getType()), */configureAction));
+			super.configure(instrument.onRealized(identity, configureAction));
 			return this;
 		}
 
 		@Override
 		public ModelObject<T> whenFinalized(Action<? super T> finalizeAction) {
 			// FIXME: Scope to identifier
-			super.whenFinalized(instrument.onFinalized(/*ofIdentity(getIdentifier(), getType()), */finalizeAction));
+			super.whenFinalized(instrument.onFinalized(identity, finalizeAction));
 			return this;
 		}
 	}
