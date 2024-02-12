@@ -703,7 +703,7 @@ public final class ModelMapAdapters {
 			//     3) Elements handling of the ModelMap API
 			//   The various layer handle one behaviour.
 			final ModelElementDecorator<ElementType> elementsLookup = new ModelElementDecorator<>(delegate.getNamer(), elementParents, providers, new RegisteredOnlyModelElementContainer<>(delegate.getNamer(), new GradleCollectionAdapter<>(registry, new GradleCollectionElements<>(delegate), finalizer)));
-			this.strategy = new DiscoverableModelMapStrategy<>(discoveredElements, providers, new KnownElementModelMapStrategy<>(elementType, setProviders, objects, finalizer, new GradleCollectionModelElementConfigurerAdapter<>(delegate), new GradleCollectionModelElementProviderAdapter<>(delegate, providers), elementsLookup));
+			this.strategy = new DiscoverableModelMapStrategy<>(delegate.getNamer(), objects, discoveredElements, providers, new KnownElementModelMapStrategy<>(elementType, setProviders, objects, finalizer, new GradleCollectionModelElementConfigurerAdapter<>(delegate), new GradleCollectionModelElementProviderAdapter<>(delegate, providers), elementsLookup));
 			this.elementsLookup = elementsLookup;
 			this.identifierFactory = identifierFactory;
 			this.registrableTypes = registry.getRegistrableTypes()::canRegisterType;

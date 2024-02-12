@@ -44,14 +44,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.type.ModelType.of;
 
-public class DiscoveredElements {
+public class DiscoveredElements implements DiscoverableModelMapStrategy.Listener, DiscoverableModelMapStrategy.Instrument {
 	private final Map<ModelObjectIdentity<?>, ModelObject<?>> objects = new HashMap<>();
 	private final CachedDiscoveryService service;
 	private final ProjectIdentifier rootIdentifier;
@@ -127,34 +126,52 @@ public class DiscoveredElements {
 		});
 	}
 
-	public <T> void onRealized(Action<? super T> action, Consumer<? super Action<? super T>> next) {
+	@Override
+	public <T> Action<T> onRealized(Action<T> action) {
 		// FIXME(discovery): extract type filter from action
 		discoverType(action).map(RealizeRule::new).forEach(rules::add);
-		next.accept(action);
+		return action;
 	}
 
-	public void onRealizing(ModelElement e) {
+	@Override
+	public <T> Action<T> onRealized(ModelObjectIdentity<T> identity, Action<T> configureAction) {
+		// FIXME(discovery): Account for identity
+		return onRealized(configureAction);
+	}
+
+	@Override
+	public void onRealizing(ModelObjectIdentity<?> e) {
 		// FIXME(discover): mark element as realizing...
 	}
 
-	public void onRealized(ModelElement e) {
+	@Override
+	public void onRealized(ModelObjectIdentity<?> e) {
 		// FIXME(discover): mark element as realized...
 	}
 
-	public void onFinalizing(ModelElement e) {
+	@Override
+	public void onFinalizing(ModelObjectIdentity<?> e) {
 		// FIXME(discover): mark element as finalizing...
 	}
 
-	public <T> void onKnown(Action<? super KnownModelObject<T>> action, Consumer<? super Action<? super KnownModelObject<T>>> next) {
+	@Override
+	public <T> Action<KnownModelObject<? extends T>> onKnown(Action<KnownModelObject<? extends T>> action) {
 		// FIXME(discovery): extract type filter from action
 		discoverType(action).map(KnownRule::new).forEach(rules::add);
-		next.accept(action);
+		return action;
 	}
 
-	public <T> void onFinalized(Action<? super T> action, Consumer<? super Action<? super T>> next) {
+	@Override
+	public <T> Action<T> onFinalized(Action<T> action) {
 		// FIXME(discovery): extract type filter from action
 		discoverType(action).map(FinalizeRule::new).forEach(rules::add);
-		next.accept(action);
+		return action;
+	}
+
+	@Override
+	public <T> Action<T> onFinalized(ModelObjectIdentity<T> identity, Action<T> finalizeAction) {
+		// FIXME(discovery): Account for identity
+		return onFinalized(finalizeAction);
 	}
 
 	//region FIXME(discovery): streamline discovery

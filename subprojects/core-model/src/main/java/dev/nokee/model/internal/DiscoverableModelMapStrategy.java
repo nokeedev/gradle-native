@@ -16,54 +16,75 @@
 
 package dev.nokee.model.internal;
 
+import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
+import org.gradle.api.DomainObjectSet;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Namer;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Spec;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
 final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
+	private final Map<String, DomainObjectSet<ModelObjectIdentity<?>>> nameToIdentities = new HashMap<>();
+	private final Function<String, DomainObjectSet<ModelObjectIdentity<?>>> factory;
 	private final DiscoveredElements discoveredElements;
 	private final ProviderFactory providers;
 	private final ModelMapStrategy<ElementType> delegate;
 
-	DiscoverableModelMapStrategy(DiscoveredElements discoveredElements, ProviderFactory providers, ModelMapStrategy<ElementType> delegate) {
+	@SuppressWarnings("unchecked")
+	DiscoverableModelMapStrategy(Namer<ElementType> namer, ObjectFactory objects, DiscoveredElements discoveredElements, ProviderFactory providers, ModelMapStrategy<ElementType> delegate) {
 		this.discoveredElements = discoveredElements;
 		this.providers = providers;
 		this.delegate = delegate;
+		this.factory = __ -> {
+			return (DomainObjectSet<ModelObjectIdentity<?>>) objects.domainObjectSet(new TypeToken<ModelObjectIdentity<?>>() {}.getRawType());
+		};
 
 		// For book keeping...
-		delegate.configureEach(new ModelElementAction<>((e, it) -> discoveredElements.onRealizing(e)));
-		delegate.whenElementFinalized(new ModelElementAction<>((e, it) -> {
-			discoveredElements.onRealized(e);
-			discoveredElements.onFinalizing(e);
-		}));
+		delegate.configureEach(it -> {
+			nameToIdentities.computeIfAbsent(namer.determineName(it), factory).all(discoveredElements::onRealizing);
+		});
+		delegate.whenElementFinalized(it -> {
+			nameToIdentities.computeIfAbsent(namer.determineName(it), factory).all(e -> {
+				discoveredElements.onRealized(e);
+				discoveredElements.onFinalizing(e);
+			});
+		});
 	}
 
 	@Override
 	public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
-		return new MObjectAdapter<>(discoveredElements.discover(identity, () -> delegate.register(identity)));
+		final ModelObject<RegistrableType> result = discoveredElements.discover(identity, () -> {
+			nameToIdentities.computeIfAbsent(identity.getName(), factory).add(identity);
+			return delegate.register(identity);
+		});
+		return new MObjectAdapter<>(result);
 	}
 
 	@Override
 	public void configureEach(Action<? super ElementType> configureAction) {
-		discoveredElements.onRealized(configureAction, a -> delegate.configureEach(a));
+		delegate.configureEach(discoveredElements.onRealized(configureAction));
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void whenElementKnown(Action<? super KnownModelObject<? extends ElementType>> configureAction) {
-		discoveredElements.onKnown(configureAction, a -> delegate.whenElementKnown(it -> a.execute(new KObjectAdapter<>((KnownModelObject<ElementType>) it))));
+		delegate.whenElementKnown(discoveredElements.onKnown(it -> configureAction.execute(new KObjectAdapter<>((KnownModelObject<ElementType>) it))));
 	}
 
 	@Override
 	public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-		discoveredElements.onFinalized(finalizeAction, a -> delegate.whenElementFinalized(a));
+		delegate.whenElementFinalized(discoveredElements.onFinalized(finalizeAction));
 	}
 
 	@Override
@@ -100,14 +121,14 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 		@Override
 		public KnownModelObject<T> configure(Action<? super T> configureAction) {
 			// FIXME: Scope to identifier
-			discoveredElements.onRealized(configureAction, a -> delegate.configure(a));
+			delegate.configure(discoveredElements.onRealized(/*ofIdentity(getIdentifier(), getType()), */configureAction));
 			return this;
 		}
 
 		@Override
 		public KnownModelObject<T> whenFinalized(Action<? super T> finalizeAction) {
 			// FIXME: Scope to identifier
-			discoveredElements.onFinalized(finalizeAction, a -> delegate.whenFinalized(a));
+			delegate.whenFinalized(discoveredElements.onFinalized(/*ofIdentity(getIdentifier(), getType()), */finalizeAction));
 			return this;
 		}
 
@@ -161,14 +182,14 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 		@Override
 		public ModelObject<T> configure(Action<? super T> configureAction) {
 			// FIXME: Scope to identifier
-			discoveredElements.onRealized(configureAction, a -> delegate.configure(a));
+			delegate.configure(discoveredElements.onRealized(/*ofIdentity(getIdentifier(), getType()), */configureAction));
 			return this;
 		}
 
 		@Override
 		public ModelObject<T> whenFinalized(Action<? super T> finalizeAction) {
 			// FIXME: Scope to identifier
-			discoveredElements.onFinalized(finalizeAction, a -> delegate.whenFinalized(a));
+			delegate.whenFinalized(discoveredElements.onFinalized(/*ofIdentity(getIdentifier(), getType()), */finalizeAction));
 			return this;
 		}
 
@@ -176,5 +197,21 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 		public String getName() {
 			return delegate.getName();
 		}
+	}
+
+	public interface Listener {
+		void onRealizing(ModelObjectIdentity<?> e);
+		void onRealized(ModelObjectIdentity<?> e);
+		void onFinalizing(ModelObjectIdentity<?> e);
+	}
+
+	public interface Instrument {
+		<T> Action<KnownModelObject<? extends T>> onKnown(Action<KnownModelObject<? extends T>> action);
+
+		<T> Action<T> onRealized(Action<T> configureAction);
+		<T> Action<T> onRealized(ModelObjectIdentity<T> identity, Action<T> configureAction);
+
+		<T> Action<T> onFinalized(Action<T> finalizeAction);
+		<T> Action<T> onFinalized(ModelObjectIdentity<T> identity, Action<T> finalizeAction);
 	}
 }
