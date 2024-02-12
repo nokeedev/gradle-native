@@ -47,7 +47,17 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 	@Override
 	@SuppressWarnings("unchecked")
 	public void whenElementKnown(Action<? super KnownModelObject<? extends ElementType>> configureAction) {
-		super.whenElementKnown(instrument.onKnown(it -> configureAction.execute(new KObjectAdapter<>((KnownModelObject<ElementType>) it))));
+		super.whenElementKnown(instrument.onKnown(new Action<KnownModelObject<? extends ElementType>>() {
+			@Override
+			public void execute(KnownModelObject<? extends ElementType> it) {
+				configureAction.execute(new KObjectAdapter<>((KnownModelObject<ElementType>) it));
+			}
+
+			@Override
+			public String toString() {
+				return configureAction.toString();
+			}
+		}));
 	}
 
 	@Override
