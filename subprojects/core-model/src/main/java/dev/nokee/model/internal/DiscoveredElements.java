@@ -50,7 +50,7 @@ import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.type.ModelType.of;
 
-public class DiscoveredElements implements ListeningModelMapStrategy.Listener, DiscoverableModelMapStrategy.Instrument {
+public class DiscoveredElements implements ListeningModelMapStrategy.Listener, InstrumentModelMapStrategy.Instrument {
 	private final Map<ModelObjectIdentity<?>, ModelObject<?>> objects = new HashMap<>();
 	private final CachedDiscoveryService service;
 	private final ProjectIdentifier rootIdentifier;
