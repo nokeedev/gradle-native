@@ -140,6 +140,11 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 	}
 
 	@Override
+	public void onRegister(ModelObjectIdentity<?> e) {
+		// FIXME(discovery): Maybe use this API to discover the registering entity
+	}
+
+	@Override
 	public void onRealizing(ModelObjectIdentity<?> e) {
 		// FIXME(discover): mark element as realizing...
 	}

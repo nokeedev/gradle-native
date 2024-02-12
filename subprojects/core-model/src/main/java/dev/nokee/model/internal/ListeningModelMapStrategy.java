@@ -27,11 +27,13 @@ import java.util.function.Function;
 
 public final class ListeningModelMapStrategy<ElementType> extends ForwardingModelMapStrategy<ElementType> {
 	private final Map<String, DomainObjectSet<ModelObjectIdentity<?>>> nameToIdentities = new HashMap<>();
+	private final Listener listener;
 	private final ModelMapStrategy<ElementType> delegate;
 	private final Function<String, DomainObjectSet<ModelObjectIdentity<?>>> factory;
 
 	@SuppressWarnings("unchecked")
 	public ListeningModelMapStrategy(Namer<ElementType> namer, ObjectFactory objects, Listener listener, ModelMapStrategy<ElementType> delegate) {
+		this.listener = listener;
 		this.delegate = delegate;
 
 		this.factory = __ -> {
@@ -51,6 +53,7 @@ public final class ListeningModelMapStrategy<ElementType> extends ForwardingMode
 
 	@Override
 	public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
+		listener.onRegister(identity);
 		nameToIdentities.computeIfAbsent(identity.getName(), factory).add(identity);
 		return super.register(identity);
 	}
@@ -61,6 +64,7 @@ public final class ListeningModelMapStrategy<ElementType> extends ForwardingMode
 	}
 
 	public interface Listener {
+		void onRegister(ModelObjectIdentity<?> e);
 		void onRealizing(ModelObjectIdentity<?> e);
 		void onRealized(ModelObjectIdentity<?> e);
 		void onFinalizing(ModelObjectIdentity<?> e);
