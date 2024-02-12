@@ -16,10 +16,8 @@
 
 package dev.nokee.model.internal;
 
-import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
-import org.gradle.api.DomainObjectSet;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Namer;
 import org.gradle.api.model.ObjectFactory;
@@ -27,78 +25,66 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.specs.Spec;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
-final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
-	private final Map<String, DomainObjectSet<ModelObjectIdentity<?>>> nameToIdentities = new HashMap<>();
-	private final Function<String, DomainObjectSet<ModelObjectIdentity<?>>> factory;
+final class DiscoverableModelMapStrategy<ElementType> extends ForwardingModelMapStrategy<ElementType> implements ModelMapStrategy<ElementType> {
 	private final DiscoveredElements discoveredElements;
-	private final ProviderFactory providers;
 	private final ModelMapStrategy<ElementType> delegate;
 
 	@SuppressWarnings("unchecked")
 	DiscoverableModelMapStrategy(Namer<ElementType> namer, ObjectFactory objects, DiscoveredElements discoveredElements, ProviderFactory providers, ModelMapStrategy<ElementType> delegate) {
 		this.discoveredElements = discoveredElements;
-		this.providers = providers;
-		this.delegate = delegate;
-		this.factory = __ -> {
-			return (DomainObjectSet<ModelObjectIdentity<?>>) objects.domainObjectSet(new TypeToken<ModelObjectIdentity<?>>() {}.getRawType());
-		};
+		this.delegate = new ListeningModelMapStrategy<>(namer, objects, discoveredElements, new ForwardingModelMapStrategy<ElementType>() {
+			@Override
+			protected ModelMapStrategy<ElementType> delegate() {
+				return delegate;
+			}
 
-		// For book keeping...
-		delegate.configureEach(it -> {
-			nameToIdentities.computeIfAbsent(namer.determineName(it), factory).all(discoveredElements::onRealizing);
+			@Override
+			public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
+				final ModelObject<RegistrableType> result = discoveredElements.discover(identity, () -> {
+					return super.register(identity);
+				});
+				return new MObjectAdapter<>(result);
+			}
+
+			@Override
+			public void configureEach(Action<? super ElementType> configureAction) {
+				super.configureEach(discoveredElements.onRealized(configureAction));
+			}
+
+			@Override
+			@SuppressWarnings("unchecked")
+			public void whenElementKnown(Action<? super KnownModelObject<? extends ElementType>> configureAction) {
+				super.whenElementKnown(discoveredElements.onKnown(it -> configureAction.execute(new KObjectAdapter<>((KnownModelObject<ElementType>) it))));
+			}
+
+			@Override
+			public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
+				super.whenElementFinalized(discoveredElements.onFinalized(finalizeAction));
+			}
+
+			@Override
+			public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
+				// TODO: Discover identifier
+				return new MObjectAdapter<>(super.getById(identifier));
+			}
+
+			@Override
+			public <U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec) {
+				return providers.provider(() -> {
+					discoveredElements.discoverAll(it -> it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(ModelObjectIdentity.ofIdentity(it.getIdentifier(), it.getType())));
+					return super.getElements(type, spec);
+				}).flatMap(noOpTransformer());
+			}
 		});
-		delegate.whenElementFinalized(it -> {
-			nameToIdentities.computeIfAbsent(namer.determineName(it), factory).all(e -> {
-				discoveredElements.onRealized(e);
-				discoveredElements.onFinalizing(e);
-			});
-		});
 	}
 
 	@Override
-	public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ModelObjectIdentity<RegistrableType> identity) {
-		final ModelObject<RegistrableType> result = discoveredElements.discover(identity, () -> {
-			nameToIdentities.computeIfAbsent(identity.getName(), factory).add(identity);
-			return delegate.register(identity);
-		});
-		return new MObjectAdapter<>(result);
-	}
-
-	@Override
-	public void configureEach(Action<? super ElementType> configureAction) {
-		delegate.configureEach(discoveredElements.onRealized(configureAction));
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public void whenElementKnown(Action<? super KnownModelObject<? extends ElementType>> configureAction) {
-		delegate.whenElementKnown(discoveredElements.onKnown(it -> configureAction.execute(new KObjectAdapter<>((KnownModelObject<ElementType>) it))));
-	}
-
-	@Override
-	public void whenElementFinalized(Action<? super ElementType> finalizeAction) {
-		delegate.whenElementFinalized(discoveredElements.onFinalized(finalizeAction));
-	}
-
-	@Override
-	public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-		// TODO: Discover identifier
-		return new MObjectAdapter<>(delegate.getById(identifier));
-	}
-
-	@Override
-	public <U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec) {
-		return providers.provider(() -> {
-			discoveredElements.discoverAll(it -> it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(ModelObjectIdentity.ofIdentity(it.getIdentifier(), it.getType())));
-			return delegate.getElements(type, spec);
-		}).flatMap(noOpTransformer());
+	protected ModelMapStrategy<ElementType> delegate() {
+		return delegate;
 	}
 
 	private final class KObjectAdapter<T> implements KnownModelObject<T> {
@@ -197,12 +183,6 @@ final class DiscoverableModelMapStrategy<ElementType> implements ModelMapStrateg
 		public String getName() {
 			return delegate.getName();
 		}
-	}
-
-	public interface Listener {
-		void onRealizing(ModelObjectIdentity<?> e);
-		void onRealized(ModelObjectIdentity<?> e);
-		void onFinalizing(ModelObjectIdentity<?> e);
 	}
 
 	public interface Instrument {
