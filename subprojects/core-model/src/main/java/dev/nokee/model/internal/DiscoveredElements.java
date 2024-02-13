@@ -29,6 +29,7 @@ import dev.nokee.model.internal.discover.RealizeRule;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.Optionals;
+import dev.nokee.utils.SpecUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -110,7 +111,6 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 		} else {
 			rules.add(new KnownElementRule(identity));
 			final ModelObject<RegistrableType> result = factory.create();
-			result.configure(__ -> realizedElements.add(identity)); // FIXME(discovery): Streamline realize/finalize listeners
 			objects.put(identity, result);
 			return result;
 		}
@@ -119,10 +119,31 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 	private Stream<DisRule> discoverType(Action<?> action) {
 		return Stream.of(action).flatMap(it -> {
 			Stream<Action<?>> nestedRules = Stream.empty();
+			Spec<ModelObjectIdentity<?>> spec = SpecUtils.satisfyAll();
 			if (it instanceof TypeFilteringAction) {
 				nestedRules = Optionals.stream(((TypeFilteringAction<?, ?>) it).getDelegate());
+				spec = ((TypeFilteringAction<?, ?>) it).getSpec();
+			} else if (it instanceof IdentifierFilteringAction) {
+				nestedRules = Stream.of(((IdentifierFilteringAction<?>) it).getDelegate());
+				spec = ((IdentifierFilteringAction<?>) it).getSpec();
 			}
-			return Stream.concat(Stream.of(it).flatMap(t -> service.discover(ModelType.typeOf(t)).stream()), nestedRules.flatMap(this::discoverType));
+
+			final Spec<ModelObjectIdentity<?>> theSpec = spec;
+			return Stream.concat(Stream.of(it).flatMap(t -> service.discover(ModelType.typeOf(t)).stream()), nestedRules.flatMap(this::discoverType)).map(delegate -> {
+				return new DisRule() {
+					@Override
+					public void execute(Details details) {
+						if (theSpec.isSatisfiedBy(ModelObjectIdentity.ofIdentity(details.getCandidate().getIdentifier(), details.getCandidate().getType()))) {
+							delegate.execute(details);
+						}
+					}
+
+					@Override
+					public String toString() {
+						return "using spec " + theSpec + " " + delegate;
+					}
+				};
+			});
 		});
 	}
 
@@ -147,6 +168,7 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 	@Override
 	public void onRealizing(ModelObjectIdentity<?> e) {
 		// FIXME(discover): mark element as realizing...
+		realizedElements.add(e);
 	}
 
 	@Override
@@ -156,7 +178,7 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 
 	@Override
 	public void onFinalizing(ModelObjectIdentity<?> e) {
-		// FIXME(discover): mark element as finalizing...
+		finalizedElements.add(e);
 	}
 
 	@Override

@@ -48,6 +48,7 @@ import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -55,9 +56,9 @@ import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.concurrent.Callable;
 import java.util.stream.Stream;
+
+import static dev.nokee.utils.TaskUtils.ifSelectedInTaskGraph;
 
 public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
 	private final PluginTargetSupport pluginScopes = PluginTargetSupport.builder()
@@ -119,12 +120,10 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));
 
 		project.getTasks().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(Task.class));
-		project.getTasks().named("tasks", task -> {
-			task.dependsOn((Callable<?>) () -> {
-				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Task.class);
-				return Collections.emptyList();
-			});
-		});
+		project.getTasks().named("tasks", ifSelectedInTaskGraph(() -> {
+			model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Task.class);
+		}));
+		project.getConfigurations().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(Configuration.class));
 	}
 
 	public static ModelExtension model(ExtensionAware target) {

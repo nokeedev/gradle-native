@@ -16,7 +16,9 @@
 
 package dev.nokee.model.internal.discover;
 
+import com.google.common.collect.MoreCollectors;
 import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.model.internal.type.Annotations;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import org.gradle.api.Action;
@@ -50,7 +52,8 @@ public @interface DiscoverableAction {
 			// Ensure this annotation is applied to an Action class
 			assert discoveringType.isSubtypeOf(ModelType.of(new TypeOf<Action<?>>() {}));
 			ModelType<?> targetType = ModelType.of(getGenericTypeFromInterface(discoveringType.getConcreteType(), Action.class));
-			DisRule rule = new SubTypeOfRule(targetType, instantiator.newInstance(discoveringType.getConcreteType().getAnnotation(DiscoverRule.class).value()));
+			Class<? extends DisRule> value = Annotations.forAnnotation(DiscoverRule.class).findOn(discoveringType.getConcreteType()).stream().collect(MoreCollectors.onlyElement()).value();
+			DisRule rule = new SubTypeOfRule(targetType, instantiator.newInstance(value));
 			return Collections.singletonList(rule);
 		}
 

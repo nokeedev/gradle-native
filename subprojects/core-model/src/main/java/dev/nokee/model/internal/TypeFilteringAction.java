@@ -18,6 +18,7 @@ package dev.nokee.model.internal;
 
 import org.gradle.api.Action;
 import org.gradle.api.reflect.TypeOf;
+import org.gradle.api.specs.Spec;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -39,6 +40,11 @@ public final class TypeFilteringAction<ElementType, FilteredType> implements Act
 		return Optional.ofNullable(delegate);
 	}
 
+	// FIXME(discovery): Allow to get the object state
+	public Spec<ModelObjectIdentity<?>> getSpec() {
+		return type;
+	}
+
 	@Override
 	public void execute(ElementType t) {
 		if (type.isInstance(t)) {
@@ -46,7 +52,7 @@ public final class TypeFilteringAction<ElementType, FilteredType> implements Act
 		}
 	}
 
-	public interface ActionTypeOf<T> {
+	public interface ActionTypeOf<T> extends Spec<ModelObjectIdentity<?>> {
 		boolean isInstance(Object obj);
 		T cast(Object obj);
 	}
@@ -67,6 +73,16 @@ public final class TypeFilteringAction<ElementType, FilteredType> implements Act
 		public T cast(Object obj) {
 			return type.cast(obj);
 		}
+
+		@Override
+		public boolean isSatisfiedBy(ModelObjectIdentity<?> element) {
+			return element.getType().isSubtypeOf(type);
+		}
+
+		@Override
+		public String toString() {
+			return "type of " + type.getSimpleName();
+		}
 	}
 
 	private static final class GradleTypeOf<T> implements ActionTypeOf<T> {
@@ -85,6 +101,16 @@ public final class TypeFilteringAction<ElementType, FilteredType> implements Act
 		@SuppressWarnings("unchecked")
 		public T cast(Object obj) {
 			return (T) obj;
+		}
+
+		@Override
+		public boolean isSatisfiedBy(ModelObjectIdentity<?> element) {
+			return element.getType().isSubtypeOf(type.getConcreteClass());
+		}
+
+		@Override
+		public String toString() {
+			return "type of " + type.getConcreteClass().getSimpleName();
 		}
 	}
 

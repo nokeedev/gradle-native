@@ -28,7 +28,19 @@ public final class IdentifierFilteringAction<ElementType> implements Action<Elem
 		this.delegate = delegate;
 	}
 
-	interface IdentifierOf<T> extends Spec<T> {}
+	// FIXME(discovery): Improve unpackable-ity for action inspection
+	public Action<? super ElementType> getDelegate() {
+		return delegate;
+	}
+
+	// FIXME(discovery): Allow to get the object state
+	public Spec<ModelObjectIdentity<?>> getSpec() {
+		return spec;
+	}
+
+	interface IdentifierOf<T> extends Spec<ModelObjectIdentity<?>> {
+		boolean test(T t);
+	}
 
 	static final class ModelElementIdentifierOf<T> implements IdentifierOf<T> {
 		private final Spec<? super ModelObjectIdentifier> spec;
@@ -38,14 +50,24 @@ public final class IdentifierFilteringAction<ElementType> implements Action<Elem
 		}
 
 		@Override
-		public boolean isSatisfiedBy(T t) {
+		public boolean test(T t) {
 			return ModelElementSupport.safeAsModelElement(t).map(ModelElement::getIdentifier).map(spec::isSatisfiedBy).orElse(false);
+		}
+
+		@Override
+		public boolean isSatisfiedBy(ModelObjectIdentity<?> element) {
+			return spec.isSatisfiedBy(element.getIdentifier());
+		}
+
+		@Override
+		public String toString() {
+			return spec.toString();
 		}
 	}
 
 	@Override
 	public void execute(ElementType elementType) {
-		if (spec.isSatisfiedBy(elementType)) {
+		if (spec.test(elementType)) {
 			delegate.execute(elementType);
 		}
 	}
@@ -55,6 +77,16 @@ public final class IdentifierFilteringAction<ElementType> implements Action<Elem
 	}
 
 	public static Spec<ModelObjectIdentifier> descendantOf(ModelObjectIdentifier baseIdentifier) {
-		return it -> ModelObjectIdentifiers.descendantOf(it, baseIdentifier);
+		return new Spec<ModelObjectIdentifier>() {
+			@Override
+			public boolean isSatisfiedBy(ModelObjectIdentifier it) {
+				return ModelObjectIdentifiers.descendantOf(it, baseIdentifier);
+			}
+
+			@Override
+			public String toString() {
+				return "descendant of '" + ModelObjectIdentifiers.asPath(baseIdentifier) + "'";
+			}
+		};
 	}
 }

@@ -36,4 +36,14 @@ public final class KnownModelObjectTypeOf<T> implements TypeFilteringAction.Acti
 	public KnownModelObject<T> cast(Object obj) {
 		return (KnownModelObject<T>) obj;
 	}
+
+	@Override
+	public boolean isSatisfiedBy(ModelObjectIdentity<?> element) {
+		return element.getType().isSubtypeOf(type);
+	}
+
+	@Override
+	public String toString() {
+		return "type of " + type.getSimpleName();
+	}
 }
