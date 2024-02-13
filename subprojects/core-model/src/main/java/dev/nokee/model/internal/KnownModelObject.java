@@ -20,8 +20,9 @@ import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderConvertible;
 
-public interface KnownModelObject<ObjectType> extends Named {
+public interface KnownModelObject<ObjectType> extends Named, ProviderConvertible<ObjectType> {
 	ModelObjectIdentifier getIdentifier();
 	ModelType<?> getType();
 	KnownModelObject<ObjectType> configure(Action<? super ObjectType> configureAction);

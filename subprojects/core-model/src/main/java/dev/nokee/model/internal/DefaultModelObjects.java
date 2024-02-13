@@ -120,7 +120,7 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 			discoveredElements.discoverAll(type);
 			forEachIdentity(it -> {
 				if (it.getType().isSubtypeOf(type)) {
-					builder.add(((KnownModelObject<T>) it).asProvider());
+					builder.add((KnownModelObject<T>) it);
 				}
 			});
 		});
@@ -136,7 +136,7 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 
 			forEachIdentity(it -> {
 				if (elementSpec.isSatisfiedBy(ofIdentity(it.getIdentifier(), it.getType()))) {
-					builder.add(((KnownModelObject<T>) it).asProvider());
+					builder.add((KnownModelObject<T>) it);
 				}
 			});
 		});

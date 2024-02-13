@@ -19,6 +19,7 @@ package dev.nokee.model.internal;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderConvertible;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
@@ -32,6 +33,7 @@ public abstract class SetProviderFactory {
 
 	public interface Builder<T> {
 		Builder<T> add(Provider<? extends T> provider);
+		Builder<T> add(ProviderConvertible<T> provider);
 	}
 
 	public static SetProviderFactory forProject(Project project) {
@@ -56,6 +58,12 @@ public abstract class SetProviderFactory {
 					@Override
 					public Builder<T> add(Provider<? extends T> provider) {
 						result.add(provider);
+						return this;
+					}
+
+					@Override
+					public Builder<T> add(ProviderConvertible<T> elementProvider) {
+						result.add(elementProvider.asProvider());
 						return this;
 					}
 				});

@@ -530,7 +530,7 @@ public final class ModelMapAdapters {
 			return setProviders.create(builder -> {
 				knownElements.forEach(it -> {
 					if (it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(ofIdentity(it.getIdentifier(), it.getType()))) {
-						builder.add((Provider<? extends U>) it.asProvider());
+						builder.add((KnownModelObject<U>) it);
 					}
 				});
 			});
