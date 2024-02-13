@@ -99,6 +99,20 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 					}
 				}
 
+				while (!has(it -> it.startsWith(domainObjectName), baseType)) {
+					List<CandidateElement> r = findPrefix(domainObjectName, ModelType.of(baseType));
+					if (r.isEmpty()) {
+						break; // nothing to do
+					} else {
+						val action = r.stream().map(CandidateElement::getActions).filter(it -> !it.isEmpty()).map(it -> it.get(0)).filter(it -> it.getAction().equals(CandidateElement.DiscoverChain.Act.REALIZE)).findFirst();
+						if (action.isPresent()) {
+							objects.get(action.get().getTargetIdentity()).get();
+						} else {
+							break;
+						}
+					}
+				}
+
 				// FIXME(discovery): Discover prefixed (request `objects` which can match `objectsDebug`)
 				// FIXME(discovery): Maybe discover task-name inference
 			}
@@ -245,6 +259,28 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 					r.add(candidateElement);
 				}
 			} else if (candidateName.equals(fullyQualifiedName) && candidateElement.getType().isSubtypeOf(type)) {
+				r.add(candidateElement);
+			}
+		}
+
+		return r;
+	}
+
+	private List<CandidateElement> findPrefix(String prefixName, ModelType<?> type) {
+		List<CandidateElement> r = new ArrayList<>();
+
+		final CandidateElement current = new CandidateElement(rootIdentifier, of(Project.class), true, realizedElements::contains, finalizedElements::contains, Collections.emptyList(), null);
+		List<CandidateElement> result = new ArrayList<>();
+		list(result, current, rules);
+
+		for (CandidateElement candidateElement : result) {
+			String candidateName = ModelObjectIdentifiers.asFullyQualifiedName(candidateElement.getIdentifier()).toString();
+			if (candidateName.contains("*")) {
+				Pattern p = Pattern.compile("^" + candidateName.replace("*", ".*"));
+				if (p.matcher(prefixName).matches() && candidateElement.getType().isSubtypeOf(type)) {
+					r.add(candidateElement);
+				}
+			} else if (candidateName.startsWith(prefixName) && candidateElement.getType().isSubtypeOf(type)) {
 				r.add(candidateElement);
 			}
 		}

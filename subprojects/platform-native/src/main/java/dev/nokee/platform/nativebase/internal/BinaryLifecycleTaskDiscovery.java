@@ -19,6 +19,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.discover.DisRule;
 import dev.nokee.model.internal.discover.Discovery;
+import dev.nokee.model.internal.discover.RealizeRule;
 import dev.nokee.model.internal.discover.SelectRule;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.model.internal.type.ModelType;
@@ -56,6 +57,6 @@ public /*final*/ class BinaryLifecycleTaskDiscovery implements Discovery {
 			new SelectRule.Case(BUNDLE_LINKAGE, TaskName.of("bundle"), ModelType.of(Task.class))
 		));
 
-		return Collections.singletonList(rule);
+		return Collections.singletonList(new RealizeRule(rule));
 	}
 }
