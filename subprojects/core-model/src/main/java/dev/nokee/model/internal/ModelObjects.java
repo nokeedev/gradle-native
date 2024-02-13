@@ -34,6 +34,6 @@ public interface ModelObjects {
 	Stream<KnownModelObject<?>> parentsOf(ModelObjectIdentifier identifier);
 
 	<T> Provider<Set<T>> get(Class<T> type);
-	<T> Provider<Set<T>> get(Class<T> type, Spec<? super KnownModelObject<?>> spec);
-	<T> Provider<Set<KnownModelObject<T>>> getElements(Class<T> type, Spec<? super KnownModelObject<?>> spec);
+	<T> Provider<Set<T>> get(Class<T> type, Spec<? super ModelObjectIdentity<?>> spec);
+	<T> Provider<Set<KnownModelObject<T>>> getElements(Class<T> type, Spec<? super ModelObjectIdentity<?>> spec);
 }

@@ -39,18 +39,22 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
+
 public /*final*/ class DefaultModelObjects implements ModelObjects {
 	private final Map<ModelObjectIdentifier, KnownModelObject<?>> identifierToElements = new HashMap<>();
 	private final List<KnownModelObject<?>> elements = new ArrayList<>();
 	private final ProviderFactory providers;
 	@SuppressWarnings("rawtypes") private final DomainObjectSet<ModelMap> collections;
 	private final SetProviderFactory setProviders;
+	private final DiscoveredElements discoveredElements;
 
 	@Inject
-	public DefaultModelObjects(ProviderFactory providers, ObjectFactory objects, SetProviderFactory setProviders) {
+	public DefaultModelObjects(ProviderFactory providers, ObjectFactory objects, SetProviderFactory setProviders, DiscoveredElements discoveredElements) {
 		this.providers = providers;
 		this.collections = objects.domainObjectSet(ModelMap.class);
 		this.setProviders = setProviders;
+		this.discoveredElements = discoveredElements;
 	}
 
 	@Override
@@ -113,8 +117,8 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 	@SuppressWarnings("unchecked")
 	public <T> Provider<Set<T>> get(Class<T> type) {
 		return setProviders.create(builder -> {
+			discoveredElements.discoverAll(type);
 			forEachIdentity(it -> {
-				// TODO: Should provide automatic discovery
 				if (it.getType().isSubtypeOf(type)) {
 					builder.add(((KnownModelObject<T>) it).asProvider());
 				}
@@ -124,13 +128,15 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> Provider<Set<T>> get(Class<T> type, Spec<? super KnownModelObject<?>> spec) {
+	public <T> Provider<Set<T>> get(Class<T> type, Spec<? super ModelObjectIdentity<?>> spec) {
 		return setProviders.create(builder -> {
+			final Spec<? super ModelObjectIdentity<?>> elementSpec = it -> it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(it);
+
+			discoveredElements.discoverAll(elementSpec);
+
 			forEachIdentity(it -> {
-				if (spec.isSatisfiedBy(it)) {
-					if (it.getType().isSubtypeOf(type)) {
-						builder.add(((KnownModelObject<T>) it).asProvider());
-					}
+				if (elementSpec.isSatisfiedBy(ofIdentity(it.getIdentifier(), it.getType()))) {
+					builder.add(((KnownModelObject<T>) it).asProvider());
 				}
 			});
 		});
@@ -138,15 +144,17 @@ public /*final*/ class DefaultModelObjects implements ModelObjects {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> Provider<Set<KnownModelObject<T>>> getElements(Class<T> type, Spec<? super KnownModelObject<?>> spec) {
+	public <T> Provider<Set<KnownModelObject<T>>> getElements(Class<T> type, Spec<? super ModelObjectIdentity<?>> spec) {
 		return providers.provider(() -> {
+			final Spec<? super ModelObjectIdentity<?>> elementSpec = it -> it.getType().isSubtypeOf(type) && spec.isSatisfiedBy(it);
+
+			discoveredElements.discoverAll(elementSpec);
+
 			final Set<KnownModelObject<T>> result = new LinkedHashSet<>();
 
 			forEachIdentity(it -> {
-				if (spec.isSatisfiedBy(it)) {
-					if (it.getType().isSubtypeOf(type)) {
-						result.add((KnownModelObject<T>) it);
-					}
+				if (elementSpec.isSatisfiedBy(ofIdentity(it.getIdentifier(), it.getType()))) {
+					result.add((KnownModelObject<T>) it);
 				}
 			});
 			return result;

@@ -177,8 +177,12 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				// TODO: should be able to query KnownModelObject from the ModelMap
 				final Set<KnownModelObject<JniLibraryInternal>> allBuildableVariants = model(project, objects()).getElements(JniLibraryInternal.class, obj -> {
 					if (obj.getType().isSubtypeOf(JniLibraryInternal.class) && ModelObjectIdentifiers.descendantOf(obj.getIdentifier(), component.getIdentifier())) {
-						final VariantIdentifier variantIdentifier = (VariantIdentifier) obj.getIdentifier();
-						return toolChainSelector.canBuild(((BuildVariantInternal) variantIdentifier.getBuildVariant()).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
+						if (ModelObjectIdentifiers.asFullyQualifiedName(obj.getIdentifier()).toString().contains("*")) {
+							return true; // discovering elements
+						} else {
+							final VariantIdentifier variantIdentifier = (VariantIdentifier) obj.getIdentifier();
+							return toolChainSelector.canBuild(((BuildVariantInternal) variantIdentifier.getBuildVariant()).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
+						}
 					}
 					return false;
 				}).get();
@@ -208,8 +212,12 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
 					return model(project, objects()).getElements(JniLibraryInternal.class, obj -> {
 						if (obj.getType().isSubtypeOf(JniLibraryInternal.class) && ModelObjectIdentifiers.descendantOf(obj.getIdentifier(), component.getIdentifier())) {
-							final VariantIdentifier variantIdentifier = (VariantIdentifier) obj.getIdentifier();
-							return toolChainSelector.canBuild(((BuildVariantInternal) variantIdentifier.getBuildVariant()).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
+							if (ModelObjectIdentifiers.asFullyQualifiedName(obj.getIdentifier()).toString().contains("*")) {
+								return true; // discovering elements
+							} else {
+								final VariantIdentifier variantIdentifier = (VariantIdentifier) obj.getIdentifier();
+								return toolChainSelector.canBuild(((BuildVariantInternal) variantIdentifier.getBuildVariant()).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
+							}
 						}
 						return false;
 					}).map(transformEach(it -> it.asProvider().flatMap(elementsOf(JniLibraryInternal::getNativeRuntimeFiles)))).map(toProviderOfIterable(project.getObjects()::listProperty));

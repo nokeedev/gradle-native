@@ -106,14 +106,14 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		model(project).getExtensions().add("__nokee_baseIdentifier", new ModelObjectIdentifierFactory(ProjectIdentifier.of(project)));
 		model(project).getExtensions().add("__nokee_elementFinalizer", new DefaultModelElementFinalizer(project));
-		final ModelObjects objects = model(project).getExtensions().create("$objects", DefaultModelObjects.class, model(project).getExtensions().getByType(SetProviderFactory.class));
+		model(project).getExtensions().add("$objects", instantiator(project).newInstance(DefaultModelObjects.class));
 		model(project).getExtensions().add("__nokee_parentElements", new ModelMapAdapters.ModelElementParents() {
 			@Override
 			public Stream<ModelElement> parentOf(ModelObjectIdentifier identifier) {
-				return objects.parentsOf(identifier).map(it -> it.asProvider().map(ModelElementSupport::asModelElement).get());
+				return model(project).getExtensions().getByType(ModelObjects.class).parentsOf(identifier).map(it -> it.asProvider().map(ModelElementSupport::asModelElement).get());
 			}
 		});
-		model(project).getExtensions().add("__nokee_modelMapFactory", new ModelMapFactory(model(project).getExtensions().getByType(Instantiator.class), project.getObjects(), project, objects));
+		model(project).getExtensions().add("__nokee_modelMapFactory", instantiator(project).newInstance(ModelMapFactory.class, project));
 
 		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));

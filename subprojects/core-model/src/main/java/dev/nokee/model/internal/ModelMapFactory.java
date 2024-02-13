@@ -28,10 +28,13 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
 
+import javax.inject.Inject;
+
 public final class ModelMapFactory {
 	private final Instantiator instantiator;
 	private final ModelObjects modelObjects;
 
+	@Inject
 	public ModelMapFactory(Instantiator instantiator, ObjectFactory objects, Project project, ModelObjects modelObjects) {
 		this.instantiator = instantiator;
 		this.modelObjects = modelObjects;
