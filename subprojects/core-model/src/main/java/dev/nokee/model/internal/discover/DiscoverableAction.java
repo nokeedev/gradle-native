@@ -31,6 +31,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,9 +52,12 @@ public @interface DiscoverableAction {
 		public <T> List<DisRule> discover(ModelType<T> discoveringType) {
 			// Ensure this annotation is applied to an Action class
 			assert discoveringType.isSubtypeOf(ModelType.of(new TypeOf<Action<?>>() {}));
-			ModelType<?> targetType = ModelType.of(getGenericTypeFromInterface(discoveringType.getConcreteType(), Action.class));
 			Class<? extends DisRule> value = Annotations.forAnnotation(DiscoverRule.class).findOn(discoveringType.getConcreteType()).stream().collect(MoreCollectors.onlyElement()).value();
-			DisRule rule = new SubTypeOfRule(targetType, instantiator.newInstance(value));
+			DisRule rule = instantiator.newInstance(value);
+			ModelType<?> targetType = ModelType.of(getGenericTypeFromInterface(discoveringType.getConcreteType(), Action.class));
+			if (!(targetType.getType() instanceof TypeVariable)) {
+				rule = new SubTypeOfRule(targetType, rule);
+			}
 			return Collections.singletonList(rule);
 		}
 

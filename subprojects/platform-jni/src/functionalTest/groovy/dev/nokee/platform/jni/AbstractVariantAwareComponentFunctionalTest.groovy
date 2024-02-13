@@ -18,6 +18,7 @@ package dev.nokee.platform.jni
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
+import dev.nokee.model.internal.discover.ProvideConfigurations
 import dev.nokee.platform.jni.fixtures.*
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 import spock.lang.Ignore
@@ -191,6 +192,9 @@ Artifacts
 		componentUnderTest.writeToProject(testDirectory)
 
 		and:
+		buildFile << """
+			import ${ProvideConfigurations.canonicalName}
+		"""
 		buildFile << '''
 			repositories {
 				mavenCentral()
@@ -198,24 +202,24 @@ Artifacts
 
 			def configuredVariants = []
 			library {
-				variants.configureEach { variant ->
+				variants.configureEach(new ProvideConfigurations.Action({ variant ->
 					configuredVariants << variant
-					configurations.create("custom${variant.name.capitalize()}") {
+					configurations.create("${variant.name}Custom") {
 						description = "Custom configuration for variant '${variant.name}'."
 						canBeConsumed = false
 						canBeResolved = true
 						dependencies.add(project.dependencies.create('dev.nokee:platformJni:0.3.0'))
 					}
-				}
+				}))
 			}
 
             gradle.buildFinished {
-                assert configuredVariants.size() == 3
+                assert configuredVariants.size() == 1
             }
 		'''
 
 		expect:
-		succeeds('dependencyInsight', '--configuration', "custom${hostVariantName.capitalize()}", '--dependency', 'dev.nokee:platformJni:0.3.0')
+		succeeds('dependencyInsight', '--configuration', "${hostVariantName}Custom", '--dependency', 'dev.nokee:platformJni:0.3.0')
 		result.assertOutputContains("""> Task :dependencyInsight
 dev.nokee:platformJni:0.3.0
    variant "runtimeElements" [
@@ -228,7 +232,7 @@ dev.nokee:platformJni:0.3.0
    ]
 
 dev.nokee:platformJni:0.3.0
-\\--- custom${hostVariantName.capitalize()}""")
+\\--- ${hostVariantName}Custom""")
 	}
 
 	protected abstract void makeSingleProject()
