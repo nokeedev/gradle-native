@@ -67,10 +67,4 @@ public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies imp
 	public DeclarableDependencyBucketSpec getNativeRuntimeOnly() {
 		return getNative().getRuntimeOnly();
 	}
-
-	@NestedObject
-	public abstract ConsumableDependencyBucketSpec getApiElements();
-
-	@NestedObject
-	public abstract ConsumableDependencyBucketSpec getRuntimeElements();
 }

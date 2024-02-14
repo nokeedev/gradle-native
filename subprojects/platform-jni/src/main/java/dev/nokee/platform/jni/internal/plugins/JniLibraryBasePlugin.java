@@ -147,7 +147,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 //			model(project, mapOf(Variant.class)).whenElementKnown(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
 //		});
 
-		model(project, mapOf(Component.class)).whenElementKnown(JniLibraryComponentInternal.class, knownComponent -> {
+		model(project, mapOf(Component.class)).whenElementFinalized(JniLibraryComponentInternal.class, knownComponent -> {
 			final Configuration apiElements = model(project).getExtensions().getByType(ConfigurationFactory.class).newConsumable(knownComponent.getIdentifier().child("apiElements"));
 
 			ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(apiElements);
