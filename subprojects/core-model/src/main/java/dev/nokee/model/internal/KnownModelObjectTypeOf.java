@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package dev.nokee.model.internal;
 
 public final class KnownModelObjectTypeOf<T> implements TypeFilteringAction.ActionTypeOf<KnownModelObject<T>> {

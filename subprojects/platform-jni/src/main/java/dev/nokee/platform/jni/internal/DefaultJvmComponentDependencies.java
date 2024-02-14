@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.platform.base.ComponentDependencies;
