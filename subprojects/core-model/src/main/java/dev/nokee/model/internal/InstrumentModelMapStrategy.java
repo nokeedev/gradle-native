@@ -16,6 +16,7 @@
 
 package dev.nokee.model.internal;
 
+import dev.nokee.internal.provider.ProviderConvertibleInternal;
 import org.gradle.api.Action;
 
 import static dev.nokee.model.internal.ModelObjectIdentity.ofIdentity;
@@ -118,7 +119,7 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 		}
 	}
 
-	private final class MObjectAdapter<T> extends ForwardingModelObject<T> {
+	private final class MObjectAdapter<T> extends ForwardingModelObject<T> implements ProviderConvertibleInternal<T> {
 		private final ModelObject<T> delegate;
 		private final ModelObjectIdentity<?> identity;
 

@@ -20,6 +20,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.provider.ProviderConvertibleInternal;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.ConfigurationRegistry;
 import dev.nokee.model.ExtensiblePolymorphicDomainObjectContainerRegistry;
@@ -371,7 +372,7 @@ public final class ModelMapAdapters {
 			finalizer.accept(() -> collection.configureEach(finalizeAction));
 		}
 
-		private final class DefaultModelObject<ObjectType> implements ModelObject<ObjectType> {
+		private final class DefaultModelObject<ObjectType> implements ModelObject<ObjectType>, ProviderConvertibleInternal<ObjectType> {
 			private final ModelObjectIdentity<ObjectType> identity;
 			private final NamedDomainObjectProvider<ObjectType> provider;
 
@@ -548,44 +549,52 @@ public final class ModelMapAdapters {
 			}
 
 			public <ObjectType extends ElementType> KnownModelObject<ObjectType> create(ModelObjectIdentity<ObjectType> identity) {
-				return new KnownModelObject<ObjectType>() {
-					@Override
-					public ModelObjectIdentifier getIdentifier() {
-						return identity.getIdentifier();
-					}
+				return new DefaultKnownModelObject<>(identity);
+			}
 
-					@Override
-					public ModelType<?> getType() {
-						return identity.getType();
-					}
+			public final class DefaultKnownModelObject<ObjectType extends ElementType> implements KnownModelObject<ObjectType>, ProviderConvertibleInternal<ObjectType> {
+				private final ModelObjectIdentity<ObjectType> identity;
 
-					@Override
-					public KnownModelObject<ObjectType> configure(Action<? super ObjectType> configureAction) {
-						configurer.configure(identity, configureAction);
-						return this;
-					}
+				public DefaultKnownModelObject(ModelObjectIdentity<ObjectType> identity) {
+					this.identity = identity;
+				}
 
-					@Override
-					public KnownModelObject<ObjectType> whenFinalized(Action<? super ObjectType> finalizeAction) {
-						finalizer.accept(() -> configure(finalizeAction));
-						return this;
-					}
+				@Override
+				public ModelObjectIdentifier getIdentifier() {
+					return identity.getIdentifier();
+				}
 
-					@Override
-					public void realizeNow() {
-						asProvider().get();
-					}
+				@Override
+				public ModelType<?> getType() {
+					return identity.getType();
+				}
 
-					@Override
-					public Provider<ObjectType> asProvider() {
-						return provider.forIdentity(identity);
-					}
+				@Override
+				public KnownModelObject<ObjectType> configure(Action<? super ObjectType> configureAction) {
+					configurer.configure(identity, configureAction);
+					return this;
+				}
 
-					@Override
-					public String getName() {
-						return identity.getName();
-					}
-				};
+				@Override
+				public KnownModelObject<ObjectType> whenFinalized(Action<? super ObjectType> finalizeAction) {
+					finalizer.accept(() -> configure(finalizeAction));
+					return this;
+				}
+
+				@Override
+				public void realizeNow() {
+					asProvider().get();
+				}
+
+				@Override
+				public Provider<ObjectType> asProvider() {
+					return provider.forIdentity(identity);
+				}
+
+				@Override
+				public String getName() {
+					return identity.getName();
+				}
 			}
 		}
 	}
