@@ -154,21 +154,21 @@ public final class ConfigurationRegistry implements NamedDomainObjectRegistry<Co
 			return new NamedDomainObjectRegistry<Configuration>() {
 				@Override
 				public NamedDomainObjectProvider<Configuration> register(String name) throws InvalidUserDataException {
-					create(name);
-					return container.named(name);
+					return doRegister(name);
 				}
 
 				@Override
 				public NamedDomainObjectProvider<Configuration> registerIfAbsent(String name) {
 					if (!container.getNames().contains(name)) {
-						create(name);
+						return doRegister(name);
 					}
 					return container.named(name);
 				}
 
-				private Configuration create(String name) {
+				@SuppressWarnings("unchecked")
+				private NamedDomainObjectProvider<Configuration> doRegister(String name) {
 					try {
-						return (Configuration) factoryMethod.invoke(container, name);
+						return (NamedDomainObjectProvider<Configuration>) factoryMethod.invoke(container, name);
 					} catch (InvocationTargetException | IllegalAccessException e) {
 						throw new RuntimeException(e);
 					}
