@@ -20,6 +20,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.test.fixtures.archive.JarTestFixture
 import dev.nokee.platform.nativebase.SharedLibraryBinary
 import org.junit.Assume
+import spock.lang.Unroll
 
 abstract class AbstractJniLibraryFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	def "produce a single JAR containing the shared library for single variant"() {
@@ -84,6 +85,7 @@ abstract class AbstractJniLibraryFunctionalTest extends AbstractInstalledToolCha
 		"""
 	}
 
+	@Unroll
 	def "can apply plugins in what ever order"(pluginIds) {
 		given:
 		settingsFile << "rootProject.name = 'library'"
