@@ -194,11 +194,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					});
 
 					final Provider<File> artifactFile = ZipProviderBuilder.newBuilder(project.getObjects())
-						.value(syncTask.asProvider().map(Sync::getDestinationDir))
+						.value(syncTask.asProvider().flatMap(it -> project.provider(() -> it.getDestinationDir())))
 						.value(artifactFileName)
 						.zip((destinationDirectory, fileName) -> new File(destinationDirectory, fileName));
 
-					runtimeElements.getOutgoing().artifact(artifactFile);
+					runtimeElements.getOutgoing().artifact(artifactFile, it -> it.builtBy(syncTask));
 				}
 			}
 
