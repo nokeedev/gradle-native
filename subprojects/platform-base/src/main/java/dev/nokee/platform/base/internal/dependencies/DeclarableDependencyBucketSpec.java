@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectRegistry;
 import dev.nokee.platform.base.DeclarableDependencyBucket;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Action;
@@ -25,6 +24,7 @@ import org.gradle.api.DomainObjectCollection;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ExternalModuleDependency;
@@ -54,8 +54,8 @@ public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElem
 	private final DependencyFactory dependencyFactory;
 
 	@Inject
-	public DeclarableDependencyBucketSpec(DependencyHandler handler, ModelObjectRegistry<Configuration> configurationRegistry, ObjectFactory objects) {
-		this.delegate = configurationRegistry.register(getIdentifier(), Configuration.class).asProvider();
+	public DeclarableDependencyBucketSpec(DependencyHandler handler, ConfigurationFactory configurationFactory, ObjectFactory objects, ConfigurationContainer configurations) {
+		this.delegate = configurations.named(configurationFactory.newDependencyScope(getIdentifier()).getName());
 		this.objects = objects;
 		getExtensions().add("$configuration", delegate.get());
 

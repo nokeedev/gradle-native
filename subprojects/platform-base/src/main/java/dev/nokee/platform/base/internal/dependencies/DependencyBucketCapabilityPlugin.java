@@ -26,24 +26,11 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.dependencyBuckets;
-import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
-import static dev.nokee.utils.ConfigurationUtils.configureAsDeclarable;
-import static dev.nokee.utils.ConfigurationUtils.configureAsResolvable;
 
 public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
 	public void apply(T target) {
 		dependencyBuckets(target).configureEach(new DescriptionRule());
-
-		dependencyBuckets(target).withType(ConsumableDependencyBucketSpec.class).configureEach(it -> {
-			configureAsConsumable().execute(it.getAsConfiguration());
-		});
-		dependencyBuckets(target).withType(ResolvableDependencyBucketSpec.class).configureEach(it -> {
-			configureAsResolvable().execute(it.getAsConfiguration());
-		});
-		dependencyBuckets(target).withType(DeclarableDependencyBucketSpec.class).configureEach(it -> {
-			configureAsDeclarable().execute(it.getAsConfiguration());
-		});
 	}
 
 	private static final class DescriptionRule implements Action<DependencyBucket> {

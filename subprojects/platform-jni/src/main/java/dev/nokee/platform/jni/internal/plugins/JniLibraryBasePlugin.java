@@ -44,6 +44,7 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.dependencies.ConfigurationFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.jni.JarBinary;
@@ -147,10 +148,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 //		});
 
 		model(project, mapOf(Component.class)).whenElementKnown(JniLibraryComponentInternal.class, knownComponent -> {
-			final Configuration apiElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("apiElements")).toString());
-
-			apiElements.setCanBeConsumed(true);
-			apiElements.setCanBeResolved(false);
+			final Configuration apiElements = model(project).getExtensions().getByType(ConfigurationFactory.class).newConsumable(knownComponent.getIdentifier().child("apiElements"));
 
 			ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(apiElements);
 
@@ -160,10 +158,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		});
 
 		model(project, mapOf(Component.class)).whenElementFinalized(JniLibraryComponentInternal.class, component -> {
-			final Configuration runtimeElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child("runtimeElements")).toString());
-
-			runtimeElements.setCanBeConsumed(true);
-			runtimeElements.setCanBeResolved(false);
+			final Configuration runtimeElements = model(project).getExtensions().getByType(ConfigurationFactory.class).newConsumable(component.getIdentifier().child("runtimeElements"));
 
 			ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(runtimeElements);
 

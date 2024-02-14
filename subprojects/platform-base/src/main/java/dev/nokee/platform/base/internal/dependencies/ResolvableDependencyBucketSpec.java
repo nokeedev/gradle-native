@@ -16,8 +16,6 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.ModelElementSupport;
-import dev.nokee.model.internal.ModelObjectRegistry;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 
 import javax.inject.Inject;
@@ -28,8 +26,8 @@ public /*final*/ abstract class ResolvableDependencyBucketSpec extends ModelElem
 	private final IncomingArtifacts incoming;
 
 	@Inject
-	public ResolvableDependencyBucketSpec(ModelObjectRegistry<Configuration> configurationRegistry) {
-		getExtensions().add("$configuration", configurationRegistry.register(getIdentifier(), Configuration.class).get());
+	public ResolvableDependencyBucketSpec(ConfigurationFactory configurations) {
+		getExtensions().add("$configuration", configurations.newResolvable(getIdentifier()));
 
 		this.incoming = new IncomingArtifacts(getAsConfiguration());
 	}

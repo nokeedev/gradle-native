@@ -39,6 +39,8 @@ import dev.nokee.platform.base.internal.assembletask.AssembleTaskCapabilityPlugi
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
+import dev.nokee.platform.base.internal.dependencies.LegacyConfigurationFactory;
+import dev.nokee.platform.base.internal.dependencies.ModernConfigurationFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
@@ -55,6 +57,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.reflect.TypeOf;
+import org.gradle.util.GradleVersion;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -94,6 +97,12 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		project.getPluginManager().apply("lifecycle-base");
+
+		if (GradleVersion.current().compareTo(GradleVersion.version("8.4")) >= 0) {
+			model(project).getExtensions().add("__nokee_configurationFactory", instantiator(project).newInstance(ModernConfigurationFactory.class));
+		} else {
+			model(project).getExtensions().add("__nokee_configurationFactory", instantiator(project).newInstance(LegacyConfigurationFactory.class));
+		}
 
 		project.getExtensions().add(COMPONENT_CONTAINER_TYPE, "$components", project.getObjects().polymorphicDomainObjectContainer(Component.class));
 		project.getExtensions().add(VARIANT_CONTAINER_TYPE, "$variants", project.getObjects().polymorphicDomainObjectContainer(Variant.class));
