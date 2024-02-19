@@ -424,7 +424,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			target.getBinaryLifecycleTask().configure(configureBuildGroup());
 			target.getBinaryLifecycleTask().configure(task -> {
 				val linkage = ((BuildVariantInternal) variant.getBuildVariant()).getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-				NamedDomainObjectProvider<Binary> binaryProvider;// = artifacts(project).named(variant.getName());
+				ModelObject<Binary> binaryProvider;// = artifacts(project).named(variant.getName());
 				if (linkage.isShared()) {
 					binaryProvider = artifacts(project).named(ModelObjectIdentifiers.asFullyQualifiedName(element.getIdentifier().child("sharedLibrary")).toString(), Binary.class);
 					task.setDescription(String.format("Assembles a shared library binary containing the objects files of %s.", "shared library binary '" + binaryProvider.getName() + "'"));
