@@ -125,6 +125,12 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 			project.getTasks().named("tasks", ifSelectedInTaskGraph(() -> {
 				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Task.class);
 			}));
+			project.getTasks().named("dependencies", ifSelectedInTaskGraph(() -> {
+				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Configuration.class);
+			}));
+			project.getTasks().named("outgoingVariants", ifSelectedInTaskGraph(() -> {
+				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Configuration.class);
+			}));
 		});
 		project.getConfigurations().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(Configuration.class));
 	}

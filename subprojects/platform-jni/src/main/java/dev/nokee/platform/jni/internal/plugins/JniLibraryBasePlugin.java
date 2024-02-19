@@ -143,11 +143,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JniJarBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JvmJarBinarySpec.class);
 
-//		// FIXME: This is temporary until we convert all entity
-//		project.afterEvaluate(__ -> {
-//			variants(project).whenElementKnown(it -> it.realizeNow()); // Because outgoing configuration are created when variant realize
-//		});
-
 		components(project).whenElementFinalized(JniLibraryComponentInternal.class, knownComponent -> {
 			final Configuration apiElements = model(project).getExtensions().getByType(ConfigurationFactory.class).newConsumable(knownComponent.getIdentifier().child("apiElements"));
 
