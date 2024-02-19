@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.discover.Discover;
 import dev.nokee.platform.base.DeclarableDependencyBucket;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Action;
@@ -46,6 +47,7 @@ import static dev.nokee.utils.TransformerUtils.peek;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 // Note 1: We can't realistically delay until realize because Kotlin plugin suck big time and Gradle removed important APIs... Too bad, blame Gradle or Kotlin.
+@Discover(DependencyBucketConfigurationDiscovery.class)
 public /*final*/ abstract class DeclarableDependencyBucketSpec extends ModelElementSupport implements DeclarableDependencyBucket
 	, DependencyBucketMixIn
 {

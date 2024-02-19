@@ -16,10 +16,12 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.discover.Discover;
 import org.gradle.api.file.FileCollection;
 
 import javax.inject.Inject;
 
+@Discover(DependencyBucketConfigurationDiscovery.class)
 public /*final*/ abstract class ResolvableDependencyBucketSpec extends ModelElementSupport implements ResolvableDependencyBucket
 	, DependencyBucketMixIn
 {
