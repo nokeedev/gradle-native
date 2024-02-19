@@ -16,13 +16,13 @@
 package dev.nokee.testing.base.internal.plugins;
 
 import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelMap;
 import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObject;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.RunnableComponentSpec;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.internal.CheckableComponentSpec;
@@ -42,6 +42,8 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.tasks;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
 import static dev.nokee.utils.ProviderUtils.ifPresent;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
@@ -52,23 +54,24 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 public class TestingBasePlugin implements Plugin<Project> {
 	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent>> TEST_SUITE_COMPONENT_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent>>() {};
 
-	public static ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent> testSuites(Project target) {
-		return target.getExtensions().getByType(TEST_SUITE_COMPONENT_CONTAINER_TYPE);
+	public static ModelMap<TestSuiteComponent> testSuites(Project project) {
+		return testSuites(project);
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 
-		project.getExtensions().add(TEST_SUITE_COMPONENT_CONTAINER_TYPE, "testSuites", project.getObjects().polymorphicDomainObjectContainer(TestSuiteComponent.class));
-
-		model(project).getExtensions().add("testSuites", model(project).getExtensions().getByType(ModelMapFactory.class).create(TestSuiteComponent.class, testSuites(project)));
+		{
+			final ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent> container = project.getObjects().polymorphicDomainObjectContainer(TestSuiteComponent.class);
+			project.getExtensions().add(TEST_SUITE_COMPONENT_CONTAINER_TYPE, "testSuites", container);
+			model(project).getExtensions().add("testSuites", model(project).getExtensions().getByType(ModelMapFactory.class).create(TestSuiteComponent.class, container));
+		}
 
 		new TestableComponentCapabilityRule().execute(project);
 
 		// Register test suite's variant lifecycle task
-		model(project, mapOf(Variant.class)).whenElementKnown(HasTestSuiteLifecycleTask.class, identity -> {
+		variants(project).whenElementKnown(HasTestSuiteLifecycleTask.class, identity -> {
 			final String testSuiteName = identity.getIdentifier().getName().toString();
 			final TaskName lifecycleTaskName = testSuiteName.isEmpty() ? TaskName.lifecycle() : TaskName.of(testSuiteName);
 			final ModelObjectIdentifier lifecycleTaskIdentifier = identity.getIdentifier().getParent().child(lifecycleTaskName);
@@ -81,13 +84,13 @@ public class TestingBasePlugin implements Plugin<Project> {
 		});
 
 		// Attach test suite's lifecycle tasks to check task
-		model(project, mapOf(TestSuiteComponent.class)).whenElementFinalized(TestSuiteComponentSpec.class, testSuite -> {
+		testSuites(project).whenElementFinalized(TestSuiteComponentSpec.class, testSuite -> {
 			ifPresent(testSuite.getTestedComponent().map(to(CheckableComponentSpec.class)), component -> {
 				component.checkedBy(new Callable<Object>() {
 					@Override
 					public Object call() throws Exception {
 						return model(project, objects()).get(HasTestSuiteLifecycleTask.class, it -> ModelObjectIdentifiers.descendantOf(it.getIdentifier(), testSuite.getIdentifier()))
-							.map(transformEach(element -> model(project, mapOf(Task.class)).getById(lifecycleTaskOf(element)).asProvider()))
+							.map(transformEach(element -> tasks(project).getById(lifecycleTaskOf(element)).asProvider()))
 							.flatMap(toProviderOfIterable(project.getObjects()::listProperty))
 							.orElse(Collections.emptyList());
 					}
@@ -99,12 +102,6 @@ public class TestingBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		model(project, mapOf(TestSuiteComponent.class))
-			.whenElementFinalized(testSuite -> testSuite.getTestedComponent().disallowChanges());
-
-		project.afterEvaluate(proj -> {
-			// Force realize all test suite... until we solve the differing problem.
-			testSuites(proj).all(__ -> {});
-		});
+		testSuites(project).whenElementFinalized(testSuite -> testSuite.getTestedComponent().disallowChanges());
 	}
 }

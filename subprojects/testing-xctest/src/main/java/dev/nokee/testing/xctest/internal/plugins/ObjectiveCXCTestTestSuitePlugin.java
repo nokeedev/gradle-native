@@ -69,26 +69,26 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultXCTestTestSuiteVariant.class);
 
-		model(project, mapOf(Variant.class)).configureEach(DefaultXCTestTestSuiteVariant.class, variant -> {
+		variants(project).configureEach(DefaultXCTestTestSuiteVariant.class, variant -> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 		});
-		model(project, mapOf(Variant.class)).configureEach(DefaultXCTestTestSuiteVariant.class, variant -> {
+		variants(project).configureEach(DefaultXCTestTestSuiteVariant.class, variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 			}
 		});
-		model(project, mapOf(Variant.class)).configureEach(DefaultXCTestTestSuiteVariant.class, variant -> {
+		variants(project).configureEach(DefaultXCTestTestSuiteVariant.class, variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 			}
 		});
 
-		model(project, mapOf(Variant.class)).configureEach(DefaultXCTestTestSuiteVariant.class, variant -> {
+		variants(project).configureEach(DefaultXCTestTestSuiteVariant.class, variant -> {
 			final IosApplicationOutgoingDependencies outgoing = new IosApplicationOutgoingDependencies(variant.getRuntimeElements().getAsConfiguration(), project.getObjects());
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 		});
 		project.afterEvaluate(__ -> {
-			model(project, mapOf(Component.class)).configureEach(BaseXCTestTestSuiteComponent.class, component -> {
+			components(project).configureEach(BaseXCTestTestSuiteComponent.class, component -> {
 				for (BuildVariant it : component.getBuildVariants().get()) {
 					final BuildVariantInternal buildVariant = (BuildVariantInternal) it;
 					final VariantIdentifier variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).build();
@@ -101,13 +101,13 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			});
 		});
 
-		model(project, mapOf(Component.class)).configureEach(BaseXCTestTestSuiteComponent.class, component -> {
+		components(project).configureEach(BaseXCTestTestSuiteComponent.class, component -> {
 			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.BUNDLE));
 		});
-		model(project, mapOf(Component.class)).configureEach(BaseXCTestTestSuiteComponent.class, component -> {
+		components(project).configureEach(BaseXCTestTestSuiteComponent.class, component -> {
 			component.getTargetBuildTypes().convention(ImmutableSet.of(TargetBuildTypes.DEFAULT));
 		});
-		model(project, mapOf(Component.class)).configureEach(BaseXCTestTestSuiteComponent.class, component -> {
+		components(project).configureEach(BaseXCTestTestSuiteComponent.class, component -> {
 			component.getTargetMachines().convention(ImmutableSet.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
 		});
 

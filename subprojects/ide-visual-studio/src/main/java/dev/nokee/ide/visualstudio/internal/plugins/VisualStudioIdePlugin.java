@@ -26,6 +26,7 @@ import org.gradle.api.Project;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 
 public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 	@Override
@@ -40,7 +41,7 @@ public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 			@Override
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val action = new CreateNativeComponentVisualStudioIdeProject(extension, project.getLayout(), project.getObjects(), project.getProviders());
-				model(project, mapOf(Component.class)).whenElementKnown(action);
+				components(project).whenElementKnown(action);
 			}
 		};
 	}

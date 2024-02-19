@@ -81,6 +81,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuites;
 import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
@@ -105,7 +106,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
-		model(project, mapOf(Variant.class)).configureEach(NativeExecutableBasedTestSuiteSpec.class, variant -> {
+		variants(project).configureEach(NativeExecutableBasedTestSuiteSpec.class, variant -> {
 			variant.getRunTask().configure(task -> {
 				final Provider<RegularFile> executableFile = variant.getExecutable()
 					.flatMap(NativeExecutableBinarySpec::getLinkTask)
@@ -116,9 +117,9 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				task.commandLine(asToStringObject(executableFile.map(it -> it.getAsFile().getAbsolutePath())::get));
 			});
 		});
-		model(project, mapOf(Variant.class)).configureEach(NativeExecutableBasedTestSuiteSpec.class, variant -> {
+		variants(project).configureEach(NativeExecutableBasedTestSuiteSpec.class, variant -> {
 			variant.getComponentObjects().from(memoizeOnCall((Callable<?>) () -> {
-				final Provider<NativeComponentOf<? extends NativeComponentSpecEx>> testedComponentProvider = model(project, mapOf(TestSuiteComponent.class)).getById(variant.getIdentifier().getParent()).asProvider()
+				final Provider<NativeComponentOf<? extends NativeComponentSpecEx>> testedComponentProvider = testSuites(project).getById(variant.getIdentifier().getParent()).asProvider()
 					.flatMap(TestSuiteComponent::getTestedComponent)
 					.map(component -> {
 						if (component instanceof NativeComponentSpecEx && component instanceof NativeComponentOf) {
@@ -198,7 +199,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 
 		// TODO: Test applying testing plugin before component plugin
-		model(project, mapOf(TestSuiteComponent.class)).configureEach(HasBaseName.class, testSuite -> {
+		testSuites(project).configureEach(HasBaseName.class, testSuite -> {
 			final Provider<Component> componentProvider = ((TestSuiteComponent) testSuite).getTestedComponent();
 			final Provider<String> baseNameProvider = componentProvider.flatMap(component -> {
 				if (component instanceof HasBaseName) {
@@ -245,17 +246,17 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeTestSuiteVariant.class);
 
 		// TODO: Move to NativeComponentBasePlugin
-		model(project, mapOf(Variant.class)).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
+		variants(project).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(variant.getBuildVariant().getAxisValue(BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 		// TODO: Move to ComponentModelBasePlugin
-		model(project, mapOf(Variant.class)).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
+		variants(project).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 			}
 		});
 		// TODO: Move to NativeComponentBasePlugin
-		model(project, mapOf(Variant.class)).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
+		variants(project).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 			}
@@ -263,7 +264,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class);
 
-		model(project, mapOf(Variant.class)).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
+		variants(project).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
 			final NativeApplicationOutgoingDependencies outgoing = new NativeApplicationOutgoingDependencies(variant, variant.getRuntimeElements().getAsConfiguration(), project);
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 		});

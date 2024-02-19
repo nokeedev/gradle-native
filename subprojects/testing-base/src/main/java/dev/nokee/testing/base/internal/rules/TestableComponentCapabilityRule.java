@@ -33,14 +33,14 @@ import java.util.function.BiConsumer;
 import static dev.nokee.model.internal.ModelElementAction.withElement;
 import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
-import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
+import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuites;
 
 public final class TestableComponentCapabilityRule implements Action<Project> {
 	private static void components(Project project, Action<? super ModelMap<Component>> action) {
 		project.getPlugins().withType(ComponentModelBasePlugin.class).configureEach(__ -> {
-			action.execute(model(project, mapOf(Component.class)));
+			action.execute(ComponentModelBasePlugin.components(project));
 		});
 	}
 
@@ -60,7 +60,7 @@ public final class TestableComponentCapabilityRule implements Action<Project> {
 
 	private static BiConsumer<ModelElement, TestableComponentSpec> attachTestSuiteContainer(Project project) {
 		return (element, component) -> {
-			component.getExtensions().add(TestableComponentSpec.TEST_SUITES_EXTENSION_NAME, instantiator(project).newInstance(ContextualTestSuiteContainer.class, element.getIdentifier(), new ViewAdapter<>(TestSuiteComponent.class, new ModelNodeBackedViewStrategy(model(project, mapOf(TestSuiteComponent.class)), element.getIdentifier()))));
+			component.getExtensions().add(TestableComponentSpec.TEST_SUITES_EXTENSION_NAME, instantiator(project).newInstance(ContextualTestSuiteContainer.class, element.getIdentifier(), new ViewAdapter<>(TestSuiteComponent.class, new ModelNodeBackedViewStrategy(testSuites(project), element.getIdentifier()))));
 		};
 	}
 }

@@ -153,4 +153,8 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	public static <S extends ExtensionAware & PluginAware> Instantiator instantiator(S target) {
 		return model(target).getExtensions().getByType(Instantiator.class);
 	}
+
+	public static ModelMap<Task> tasks(Project project) {
+		return model(project, mapOf(Task.class));
+	}
 }
