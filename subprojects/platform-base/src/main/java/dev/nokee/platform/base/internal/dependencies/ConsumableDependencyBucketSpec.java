@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.discover.Discover;
 import dev.nokee.util.internal.LazyPublishArtifact;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.provider.Provider;
@@ -23,6 +24,7 @@ import org.gradle.api.provider.Provider;
 import javax.inject.Inject;
 import java.util.Set;
 
+@Discover(DependencyBucketConfigurationDiscovery.class)
 public /*final*/ abstract class ConsumableDependencyBucketSpec extends ModelElementSupport implements ConsumableDependencyBucket
 	, DependencyBucketMixIn
 {

@@ -145,7 +145,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				return Collections.emptyList();
 			});
 		});
-		project.getConfigurations().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(DependencyBucket.class));
 
 		model(project, objects()).configureEach(ofType(new TypeOf<DependencyAwareComponent<?>>() {}, withElement(new ExtendsFromParentDependencyBucketAction<ApiDependencyBucketMixIn>() {
 			@Override
