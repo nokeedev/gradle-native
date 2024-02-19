@@ -45,8 +45,8 @@ public abstract class ForwardingModelMapStrategy<ElementType> implements ModelMa
 	}
 
 	@Override
-	public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-		return delegate().getById(identifier);
+	public <U> ModelObject<U> getById(ModelObjectIdentifier identifier, Class<U> type) {
+		return delegate().getById(identifier, type);
 	}
 
 	@Override

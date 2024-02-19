@@ -24,9 +24,7 @@ import java.util.Set;
 
 public interface ModelMap<ElementType> {
 //	Class<ElementType> getElementType();
-	default <RegistrableType extends ElementType> ModelObject<RegistrableType> register(String name, Class<RegistrableType> type) {
-		return register(ElementName.of(name), type);
-	}
+	<RegistrableType extends ElementType> ModelObject<RegistrableType> register(String name, Class<RegistrableType> type);
 	<RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type);
 	void configureEach(Action<? super ElementType> configureAction);
 	<U> void configureEach(Class<U> type, Action<? super U> configureAction);
@@ -36,6 +34,9 @@ public interface ModelMap<ElementType> {
 
 	void whenElementFinalized(Action<? super ElementType> finalizeAction);
 	<U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction);
+
+	ModelObject<ElementType> named(String name);
+	<U> ModelObject<U> named(String name, Class<U> type);
 
 	ModelObject<ElementType> getById(ModelObjectIdentifier identifier);
 

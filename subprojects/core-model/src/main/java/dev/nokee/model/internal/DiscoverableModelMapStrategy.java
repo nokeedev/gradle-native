@@ -43,9 +43,9 @@ final class DiscoverableModelMapStrategy<ElementType> extends ForwardingModelMap
 			}
 
 			@Override
-			public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
+			public <U> ModelObject<U> getById(ModelObjectIdentifier identifier, Class<U> type) {
 				// TODO: Discover identifier
-				return super.getById(identifier);
+				return super.getById(identifier, type);
 			}
 
 			@Override
