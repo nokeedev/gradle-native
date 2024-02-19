@@ -81,7 +81,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.testing.base.internal.plugins.TestingBasePlugin.testSuites;
 import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
@@ -246,17 +245,17 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultNativeTestSuiteVariant.class);
 
 		// TODO: Move to NativeComponentBasePlugin
-		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(variant.getBuildVariant().getAxisValue(BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 		// TODO: Move to ComponentModelBasePlugin
-		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 			}
 		});
 		// TODO: Move to NativeComponentBasePlugin
-		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 			}
@@ -264,7 +263,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		model(project, factoryRegistryOf(TestSuiteComponent.class)).registerFactory(DefaultNativeTestSuiteComponent.class);
 
-		variants(project).withType(DefaultNativeTestSuiteVariant.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(DefaultNativeTestSuiteVariant.class, variant -> {
 			final NativeApplicationOutgoingDependencies outgoing = new NativeApplicationOutgoingDependencies(variant, variant.getRuntimeElements().getAsConfiguration(), project);
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 		});

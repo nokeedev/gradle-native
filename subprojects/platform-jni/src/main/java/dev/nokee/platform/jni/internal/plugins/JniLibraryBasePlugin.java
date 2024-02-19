@@ -42,6 +42,7 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationFactory;
@@ -107,9 +108,6 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
@@ -268,9 +266,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			jvmImplementation.extendsFrom(api);
 		});
 
-		components(project).withType(JniLibraryComponentInternal.class)
-			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(new Action<JniLibraryComponentInternal>() {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, new Action<JniLibraryComponentInternal>() {
 			@Override
 			public void execute(JniLibraryComponentInternal component) {
 				final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies = component.getDependencies();
@@ -332,7 +329,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		// Component rules
 		project.getPluginManager().withPlugin("java", ignored -> {
-			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+			model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 				component.getSources().configureEach(JavaSourceSetSpec.class, sourceSet -> {
 					sourceSet.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(component.getIdentifier(), project.getLayout()));
 				});
@@ -351,28 +348,28 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		// TODO: This is an external dependency meaning we should go through the component dependencies.
 		//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
 		//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
-		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(JniLibraryInternal.class, variant -> {
 			variant.getSources().configureEach(HasCompileTask.class, sourceSet -> {
 				sourceSet.getCompileTask().configure(includeRoots(from(jvmIncludes())));
 			});
 		});
 
 		project.getPluginManager().withPlugin("groovy", ignored -> {
-			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+			model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("groovy"), GroovySourceSetSpec.class).get(); // force realize to avoid out-of-order
 			});
 		});
 		project.getPluginManager().withPlugin("java", ignored -> {
-			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+			model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("java"), JavaSourceSetSpec.class).get(); // force realize to avoid out-of-order
 			});
 		});
 		project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
-			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+			model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("kotlin"), KotlinSourceSetSpec.class).get(); // force realize to avoid out-of-order
 			});
 		});
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 			Provider<? extends List<? extends JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> v.getSharedLibrary().isBuildable());
 			component.getAssembleTask().configure(configureDependsOn(component.getDevelopmentVariant().map(JniLibrary::getJavaNativeInterfaceJar).map(Collections::singletonList).orElse(Collections.emptyList())));
 			component.getAssembleTask().configure(task -> {
@@ -389,7 +386,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		// TODO: We should discover the variant instead of gating them
 		project.afterEvaluate(__ -> {
-			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+			model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 				// See https://github.com/nokeedev/gradle-native/issues/543
 				if (component.getBuildVariants().get().size() > 1) {
 					component.getVariants().configureEach(JniLibraryInternal.class, it -> {
@@ -400,23 +397,23 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				}
 			});
 		});
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).map(it -> it.getCompileTask().get())::get));
 			});
 		});
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(GroovySourceSetSpec.class).map(it -> it.getCompileTask().get())::get));
 			});
 		});
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(KotlinSourceSetSpec.class).map(it -> it.getCompileTask().get())::get));
 			});
 		});
 
-		artifacts(project).withType(JniJarBinarySpec.class).configureEach(binary -> {
+		model(project, mapOf(Artifact.class)).configureEach(JniJarBinarySpec.class, binary -> {
 			binary.getJarTask().configure(configureBuildGroup());
 			binary.getJarTask().configure(task -> {
 				task.getDestinationDirectory().convention(project.getLayout().getBuildDirectory().dir("libs"));
@@ -431,7 +428,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		artifacts(project).withType(JvmJarBinarySpec.class).configureEach(binary -> {
+		model(project, mapOf(Artifact.class)).configureEach(JvmJarBinarySpec.class, binary -> {
 			binary.getJarTask().configure(configureBuildGroup());
 			binary.getJarTask().configure(task -> {
 				task.getDestinationDirectory().convention(project.getLayout().getBuildDirectory().dir("libs"));
@@ -447,7 +444,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		});
 
 
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(task -> {
 					if (component.getBuildVariants().get().size() == 1) {
@@ -457,7 +454,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(task -> task.getArchiveBaseName().set(component.getBaseName()));
 			});
@@ -465,7 +462,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		val registerJvmJarBinaryAction = new Action<AppliedPlugin>() {
 			@Override
 			public void execute(AppliedPlugin ignored) {
-				components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+				model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 					model(project, registryOf(Artifact.class)).register(component.getIdentifier().child(ElementName.ofMain("jvmJar")), JvmJarBinarySpec.class);
 				});
 			}
@@ -473,54 +470,54 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), registerJvmJarBinaryAction).execute(project);
 
 		// Assemble task configuration
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 			component.getAssembleTask().configure(configureDependsOn((Callable<Object>) component.getBinaries().filter(it -> it instanceof JvmJarBinarySpec)::get));
 		});
-		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(JniLibraryInternal.class, variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getAssembleTask().configure(configureDependsOn(variant.getJavaNativeInterfaceJar()));
 			}
 		});
 
 		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), ignored -> {
-			components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+			model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 				component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
 					variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) component.getBinaries().filter(it -> it instanceof JvmJarBinarySpec)::get));
 				});
 			});
 		}).execute(project);
 
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.SHARED));
 		});
 
 		// Variant rules
-		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(JniLibraryInternal.class, variant -> {
 			variant.getResourcePath().convention(variant.getIdentifier().getAmbiguousDimensions().getAsKebabCase().orElse(""));
 		});
-		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(JniLibraryInternal.class, variant -> {
 			variant.getSharedLibraryTask().configure(configureBuildGroup());
 			variant.getSharedLibraryTask().configure(configureDescription("Assembles the shared library binary of %s.", variant));
 			variant.getSharedLibraryTask().configure(configureDependsOn(variant.getSharedLibrary()));
 		});
-		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(JniLibraryInternal.class, variant -> {
 			variant.sharedLibrary(binary -> {
 				binary.getCompileTasks().configureEach(configureTargetPlatform(set(fromBuildVariant(variant.getIdentifier().getBuildVariant()))));
 			});
 		});
-		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(JniLibraryInternal.class, variant -> {
 			variant.getObjectsTask().configure(configureDependsOn(variant.getSharedLibrary().getCompileTasks().filter(it -> it instanceof HasObjectFiles)));
 			variant.getObjectsTask().configure(configureBuildGroup());
 			variant.getObjectsTask().configure(configureDescription("Assembles the object files of %s.", variant));
 		});
-		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(JniLibraryInternal.class, variant -> {
 			variant.getNativeRuntimeFiles().from(variant.getSharedLibrary().getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile));
 			variant.getNativeRuntimeFiles().from((Callable<Object>) () -> variant.getSharedLibrary().getRuntimeLibraries().getAsConfiguration().getIncoming().getFiles());
 		});
-		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(JniLibraryInternal.class, variant -> {
 			variant.getDevelopmentBinary().convention(variant.getJavaNativeInterfaceJar());
 		});
-		variants(project).withType(JniLibraryInternal.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(JniLibraryInternal.class, variant -> {
 			variant.getBinaries().configureEach(JniJarBinarySpec.class, binary -> {
 				binary.getJarTask().configure(task -> task.getArchiveBaseName()
 					.set(variant.getBaseName().map(baseName -> baseName + variant.getIdentifier().getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse(""))));
@@ -529,7 +526,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		val unbuildableWarningService = (Provider<UnbuildableWarningService>) project.getGradle().getSharedServices().getRegistrations().getByName(UnbuildableWarningService.class.getSimpleName()).getService();
 
-		components(project).withType(JniLibraryComponentInternal.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(JniLibraryComponentInternal.class, component -> {
 			component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
 				variant.getJavaNativeInterfaceJar().getJarTask().configure(configureJarTaskUsing(project.provider(() -> variant), unbuildableWarningService.map(it -> {
 					it.warn(component.getIdentifier());
