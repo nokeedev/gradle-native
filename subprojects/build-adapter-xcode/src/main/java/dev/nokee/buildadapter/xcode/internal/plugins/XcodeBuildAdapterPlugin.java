@@ -27,10 +27,12 @@ import dev.nokee.buildadapter.xcode.internal.rules.XCTargetComponentDiscoveryRul
 import dev.nokee.buildadapter.xcode.internal.rules.XCTargetVariantDiscoveryRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
+import dev.nokee.model.internal.ModelObject;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.XCDependenciesLoader;
 import dev.nokee.xcode.XCLoaders;
@@ -41,7 +43,6 @@ import lombok.val;
 import org.apache.commons.lang3.SerializationUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -77,10 +78,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.util.internal.OutOfDateReasonSpec.because;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
@@ -152,13 +152,13 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					task.usesService(service);
 				});
 
-			components(project).withType(XCProjectAdapterSpec.class).configureEach(component -> {
+			model(project, mapOf(Component.class)).configureEach(XCProjectAdapterSpec.class, component -> {
 				component.getDimensions().newAxis(XCConfiguration.class).value(component.getConfigurations().map(transformEach(it -> project.getObjects().named(XCConfiguration.class, it))));
 			});
-			components(project).withType(XCProjectAdapterSpec.class).configureEach(new XCTargetVariantDiscoveryRule(buildInputs.capture("loads target configurations", (Transformer<Iterable<String>, XCTargetReference> & Serializable) it -> XCLoaders.targetConfigurationsLoader().load(it))::transform, fromCommandLine(project.getProviders(), "configuration")::getOrNull));
-			components(project).withType(XCProjectAdapterSpec.class).configureEach(new AttachXCTargetToVariantRule());
+			model(project, mapOf(Component.class)).configureEach(XCProjectAdapterSpec.class, new XCTargetVariantDiscoveryRule(buildInputs.capture("loads target configurations", (Transformer<Iterable<String>, XCTargetReference> & Serializable) it -> XCLoaders.targetConfigurationsLoader().load(it))::transform, fromCommandLine(project.getProviders(), "configuration")::getOrNull));
+			model(project, mapOf(Component.class)).configureEach(XCProjectAdapterSpec.class, new AttachXCTargetToVariantRule());
 
-			components(project).withType(XCProjectAdapterSpec.class).configureEach(component -> {
+			model(project, mapOf(Component.class)).configureEach(XCProjectAdapterSpec.class, component -> {
 				model(project, registryOf(Task.class)).register(component.getIdentifier().child(TaskName.lifecycle()), XcodeTargetLifecycleTask.class)
 					.configure(task -> {
 						final XCTargetReference targetReference = component.getTarget().get();
@@ -175,11 +175,11 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					});
 			});
 
-			final NamedDomainObjectProvider<XCProjectAdapterSpec> projectComponent = components(project).register("main", XCProjectAdapterSpec.class);
+			final ModelObject<XCProjectAdapterSpec> projectComponent = model(project, mapOf(Component.class)).register("main", XCProjectAdapterSpec.class);
 			projectComponent.configure(it -> it.getProjectLocation().set(reference));
 
 			// Derived Data
-			variants(project).withType(XCTargetAdapterSpec.class).configureEach(variant -> {
+			model(project, mapOf(Variant.class)).configureEach(XCTargetAdapterSpec.class, variant -> {
 				variant.getDerivedData().configure(bucket -> {
 					bucket.getAsConfiguration().attributes(attributes -> {
 						attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
@@ -220,7 +220,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			});
 
 			// Remote Swift Packages
-			variants(project).withType(XCTargetAdapterSpec.class).configureEach(variant -> {
+			model(project, mapOf(Variant.class)).configureEach(XCTargetAdapterSpec.class, variant -> {
 				variant.getRemoteSwiftPackages().configure(bucket -> {
 					bucket.getAsConfiguration().attributes(attributes -> {
 						attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-swift-packages"));
@@ -256,7 +256,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				});
 			});
 
-			variants(project).withType(XCTargetAdapterSpec.class).configureEach(variant -> {
+			model(project, mapOf(Variant.class)).configureEach(XCTargetAdapterSpec.class, variant -> {
 				variant.getVirtualFileSystemOverlays().configure(bucket -> {
 					bucket.getAsConfiguration().attributes(attributes -> {
 						attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-overlays"));
@@ -319,7 +319,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				});
 			});
 
-			variants(project).withType(XCTargetAdapterSpec.class).configureEach(variant -> {
+			model(project, mapOf(Variant.class)).configureEach(XCTargetAdapterSpec.class, variant -> {
 				variant.getIsolateTargetTask().configure(task -> {
 					task.parameters(parameters -> {
 						parameters.getOriginalProject().from(reference);
@@ -348,7 +348,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				});
 			});
 
-			variants(project).withType(XCTargetAdapterSpec.class).configureEach(variant -> {
+			model(project, mapOf(Variant.class)).configureEach(XCTargetAdapterSpec.class, variant -> {
 				variant.getTargetTask().configure(task -> {
 					task.getTargetName().set(variant.getTarget().map(XCTargetReference::getName));
 					task.getOutputs().upToDateWhen(because(String.format("a shell script build phase of %s has no inputs or outputs defined", reference.ofTarget(variant.getTarget().get().getName())), everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs()));

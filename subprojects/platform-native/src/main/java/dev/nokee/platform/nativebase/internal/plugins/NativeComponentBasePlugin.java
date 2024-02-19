@@ -197,7 +197,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		}));
 
-		components(project).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
+		model(project, mapOf(Component.class)).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
 		variants(project).configureEach(new LinkLibrariesExtendsFromParentDependencyBucketAction<>());
 		variants(project).configureEach(new RuntimeLibrariesExtendsFromParentDependencyBucketAction<>());
 
@@ -374,8 +374,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeLinkCapabilityPlugin.class);
 		project.getPluginManager().apply(NativeArchiveCapabilityPlugin.class);
 
-		components(project).withType(NativeComponentSpec.class)
-			.configureEach(new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
+		model(project, mapOf(Component.class)).configureEach(NativeComponentSpec.class, new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
 		model(project, objects()).configureEach(ofType(TargetMachineAwareComponent.class, withElement(new TargetMachineConventionRule(project.getProviders()))));
 		model(project, objects()).configureEach(ofType(TargetBuildTypeAwareComponent.class, withElement(new TargetBuildTypeConventionRule(project.getProviders()))));
 		components(project).configureEach(component -> {
@@ -480,13 +479,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				return it.instanceOf(NativeBundleBinarySpec.class) || it.instanceOf(NativeExecutableBinarySpec.class) || it.instanceOf(NativeSharedLibraryBinarySpec.class);
 			}
 		})));
-		artifacts(project).withType(NativeSharedLibraryBinarySpec.class).configureEach(binary -> {
+		model(project, mapOf(Artifact.class)).configureEach(NativeSharedLibraryBinarySpec.class, binary -> {
 			binary.getLinkTask().configure(task -> {
 				final Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 				task.getInstallName().set(installName);
 			});
 		});
-		artifacts(project).withType(NativeSharedLibraryBinarySpec.class).configureEach(binary -> {
+		model(project, mapOf(Artifact.class)).configureEach(NativeSharedLibraryBinarySpec.class, binary -> {
 			binary.getLinkedFile().set(binary.getLinkTask().flatMap(AbstractLinkTask::getLinkedFile));
 			binary.getLinkedFile().disallowChanges();
 			binary.getLinkedFile().finalizeValueOnRead();

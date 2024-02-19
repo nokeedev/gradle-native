@@ -17,6 +17,7 @@ package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -37,10 +38,9 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
-import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class IosComponentBasePlugin implements Plugin<Project> {
@@ -51,31 +51,31 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(IosResourceSetSpec.class);
 		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class);
 
-		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(DefaultIosApplicationComponent.class, component -> {
 			component.getVariants().configureEach(DefaultIosApplicationVariant.class, variant -> {
 				variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
 			});
 		});
 
-		variants(project).withType(DefaultIosApplicationVariant.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(DefaultIosApplicationVariant.class, variant -> {
 			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 		});
-		variants(project).withType(DefaultIosApplicationVariant.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(DefaultIosApplicationVariant.class, variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
 			}
 		});
-		variants(project).withType(DefaultIosApplicationVariant.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(DefaultIosApplicationVariant.class, variant -> {
 			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
 				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
 			}
 		});
 
-		components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(DefaultIosApplicationComponent.class, component -> {
 			model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("resources"), IosResourceSetSpec.class).configure(sourceSet -> sourceSet.from("src/" + component.getName() + "/resources"));
 		});
 		project.afterEvaluate(__ -> {
-			components(project).withType(DefaultIosApplicationComponent.class).configureEach(component -> {
+			model(project, mapOf(Component.class)).configureEach(DefaultIosApplicationComponent.class, component -> {
 				for (BuildVariant it : component.getBuildVariants().get()) {
 					final BuildVariantInternal buildVariant = (BuildVariantInternal) it;
 					final VariantIdentifier variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).build();
@@ -86,25 +86,25 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		components(project).withType(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class, component -> {
 			component.getTargetMachines().convention(Collections.singletonList(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
 		});
-		components(project).withType(SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class, component -> {
 			component.getTargetMachines().convention(Collections.singletonList(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
 		});
-		components(project).withType(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class, component -> {
 			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
 		});
-		components(project).withType(SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class, component -> {
 			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
 		});
-		components(project).withType(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class, component -> {
 			component.getTargetBuildTypes().convention(Collections.singletonList(TargetBuildTypes.named("Default")));
 		});
-		components(project).withType(SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class).configureEach(component -> {
+		model(project, mapOf(Component.class)).configureEach(SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class, component -> {
 			component.getTargetBuildTypes().convention(Collections.singletonList(TargetBuildTypes.named("Default")));
 		});
-		variants(project).withType(DefaultIosApplicationVariant.class).configureEach(variant -> {
+		model(project, mapOf(Variant.class)).configureEach(DefaultIosApplicationVariant.class, variant -> {
 			final IosApplicationOutgoingDependencies outgoing = new IosApplicationOutgoingDependencies(variant.getRuntimeElements().getAsConfiguration(), project.getObjects());
 			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
 		});
