@@ -16,6 +16,7 @@
 
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.internal.ModelObjectIdentity;
 import dev.nokee.model.internal.discover.DisRule;
 import dev.nokee.model.internal.discover.Discovery;
 import dev.nokee.model.internal.discover.RealizeRule;
@@ -32,7 +33,8 @@ public class DependencyBucketConfigurationDiscovery implements Discovery {
 		return Collections.singletonList(new RealizeRule(new SubTypeOfRule(discoveringType, new DisRule() {
 			@Override
 			public void execute(Details details) {
-				details.newCandidate(details.getCandidate().getIdentifier().getName(), ModelType.of(Configuration.class));
+				// The Configuration shadow the DependencyBucket
+				details.newCandidate(ModelObjectIdentity.ofIdentity(details.getCandidate().getIdentifier(), ModelType.of(Configuration.class)));
 			}
 		})));
 	}
