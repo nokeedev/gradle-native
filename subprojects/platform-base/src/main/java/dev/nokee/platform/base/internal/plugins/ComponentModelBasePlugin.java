@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.internal.DiscoveredElements;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelMap;
 import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
@@ -76,20 +77,20 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<DependencyBucket>> DEPENDENCY_BUCKET_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<DependencyBucket>>() {};
 	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<Artifact>> ARTIFACT_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<Artifact>>() {};
 
-	public static ExtensiblePolymorphicDomainObjectContainer<Component> components(ExtensionAware target) {
-		return target.getExtensions().getByType(COMPONENT_CONTAINER_TYPE);
+	public static ModelMap<Component> components(ExtensionAware target) {
+		return model(target, mapOf(Component.class));
 	}
 
-	public static ExtensiblePolymorphicDomainObjectContainer<Variant> variants(ExtensionAware target) {
-		return target.getExtensions().getByType(VARIANT_CONTAINER_TYPE);
+	public static ModelMap<Variant> variants(ExtensionAware target) {
+		return model(target, mapOf(Variant.class));
 	}
 
-	public static ExtensiblePolymorphicDomainObjectContainer<DependencyBucket> dependencyBuckets(ExtensionAware target) {
-		return target.getExtensions().getByType(DEPENDENCY_BUCKET_CONTAINER_TYPE);
+	public static ModelMap<DependencyBucket> dependencyBuckets(ExtensionAware target) {
+		return model(target, mapOf(DependencyBucket.class));
 	}
 
-	public static ExtensiblePolymorphicDomainObjectContainer<Artifact> artifacts(ExtensionAware target) {
-		return target.getExtensions().getByType(ARTIFACT_CONTAINER_TYPE);
+	public static ModelMap<Artifact> artifacts(ExtensionAware target) {
+		return model(target, mapOf(Artifact.class));
 	}
 
 	@Override
@@ -104,15 +105,26 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			model(project).getExtensions().add("__nokee_configurationFactory", instantiator(project).newInstance(LegacyConfigurationFactory.class));
 		}
 
-		project.getExtensions().add(COMPONENT_CONTAINER_TYPE, "$components", project.getObjects().polymorphicDomainObjectContainer(Component.class));
-		project.getExtensions().add(VARIANT_CONTAINER_TYPE, "$variants", project.getObjects().polymorphicDomainObjectContainer(Variant.class));
-		project.getExtensions().add(DEPENDENCY_BUCKET_CONTAINER_TYPE, "$dependencyBuckets", project.getObjects().polymorphicDomainObjectContainer(DependencyBucket.class));
-		project.getExtensions().add(ARTIFACT_CONTAINER_TYPE, "$artifacts", project.getObjects().polymorphicDomainObjectContainer(Artifact.class));
-
-		model(project).getExtensions().add("components", model(project).getExtensions().getByType(ModelMapFactory.class).create(Component.class, components(project)));
-		model(project).getExtensions().add("variants", model(project).getExtensions().getByType(ModelMapFactory.class).create(Variant.class, variants(project)));
-		model(project).getExtensions().add("dependencyBuckets", model(project).getExtensions().getByType(ModelMapFactory.class).create(DependencyBucket.class, dependencyBuckets(project)));
-		model(project).getExtensions().add("artifacts", model(project).getExtensions().getByType(ModelMapFactory.class).create(Artifact.class, artifacts(project)));
+		{
+			final ExtensiblePolymorphicDomainObjectContainer<Component> container = project.getObjects().polymorphicDomainObjectContainer(Component.class);
+			project.getExtensions().add(COMPONENT_CONTAINER_TYPE, "$components", container);
+			model(project).getExtensions().add("components", model(project).getExtensions().getByType(ModelMapFactory.class).create(Component.class, container));
+		}
+		{
+			final ExtensiblePolymorphicDomainObjectContainer<Variant> container = project.getObjects().polymorphicDomainObjectContainer(Variant.class);
+			project.getExtensions().add(VARIANT_CONTAINER_TYPE, "$variants", container);
+			model(project).getExtensions().add("variants", model(project).getExtensions().getByType(ModelMapFactory.class).create(Variant.class, container));
+		}
+		{
+			final ExtensiblePolymorphicDomainObjectContainer<DependencyBucket> container = project.getObjects().polymorphicDomainObjectContainer(DependencyBucket.class);
+			project.getExtensions().add(DEPENDENCY_BUCKET_CONTAINER_TYPE, "$dependencyBuckets", container);
+			model(project).getExtensions().add("dependencyBuckets", model(project).getExtensions().getByType(ModelMapFactory.class).create(DependencyBucket.class, container));
+		}
+		{
+			final ExtensiblePolymorphicDomainObjectContainer<Artifact> container = project.getObjects().polymorphicDomainObjectContainer(Artifact.class);
+			project.getExtensions().add(ARTIFACT_CONTAINER_TYPE, "$artifacts", container);
+			model(project).getExtensions().add("artifacts", model(project).getExtensions().getByType(ModelMapFactory.class).create(Artifact.class, container));
+		}
 
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ConsumableDependencyBucketSpec.class);
 		model(project, factoryRegistryOf(DependencyBucket.class)).registerFactory(ResolvableDependencyBucketSpec.class);
