@@ -319,6 +319,11 @@ public class DiscoveredElements implements ListeningModelMapStrategy.Listener, I
 				}
 
 				@Override
+				public void newCandidate(ModelObjectIdentity<?> knownIdentity, CandidateElement.DiscoverChain.Act action) {
+					list(result, new CandidateElement(knownIdentity.getIdentifier(), knownIdentity.getType(), true, realizedElements::contains, finalizedElements::contains,ImmutableList.<CandidateElement.DiscoverChain>builder().addAll(current.getActions()).add(new CandidateElement.DiscoverChain(current, action)).build(), rule), ImmutableSet.<DisRule>builder().addAll(rules).addAll(service.discover(knownIdentity.getType())).build());
+				}
+
+				@Override
 				public void newCandidate(ElementName elementName, ModelType<?> produceType) {
 					ModelObjectIdentifier identifier = current.getIdentifier();
 					if (elementName != null) {

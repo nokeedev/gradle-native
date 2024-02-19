@@ -41,6 +41,11 @@ public final class FinalizeRule implements DisRule {
 
 				@Override
 				public void newCandidate(ModelObjectIdentity<?> knownIdentity) {
+					details.newCandidate(knownIdentity, FINALIZE);
+				}
+
+				@Override
+				public void newCandidate(ModelObjectIdentity<?> knownIdentity, CandidateElement.DiscoverChain.Act action) {
 					throw new UnsupportedOperationException();
 				}
 

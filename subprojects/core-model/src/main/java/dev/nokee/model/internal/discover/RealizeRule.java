@@ -41,7 +41,13 @@ public final class RealizeRule implements DisRule {
 
 				@Override
 				public void newCandidate(ModelObjectIdentity<?> knownIdentity) {
-					throw new UnsupportedOperationException();
+					details.newCandidate(knownIdentity, REALIZE);
+				}
+
+				@Override
+				public void newCandidate(ModelObjectIdentity<?> knownIdentity, CandidateElement.DiscoverChain.Act action) {
+					assert action.equals(REALIZE);
+					details.newCandidate(knownIdentity, action);
 				}
 
 				@Override
