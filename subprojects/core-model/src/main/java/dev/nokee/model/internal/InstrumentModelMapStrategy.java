@@ -66,8 +66,8 @@ public final class InstrumentModelMapStrategy<ElementType> extends ForwardingMod
 	}
 
 	@Override
-	public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-		return new MObjectAdapter<>(super.getById(identifier));
+	public <U> ModelObject<U> getById(ModelObjectIdentifier identifier, Class<U> type) {
+		return new MObjectAdapter<>(super.getById(identifier, type));
 	}
 
 	public interface Instrument {

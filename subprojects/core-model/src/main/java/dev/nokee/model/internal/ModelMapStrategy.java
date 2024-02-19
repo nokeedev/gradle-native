@@ -31,7 +31,7 @@ public interface ModelMapStrategy<ElementType> {
 
 	void whenElementFinalized(Action<? super ElementType> finalizeAction);
 
-	ModelObject<ElementType> getById(ModelObjectIdentifier identifier);
+	<U> ModelObject<U> getById(ModelObjectIdentifier identifier, Class<U> type);
 
 	<U> Provider<Set<U>> getElements(Class<U> type, Spec<? super ModelObjectIdentity<?>> spec);
 }

@@ -26,6 +26,7 @@ import dev.nokee.model.ExtensiblePolymorphicDomainObjectContainerRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.TaskRegistry;
 import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
@@ -64,8 +65,37 @@ import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 public final class ModelMapAdapters {
 	private ModelMapAdapters() {}
 
+	private enum ElementNameFactories implements ElementNameFactory {
+		forTask {
+			@Override
+			public ElementName create(String name) {
+				if (name.equals("main")) {
+					return ElementName.ofMain();
+				}
+				return ElementName.of(name);
+			}
+		},
+		others {
+			@Override
+			public ElementName create(String name) {
+				return TaskName.of(name);
+			}
+		},
+		failing {
+			@Override
+			public ElementName create(String name) {
+				throw new UnsupportedOperationException();
+			}
+		}
+	}
+
 	private interface ForwardingModelMap<ElementType> extends ModelMap<ElementType> {
 		ModelMap<ElementType> delegate();
+
+		@Override
+		default <RegistrableType extends ElementType> ModelObject<RegistrableType> register(String name, Class<RegistrableType> type) {
+			return delegate().register(name, type);
+		}
 
 		@Override
 		default <RegistrableType extends ElementType> ModelObject<RegistrableType> register(ElementName name, Class<RegistrableType> type) {
@@ -100,6 +130,16 @@ public final class ModelMapAdapters {
 		@Override
 		default <U> void whenElementFinalized(Class<U> type, Action<? super U> finalizeAction) {
 			delegate().whenElementFinalized(type, finalizeAction);
+		}
+
+		@Override
+		default ModelObject<ElementType> named(String name) {
+			return delegate().named(name);
+		}
+
+		@Override
+		default <U> ModelObject<U> named(String name, Class<U> type) {
+			return delegate().named(name, type);
 		}
 
 		@Override
@@ -158,7 +198,7 @@ public final class ModelMapAdapters {
 					return Project.class::equals;
 				}
 			};
-			this.delegate = instantiator.newInstance(BaseModelMap.class, Project.class, registry, delegate);
+			this.delegate = instantiator.newInstance(BaseModelMap.class, Project.class, registry, delegate, ElementNameFactories.failing);
 			this.delegate.register(ProjectIdentifier.of(project), Project.class);
 		}
 
@@ -181,7 +221,7 @@ public final class ModelMapAdapters {
 		@Inject
 		@SuppressWarnings("unchecked")
 		public ForConfigurationContainer(ConfigurationContainer delegate, Instantiator instantiator) {
-			this.delegate = instantiator.newInstance(BaseModelMap.class, Configuration.class, new ConfigurationRegistry(delegate), delegate);
+			this.delegate = instantiator.newInstance(BaseModelMap.class, Configuration.class, new ConfigurationRegistry(delegate), delegate, ElementNameFactories.others);
 		}
 
 		@Override
@@ -204,7 +244,7 @@ public final class ModelMapAdapters {
 		@Inject
 		@SuppressWarnings("unchecked")
 		public ForTaskContainer(TaskContainer delegate, Instantiator instantiator) {
-			this.delegate = instantiator.newInstance(BaseModelMap.class, Task.class, new TaskRegistry(delegate), delegate);
+			this.delegate = instantiator.newInstance(BaseModelMap.class, Task.class, new TaskRegistry(delegate), delegate, ElementNameFactories.forTask);
 		}
 
 		@Override
@@ -234,7 +274,7 @@ public final class ModelMapAdapters {
 		@SuppressWarnings("unchecked")
 		public ForExtensiblePolymorphicDomainObjectContainer(Class<ElementType> elementType, ExtensiblePolymorphicDomainObjectContainer<ElementType> delegate, Instantiator instantiator, ManagedNamedDomainObjectFactoryProvider managedFactoryProvider) {
 			this.registry = new ExtensiblePolymorphicDomainObjectContainerRegistry<>(delegate);
-			this.delegate = instantiator.newInstance(BaseModelMap.class, elementType, registry, delegate);
+			this.delegate = instantiator.newInstance(BaseModelMap.class, elementType, registry, delegate, ElementNameFactories.others);
 			this.elementType = elementType;
 			this.managedFactory = managedFactoryProvider;
 		}
@@ -520,8 +560,12 @@ public final class ModelMapAdapters {
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-			return (ModelObject<ElementType>) knownObjects.computeIfAbsent(identifier, __ -> { throw new RuntimeException("not known"); });
+		public <U> ModelObject<U> getById(ModelObjectIdentifier identifier, Class<U> type) {
+			final ModelObject<?> result = knownObjects.computeIfAbsent(identifier, __ -> { throw new RuntimeException("not known"); });
+			if (!result.getType().isSubtypeOf(type)) {
+				throw new RuntimeException("not correct type");
+			}
+			return (ModelObject<U>) result;
 		}
 
 		@Override
@@ -695,14 +739,22 @@ public final class ModelMapAdapters {
 		}
 	}
 
+	interface ElementNameFactory {
+		ElementName create(String name);
+	}
+
 	public static final class BaseModelMap<ElementType> implements ModelMap<ElementType>, ModelObjectRegistry<ElementType>, ModelElementLookup {
+		private final Class<ElementType> elementType;
+		private final ElementNameFactory elementNameFactory;
 		private final ModelMapStrategy<ElementType> strategy;
 		private final ModelObjectIdentifierFactory identifierFactory;
 		private final RegistrableTypes registrableTypes;
 		private final ModelElementLookup elementsLookup;
 
 		@Inject
-		public BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ModelObjectIdentifierFactory identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents, SetProviderFactory setProviders) {
+		public BaseModelMap(Class<ElementType> elementType, PolymorphicDomainObjectRegistry<ElementType> registry, DiscoveredElements discoveredElements, ModelElementFinalizer finalizer, NamedDomainObjectSet<ElementType> delegate, ModelObjectIdentifierFactory identifierFactory, ProviderFactory providers, ObjectFactory objects, ModelElementParents elementParents, SetProviderFactory setProviders, ElementNameFactory elementNameFactory) {
+			this.elementType = elementType;
+			this.elementNameFactory = elementNameFactory;
 			// This may seems like a very complicated "new soup" but there is a very good reason for this design.
 			//   Each class is responsible for one aspect of the whole ModelMap behaviour (separation of concerns).
 			//   There is three level of API:
@@ -730,6 +782,11 @@ public final class ModelMapAdapters {
 		@Override
 		public RegistrableTypes getRegistrableTypes() {
 			return registrableTypes;
+		}
+
+		@Override
+		public <RegistrableType extends ElementType> ModelObject<RegistrableType> register(String name, Class<RegistrableType> type) {
+			return register(elementNameFactory.create(name), type);
 		}
 
 		@Override
@@ -770,8 +827,18 @@ public final class ModelMapAdapters {
 		}
 
 		@Override
+		public ModelObject<ElementType> named(String name) {
+			return strategy.getById(identifierFactory.create(elementNameFactory.create(name)), elementType);
+		}
+
+		@Override
+		public <U> ModelObject<U> named(String name, Class<U> type) {
+			return strategy.getById(identifierFactory.create(elementNameFactory.create(name)), type);
+		}
+
+		@Override
 		public ModelObject<ElementType> getById(ModelObjectIdentifier identifier) {
-			return strategy.getById(identifier);
+			return strategy.getById(identifier, elementType);
 		}
 
 		@Override
