@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
+import dev.nokee.model.internal.discover.Discover;
+import dev.nokee.model.internal.discover.DiscoverableStrategy;
 import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.CompileOnlyDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
@@ -23,6 +25,7 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.mixins.LinkOnlyDependencyBucketMixIn;
 import org.gradle.api.plugins.ExtensionAware;
 
+@Discover(DiscoverableStrategy.class)
 public /*final*/ abstract class DefaultNativeLibraryComponentDependencies implements NativeLibraryComponentDependencies
 	, ApiDependencyBucketMixIn
 	, CompileOnlyDependencyBucketMixIn

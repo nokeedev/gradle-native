@@ -15,11 +15,14 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.discover.Discover;
+import dev.nokee.model.internal.discover.DiscoverableStrategy;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.internal.mixins.ImplementationDependencyBucketMixIn;
 import dev.nokee.platform.base.internal.mixins.RuntimeOnlyDependencyBucketMixIn;
 import org.gradle.api.plugins.ExtensionAware;
 
+@Discover(DiscoverableStrategy.class)
 public abstract class DefaultJvmComponentDependencies implements ComponentDependencies
 	, ImplementationDependencyBucketMixIn
 	, RuntimeOnlyDependencyBucketMixIn

@@ -16,6 +16,8 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.model.internal.discover.Discover;
+import dev.nokee.model.internal.discover.DiscoverableStrategy;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.mixins.ApiDependencyBucketMixIn;
@@ -28,6 +30,7 @@ import dev.nokee.platform.jni.internal.mixins.NativeRuntimeOnlyDependencyBucketM
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import org.gradle.api.plugins.ExtensionAware;
 
+@Discover(DiscoverableStrategy.class)
 public abstract class DefaultJavaNativeInterfaceLibraryComponentDependencies implements JavaNativeInterfaceLibraryComponentDependencies
 	, ApiDependencyBucketMixIn
 	, NativeImplementationDependencyBucketMixIn
