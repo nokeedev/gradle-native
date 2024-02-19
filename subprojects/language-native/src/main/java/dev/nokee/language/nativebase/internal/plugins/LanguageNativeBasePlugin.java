@@ -63,7 +63,7 @@ public class LanguageNativeBasePlugin implements Plugin<Project> {
 
 		sources(project).configureEach(new HasNativeCompileTaskMixInRule<>(new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders())));
 
-		sources(project).withType(BaseNativeSourceSetSpec.class).configureEach(sourceSet -> {
+		sources(project).configureEach(BaseNativeSourceSetSpec.class, sourceSet -> {
 			sourceSet.getBuildDependencies().add(sourceSet.getSource().getBuildDependencies());
 			sourceSet.getBuildDependencies().add(TaskDependencyUtils.of(sourceSet.getCompileTask()));
 			if (sourceSet instanceof HasHeaders) {

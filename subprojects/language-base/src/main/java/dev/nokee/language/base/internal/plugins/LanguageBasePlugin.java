@@ -29,6 +29,7 @@ import dev.nokee.language.base.internal.rules.RegisterSourcePropertyBasedOnLangu
 import dev.nokee.language.base.internal.rules.SourcePropertiesExtendsFromParentRule;
 import dev.nokee.language.base.internal.rules.UseConventionalLayoutRule;
 import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelMap;
 import dev.nokee.model.internal.ModelMapFactory;
 import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
@@ -57,8 +58,8 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 public class LanguageBasePlugin implements Plugin<Project> {
 	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>> LANGUAGE_SOURCE_SET_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>>() {};
 
-	public static ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet> sources(Project project) {
-		return project.getExtensions().getByType(LANGUAGE_SOURCE_SET_CONTAINER_TYPE);
+	public static ModelMap<LanguageSourceSet> sources(Project project) {
+		return model(project, mapOf(LanguageSourceSet.class));
 	}
 
 	@Override
@@ -66,8 +67,11 @@ public class LanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 
-		project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "sources", project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class));
-		model(project).getExtensions().add("sources", model(project).getExtensions().getByType(ModelMapFactory.class).create(LanguageSourceSet.class, sources(project)));
+		{
+			final ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet> container = project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class);
+			project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "sources", container);
+			model(project).getExtensions().add("sources", model(project).getExtensions().getByType(ModelMapFactory.class).create(LanguageSourceSet.class, container));
+		}
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 

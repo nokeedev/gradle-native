@@ -75,13 +75,13 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 
 		DefaultImporter.forProject(project).defaultImport(SwiftSourceSet.class);
 
-		sources(project).withType(SwiftSourceSetSpec.class).configureEach(sourceSet -> {
+		sources(project).configureEach(SwiftSourceSetSpec.class, sourceSet -> {
 			sourceSet.getImportModules().extendsFrom(sourceSet.getDependencies().getCompileOnly());
 		});
 
-		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new ImportModulesConfigurationRegistrationAction(project.getObjects()));
-		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new AttachImportModulesToCompileTaskRule());
-		sources(project).withType(SwiftSourceSetSpec.class).configureEach(new SwiftCompileTaskDefaultConfigurationRule(project.getProviders()));
+		sources(project).configureEach(SwiftSourceSetSpec.class, new ImportModulesConfigurationRegistrationAction(project.getObjects()));
+		sources(project).configureEach(SwiftSourceSetSpec.class, new AttachImportModulesToCompileTaskRule());
+		sources(project).configureEach(SwiftSourceSetSpec.class, new SwiftCompileTaskDefaultConfigurationRule(project.getProviders()));
 
 		project.getTasks().withType(SwiftCompileTask.class).configureEach(withElement((element, task) -> {
 			task.getModuleName().set(project.provider(() -> {
@@ -93,7 +93,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 			}).flatMap(it -> it).map(TextCaseUtils::toCamelCase));
 		}));
 
-		sources(project).withType(SwiftSourceSetSpec.class).configureEach(sourceSet -> {
+		sources(project).configureEach(SwiftSourceSetSpec.class, sourceSet -> {
 			sourceSet.getParents().filter(it -> it.getIdentifier() instanceof VariantIdentifier).findFirst().map(it -> (VariantIdentifier) it.getIdentifier()).ifPresent(variantIdentifier -> {
 				final Configuration importModules = sourceSet.getImportModules().getAsConfiguration();
 				ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) variantIdentifier.getBuildVariant(), project.getObjects()).execute(importModules);

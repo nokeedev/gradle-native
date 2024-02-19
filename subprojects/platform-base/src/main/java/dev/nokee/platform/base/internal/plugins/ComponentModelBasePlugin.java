@@ -70,6 +70,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.tasks;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>> COMPONENT_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<Component>>() {};
@@ -189,14 +190,14 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		model(project).getExtensions().add(new TypeOf<Factory<View<Binary>>>() {}, "__nokeeService_binaryFactory", (Factory<View<Binary>>) () -> {
 			final ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-			return instantiator(project).newInstance(ViewAdapter.class, Binary.class, new ModelNodeBackedViewStrategy(model(project, mapOf(Artifact.class)), identifier));
+			return instantiator(project).newInstance(ViewAdapter.class, Binary.class, new ModelNodeBackedViewStrategy(artifacts(project), identifier));
 		});
 
 		model(project).getExtensions().add(TaskViewFactory.class, "__nokeeService_taskViewFactory", new TaskViewFactory() {
 			@Override
 			public <T extends Task> View<T> create(Class<T> elementType) {
 				final ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(model(project, mapOf(Task.class)), identifier));
+				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(tasks(project), identifier));
 			}
 		});
 
@@ -204,13 +205,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			@Override
 			public <T extends Variant> View<T> create(Class<T> elementType) {
 				final ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
-				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(model(project, mapOf(Variant.class)), identifier));
+				return instantiator(project).newInstance(ViewAdapter.class, elementType, new ModelNodeBackedViewStrategy(variants(project), identifier));
 			}
 		});
 
 		model(project).getExtensions().add("__nokeeService_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 
 		model(project, objects()).configureEach(ofType(HasBaseName.class, withElement(new BaseNameConfigurationRule(project.getProviders()))));
-		model(project, mapOf(Component.class)).configureEach(HasDevelopmentBinary.class, new DevelopmentBinaryConventionRule(project.getProviders()));
+		components(project).configureEach(HasDevelopmentBinary.class, new DevelopmentBinaryConventionRule(project.getProviders()));
 	}
 }

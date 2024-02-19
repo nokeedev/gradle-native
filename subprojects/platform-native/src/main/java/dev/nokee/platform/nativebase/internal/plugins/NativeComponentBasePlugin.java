@@ -141,6 +141,7 @@ import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.tasks;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
@@ -183,7 +184,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeBundleBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeExecutableBinarySpec.class);
 		model(project, factoryRegistryOf(Artifact.class)).registerFactory(NativeStaticLibraryBinarySpec.class);
-		model(project, mapOf(Variant.class)).configureEach(NativeComponentSpecEx.class, result -> {
+		variants(project).configureEach(NativeComponentSpecEx.class, result -> {
 			result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(((VariantInternal) result).getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 		});
 
@@ -197,20 +198,20 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		}));
 
-		model(project, mapOf(Component.class)).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
+		components(project).configureEach(new LegacyFrameworkAwareDependencyBucketAction<>(project.getObjects()));
 		variants(project).configureEach(new LinkLibrariesExtendsFromParentDependencyBucketAction<>());
 		variants(project).configureEach(new RuntimeLibrariesExtendsFromParentDependencyBucketAction<>());
 
 		variants(project).configureEach(variant -> {
 			ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(variantIdentifier -> {
-				model(project, mapOf(Task.class)).configureEach(AbstractNativeCompileTask.class, task -> {
+				tasks(project).configureEach(AbstractNativeCompileTask.class, task -> {
 					ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
 						if (ModelObjectIdentifiers.descendantOf(taskIdentifier, variantIdentifier)) {
 							NativePlatformFactory.create(variant.getBuildVariant()).ifPresent(task.getTargetPlatform()::set);
 						}
 					});
 				});
-				model(project, mapOf(Task.class)).configureEach(SwiftCompile.class, task -> {
+				tasks(project).configureEach(SwiftCompile.class, task -> {
 					ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
 						if (ModelObjectIdentifiers.descendantOf(taskIdentifier, variantIdentifier)) {
 							NativePlatformFactory.create(variant.getBuildVariant()).ifPresent(task.getTargetPlatform()::set);
@@ -220,10 +221,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 		});
 
-		model(project, mapOf(Variant.class)).configureEach(NativeVariantSpec.class, new RegisterNativeBinariesRule(model(project, registryOf(Artifact.class)), project.getTasks()));
+		variants(project).configureEach(NativeVariantSpec.class, new RegisterNativeBinariesRule(model(project, registryOf(Artifact.class)), project.getTasks()));
 
 		artifacts(project).configureEach(new RuntimeLibrariesConfigurationRegistrationRule(model(project, objects()), project.getObjects()));
-		variants(project).configureEach(new AttachAttributesToConfigurationRule(HasRuntimeLibrariesDependencyBucket.class, HasRuntimeLibrariesDependencyBucket::getRuntimeLibraries, project.getObjects(), model(project, mapOf(Artifact.class))));
+		variants(project).configureEach(new AttachAttributesToConfigurationRule(HasRuntimeLibrariesDependencyBucket.class, HasRuntimeLibrariesDependencyBucket::getRuntimeLibraries, project.getObjects(), artifacts(project)));
 
 		model(project, objects()).whenElementKnown(it -> {
 			if (it.getType().isSubtypeOf(DependencyAwareComponent.class)) {
@@ -256,7 +257,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				}
 			}
 		});
-		model(project, mapOf(Variant.class)).whenElementKnown(HasRuntimeElementsDependencyBucket.class, new Action<KnownModelObject<HasRuntimeElementsDependencyBucket>>() {
+		variants(project).whenElementKnown(HasRuntimeElementsDependencyBucket.class, new Action<KnownModelObject<HasRuntimeElementsDependencyBucket>>() {
 			@Override
 			public void execute(KnownModelObject<HasRuntimeElementsDependencyBucket> knownVariant) {
 				final VariantIdentifier variantIdentifier = (VariantIdentifier) knownVariant.getIdentifier();
@@ -313,7 +314,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				throw new IllegalArgumentException("Unsupported binary to export");
 			}
 		});
-		model(project, mapOf(Variant.class)).whenElementKnown(HasLinkElementsDependencyBucket.class, new Action<KnownModelObject<HasLinkElementsDependencyBucket>>() {
+		variants(project).whenElementKnown(HasLinkElementsDependencyBucket.class, new Action<KnownModelObject<HasLinkElementsDependencyBucket>>() {
 			@Override
 			public void execute(KnownModelObject<HasLinkElementsDependencyBucket> knownVariant) {
 				final VariantIdentifier variantIdentifier = (VariantIdentifier) knownVariant.getIdentifier();
@@ -374,7 +375,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeLinkCapabilityPlugin.class);
 		project.getPluginManager().apply(NativeArchiveCapabilityPlugin.class);
 
-		model(project, mapOf(Component.class)).configureEach(NativeComponentSpec.class, new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
+		components(project).configureEach(NativeComponentSpec.class, new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
 		model(project, objects()).configureEach(ofType(TargetMachineAwareComponent.class, withElement(new TargetMachineConventionRule(project.getProviders()))));
 		model(project, objects()).configureEach(ofType(TargetBuildTypeAwareComponent.class, withElement(new TargetBuildTypeConventionRule(project.getProviders()))));
 		components(project).configureEach(component -> {
@@ -391,13 +392,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		model(project).getExtensions().add("__nokeeService_targetBuildTypeFactory", NativeRuntimeBasePlugin.TARGET_BUILD_TYPE_FACTORY);
 		model(project).getExtensions().add("__nokeeService_targetLinkageFactory", NativeRuntimeBasePlugin.TARGET_LINKAGE_FACTORY);
 
-		model(project, mapOf(Component.class)).whenElementFinalized(TargetMachineAwareComponent.class, component -> {
+		components(project).whenElementFinalized(TargetMachineAwareComponent.class, component -> {
 			component.getTargetMachines().disallowChanges();
 		});
-		model(project, mapOf(Component.class)).whenElementFinalized(TargetLinkageAwareComponent.class, component -> {
+		components(project).whenElementFinalized(TargetLinkageAwareComponent.class, component -> {
 			component.getTargetLinkages().disallowChanges();
 		});
-		model(project, mapOf(Component.class)).whenElementFinalized(TargetBuildTypeAwareComponent.class, component -> {
+		components(project).whenElementFinalized(TargetBuildTypeAwareComponent.class, component -> {
 			component.getTargetBuildTypes().disallowChanges();
 		});
 
@@ -439,7 +440,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 		})));
 
-		model(project, mapOf(Component.class)).configureEach(VariantComponentSpec.class, component -> {
+		components(project).configureEach(VariantComponentSpec.class, component -> {
 			final Provider<Set<KnownModelObject<VariantInternal>>> variants = model(project, objects()).getElements(VariantInternal.class, it -> {
 				if (ModelObjectIdentifiers.descendantOf(it.getIdentifier(), component.getIdentifier())) {
 					return it.getType().isSubtypeOf(VariantInternal.class);
@@ -479,13 +480,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				return it.instanceOf(NativeBundleBinarySpec.class) || it.instanceOf(NativeExecutableBinarySpec.class) || it.instanceOf(NativeSharedLibraryBinarySpec.class);
 			}
 		})));
-		model(project, mapOf(Artifact.class)).configureEach(NativeSharedLibraryBinarySpec.class, binary -> {
+		artifacts(project).configureEach(NativeSharedLibraryBinarySpec.class, binary -> {
 			binary.getLinkTask().configure(task -> {
 				final Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 				task.getInstallName().set(installName);
 			});
 		});
-		model(project, mapOf(Artifact.class)).configureEach(NativeSharedLibraryBinarySpec.class, binary -> {
+		artifacts(project).configureEach(NativeSharedLibraryBinarySpec.class, binary -> {
 			binary.getLinkedFile().set(binary.getLinkTask().flatMap(AbstractLinkTask::getLinkedFile));
 			binary.getLinkedFile().disallowChanges();
 			binary.getLinkedFile().finalizeValueOnRead();

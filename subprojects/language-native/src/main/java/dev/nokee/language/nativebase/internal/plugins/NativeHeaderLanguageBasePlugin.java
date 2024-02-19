@@ -108,7 +108,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 
 		model(project, factoryRegistryOf(PropertySpec.class)).registerFactory(NativeHeaderProperty.class);
 
-		sources(project).withType(BaseNativeSourceSetSpec.class).configureEach(sourceSet -> {
+		sources(project).configureEach(BaseNativeSourceSetSpec.class, sourceSet -> {
 			if (sourceSet instanceof HasHeaderSearchPaths) {
 				sourceSet.getParents().filter(it -> it.getIdentifier() instanceof VariantIdentifier).findFirst().map(it -> (VariantIdentifier) it.getIdentifier()).ifPresent(variantIdentifier -> {
 					final Configuration headerSearchPaths = ((HasHeaderSearchPaths) sourceSet).getHeaderSearchPaths().getAsConfiguration();

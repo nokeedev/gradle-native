@@ -41,6 +41,7 @@ import java.io.UncheckedIOException;
 
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
 import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 
 public abstract class XcodeIdePlugin implements Plugin<Project> {
 
@@ -116,7 +117,7 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			@Override
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project));
-				model(project, mapOf(Component.class)).whenElementKnown(action);
+				components(project).whenElementKnown(action);
 			}
 		};
 	}
