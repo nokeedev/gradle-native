@@ -52,6 +52,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.HelpTasksPlugin;
 import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.reflect.TypeOf;
 
@@ -120,9 +121,11 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));
 
 		project.getTasks().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(Task.class));
-		project.getTasks().named("tasks", ifSelectedInTaskGraph(() -> {
-			model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Task.class);
-		}));
+		project.getPlugins().withType(HelpTasksPlugin.class, __ -> {
+			project.getTasks().named("tasks", ifSelectedInTaskGraph(() -> {
+				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Task.class);
+			}));
+		});
 		project.getConfigurations().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(Configuration.class));
 	}
 
