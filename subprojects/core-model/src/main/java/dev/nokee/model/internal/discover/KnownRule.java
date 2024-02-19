@@ -39,10 +39,15 @@ public final class KnownRule implements DisRule {
 
                 @Override
                 public void newCandidate(ModelObjectIdentity<?> knownIdentity) {
-                    throw new UnsupportedOperationException();
+                    details.newCandidate(knownIdentity);
                 }
 
-                @Override
+				@Override
+				public void newCandidate(ModelObjectIdentity<?> knownIdentity, CandidateElement.DiscoverChain.Act action) {
+					throw new UnsupportedOperationException();
+				}
+
+				@Override
                 public void newCandidate(ElementName elementName, ModelType<?> produceType) {
                     details.newCandidate(elementName, produceType);
                 }

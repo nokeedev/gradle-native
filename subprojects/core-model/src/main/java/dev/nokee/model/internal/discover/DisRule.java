@@ -27,6 +27,8 @@ public interface DisRule {
 
 		void newCandidate(ModelObjectIdentity<?> knownIdentity);
 
+		void newCandidate(ModelObjectIdentity<?> knownIdentity, CandidateElement.DiscoverChain.Act action);
+
 		void newCandidate(ElementName elementName, ModelType<?> produceType);
 
 		void newCandidate(ElementName elementName, ModelType<?> produceType, CandidateElement.DiscoverChain.Act action);
