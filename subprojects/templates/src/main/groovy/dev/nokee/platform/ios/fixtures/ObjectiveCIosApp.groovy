@@ -7,6 +7,8 @@ import dev.nokee.platform.ios.fixtures.elements.NokeeAppAssets
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppBaseLanguage
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppInfoPlist
 
+import java.nio.file.Path
+
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile
 
 class ObjectiveCIosApp extends SourceElement {
@@ -21,7 +23,7 @@ class ObjectiveCIosApp extends SourceElement {
 	}
 
 	@Override
-	void writeToProject(File projectDir) {
+	void writeToProject(Path projectDir) {
 		main.writeToProject(projectDir)
 	}
 

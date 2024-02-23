@@ -3,14 +3,14 @@ package dev.nokee.platform.jni.fixtures;
 import dev.gradleplugins.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
+import dev.nokee.platform.jni.fixtures.elements.CppGreeter;
 import dev.nokee.platform.jni.fixtures.elements.CppGreeterJniBinding;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 import dev.nokee.platform.jni.fixtures.elements.JavaNativeGreeter;
 import dev.nokee.platform.jni.fixtures.elements.JavaNativeLoader;
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement;
-import dev.nokee.platform.jni.fixtures.elements.CppGreeter;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements;
 import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage;
@@ -85,11 +85,11 @@ public final class JavaJniCppGreeterLib extends GreeterImplementationAwareSource
 			}
 
 			@Override
-			public void writeToProject(File projectDir) {
-				jvmBindings.withSharedLibraryBaseName("cpp-jni-greeter").writeToProject(new File(projectDir, "java-jni-greeter"));
-				nativeBindings.withJniGeneratedHeader().writeToProject(new File(projectDir, "cpp-jni-greeter"));
-				jvmImplementation.writeToProject(new File(projectDir, "java-loader"));
-				nativeImplementation.asLib().writeToProject(new File(projectDir, "cpp-greeter"));
+			public void writeToProject(Path projectDir) {
+				jvmBindings.withSharedLibraryBaseName("cpp-jni-greeter").writeToProject(projectDir.resolve("java-jni-greeter"));
+				nativeBindings.withJniGeneratedHeader().writeToProject(projectDir.resolve("cpp-jni-greeter"));
+				jvmImplementation.writeToProject(projectDir.resolve("java-loader"));
+				nativeImplementation.asLib().writeToProject(projectDir.resolve("cpp-greeter"));
 			}
 		};
 	}

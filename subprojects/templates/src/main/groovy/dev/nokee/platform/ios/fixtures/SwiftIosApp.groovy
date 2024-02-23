@@ -7,6 +7,8 @@ import dev.nokee.platform.ios.fixtures.elements.NokeeAppAssets
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppBaseLanguage
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppInfoPlist
 
+import java.nio.file.Path
+
 class SwiftIosApp extends SourceElement {
 	final SourceElement main = ofElements(
 		new SwiftAppDelegate(), new SwiftSceneDelegate(), new SwiftViewController(),
@@ -19,7 +21,7 @@ class SwiftIosApp extends SourceElement {
 	}
 
 	@Override
-	void writeToProject(File projectDir) {
+	void writeToProject(Path projectDir) {
 		main.writeToProject(projectDir)
 	}
 

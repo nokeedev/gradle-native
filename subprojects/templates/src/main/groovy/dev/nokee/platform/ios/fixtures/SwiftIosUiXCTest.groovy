@@ -5,6 +5,8 @@ import dev.gradleplugins.fixtures.sources.SourceFile
 import dev.gradleplugins.fixtures.sources.SourceFileElement
 import dev.nokee.platform.ios.fixtures.elements.NokeeAppUiXCTestInfoPlist
 
+import java.nio.file.Path
+
 class SwiftIosUiXCTest extends SourceElement {
 	final SourceElement main
 	final SourceElement uiTest = ofElements(new SwiftUiTest(), new NokeeAppUiXCTestInfoPlist())
@@ -19,7 +21,7 @@ class SwiftIosUiXCTest extends SourceElement {
 	}
 
 	@Override
-	void writeToProject(File projectDir) {
+	void writeToProject(Path projectDir) {
 		main.writeToProject(projectDir)
 		uiTest.writeToProject(projectDir)
 	}
