@@ -1,0 +1,4 @@
+plugins {
+	id 'java'
+	id 'dev.nokee.jni-library'
+}

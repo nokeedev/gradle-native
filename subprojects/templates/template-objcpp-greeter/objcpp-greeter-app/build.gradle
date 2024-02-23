@@ -1,0 +1,9 @@
+plugins {
+	id 'dev.nokee.objective-cpp-application'
+}
+
+application {
+	dependencies {
+		implementation project(':objcpp-greeter')
+	}
+}

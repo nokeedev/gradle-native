@@ -1,0 +1,10 @@
+plugins {
+	id 'cpp-application'
+}
+
+application {
+	source.from('src/test/cpp')
+	dependencies {
+		implementation project(':cpp-greeter')
+	}
+}

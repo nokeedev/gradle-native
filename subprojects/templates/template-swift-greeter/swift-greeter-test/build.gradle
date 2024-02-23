@@ -1,0 +1,9 @@
+plugins {
+	id 'dev.nokee.swift-application'
+}
+
+application {
+	dependencies {
+		implementation project(':swift-greeter')
+	}
+}

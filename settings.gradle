@@ -15,6 +15,13 @@ plugins {
 rootProject.name = 'gradle-native'
 
 includeBuild 'subprojects/templates'
+includeBuild 'subprojects/templates/template-greeter'
+includeBuild 'subprojects/templates/template-c-greeter'
+includeBuild 'subprojects/templates/template-cpp-greeter'
+includeBuild 'subprojects/templates/template-swift-greeter'
+includeBuild 'subprojects/templates/template-jni-greeter'
+includeBuild 'subprojects/templates/template-objc-greeter'
+includeBuild 'subprojects/templates/template-objcpp-greeter'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 includeBuild 'gradle/libraries/nokeetest-libraries'
 includeBuild 'gradle/libraries/gradle-build-script'

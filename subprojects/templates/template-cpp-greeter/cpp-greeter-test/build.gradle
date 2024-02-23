@@ -1,0 +1,9 @@
+plugins {
+	id 'cpp-application'
+}
+
+application {
+	dependencies {
+		implementation project(':cpp-greeter')
+	}
+}

@@ -1,0 +1,28 @@
+group = 'dev.nokee.templates'
+version = '1.0'
+
+processTemplatesResources {
+	into('META-INF/templates') {
+		into('objcpp-compile-greeter') { from('objcpp-compile-greeter/src/main/objcpp/greeter.mm') }
+		into('objcpp-greeter') {
+			from('objcpp-greeter/src/main/objcpp/greeter_impl.mm')
+			from('objcpp-greeter/src/main/public/greeter.h')
+		}
+		into('objcpp-greeter-app') { from('objcpp-greeter-app/src/main/objcpp/main.mm') }
+		into('objcpp-greeter-lib') {
+			from('objcpp-greeter-lib/src/main/objcpp/greet_alice_impl.mm')
+			from('objcpp-greeter-lib/src/main/public/greet_alice.h')
+		}
+		into('objcpp-greeter-test') {
+			from('objcpp-greeter-test/src/main/objcpp/greeter_test.mm')
+			from('objcpp-greeter_test/src/main/headers/greeter_fixtures.h')
+		}
+		into('objcpp-greeter-with-optional-feature') {
+			from('objcpp-greeter-with-optional-feature/src/main/objcpp/greeter_impl.mm')
+		}
+	}
+}
+
+dependencies {
+	templatesApi 'dev.nokee.templates:template-greeter'
+}

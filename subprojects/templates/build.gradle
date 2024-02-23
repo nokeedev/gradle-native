@@ -24,6 +24,36 @@ dependencies {
 	api 'dev.gradleplugins:gradle-fixtures-source-elements:latest.release'
 	implementation 'dev.gradleplugins:gradle-fixtures-file-system:latest.release'
 	implementation 'com.google.guava:guava:28.2-jre'
+	api('dev.nokee.templates:template-jni-greeter:1.0') { dependency ->
+		dependency.capabilities {
+			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
+		}
+	}
+	api('dev.nokee.templates:template-c-greeter:1.0') { dependency ->
+		dependency.capabilities {
+			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
+		}
+	}
+	api('dev.nokee.templates:template-cpp-greeter:1.0') { dependency ->
+		dependency.capabilities {
+			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
+		}
+	}
+	api('dev.nokee.templates:template-objc-greeter:1.0') { dependency ->
+		dependency.capabilities {
+			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
+		}
+	}
+	api('dev.nokee.templates:template-objcpp-greeter:1.0') { dependency ->
+		dependency.capabilities {
+			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
+		}
+	}
+	api('dev.nokee.templates:template-swift-greeter:1.0') { dependency ->
+		dependency.capabilities {
+			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
+		}
+	}
 }
 
 tasks.named("processResources", ProcessResources) { task ->
