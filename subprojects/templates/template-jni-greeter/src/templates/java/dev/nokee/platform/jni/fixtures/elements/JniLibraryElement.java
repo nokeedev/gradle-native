@@ -5,7 +5,7 @@ import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,7 +25,7 @@ public interface JniLibraryElement {
 		return new JavaGreeterJUnitTest();
 	}
 
-	default void writeToProject(File projectDir) {
+	default void writeToProject(Path projectDir) {
 		ofElements(getJvmSources(), getNativeSources()).writeToProject(projectDir);
 	}
 
@@ -67,7 +67,7 @@ public interface JniLibraryElement {
 		}
 
 		@Override
-		public void writeToProject(File projectDir) {
+		public void writeToProject(Path projectDir) {
 			jvmSources.writeToProject(projectDir);
 			nativeSources.writeToProject(projectDir);
 		}

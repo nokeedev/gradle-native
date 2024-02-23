@@ -4,8 +4,7 @@ import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.fixtures.sources.SourceFile
 
 import java.nio.file.Files
-
-import static dev.gradleplugins.fixtures.file.FileSystemUtils.file;
+import java.nio.file.Path
 
 class NokeeAppAssets extends SourceElement {
 	@Override
@@ -143,8 +142,8 @@ class NokeeAppAssets extends SourceElement {
 	}
 
 	@Override
-	void writeToProject(File projectDir) {
+	void writeToProject(Path projectDir) {
 		super.writeToProject(projectDir)
-        Files.copy(getClass().getResourceAsStream('full-green.pdf'), file(projectDir, 'src/main/resources/Assets.xcassets/full-green.imageset/full-green.pdf').toPath());
+		Files.copy(getClass().getResourceAsStream('full-green.pdf'), projectDir.resolve('src/main/resources/Assets.xcassets/full-green.imageset/full-green.pdf'));
 	}
 }

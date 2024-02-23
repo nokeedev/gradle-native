@@ -21,7 +21,7 @@ import dev.gradleplugins.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +51,7 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 	}
 
 	@Override
-	public void writeToProject(File projectDir) {
+	public void writeToProject(Path projectDir) {
 		ofElements(elementUsingGreeter, greeter).writeToProject(projectDir);
 	}
 
@@ -74,8 +74,8 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 			}
 
 			@Override
-			public void writeToProject(File projectDir) {
-				delegate.writeToProject(new File(projectDir, subprojectPath));
+			public void writeToProject(Path projectDir) {
+				delegate.writeToProject(projectDir.resolve(subprojectPath));
 			}
 		};
 	}
@@ -98,8 +98,8 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 			}
 
 			@Override
-			public void writeToProject(File projectDir) {
-				delegate.writeToProject(new File(projectDir, subprojectPath));
+			public void writeToProject(Path projectDir) {
+				delegate.writeToProject(projectDir.resolve(subprojectPath));
 			}
 		};
 	}
@@ -131,7 +131,7 @@ public abstract class GreeterImplementationAwareSourceElement<T extends SourceEl
 			}
 
 			@Override
-			public void writeToProject(File projectDir) {
+			public void writeToProject(Path projectDir) {
 				for (SourceElement element : elements) {
 					element.writeToProject(projectDir);
 				}

@@ -5,7 +5,7 @@ import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.nokee.platform.jni.fixtures.elements.ApplicationWithLibraryElement;
 import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 public final class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
@@ -43,8 +43,8 @@ public final class GreeterAppWithJniLibrary implements ApplicationWithLibraryEle
 			}
 
 			@Override
-			public void writeToProject(File projectDir) {
-				library.withResourcePath(resourcePath).withProjectName(libraryProjectName).writeToProject(new File(projectDir, libraryProjectName));
+			public void writeToProject(Path projectDir) {
+				library.withResourcePath(resourcePath).withProjectName(libraryProjectName).writeToProject(projectDir.resolve(libraryProjectName));
 				application.writeToProject(projectDir);
 			}
 

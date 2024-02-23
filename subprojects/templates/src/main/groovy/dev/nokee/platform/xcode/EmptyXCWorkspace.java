@@ -52,13 +52,9 @@ public final class EmptyXCWorkspace extends SourceElement {
 	}
 
 	@Override
-	public void writeToProject(File projectDir) {
+	public void writeToProject(Path projectDir) {
 		for (SourceFile sourceFile : getFiles()) {
 			sourceFile.writeToDirectory(projectDir);
 		}
-	}
-
-	public void writeToProject(Path projectDirectory) {
-		writeToProject(projectDirectory.toFile());
 	}
 }

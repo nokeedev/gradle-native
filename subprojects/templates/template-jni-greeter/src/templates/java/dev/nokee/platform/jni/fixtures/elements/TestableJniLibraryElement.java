@@ -4,7 +4,7 @@ import dev.gradleplugins.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 public class TestableJniLibraryElement extends SourceElement implements JniLibraryElement {
@@ -37,7 +37,7 @@ public class TestableJniLibraryElement extends SourceElement implements JniLibra
 	}
 
 	@Override
-	public void writeToProject(File projectDir) {
+	public void writeToProject(Path projectDir) {
 		main.writeToProject(projectDir);
 		test.writeToProject(projectDir);
 	}
