@@ -1,0 +1,22 @@
+pluginManagement {
+	includeBuild '../../../gradle/plugins/template-plugins/nokeetemplates-plugins'
+	repositories {
+		maven { url = 'https://repo.nokee.dev/snapshot' }
+		gradlePluginPortal()
+	}
+}
+
+plugins {
+	id 'nokeetemplates.source-element'
+	id 'dev.nokee.objective-cpp-application' version '0.4.3129-202303171612.d413fb13' apply false
+}
+
+includeBuild '../../../gradle/plugins/template-plugins'
+includeBuild '../template-greeter'
+
+include 'objcpp-greeter'
+include 'objcpp-greeter-with-optional-feature'
+include 'objcpp-greeter-app'
+include 'objcpp-greeter-lib'
+include 'objcpp-greeter-test'
+include 'objcpp-compile-greeter'

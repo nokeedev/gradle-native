@@ -1,0 +1,7 @@
+plugins {
+	id 'dev.nokee.objective-cpp-library'
+}
+
+library {
+	privateHeaders.from('../java-jni-greeter/src/main/headers/com_example_greeter_Greeter.h')
+}

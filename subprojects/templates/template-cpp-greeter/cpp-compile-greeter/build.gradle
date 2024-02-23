@@ -1,0 +1,4 @@
+plugins {
+	// TODO: Should use plain C++ source set
+	id 'cpp-application'
+}

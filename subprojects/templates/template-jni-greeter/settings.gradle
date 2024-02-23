@@ -1,0 +1,33 @@
+pluginManagement {
+	includeBuild '../../../gradle/plugins/template-plugins/nokeetemplates-plugins'
+	repositories {
+		maven { url = 'https://repo.nokee.dev/snapshot' }
+		gradlePluginPortal()
+	}
+}
+
+plugins {
+	id 'nokeetemplates.source-element'
+	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.8'
+	id 'dev.nokee.c-application' version '0.4.3129-202303171612.d413fb13' apply false
+	id 'dev.nokee.cpp-application' version '0.4.3129-202303171612.d413fb13' apply false
+	id 'dev.nokee.objective-c-application' version '0.4.3129-202303171612.d413fb13' apply false
+	id 'dev.nokee.objective-cpp-application' version '0.4.3129-202303171612.d413fb13' apply false
+	id 'dev.nokee.jni-library' version '0.4.3129-202303171612.d413fb13' apply false
+}
+
+includeBuild '../../../gradle/plugins/template-plugins'
+includeBuild '../template-greeter'
+includeBuild '../template-c-greeter'
+includeBuild '../template-cpp-greeter'
+includeBuild '../template-objc-greeter'
+
+include 'java-greeter'
+include 'java-jni-app'
+include 'java-jni-greeter'
+include 'kotlin-jni-greeter'
+include 'jni-c-greeter'
+include 'jni-cpp-greeter'
+include 'jni-objc-greeter'
+include 'jni-objcpp-greeter'
+include 'jni-objc-cocoa'
