@@ -16,126 +16,45 @@
 
 package dev.nokee.platform.jni.fixtures.elements;
 
-import dev.gradleplugins.fixtures.sources.NativeLibraryElement;
-import dev.gradleplugins.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.SourceElements;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public abstract class GreeterImplementationAwareSourceElement<T extends SourceElement> extends SourceElement {
-	private final SourceElement elementUsingGreeter;
-	private final T greeter;
-
-	public GreeterImplementationAwareSourceElement(SourceElement elementUsingGreeter, T greeter) {
-		this.elementUsingGreeter = elementUsingGreeter;
-		this.greeter = greeter;
-	}
-
+public abstract class GreeterImplementationAwareSourceElement extends SourceElement {
 	@Override
 	public List<SourceFile> getFiles() {
-		return Stream.concat(elementUsingGreeter.getFiles().stream(), greeter.getFiles().stream()).collect(Collectors.toList());
+		return ofElements(getElementUsingGreeter(), getGreeter()).getFiles();
 	}
 
-	public SourceElement getElementUsingGreeter() {
-		return elementUsingGreeter;
-	}
+	public abstract SourceElement getElementUsingGreeter();
 
-	public T getGreeter() {
-		return greeter;
-	}
+	public abstract SourceElement getGreeter();
 
-	@Override
-	public void writeToProject(Path projectDir) {
-		ofElements(elementUsingGreeter, greeter).writeToProject(projectDir);
-	}
+	public abstract ImplementationAsSubprojectElement withImplementationAsSubproject(String subprojectPath);
 
-	public abstract GreeterImplementationAwareSourceElement<T> withImplementationAsSubproject(String subprojectPath);
+	public static final class ImplementationAsSubprojectElement extends SourceElements {
+		private final SourceElement elementUsingGreeter;
+		private final SourceElement greeter;
 
-	protected <U extends SourceElement> GreeterImplementationAwareSourceElement<U> ofImplementationAsSubproject(SourceElement elementUsingGreeter, U greeter) {
-		return new GreeterImplementationAwareSourceElement<U>(elementUsingGreeter, greeter) {
-			@Override
-			public GreeterImplementationAwareSourceElement<U> withImplementationAsSubproject(String subprojectPath) {
-				throw new UnsupportedOperationException();
-			}
-		};
-	}
+		public ImplementationAsSubprojectElement(SourceElement elementUsingGreeter, SourceElement greeter) {
+			this.elementUsingGreeter = elementUsingGreeter;
+			this.greeter = greeter;
+		}
 
-	public static SourceElement asSubproject(String subprojectPath, SourceElement delegate) {
-		return new SourceElement() {
-			@Override
-			public List<SourceFile> getFiles() {
-				return delegate.getFiles();
-			}
+		@Override
+		public List<SourceElement> getElements() {
+			return Arrays.asList(elementUsingGreeter, greeter);
+		}
 
-			@Override
-			public void writeToProject(Path projectDir) {
-				delegate.writeToProject(projectDir.resolve(subprojectPath));
-			}
-		};
-	}
+		public SourceElement getElementUsingGreeter() {
+			return elementUsingGreeter;
+		}
 
-	public static NativeLibraryElement asSubproject(String subprojectPath, NativeLibraryElement delegate) {
-		return new NativeLibraryElement() {
-			@Override
-			public SourceElement getPublicHeaders() {
-				return asSubproject(subprojectPath, delegate.getPublicHeaders());
-			}
-
-			@Override
-			public SourceElement getPrivateHeaders() {
-				return asSubproject(subprojectPath, delegate.getPrivateHeaders());
-			}
-
-			@Override
-			public SourceElement getSources() {
-				return asSubproject(subprojectPath, delegate.getSources());
-			}
-
-			@Override
-			public void writeToProject(Path projectDir) {
-				delegate.writeToProject(projectDir.resolve(subprojectPath));
-			}
-		};
-	}
-
-	public static NativeLibraryElement ofNativeLibraryElements(final NativeLibraryElement... elements) {
-		return new NativeLibraryElement() {
-			@Override
-			public SourceElement getPublicHeaders() {
-				return ofElements(Arrays.stream(elements).map(NativeLibraryElement::getPublicHeaders).collect(Collectors.toList()));
-			}
-
-			@Override
-			public SourceElement getPrivateHeaders() {
-				return ofElements(Arrays.stream(elements).map(NativeLibraryElement::getPrivateHeaders).collect(Collectors.toList()));
-			}
-
-			@Override
-			public SourceElement getSources() {
-				return ofElements(Arrays.stream(elements).map(NativeSourceElement::getSources).collect(Collectors.toList()));
-			}
-
-			@Override
-			public List<SourceFile> getFiles() {
-				List<SourceFile> files = new ArrayList<SourceFile>();
-				for (SourceElement element : elements) {
-					files.addAll(element.getFiles());
-				}
-				return files;
-			}
-
-			@Override
-			public void writeToProject(Path projectDir) {
-				for (SourceElement element : elements) {
-					element.writeToProject(projectDir);
-				}
-			}
-		};
+		public SourceElement getGreeter() {
+			return greeter;
+		}
 	}
 }

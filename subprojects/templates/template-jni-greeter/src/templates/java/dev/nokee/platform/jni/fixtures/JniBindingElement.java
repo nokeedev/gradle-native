@@ -14,19 +14,32 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.nativebase.fixtures;
+package dev.nokee.platform.jni.fixtures;
 
+import dev.gradleplugins.fixtures.sources.NativeSourceFileElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
-public final class GoogleTestGreeterTest extends SourceFileElement {
-	@Override
-	public String getSourceSetName() {
-		return "test";
-	}
+// Defined as a single native source with an optional generated headers
+public abstract class JniBindingElement extends SourceFileElement {
+	public abstract SourceFile getJniGeneratedHeaderFile();
 
-	@Override
-	public SourceFile getSourceFile() {
-		return sourceFile("cpp", "greeter_test.cpp", fromResource("google-test-greeter-test/greeter_test.cpp"));
+	public NativeSourceFileElement withJniGeneratedHeader() {
+		return new NativeSourceFileElement() {
+			@Override
+			public SourceFileElement getHeader() {
+				return ofFile(getJniGeneratedHeaderFile());
+			}
+
+			@Override
+			public SourceFileElement getSource() {
+				return ofFile(getSourceFile());
+			}
+
+			@Override
+			public String getSourceSetName() {
+				return JniBindingElement.this.getSourceSetName();
+			}
+		};
 	}
 }

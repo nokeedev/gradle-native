@@ -19,6 +19,6 @@ public final class JavaGreeter extends SourceFileElement {
 	}
 
 	public JavaGreeter(JavaPackage javaPackage) {
-		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Greeter.java", fromResource("java-greeter/Greeter.java").replace("import com.example.greeter", "import " + javaPackage.getName()));
+		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Greeter.java", fromResource("java-greeter/Greeter.java").replace("package com.example.greeter", "package " + javaPackage.getName()));
 	}
 }

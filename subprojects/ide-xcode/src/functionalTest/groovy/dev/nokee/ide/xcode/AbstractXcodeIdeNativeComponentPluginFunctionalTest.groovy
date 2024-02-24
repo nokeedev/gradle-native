@@ -28,8 +28,8 @@ import org.apache.commons.lang3.SystemUtils
 import org.junit.Assume
 import spock.lang.Requires
 
-import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofHeaders
-import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofSources
+import static dev.gradleplugins.fixtures.sources.NativeElements.headers
+import static dev.gradleplugins.fixtures.sources.NativeElements.sources
 
 abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends AbstractIdeNativeComponentPluginFunctionalTest implements XcodeIdeFixture {
 	protected String configureProjectName() {
@@ -235,12 +235,8 @@ abstract class AbstractXcodeIdeNativeComponentPluginFunctionalTest extends Abstr
 	def "include sources in project with custom layout"() {
 		settingsFile << configureProjectName()
 		makeSingleProject()
-		if (this.class.simpleName.startsWith('XcodeIdeSwift')) {
-			componentUnderTest.writeToSourceDir(file('srcs'))
-		} else {
-			ofSources(componentUnderTest).writeToSourceDir(file('srcs'))
-			ofHeaders(componentUnderTest).writeToSourceDir(file('hdrs'))
-		}
+		componentUnderTest.get(sources()).writeToSourceDir(file('srcs'))
+		componentUnderTest.get(headers()).writeToSourceDir(file('hdrs'))
 		buildFile << configureCustomSourceLayout()
 
 		when:

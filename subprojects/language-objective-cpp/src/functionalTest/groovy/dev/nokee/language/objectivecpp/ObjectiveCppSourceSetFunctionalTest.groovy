@@ -25,6 +25,9 @@ import dev.nokee.runtime.nativebase.internal.TargetMachines
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 
+import static dev.gradleplugins.fixtures.sources.NativeElements.headers
+import static dev.gradleplugins.fixtures.sources.NativeElements.sources
+
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
 class ObjectiveCppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
@@ -55,7 +58,7 @@ class ObjectiveCppSourceSetFunctionalTest extends AbstractInstalledToolChainInte
 
 		expect:
 		succeeds('compileKupa')
-		objectFiles(fixture.sources, "build/objs/kupa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/kupa")*.assertExists()
 	}
 
 	def "resolves compile dependencies from headerSearchPaths configuration"() {
@@ -69,12 +72,12 @@ class ObjectiveCppSourceSetFunctionalTest extends AbstractInstalledToolChainInte
 
 		expect:
 		succeeds('compileKupa')
-		objectFiles(fixture.sources, "build/objs/kupa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/kupa")*.assertExists()
 	}
 
 	def "can compile generated Objective-C++ sources"() {
-		fixture.sources.writeToSourceDir(file('srcs'))
-		fixture.headers.writeToProject(testDirectory)
+		fixture.get(sources()).writeToSourceDir(file('srcs'))
+		fixture.get(headers()).writeToProject(testDirectory)
 		buildFile << '''
 			def generatorTask = tasks.register('generateSources', Sync) {
 				from('srcs')
@@ -88,12 +91,12 @@ class ObjectiveCppSourceSetFunctionalTest extends AbstractInstalledToolChainInte
 		expect:
 		def result = succeeds('compileKupa')
 		result.assertTaskNotSkipped(':generateSources')
-		objectFiles(fixture.sources, "build/objs/kupa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/kupa")*.assertExists()
 	}
 
 	def "can compile with generated Objective-C++ headers"() {
-		fixture.sources.writeToProject(testDirectory)
-		fixture.headers.writeToSourceDir(file('hdrs'))
+		fixture.get(sources()).writeToProject(testDirectory)
+		fixture.get(headers()).writeToSourceDir(file('hdrs'))
 		buildFile << '''
 			def generatorTask = tasks.register('generateHeaders', Sync) {
 				from('hdrs')
@@ -107,12 +110,12 @@ class ObjectiveCppSourceSetFunctionalTest extends AbstractInstalledToolChainInte
 		expect:
 		def result = succeeds('compileKupa')
 		result.assertTaskNotSkipped(':generateHeaders')
-		objectFiles(fixture.sources, "build/objs/kupa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/kupa")*.assertExists()
 	}
 
 	def "can consume generated headers from headerSearchPaths configuration"() {
-		fixture.sources.writeToProject(testDirectory)
-		fixture.headers.writeToSourceDir(file('hdrs'))
+		fixture.get(sources()).writeToProject(testDirectory)
+		fixture.get(headers()).writeToSourceDir(file('hdrs'))
 		buildFile << '''
 			def generatorTask = tasks.register('generateHeaders', Sync) {
 				from('hdrs')
@@ -128,6 +131,6 @@ class ObjectiveCppSourceSetFunctionalTest extends AbstractInstalledToolChainInte
 		expect:
 		def result = succeeds('compileKupa')
 		result.assertTaskNotSkipped(':generateHeaders')
-		objectFiles(fixture.sources, "build/objs/kupa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/kupa")*.assertExists()
 	}
 }

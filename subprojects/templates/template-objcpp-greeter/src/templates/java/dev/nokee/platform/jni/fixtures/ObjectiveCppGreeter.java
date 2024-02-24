@@ -17,39 +17,32 @@
 package dev.nokee.platform.jni.fixtures;
 
 import dev.gradleplugins.fixtures.sources.NativeLibraryElement;
-import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.NativeSourceFileElement;
+import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile;
 
-public final class ObjectiveCppGreeter extends NativeLibraryElement {
-	private final SourceElement header;
-	private final SourceElement source;
-
+public final class ObjectiveCppGreeter extends NativeSourceFileElement {
 	@Override
-    public SourceElement getPublicHeaders() {
-		return header;
+    public SourceFileElement getHeader() {
+		return ofFile(sourceFile("headers", "greeter.h", fromResource("objcpp-greeter/greeter.h")));
 	}
 
 	@Override
-	public SourceElement getSources() {
-		return source;
-	}
-
-    public ObjectiveCppGreeter() {
-		header = ofFile(sourceFile("headers", "greeter.h", fromResource("objcpp-greeter/greeter.h")));
-		source = ofFile(sourceFile("objcpp", "greeter_impl.mm", fromResource("objcpp-greeter/greeter_impl.mm")));
+	public SourceFileElement getSource() {
+		return ofFile(sourceFile("objcpp", "greeter_impl.mm", fromResource("objcpp-greeter/greeter_impl.mm")));
 	}
 
 	public NativeLibraryElement withOptionalFeature() {
-		return new NativeLibraryElement() {
+		return new NativeSourceFileElement() {
 			@Override
-			public SourceElement getPublicHeaders() {
-				return header;
+			public SourceFileElement getHeader() {
+				return ObjectiveCppGreeter.this.getHeader();
 			}
 
 			@Override
-			public SourceElement getSources() {
+			public SourceFileElement getSource() {
 				return ofFile(sourceFile("objcpp", "greeter_impl.mm", fromResource("objcpp-greeter-with-optional-feature/greeter_impl.mm")));
 			}
 		};

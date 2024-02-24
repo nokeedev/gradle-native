@@ -21,6 +21,9 @@ import dev.nokee.language.nativebase.internal.NativePlatformFactory
 import dev.nokee.platform.nativebase.fixtures.CGreeterApp
 import dev.nokee.runtime.nativebase.internal.TargetMachines
 
+import static dev.gradleplugins.fixtures.sources.NativeElements.headers
+import static dev.gradleplugins.fixtures.sources.NativeElements.sources
+
 class CSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	private final CGreeterApp fixture = new CGreeterApp()
 
@@ -49,7 +52,7 @@ class CSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 
 		expect:
 		succeeds('compileJixa')
-		objectFiles(fixture.sources, "build/objs/jixa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/jixa")*.assertExists()
 	}
 
 	def "resolves compile dependencies from headerSearchPaths configuration"() {
@@ -63,12 +66,12 @@ class CSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 
 		expect:
 		succeeds('compileJixa')
-		objectFiles(fixture.sources, "build/objs/jixa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/jixa")*.assertExists()
 	}
 
 	def "can compile generated C sources"() {
-		fixture.sources.writeToSourceDir(file('srcs'))
-		fixture.headers.writeToProject(testDirectory)
+		fixture.get(sources()).writeToSourceDir(file('srcs'))
+		fixture.get(headers()).writeToProject(testDirectory)
 		buildFile << '''
 			def generatorTask = tasks.register('generateSources', Sync) {
 				from('srcs')
@@ -82,12 +85,12 @@ class CSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 		expect:
 		def result = succeeds('compileJixa')
 		result.assertTaskNotSkipped(':generateSources')
-		objectFiles(fixture.sources, "build/objs/jixa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/jixa")*.assertExists()
 	}
 
 	def "can compile with generated C headers"() {
-		fixture.sources.writeToProject(testDirectory)
-		fixture.headers.writeToSourceDir(file('hdrs'))
+		fixture.get(sources()).writeToProject(testDirectory)
+		fixture.get(headers()).writeToSourceDir(file('hdrs'))
 		buildFile << '''
 			def generatorTask = tasks.register('generateHeaders', Sync) {
 				from('hdrs')
@@ -101,12 +104,12 @@ class CSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 		expect:
 		def result = succeeds('compileJixa')
 		result.assertTaskNotSkipped(':generateHeaders')
-		objectFiles(fixture.sources, "build/objs/jixa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/jixa")*.assertExists()
 	}
 
 	def "can consume generated headers from headerSearchPaths configuration"() {
-		fixture.sources.writeToProject(testDirectory)
-		fixture.headers.writeToSourceDir(file('hdrs'))
+		fixture.get(sources()).writeToProject(testDirectory)
+		fixture.get(headers()).writeToSourceDir(file('hdrs'))
 		buildFile << '''
 			def generatorTask = tasks.register('generateHeaders', Sync) {
 				from('hdrs')
@@ -122,6 +125,6 @@ class CSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 		expect:
 		def result = succeeds('compileJixa')
 		result.assertTaskNotSkipped(':generateHeaders')
-		objectFiles(fixture.sources, "build/objs/jixa")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/jixa")*.assertExists()
 	}
 }

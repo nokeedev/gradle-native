@@ -16,26 +16,25 @@
 
 package dev.nokee.platform.nativebase.fixtures;
 
-import dev.gradleplugins.fixtures.sources.NativeSourceElement;
-import dev.gradleplugins.fixtures.sources.SourceElement;
-import dev.gradleplugins.fixtures.sources.SourceFile;
+import dev.gradleplugins.fixtures.sources.NativeSourceFileElement;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
+import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile;
 
-public final class CppGreeterTest extends NativeSourceElement {
+public final class CppGreeterTest extends NativeSourceFileElement {
 	@Override
 	public String getSourceSetName() {
 		return "test";
 	}
 
 	@Override
-	public SourceElement getHeaders() {
-		return SourceFileElement.ofFile(sourceFile("headers", "greeter_fixtures.h", fromResource("cpp-greeter-test/greeter_fixtures.h")));
+	public SourceFileElement getHeader() {
+		return ofFile(sourceFile("headers", "greeter_fixtures.h", fromResource("cpp-greeter-test/greeter_fixtures.h")));
 	}
 
 	@Override
-	public SourceElement getSources() {
-		return SourceFileElement.ofFile(sourceFile("cpp", "greeter_test.cpp", fromResource("cpp-greeter-test/greeter_test.cpp")));
+	public SourceFileElement getSource() {
+		return ofFile(sourceFile("cpp", "greeter_test.cpp", fromResource("cpp-greeter-test/greeter_test.cpp")));
 	}
 }

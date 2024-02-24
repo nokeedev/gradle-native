@@ -17,53 +17,46 @@
 package dev.nokee.platform.jni.fixtures;
 
 import dev.gradleplugins.fixtures.sources.NativeLibraryElement;
-import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.NativeSourceFileElement;
+import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile;
 
-public final class ObjectiveCGreeter extends NativeLibraryElement {
-	private final SourceElement header;
-	private final SourceElement source;
-
+public final class ObjectiveCGreeter extends NativeSourceFileElement {
 	@Override
-    public SourceElement getPublicHeaders() {
-		return header;
+    public SourceFileElement getHeader() {
+		return ofFile(sourceFile("headers", "greeter.h", fromResource("objc-greeter/greeter.h")));
 	}
 
 	@Override
-	public SourceElement getSources() {
-		return source;
-	}
-
-    public ObjectiveCGreeter() {
-		header = ofFile(sourceFile("headers", "greeter.h", fromResource("objc-greeter/greeter.h")));
-		source = ofFile(sourceFile("objc", "greeter_impl.m", fromResource("objc-greeter/greeter_impl.m")));
+	public SourceFileElement getSource() {
+		return ofFile(sourceFile("objc", "greeter_impl.m", fromResource("objc-greeter/greeter_impl.m")));
 	}
 
 	public NativeLibraryElement withFoundationFrameworkImplementation() {
-		return new NativeLibraryElement() {
+		return new NativeSourceFileElement() {
 			@Override
-			public SourceElement getPublicHeaders() {
-				return header;
+			public SourceFileElement getHeader() {
+				return ObjectiveCGreeter.this.getHeader();
 			}
 
 			@Override
-			public SourceElement getSources() {
+			public SourceFileElement getSource() {
 				return ofFile(sourceFile("objc", "greeter_impl.m", fromResource("objc-greeter-using-foundation-framework/greeter_impl.m")));
 			}
 		};
 	}
 
 	public NativeLibraryElement withOptionalFeature() {
-		return new NativeLibraryElement() {
+		return new NativeSourceFileElement() {
 			@Override
-			public SourceElement getPublicHeaders() {
-				return header;
+			public SourceFileElement getHeader() {
+				return ObjectiveCGreeter.this.getHeader();
 			}
 
 			@Override
-			public SourceElement getSources() {
+			public SourceFileElement getSource() {
 				return ofFile(sourceFile("objc", "greeter_impl.m", fromResource("objc-greeter-with-optional-feature/greeter_impl.m")));
 			}
 		};

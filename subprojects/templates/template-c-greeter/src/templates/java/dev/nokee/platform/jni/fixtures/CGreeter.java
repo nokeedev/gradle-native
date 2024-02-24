@@ -17,31 +17,32 @@
 package dev.nokee.platform.jni.fixtures;
 
 import dev.gradleplugins.fixtures.sources.NativeLibraryElement;
-import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.NativeSourceFileElement;
+import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile;
 
-public final class CGreeter extends NativeLibraryElement {
+public final class CGreeter extends NativeSourceFileElement {
 	@Override
-    public SourceElement getPublicHeaders() {
+    public SourceFileElement getHeader() {
 		return ofFile(sourceFile("headers", "greeter.h", fromResource("c-greeter/greeter.h")));
 	}
 
 	@Override
-	public SourceElement getSources() {
+	public SourceFileElement getSource() {
 		return ofFile(sourceFile("c", "greeter_impl.c", fromResource("c-greeter/greeter_impl.c")));
 	}
 
 	public NativeLibraryElement withOptionalFeature() {
-		return new NativeLibraryElement() {
+		return new NativeSourceFileElement() {
 			@Override
-			public SourceElement getPublicHeaders() {
-				return CGreeter.this.getHeaders();
+			public SourceFileElement getHeader() {
+				return CGreeter.this.getHeader();
 			}
 
 			@Override
-			public SourceElement getSources() {
+			public SourceFileElement getSource() {
 				return ofFile(sourceFile("c", "greeter_impl.c", fromResource("c-greeter-with-optional-feature/greeter_impl.c")));
 			}
 		};

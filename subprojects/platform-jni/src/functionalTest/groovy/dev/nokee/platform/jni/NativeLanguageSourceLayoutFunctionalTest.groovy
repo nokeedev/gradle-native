@@ -24,12 +24,13 @@ import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.language.objectivec.ObjectiveCTaskNames
 import dev.nokee.language.objectivecpp.ObjectiveCppTaskNames
 import dev.nokee.platform.jni.fixtures.*
+import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 
 class JavaCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements CTaskNames, JavaJniTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new JavaJniCGreeterLib('jni-library')
 	}
 
@@ -81,7 +82,7 @@ class JavaCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNa
 
 class JavaCppJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements CppTaskNames, JavaJniTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new JavaJniCppGreeterLib('jni-library')
 	}
 
@@ -135,7 +136,7 @@ class JavaCppJniLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstract
 @Requires({!OperatingSystem.current.windows})
 class JavaObjectiveCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements ObjectiveCTaskNames, JavaJniTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new JavaJniObjectiveCGreeterLib('jni-library')
 	}
 
@@ -201,7 +202,7 @@ class JavaObjectiveCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends A
 @Requires({!OperatingSystem.current.windows})
 class JavaObjectiveCppJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements ObjectiveCppTaskNames, JavaJniTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new JavaJniObjectiveCppGreeterLib('jni-library')
 	}
 

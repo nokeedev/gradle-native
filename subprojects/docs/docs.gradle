@@ -133,7 +133,7 @@ documentation {
 		}
 		'jni-library-composing-from-pre-built-binaries' {
 			// The project name for the template needs to align with the pre-built binary name
-			template.set(new JavaJniCppGreeterLib('jni-greeter').withoutNativeImplementation().withJUnitTest())
+			template.set(new JavaJniCppGreeterLib('jni-greeter').asSample())
 		}
 		'publish-jni-library' {
 			template.set(new JavaJniCppGreeterLib('publish-jni-library'))

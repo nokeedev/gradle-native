@@ -1,38 +1,42 @@
 package dev.nokee.platform.nativebase.fixtures;
 
-import dev.gradleplugins.fixtures.sources.NativeLibraryElement;
+import dev.gradleplugins.fixtures.sources.NativeSourceFileElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.nokee.platform.jni.fixtures.CGreeter;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 
-import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements;
+import static dev.gradleplugins.fixtures.sources.NativeElements.subproject;
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile;
 
-public final class CGreeterLib extends GreeterImplementationAwareSourceElement<NativeLibraryElement/*CGreeter*/> {
-	private final NativeLibraryElement delegate;
-
-	public CGreeterLib() {
-		super(new CGreetUsingGreeter().asLib(), new CGreeter().asLib());
-		delegate = ofNativeLibraryElements((NativeLibraryElement) getElementUsingGreeter(), getGreeter());
+public final class CGreeterLib extends GreeterImplementationAwareSourceElement {
+	@Override
+	public SourceElement getElementUsingGreeter() {
+		return new CGreetUsingGreeter().asLib();
 	}
 
-	public GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectPath) {
-		return ofImplementationAsSubproject(getElementUsingGreeter(), asSubproject(subprojectPath, getGreeter()));
+	@Override
+	public SourceElement getGreeter() {
+		return new CGreeter().asLib();
+	}
+
+	public ImplementationAsSubprojectElement withImplementationAsSubproject(String subprojectPath) {
+		return new ImplementationAsSubprojectElement(getElementUsingGreeter(), getGreeter().as(subproject(subprojectPath)));
 	}
 
 	public SourceElement withGenericTestSuite() {
-		return ofNativeElements(delegate, new CGreeterTest());
+		return ofElements(getElementUsingGreeter(), getGreeter(), new CGreeterTest());
 	}
 
-	private static class CGreetUsingGreeter extends NativeLibraryElement {
+	private static class CGreetUsingGreeter extends NativeSourceFileElement {
 		@Override
-		public SourceElement getPublicHeaders() {
+		public SourceFileElement getHeader() {
 			return ofFile(sourceFile("headers", "greet_alice.h", fromResource("c-greeter-lib/greet_alice.h")));
 		}
 
 		@Override
-		public SourceElement getSources() {
+		public SourceFileElement getSource() {
 			return ofFile(sourceFile("c", "greet_alice.c", fromResource("c-greeter-lib/greet_alice.c")));
 		}
 	}

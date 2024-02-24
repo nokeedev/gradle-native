@@ -1,10 +1,10 @@
 package dev.nokee.platform.jni.fixtures;
 
-import dev.gradleplugins.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
+import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest;
 import dev.nokee.platform.jni.fixtures.elements.JavaNativeLoader;
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement;
 
@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements;
-import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
 import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage;
 
 public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement implements JniLibraryElement {
@@ -27,11 +25,16 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 	}
 
 	@Override
-	public NativeSourceElement getNativeSources() {
-		return ofNativeElements(nativeBindings);
+	public SourceElement getNativeSources() {
+		return nativeBindings;
 	}
 
-    public JavaJniObjectiveCNSSavePanelLib(String projectName) {
+	@Override
+	public SourceElement withJUnitTest() {
+		return ofElements(this, new JavaGreeterJUnitTest());
+	}
+
+	public JavaJniObjectiveCNSSavePanelLib(String projectName) {
 		JavaPackage javaPackage = ofPackage("com.example.cocoa");
 		String sharedLibraryBaseName = projectName;
 		jvmBindings = new JavaNativeNSSavePanel(javaPackage, sharedLibraryBaseName);
@@ -76,23 +79,16 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 		}
 	}
 
-	private static class ObjectiveCNSSavePanelJniBinding extends NativeSourceElement {
-		private final SourceElement source;
-		private final JavaPackage javaPackage;
-
-		@Override
-		public SourceElement getHeaders() {
-			return empty();
-		}
-
-		@Override
-		public SourceElement getSources() {
-			return source;
-		}
+	private static class ObjectiveCNSSavePanelJniBinding extends SourceFileElement {
+		private final SourceFile source;
 
 		public ObjectiveCNSSavePanelJniBinding(JavaPackage javaPackage) {
-			this.javaPackage = javaPackage;
-			source = ofFiles(sourceFile("objc", "ns_save_panel.m", fromResource("jni-objc-cocoa/ns_save_panel.m").replace(ofPackage("com.example.cocoa").jniHeader("NSSavePanel"), javaPackage.jniHeader("NSSavePanel")).replace(ofPackage("com.example.cocoa").jniMethodName("NSSavePanel", "saveDialog"), javaPackage.jniMethodName("NSSavePanel", "saveDialog"))));
-}
+			source = sourceFile("objc", "ns_save_panel.m", fromResource("jni-objc-cocoa/ns_save_panel.m").replace(ofPackage("com.example.cocoa").jniHeader("NSSavePanel"), javaPackage.jniHeader("NSSavePanel")).replace(ofPackage("com.example.cocoa").jniMethodName("NSSavePanel", "saveDialog"), javaPackage.jniMethodName("NSSavePanel", "saveDialog")));
+		}
+
+		@Override
+		public SourceFile getSourceFile() {
+			return source;
+		}
 	}
 }

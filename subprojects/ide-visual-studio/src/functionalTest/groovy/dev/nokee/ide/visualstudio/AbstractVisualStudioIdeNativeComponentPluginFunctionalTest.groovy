@@ -27,8 +27,8 @@ import org.apache.commons.lang3.SystemUtils
 import spock.lang.Ignore
 import spock.lang.Requires
 
-import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofHeaders
-import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofSources
+import static dev.gradleplugins.fixtures.sources.NativeElements.headers
+import static dev.gradleplugins.fixtures.sources.NativeElements.sources
 import static org.junit.Assume.assumeFalse
 
 abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extends AbstractIdeNativeComponentPluginFunctionalTest implements VisualStudioIdeFixture {
@@ -158,22 +158,22 @@ abstract class AbstractVisualStudioIdeNativeComponentPluginFunctionalTest extend
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProjectUnderTest.assertHasSourceLayout(ofSources(componentUnderTest).files.collect { "Source Files/${it.name}".toString() } + ofHeaders(componentUnderTest).files.collect { "Header Files/${it.name}".toString() } + generatedHeaders.collect { "Header Files/${it}".toString() } + ['build.gradle', 'settings.gradle'])
+		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.get(sources()).files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.get(headers()).files.collect { "Header Files/${it.name}".toString() } + generatedHeaders.collect { "Header Files/${it}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "include sources in project with custom layout"() {
 		given:
 		settingsFile << configureProjectName()
 		makeSingleProject()
-		ofSources(componentUnderTest).writeToSourceDir(file('srcs'))
-		ofHeaders(componentUnderTest).writeToSourceDir(file('hdrs'))
+		componentUnderTest.get(sources()).writeToSourceDir(file('srcs'))
+		componentUnderTest.get(headers()).writeToSourceDir(file('hdrs'))
 		buildFile << configureCustomSourceLayout()
 
 		when:
 		succeeds('visualStudio')
 
 		then:
-		visualStudioProjectUnderTest.assertHasSourceLayout(ofSources(componentUnderTest).files.collect { "Source Files/${it.name}".toString() } + ofHeaders(componentUnderTest).files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
+		visualStudioProjectUnderTest.assertHasSourceLayout(componentUnderTest.get(sources()).files.collect { "Source Files/${it.name}".toString() } + componentUnderTest.get(headers()).files.collect { "Header Files/${it.name}".toString() } + ['build.gradle', 'settings.gradle'])
 	}
 
 	def "all projects appears in solution"() {

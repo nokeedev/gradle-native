@@ -8,6 +8,7 @@ import dev.nokee.platform.jni.fixtures.elements.JavaMainUsesGreeter;
 import java.nio.file.Path;
 import java.util.List;
 
+// FIXME(elements)
 public final class GreeterAppWithJniLibrary implements ApplicationWithLibraryElement {
 	private final JavaJniCppGreeterLib library;
 	private final JavaMainUsesGreeter application = new JavaMainUsesGreeter();

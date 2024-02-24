@@ -1,24 +1,24 @@
 package dev.nokee.platform.nativebase.fixtures;
 
-import dev.gradleplugins.fixtures.sources.NativeSourceElement;
-import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.NativeSourceFileElement;
+import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile;
 
-public final class ObjectiveCGreeterTest extends NativeSourceElement {
+public final class ObjectiveCGreeterTest extends NativeSourceFileElement {
 	@Override
 	public String getSourceSetName() {
 		return "test";
 	}
 
 	@Override
-	public SourceElement getHeaders() {
-		return ofFiles(sourceFile("headers", "greeter_fixtures.h", fromResource("objc-greeter-test/greeter_fixtures.h")));
+	public SourceFileElement getHeader() {
+		return ofFile(sourceFile("headers", "greeter_fixtures.h", fromResource("objc-greeter-test/greeter_fixtures.h")));
 	}
 
 	@Override
-	public SourceElement getSources() {
+	public SourceFileElement getSource() {
 		return ofFile(sourceFile("objc", "greeter_test.m", fromResource("objc-greeter-test/greeter_test.m")));
 	}
 }
