@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni
 
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.platform.jni.fixtures.KotlinJniCppGreeterLib
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
@@ -80,7 +81,7 @@ class KotlinCppJniLibraryWithJUnitTestingFunctionalTest extends AbstractInstalle
 		settingsFile << "rootProject.name = 'jni-greeter'"
 	}
 
-	JniLibraryElement getComponentUnderTest() {
+	SourceElement getComponentUnderTest() {
 		return new KotlinJniCppGreeterLib('jni-greeter').withJUnitTest()
 	}
 

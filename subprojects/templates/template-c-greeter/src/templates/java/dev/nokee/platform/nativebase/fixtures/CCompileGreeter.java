@@ -1,14 +1,11 @@
 package dev.nokee.platform.nativebase.fixtures;
 
-import dev.gradleplugins.fixtures.sources.NativeSourceElement;
-import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.SourceFile;
+import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
-import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
-import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile;
-
-public final class CCompileGreeter extends NativeSourceElement {
+public final class CCompileGreeter extends SourceFileElement {
 	@Override
-	public SourceElement getSources() {
-		return ofFile(sourceFile("c", "greeter.c", fromResource("c-compile-greeter/greeter.c")));
+	public SourceFile getSourceFile() {
+		return sourceFile("c", "greeter.c", fromResource("c-compile-greeter/greeter.c"));
 	}
 }

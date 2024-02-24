@@ -1,75 +1,31 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
-import dev.gradleplugins.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static dev.gradleplugins.fixtures.sources.SourceElement.ofElements;
 
 public interface JniLibraryElement {
 	SourceElement getJvmSources();
 
-	NativeSourceElement getNativeSources();
+	SourceElement getNativeSources();
 
-	default TestableJniLibraryElement withJUnitTest() {
-		return new TestableJniLibraryElement(this, newJUnitTestElement());
-	}
-
-	default SourceElement newJUnitTestElement() {
-		return new JavaGreeterJUnitTest();
-	}
+	SourceElement withJUnitTest();
 
 	default void writeToProject(Path projectDir) {
 		ofElements(getJvmSources(), getNativeSources()).writeToProject(projectDir);
 	}
 
-	static SourceFileElement newResourceElement() {
-		return new SourceFileElement() {
+	default SourceElement withResources() {
+		final SourceFileElement newResourceElement = new SourceFileElement() {
 			@Override
 			public SourceFile getSourceFile() {
 				return sourceFile("resources", "foo.txt", "");
 			}
 		};
-	}
-
-	default JniLibraryElement withResources() {
-		return new SimpleJniLibraryElement(ofElements(getJvmSources(), JniLibraryElement.newResourceElement()), getNativeSources());
-	}
-
-	class SimpleJniLibraryElement extends SourceElement implements JniLibraryElement {
-		private final SourceElement jvmSources;
-		private final NativeSourceElement nativeSources;
-
-		public SimpleJniLibraryElement(SourceElement jvmSources, NativeSourceElement nativeSources) {
-			this.jvmSources = jvmSources;
-			this.nativeSources = nativeSources;
-		}
-
-		@Override
-		public List<SourceFile> getFiles() {
-			return Stream.concat(getJvmSources().getFiles().stream(), getNativeSources().getFiles().stream()).collect(Collectors.toList());
-		}
-
-		@Override
-		public SourceElement getJvmSources() {
-			return jvmSources;
-		}
-
-		@Override
-		public NativeSourceElement getNativeSources() {
-			return nativeSources;
-		}
-
-		@Override
-		public void writeToProject(Path projectDir) {
-			jvmSources.writeToProject(projectDir);
-			nativeSources.writeToProject(projectDir);
-		}
+		return ofElements(getJvmSources(), newResourceElement, getNativeSources());
 	}
 }

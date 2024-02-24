@@ -1,31 +1,34 @@
 package dev.nokee.platform.nativebase.fixtures;
 
-import dev.gradleplugins.fixtures.sources.NativeLibraryElement;
-import dev.gradleplugins.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
+import dev.gradleplugins.fixtures.sources.SourceFile;
+import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.nokee.platform.jni.fixtures.ObjectiveCGreeter;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 
-import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements;
-import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
+import static dev.gradleplugins.fixtures.sources.NativeElements.lib;
+import static dev.gradleplugins.fixtures.sources.NativeElements.subproject;
 
-public final class ObjectiveCGreeterApp extends GreeterImplementationAwareSourceElement<NativeLibraryElement/*ObjectiveCGreeter*/> {
-	private final NativeSourceElement delegate;
-
-	public ObjectiveCGreeterApp() {
-		super(new ObjectiveCMainUsesGreeter(), new ObjectiveCGreeter());
-		delegate = ofNativeElements((NativeSourceElement) getElementUsingGreeter(), getGreeter());
+public final class ObjectiveCGreeterApp extends GreeterImplementationAwareSourceElement {
+	@Override
+	public SourceElement getElementUsingGreeter() {
+		return new ObjectiveCMainUsesGreeter();
 	}
 
 	@Override
-	public GreeterImplementationAwareSourceElement<NativeLibraryElement> withImplementationAsSubproject(String subprojectPath) {
-		return ofImplementationAsSubproject(getElementUsingGreeter(), asSubproject(subprojectPath, getGreeter().asLib()));
+	public SourceElement getGreeter() {
+		return new ObjectiveCGreeter();
 	}
 
-	private static class ObjectiveCMainUsesGreeter extends NativeSourceElement {
+	@Override
+	public ImplementationAsSubprojectElement withImplementationAsSubproject(String subprojectPath) {
+		return new ImplementationAsSubprojectElement(getElementUsingGreeter(), getGreeter().as(lib()).as(subproject(subprojectPath)));
+	}
+
+	private static class ObjectiveCMainUsesGreeter extends SourceFileElement {
 		@Override
-		public SourceElement getSources() {
-			return ofFiles(sourceFile("objc", "main.m", fromResource("objc-greeter-app/main.m")));
+		public SourceFile getSourceFile() {
+			return sourceFile("objc", "main.m", fromResource("objc-greeter-app/main.m"));
 		}
 	}
 }

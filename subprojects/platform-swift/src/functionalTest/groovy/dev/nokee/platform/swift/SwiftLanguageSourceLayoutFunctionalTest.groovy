@@ -20,13 +20,14 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.fixtures.AbstractNativeLanguageSourceLayoutFunctionalTest
 import dev.nokee.language.swift.SwiftTaskNames
+import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterLib
 
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements SwiftTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new SwiftGreeterApp()
 	}
 
@@ -70,7 +71,7 @@ class SwiftApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractN
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements SwiftTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new SwiftGreeterLib()
 	}
 

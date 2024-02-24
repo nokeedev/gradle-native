@@ -22,7 +22,6 @@ import dev.nokee.platform.jni.fixtures.JavaJniCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCppGreeterLib
-import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
@@ -39,8 +38,7 @@ abstract class AbstractJavaJniLibraryWithJUnitTestingFunctionalTest extends Abst
 				testImplementation 'junit:junit:4.12'
 			}
 		'''
-		componentUnderTest.writeToProject(testDirectory)
-		new JavaGreeterJUnitTest().writeToProject(testDirectory)
+		componentUnderTest.withJUnitTest().writeToProject(testDirectory)
 
 		expect:
 		succeeds('test')

@@ -29,6 +29,7 @@ import spock.lang.Ignore
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 
+import static dev.gradleplugins.fixtures.sources.NativeElements.sources
 import static dev.nokee.utils.VersionNumber.parse
 
 abstract class AbstractNativeCompilationAwareComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
@@ -43,7 +44,7 @@ abstract class AbstractNativeCompilationAwareComponentFunctionalTest extends Abs
 		then:
 		result.assertTasksExecuted(additionalCompileTasks, taskNames.tasks.allToObjects)
 		and:
-		objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/sharedLibrary/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertExists()
+		objectFiles(componentUnderTest.nativeSources.get(sources()), "build/objs/main/sharedLibrary/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertExists()
 	}
 
 	def "can compile native sources of a specific variant using objects lifecycle tasks"() {
@@ -60,7 +61,7 @@ abstract class AbstractNativeCompilationAwareComponentFunctionalTest extends Abs
 		then:
 		result.assertTasksExecuted(additionalCompileTasks, taskNames.tasks.withOperatingSystemFamily(currentOsFamilyName).allToObjects)
 		and:
-		objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/${currentOsFamilyName}/sharedLibrary/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertExists()
+		objectFiles(componentUnderTest.nativeSources.get(sources()), "build/objs/main/${currentOsFamilyName}/sharedLibrary/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertExists()
 		(['windows', 'macos', 'linux'] - [currentOsFamilyName]).each {
 			objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/${it}/sharedLibrary/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertDoesNotExist()
 		}

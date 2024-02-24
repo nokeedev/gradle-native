@@ -1,12 +1,12 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
-import dev.gradleplugins.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 
 import java.nio.file.Path;
 import java.util.List;
 
+// FIXME:(elements)
 public class TestableJniLibraryElement extends SourceElement implements JniLibraryElement {
 	private final JniLibraryElement main;
 	private final SourceElement test;
@@ -22,7 +22,7 @@ public class TestableJniLibraryElement extends SourceElement implements JniLibra
 	}
 
 	@Override
-	public NativeSourceElement getNativeSources() {
+	public SourceElement getNativeSources() {
 		return main.getNativeSources();
 	}
 

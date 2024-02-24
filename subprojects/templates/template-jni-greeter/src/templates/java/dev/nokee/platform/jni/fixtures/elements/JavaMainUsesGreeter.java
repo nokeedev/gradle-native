@@ -7,16 +7,16 @@ import dev.gradleplugins.fixtures.sources.java.JavaPackage;
 import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage;
 
 public final class JavaMainUsesGreeter extends SourceFileElement implements GreeterElement {
-	private final SourceFile main;
+	private final SourceFile source;
 
 	@Override
 	public SourceFile getSourceFile() {
-		return main;
+		return source;
 	}
 
     public JavaMainUsesGreeter() {
 		JavaPackage javaPackage = ofPackage("com.example.app");
-		main = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Main.java", fromResource("java-jni-app/Main.java").replace("package " + ofPackage("com.example.app").getName(), "package " + javaPackage.getName()));
+		this.source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Main.java", fromResource("java-jni-app/Main.java").replace("package " + ofPackage("com.example.app").getName(), "package " + javaPackage.getName()));
 	}
 
 	@Override

@@ -5,16 +5,17 @@ import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
+import dev.nokee.platform.jni.fixtures.elements.CppGreeter;
 import dev.nokee.platform.jni.fixtures.elements.CppGreeterJniBinding;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement;
 import dev.nokee.platform.jni.fixtures.elements.TestableJniLibraryElement;
-import dev.nokee.platform.jni.fixtures.elements.CppGreeter;
 
-import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofNativeElements;
+import static dev.gradleplugins.fixtures.sources.NativeElements.lib;
+import static dev.gradleplugins.fixtures.sources.NativeElements.subproject;
 import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage;
 
-public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSourceElement<NativeSourceElement> implements JniLibraryElement {
+public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSourceElement implements JniLibraryElement {
 	private final NativeSourceElement nativeBindings;
 	private final KotlinNativeGreeter jvmBindings;
 	private final SourceElement jvmImplementation;
@@ -29,8 +30,8 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 	}
 
 	@Override
-	public NativeSourceElement getNativeSources() {
-		return ofNativeElements(nativeBindings, nativeImplementation);
+	public SourceElement getNativeSources() {
+		return ofElements(nativeBindings, nativeImplementation);
 	}
 
 	public KotlinJniCppGreeterLib(String projectName) {
@@ -48,7 +49,6 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 	}
 
 	private KotlinJniCppGreeterLib(KotlinNativeGreeter jvmBindings, NativeSourceElement nativeBindings, KotlinNativeLoader jvmImplementation, CppGreeter nativeImplementation, KotlinGreeterJUnitTest junitTest) {
-		super(ofElements(jvmBindings, nativeBindings, jvmImplementation), nativeImplementation);
 		this.jvmBindings = jvmBindings;
 		this.nativeBindings = nativeBindings;
 		this.jvmImplementation = jvmImplementation;
@@ -57,13 +57,23 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 	}
 
 	@Override
-	public TestableJniLibraryElement withJUnitTest() {
-		return new TestableJniLibraryElement(this, junitTest);
+	public SourceElement getElementUsingGreeter() {
+		return ofElements(jvmBindings, nativeBindings, jvmImplementation);
 	}
 
 	@Override
-	public GreeterImplementationAwareSourceElement<NativeSourceElement> withImplementationAsSubproject(String subprojectPath) {
-		return ofImplementationAsSubproject(getElementUsingGreeter(), asSubproject(subprojectPath, nativeImplementation.asLib()));
+	public SourceElement getGreeter() {
+		return nativeImplementation;
+	}
+
+	@Override
+	public SourceElement withJUnitTest() {
+		return ofElements(this, junitTest);
+	}
+
+	@Override
+	public ImplementationAsSubprojectElement withImplementationAsSubproject(String subprojectPath) {
+		return new ImplementationAsSubprojectElement(getElementUsingGreeter(), nativeImplementation.as(lib()).as(subproject(subprojectPath)));
 	}
 
 	private static class KotlinNativeGreeter extends SourceFileElement {
@@ -124,7 +134,7 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		}
 
 		public KotlinGreeterJUnitTest(JavaPackage javaPackage) {
-			source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "GreeterTest.kt", fromResource("kotlin-jni-greeter/GreeterTest.kt").replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
+			this.source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "GreeterTest.kt", fromResource("kotlin-jni-greeter/GreeterTest.kt").replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
 		}
 	}
 }
