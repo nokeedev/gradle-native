@@ -28,9 +28,11 @@ public final class ObjectiveCGreeterApp extends GreeterImplementationAwareSource
 
 	private static class ObjectiveCMainUsesGreeter extends SourceFileElement {
 		@Override
-		@SourceFileLocation(file = "objc-greeter-app/src/main/objc/main.m")
 		public SourceFile getSourceFile() {
-			return sourceFile("objc", "main.m", fromResource("objc-greeter-app/main.m"));
+			return sourceFile("objc", "main.m", fromResource(Source.class));
 		}
+
+		@SourceFileLocation(file = "objc-greeter-app/src/main/objc/main.m")
+		interface Source {}
 	}
 }

@@ -11,10 +11,12 @@ public final class JavaGreeterJUnitTest extends SourceFileElement {
 	private final SourceFile source;
 
 	@Override
-	@SourceFileLocation(file = "java-jni-greeter/src/test/java/com/example/greeter/GreeterTest.java")
 	public SourceFile getSourceFile() {
 		return source;
 	}
+
+	@SourceFileLocation(file = "java-jni-greeter/src/test/java/com/example/greeter/GreeterTest.java")
+	interface Source {}
 
 	@Override
 	public String getSourceSetName() {
@@ -26,6 +28,6 @@ public final class JavaGreeterJUnitTest extends SourceFileElement {
 	}
 
 	public JavaGreeterJUnitTest(JavaPackage javaPackage) {
-		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "GreeterTest.java", fromResource("java-jni-greeter/GreeterTest.java").replace("package com.example.greeter", "package " + javaPackage.getName()));
+		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "GreeterTest.java", fromResource(Source.class).replace("package com.example.greeter", "package " + javaPackage.getName()));
 	}
 }

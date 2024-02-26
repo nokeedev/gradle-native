@@ -30,14 +30,18 @@ public final class CppGreeterTest extends NativeSourceFileElement {
 	}
 
 	@Override
-	@SourceFileLocation(file = "cpp-greeter-test/src/main/headers/greeter_fixtures.h")
 	public SourceFileElement getHeader() {
-		return ofFile(sourceFile("headers", "greeter_fixtures.h", fromResource("cpp-greeter-test/greeter_fixtures.h")));
+		return ofFile(sourceFile("headers", "greeter_fixtures.h", fromResource(Header.class)));
 	}
 
+	@SourceFileLocation(file = "cpp-greeter-test/src/main/headers/greeter_fixtures.h")
+	interface Header {}
+
 	@Override
-	@SourceFileLocation(file = "cpp-greeter-test/src/main/cpp/greeter_test.cpp")
 	public SourceFileElement getSource() {
-		return ofFile(sourceFile("cpp", "greeter_test.cpp", fromResource("cpp-greeter-test/greeter_test.cpp")));
+		return ofFile(sourceFile("cpp", "greeter_test.cpp", fromResource(Source.class)));
 	}
+
+	@SourceFileLocation(file = "cpp-greeter-test/src/main/cpp/greeter_test.cpp")
+	interface Source {}
 }

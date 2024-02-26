@@ -15,14 +15,15 @@ public class CppGreeterJniBinding extends JniBindingElement {
 	}
 
 	@Override
-	@SourceFileLocation(file = "jni-cpp-greeter/src/main/cpp/greeter.cpp")
 	public SourceFile getSourceFile() {
-		return sourceFile("cpp", "greeter.cpp", fromResource("jni-cpp-greeter/greeter.cpp").replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()).replace(ofPackage("com.example.greeter").jniMethodName("Greeter", "sayHello"), javaPackage.jniMethodName("Greeter", "sayHello")));
+		return sourceFile("cpp", "greeter.cpp", fromResource(Source.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()).replace(ofPackage("com.example.greeter").jniMethodName("Greeter", "sayHello"), javaPackage.jniMethodName("Greeter", "sayHello")));
 	}
 
+	@SourceFileLocation(file = "jni-cpp-greeter/src/main/cpp/greeter.cpp")
+	interface Source {}
+
 	@Override
-	@SourceFileLocation(file = "java-jni-greeter/src/main/headers/com_example_greeter_Greeter.h")
 	public SourceFile getJniGeneratedHeaderFile() {
-		return sourceFile("headers", javaPackage.jniHeader("Greeter"), fromResource("java-jni-greeter/com_example_greeter_Greeter.h").replace(ofPackage("com.example.greeter").jniMethodName("Greeter", "sayHello"), javaPackage.jniMethodName("Greeter", "sayHello")));
+		return sourceFile("headers", javaPackage.jniHeader("Greeter"), fromResource(GreeterJniHeader.class).replace(ofPackage("com.example.greeter").jniMethodName("Greeter", "sayHello"), javaPackage.jniMethodName("Greeter", "sayHello")));
 	}
 }

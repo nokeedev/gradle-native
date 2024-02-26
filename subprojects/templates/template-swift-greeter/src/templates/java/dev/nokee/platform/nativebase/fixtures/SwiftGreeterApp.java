@@ -30,9 +30,11 @@ public final class SwiftGreeterApp extends GreeterImplementationAwareSourceEleme
 
 	private static class SwiftMainUsesGreeter extends SwiftSourceFileElement {
 		@Override
-		@SourceFileLocation(file = "swift-greeter-app/src/main/swift/main.swift")
 		public SourceFile getSourceFile() {
-			return sourceFile("swift", "main.swift", fromResource("swift-greeter-app/main.swift"));
+			return sourceFile("swift", "main.swift", fromResource(Source.class));
 		}
+
+		@SourceFileLocation(file = "swift-greeter-app/src/main/swift/main.swift")
+		interface Source {}
 	}
 }

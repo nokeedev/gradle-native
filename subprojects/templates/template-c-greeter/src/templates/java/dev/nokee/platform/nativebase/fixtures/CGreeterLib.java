@@ -32,15 +32,19 @@ public final class CGreeterLib extends GreeterImplementationAwareSourceElement {
 
 	private static class CGreetUsingGreeter extends NativeSourceFileElement {
 		@Override
-		@SourceFileLocation(file = "c-greeter-lib/src/main/public/greet_alice.h")
 		public SourceFileElement getHeader() {
-			return ofFile(sourceFile("headers", "greet_alice.h", fromResource("c-greeter-lib/greet_alice.h")));
+			return ofFile(sourceFile("headers", "greet_alice.h", fromResource(Header.class)));
 		}
 
+		@SourceFileLocation(file = "c-greeter-lib/src/main/public/greet_alice.h")
+		interface Header {}
+
 		@Override
-		@SourceFileLocation(file = "c-greeter-lib/src/main/c/greet_alice.c")
 		public SourceFileElement getSource() {
-			return ofFile(sourceFile("c", "greet_alice.c", fromResource("c-greeter-lib/greet_alice.c")));
+			return ofFile(sourceFile("c", "greet_alice.c", fromResource(Source.class)));
 		}
+
+		@SourceFileLocation(file = "c-greeter-lib/src/main/c/greet_alice.c")
+		interface Source {}
 	}
 }

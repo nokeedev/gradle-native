@@ -14,23 +14,9 @@
  * limitations under the License.
  */
 
-package dev.nokee.platform.nativebase.fixtures;
+package dev.nokee.platform.jni.fixtures.elements;
 
-import dev.gradleplugins.fixtures.sources.SourceFile;
-import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 
-public final class GoogleTestGreeterTest extends SourceFileElement {
-	@Override
-	public String getSourceSetName() {
-		return "test";
-	}
-
-	@Override
-	public SourceFile getSourceFile() {
-		return sourceFile("cpp", "greeter_test.cpp", fromResource(Source.class));
-	}
-
-	@SourceFileLocation(file = "google-test-greeter-test/src/main/cpp/greeter_test.cpp")
-	interface Source {}
-}
+@SourceFileLocation(file = "java-jni-greeter/src/main/headers/com_example_greeter_Greeter.h")
+public interface GreeterJniHeader {}
