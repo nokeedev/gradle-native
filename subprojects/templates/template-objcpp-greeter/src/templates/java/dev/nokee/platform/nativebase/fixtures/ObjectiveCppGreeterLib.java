@@ -3,6 +3,7 @@ package dev.nokee.platform.nativebase.fixtures;
 import dev.gradleplugins.fixtures.sources.NativeSourceFileElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 import dev.nokee.platform.jni.fixtures.ObjectiveCppGreeter;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 
@@ -28,11 +29,13 @@ public final class ObjectiveCppGreeterLib extends GreeterImplementationAwareSour
 
 	private static class ObjectiveCppGreetUsesGreeter extends NativeSourceFileElement {
 		@Override
+		@SourceFileLocation(file = "objcpp-greeter-lib/src/main/public/greet_alice.h")
 		public SourceFileElement getHeader() {
 			return ofFile(sourceFile("headers", "greet_alice.h", fromResource("objcpp-greeter-lib/greet_alice.h")));
 		}
 
 		@Override
+		@SourceFileLocation(file = "objcpp-greeter-lib/src/main/objcpp/greet_alice_impl.mm")
 		public SourceFileElement getSource() {
 			return ofFile(sourceFile("objcpp", "greet_alice_impl.mm", fromResource("objcpp-greeter-lib/greet_alice_impl.mm")));
 		}

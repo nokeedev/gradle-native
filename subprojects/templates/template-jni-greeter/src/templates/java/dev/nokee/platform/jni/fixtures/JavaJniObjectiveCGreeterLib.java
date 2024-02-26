@@ -2,6 +2,7 @@ package dev.nokee.platform.jni.fixtures;
 
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest;
@@ -85,12 +86,14 @@ public final class JavaJniObjectiveCGreeterLib extends GreeterImplementationAwar
 		}
 
 		@Override
+		@SourceFileLocation(file = "jni-objc-greeter/src/main/objc/greeter.m")
 		public SourceFile getSourceFile() {
 			return sourceFile("objc", "greeter.m", fromResource("jni-objc-greeter/greeter.m").replace(ofPackage("com.example.greeter").jniHeader("Greeter"), javaPackage.jniHeader("Greeter")).replace(ofPackage("com.example.greeter").jniMethodName("Greeter", "sayHello"), javaPackage.jniMethodName("Greeter", "sayHello")));
 		}
 
 
 		@Override
+		@SourceFileLocation(file = "java-jni-greeter/src/main/headers/com_example_greeter_Greeter.h")
 		public SourceFile getJniGeneratedHeaderFile() {
 			return sourceFile("headers", javaPackage.jniHeader("Greeter"), fromResource("java-jni-greeter/com_example_greeter_Greeter.h").replace(ofPackage("com.example.greeter").jniMethodName("Greeter", "sayHello"), javaPackage.jniMethodName("Greeter", "sayHello")));
 		}

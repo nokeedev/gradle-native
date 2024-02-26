@@ -3,6 +3,7 @@ package dev.nokee.platform.jni.fixtures;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
 import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest;
 import dev.nokee.platform.jni.fixtures.elements.JavaNativeLoader;
@@ -55,6 +56,7 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 		private final String resourcePath;
 
 		@Override
+		@SourceFileLocation(file = "jni-objc-cocoa/src/main/java/com/example/cocoa/NSSavePanel.java")
 		public SourceFile getSourceFile() {
 			return source;
 		}
@@ -87,6 +89,7 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 		}
 
 		@Override
+		@SourceFileLocation(file = "jni-objc-cocoa/src/main/objc/ns_save_panel.m")
 		public SourceFile getSourceFile() {
 			return source;
 		}

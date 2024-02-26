@@ -3,6 +3,7 @@ package dev.nokee.platform.nativebase.fixtures;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 import dev.nokee.platform.jni.fixtures.ObjectiveCGreeter;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 
@@ -27,6 +28,7 @@ public final class ObjectiveCGreeterApp extends GreeterImplementationAwareSource
 
 	private static class ObjectiveCMainUsesGreeter extends SourceFileElement {
 		@Override
+		@SourceFileLocation(file = "objc-greeter-app/src/main/objc/main.m")
 		public SourceFile getSourceFile() {
 			return sourceFile("objc", "main.m", fromResource("objc-greeter-app/main.m"));
 		}

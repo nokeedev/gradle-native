@@ -19,6 +19,7 @@ package dev.nokee.platform.nativebase.fixtures;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 
@@ -47,6 +48,7 @@ public final class CppGreeterApp extends GreeterImplementationAwareSourceElement
 
 	private static class CppMainUsesGreeter extends SourceFileElement {
 		@Override
+		@SourceFileLocation(file = "cpp-greeter-app/src/main/cpp/main.cpp")
 		public SourceFile getSourceFile() {
 			return sourceFile("cpp", "main.cpp", fromResource("cpp-greeter-app/main.cpp"));
 		}

@@ -1,36 +1,6 @@
 group = 'dev.nokee.templates'
 version = '1.0'
 
-processTemplatesResources {
-	into('META-INF/templates') {
-		into('java-greeter') {
-			from('java-greeter/src/main/java/com/example/greeter/Greeter.java')
-		}
-		into('java-jni-app') {
-			from('java-jni-app/src/main/java/com/example/app/Main.java')
-		}
-		into('java-jni-greeter') {
-			from('java-jni-greeter/src/main/headers/com_example_greeter_Greeter.h')
-			from('java-jni-greeter/src/main/java/com/example/greeter/Greeter.java')
-			from('java-jni-greeter/src/main/java/com/example/greeter/NativeLoader.java')
-			from('java-jni-greeter/src/test/java/com/example/greeter/GreeterTest.java')
-		}
-		into('jni-c-greeter') { from('jni-c-greeter/src/main/c/greeter.c') }
-		into('jni-cpp-greeter') { from('jni-cpp-greeter/src/main/cpp/greeter.cpp') }
-		into('jni-objc-greeter') { from('jni-objc-greeter/src/main/objc/greeter.m') }
-		into('jni-objcpp-greeter') { from('jni-objcpp-greeter/src/main/objcpp/greeter.mm') }
-		into('kotlin-jni-greeter') {
-			from('kotlin-jni-greeter/src/main/kotlin/com/example/greeter/Greeter.kt')
-			from('kotlin-jni-greeter/src/main/kotlin/com/example/greeter/NativeLoader.kt')
-			from('kotlin-jni-greeter/src/test/kotlin/com/example/greeter/GreeterTest.kt')
-		}
-		into('jni-objc-cocoa') {
-			from('jni-objc-cocoa/src/main/java/com/example/cocoa/NSSavePanel.java')
-			from('jni-objc-cocoa/src/main/objc/ns_save_panel.m')
-		}
-	}
-}
-
 dependencies {
 	templatesApi 'dev.nokee.templates:template-greeter'
 	templatesImplementation('dev.nokee.templates:template-c-greeter:1.0') { dependency ->
