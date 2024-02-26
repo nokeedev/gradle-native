@@ -56,10 +56,12 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 		private final String resourcePath;
 
 		@Override
-		@SourceFileLocation(file = "jni-objc-cocoa/src/main/java/com/example/cocoa/NSSavePanel.java")
 		public SourceFile getSourceFile() {
 			return source;
 		}
+
+		@SourceFileLocation(file = "jni-objc-cocoa/src/main/java/com/example/cocoa/NSSavePanel.java")
+		interface Content {}
 
 		public JavaNativeNSSavePanel(JavaPackage javaPackage, String sharedLibraryBaseName) {
 			this(javaPackage, sharedLibraryBaseName, "");
@@ -69,7 +71,7 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 			this.javaPackage = javaPackage;
 			this.sharedLibraryBaseName = sharedLibraryBaseName;
 			this.resourcePath = resourcePath;
-			source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "NSSavePanel.java", fromResource("jni-objc-cocoa/NSSavePanel.java").replace("package " + ofPackage("com.example.cocoa").getName(), "package " + javaPackage.getName()).replace("${resourcePath}${sharedLibraryBaseName}", resourcePath + sharedLibraryBaseName));
+			source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "NSSavePanel.java", fromResource(Content.class).replace("package " + ofPackage("com.example.cocoa").getName(), "package " + javaPackage.getName()).replace("${resourcePath}${sharedLibraryBaseName}", resourcePath + sharedLibraryBaseName));
 		}
 
 		public JavaNativeNSSavePanel withSharedLibraryBaseName(String sharedLibraryBaseName) {
@@ -85,13 +87,15 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 		private final SourceFile source;
 
 		public ObjectiveCNSSavePanelJniBinding(JavaPackage javaPackage) {
-			source = sourceFile("objc", "ns_save_panel.m", fromResource("jni-objc-cocoa/ns_save_panel.m").replace(ofPackage("com.example.cocoa").jniHeader("NSSavePanel"), javaPackage.jniHeader("NSSavePanel")).replace(ofPackage("com.example.cocoa").jniMethodName("NSSavePanel", "saveDialog"), javaPackage.jniMethodName("NSSavePanel", "saveDialog")));
+			source = sourceFile("objc", "ns_save_panel.m", fromResource(Content.class).replace(ofPackage("com.example.cocoa").jniHeader("NSSavePanel"), javaPackage.jniHeader("NSSavePanel")).replace(ofPackage("com.example.cocoa").jniMethodName("NSSavePanel", "saveDialog"), javaPackage.jniMethodName("NSSavePanel", "saveDialog")));
 		}
 
 		@Override
-		@SourceFileLocation(file = "jni-objc-cocoa/src/main/objc/ns_save_panel.m")
 		public SourceFile getSourceFile() {
 			return source;
 		}
+
+		@SourceFileLocation(file = "jni-objc-cocoa/src/main/objc/ns_save_panel.m")
+		interface Content {}
 	}
 }

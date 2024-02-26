@@ -48,9 +48,11 @@ public final class CppGreeterApp extends GreeterImplementationAwareSourceElement
 
 	private static class CppMainUsesGreeter extends SourceFileElement {
 		@Override
-		@SourceFileLocation(file = "cpp-greeter-app/src/main/cpp/main.cpp")
 		public SourceFile getSourceFile() {
-			return sourceFile("cpp", "main.cpp", fromResource("cpp-greeter-app/main.cpp"));
+			return sourceFile("cpp", "main.cpp", fromResource(Source.class));
 		}
+
+		@SourceFileLocation(file = "cpp-greeter-app/src/main/cpp/main.cpp")
+		interface Source {}
 	}
 }

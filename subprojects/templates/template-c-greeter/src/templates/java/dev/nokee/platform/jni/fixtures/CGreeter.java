@@ -26,16 +26,20 @@ import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile;
 
 public final class CGreeter extends NativeSourceFileElement {
 	@Override
-	@SourceFileLocation(file = "c-greeter/src/main/public/greeter.h")
     public SourceFileElement getHeader() {
-		return ofFile(sourceFile("headers", "greeter.h", fromResource("c-greeter/greeter.h")));
+		return ofFile(sourceFile("headers", "greeter.h", fromResource(Header.class)));
 	}
 
+	@SourceFileLocation(file = "c-greeter/src/main/public/greeter.h")
+	interface Header {}
+
 	@Override
-	@SourceFileLocation(file = "c-greeter/src/main/c/greeter_impl.c")
 	public SourceFileElement getSource() {
-		return ofFile(sourceFile("c", "greeter_impl.c", fromResource("c-greeter/greeter_impl.c")));
+		return ofFile(sourceFile("c", "greeter_impl.c", fromResource(Source.class)));
 	}
+
+	@SourceFileLocation(file = "c-greeter/src/main/c/greeter_impl.c")
+	interface Source {}
 
 	public NativeLibraryElement withOptionalFeature() {
 		return new NativeSourceFileElement() {
@@ -45,10 +49,12 @@ public final class CGreeter extends NativeSourceFileElement {
 			}
 
 			@Override
-			@SourceFileLocation(file = "c-greeter-with-optional-feature/src/main/c/greeter_impl.c")
 			public SourceFileElement getSource() {
-				return ofFile(sourceFile("c", "greeter_impl.c", fromResource("c-greeter-with-optional-feature/greeter_impl.c")));
+				return ofFile(sourceFile("c", "greeter_impl.c", fromResource(WithOptionalFeatureSource.class)));
 			}
 		};
 	}
+
+	@SourceFileLocation(file = "c-greeter-with-optional-feature/src/main/c/greeter_impl.c")
+	interface WithOptionalFeatureSource {}
 }

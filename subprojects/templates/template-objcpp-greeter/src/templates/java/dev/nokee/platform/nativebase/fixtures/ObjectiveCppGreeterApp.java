@@ -28,9 +28,11 @@ public final class ObjectiveCppGreeterApp extends GreeterImplementationAwareSour
 
 	private static class ObjectiveCppMainUsesGreeter extends SourceFileElement {
 		@Override
-		@SourceFileLocation(file = "objcpp-greeter-app/src/main/objcpp/main.mm")
 		public SourceFile getSourceFile() {
-			return sourceFile("objcpp", "main.mm", fromResource("objcpp-greeter-app/main.mm"));
+			return sourceFile("objcpp", "main.mm", fromResource(Source.class));
 		}
+
+		@SourceFileLocation(file = "objcpp-greeter-app/src/main/objcpp/main.mm")
+		interface Source {}
 	}
 }

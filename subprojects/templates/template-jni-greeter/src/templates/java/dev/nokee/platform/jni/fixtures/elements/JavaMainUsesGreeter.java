@@ -11,14 +11,16 @@ public final class JavaMainUsesGreeter extends SourceFileElement implements Gree
 	private final SourceFile source;
 
 	@Override
-	@SourceFileLocation(file = "java-jni-app/src/main/java/com/example/app/Main.java")
 	public SourceFile getSourceFile() {
 		return source;
 	}
 
+	@SourceFileLocation(file = "java-jni-app/src/main/java/com/example/app/Main.java")
+	interface Content {}
+
     public JavaMainUsesGreeter() {
 		JavaPackage javaPackage = ofPackage("com.example.app");
-		this.source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Main.java", fromResource("java-jni-app/Main.java").replace("package " + ofPackage("com.example.app").getName(), "package " + javaPackage.getName()));
+		this.source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Main.java", fromResource(Content.class).replace("package " + ofPackage("com.example.app").getName(), "package " + javaPackage.getName()));
 	}
 
 	@Override

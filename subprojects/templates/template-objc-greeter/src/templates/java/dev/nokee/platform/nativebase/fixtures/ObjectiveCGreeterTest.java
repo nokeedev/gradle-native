@@ -14,14 +14,18 @@ public final class ObjectiveCGreeterTest extends NativeSourceFileElement {
 	}
 
 	@Override
-	@SourceFileLocation(file = "objc-greeter-test/src/main/headers/greeter_fixtures.h")
 	public SourceFileElement getHeader() {
-		return ofFile(sourceFile("headers", "greeter_fixtures.h", fromResource("objc-greeter-test/greeter_fixtures.h")));
+		return ofFile(sourceFile("headers", "greeter_fixtures.h", fromResource(Header.class)));
 	}
 
+	@SourceFileLocation(file = "objc-greeter-test/src/main/headers/greeter_fixtures.h")
+	interface Header {}
+
 	@Override
-	@SourceFileLocation(file = "objc-greeter-test/src/main/objc/greeter_test.m")
 	public SourceFileElement getSource() {
-		return ofFile(sourceFile("objc", "greeter_test.m", fromResource("objc-greeter-test/greeter_test.m")));
+		return ofFile(sourceFile("objc", "greeter_test.m", fromResource(Source.class)));
 	}
+
+	@SourceFileLocation(file = "objc-greeter-test/src/main/objc/greeter_test.m")
+	interface Source {}
 }

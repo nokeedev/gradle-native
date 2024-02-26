@@ -14,10 +14,12 @@ public final class JavaNativeGreeter extends SourceFileElement {
 	private final String resourcePath;
 
 	@Override
-	@SourceFileLocation(file = "java-jni-greeter/src/main/java/com/example/greeter/Greeter.java")
 	public SourceFile getSourceFile() {
 		return source;
 	}
+
+	@SourceFileLocation(file = "java-jni-greeter/src/main/java/com/example/greeter/Greeter.java")
+	interface Content {}
 
 	public JavaNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName) {
 		this(javaPackage, sharedLibraryBaseName, "");
@@ -27,7 +29,7 @@ public final class JavaNativeGreeter extends SourceFileElement {
 		this.javaPackage = javaPackage;
 		this.sharedLibraryBaseName = sharedLibraryBaseName;
 		this.resourcePath = resourcePath;
-		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Greeter.java", fromResource("java-jni-greeter/Greeter.java").replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()).replace("${resourcePath}${sharedLibraryBaseName}", resourcePath + sharedLibraryBaseName));
+		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Greeter.java", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()).replace("${resourcePath}${sharedLibraryBaseName}", resourcePath + sharedLibraryBaseName));
 	}
 
 	public JavaNativeGreeter withSharedLibraryBaseName(String sharedLibraryBaseName) {

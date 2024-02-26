@@ -11,16 +11,18 @@ public final class JavaNativeLoader extends SourceFileElement {
 	private final SourceFile source;
 
 	@Override
-	@SourceFileLocation(file = "java-jni-greeter/src/main/java/com/example/greeter/NativeLoader.java")
 	public SourceFile getSourceFile() {
 		return source;
 	}
+
+	@SourceFileLocation(file = "java-jni-greeter/src/main/java/com/example/greeter/NativeLoader.java")
+	interface Content {}
 
 	public JavaNativeLoader() {
 		this(ofPackage("com.example.greeter"));
 	}
 
 	public JavaNativeLoader(JavaPackage javaPackage) {
-		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "NativeLoader.java", fromResource("java-jni-greeter/NativeLoader.java").replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
+		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "NativeLoader.java", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
 	}
 }

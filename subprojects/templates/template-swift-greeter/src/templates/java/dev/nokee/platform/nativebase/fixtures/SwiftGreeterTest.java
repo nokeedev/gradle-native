@@ -8,7 +8,7 @@ public final class SwiftGreeterTest extends SwiftSourceFileElement {
 	private final SourceFile source;
 
 	public SwiftGreeterTest(String testedModuleName) {
-		this.source = sourceFile("swift", "greeter_test.swift", fromResource("swift-greeter-test/greeter_test.swift").replace("import SwiftGreeter", "import " + testedModuleName));
+		this.source = sourceFile("swift", "greeter_test.swift", fromResource(Source.class).replace("import SwiftGreeter", "import " + testedModuleName));
 	}
 
 	@Override
@@ -17,8 +17,10 @@ public final class SwiftGreeterTest extends SwiftSourceFileElement {
 	}
 
 	@Override
-	@SourceFileLocation(file = "swift-greeter-test/src/main/swift/greeter_test.swift")
 	public SourceFile getSourceFile() {
 		return source;
 	}
+
+	@SourceFileLocation(file = "swift-greeter-test/src/main/swift/greeter_test.swift")
+	interface Source {}
 }

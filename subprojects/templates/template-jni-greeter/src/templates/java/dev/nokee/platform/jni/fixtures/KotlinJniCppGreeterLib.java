@@ -10,7 +10,6 @@ import dev.nokee.platform.jni.fixtures.elements.CppGreeter;
 import dev.nokee.platform.jni.fixtures.elements.CppGreeterJniBinding;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement;
-import dev.nokee.platform.jni.fixtures.elements.TestableJniLibraryElement;
 
 import static dev.gradleplugins.fixtures.sources.NativeElements.lib;
 import static dev.gradleplugins.fixtures.sources.NativeElements.subproject;
@@ -84,10 +83,12 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		private final String resourcePath;
 
 		@Override
-		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/Greeter.kt")
 		public SourceFile getSourceFile() {
 			return source;
 		}
+
+		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/Greeter.kt")
+		interface Content {}
 
 		public KotlinNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName) {
 			this(javaPackage, sharedLibraryBaseName, "");
@@ -97,7 +98,7 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 			this.javaPackage = javaPackage;
 			this.sharedLibraryBaseName = sharedLibraryBaseName;
 			this.resourcePath = resourcePath;
-			source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "Greeter.kt", fromResource("kotlin-jni-greeter/Greeter.kt").replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()).replace("${resourcePath}${sharedLibraryBaseName}", resourcePath + sharedLibraryBaseName));
+			source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "Greeter.kt", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()).replace("${resourcePath}${sharedLibraryBaseName}", resourcePath + sharedLibraryBaseName));
 		}
 
 		public KotlinNativeGreeter withSharedLibraryBaseName(String sharedLibraryBaseName) {
@@ -113,21 +114,22 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		private final SourceFile source;
 
 		@Override
-		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/NativeLoader.kt")
 		public SourceFile getSourceFile() {
 			return source;
 		}
 
 		public KotlinNativeLoader(JavaPackage javaPackage) {
-			source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "NativeLoader.kt", fromResource("kotlin-jni-greeter/NativeLoader.kt").replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
+			source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "NativeLoader.kt", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
 		}
+
+		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/NativeLoader.kt")
+		interface Content {}
 	}
 
 	private static class KotlinGreeterJUnitTest extends SourceFileElement {
 		private final SourceFile source;
 
 		@Override
-		@SourceFileLocation(file = "kotlin-jni-greeter/src/test/kotlin/com/example/greeter/GreeterTest.kt")
 		public SourceFile getSourceFile() {
 			return source;
 		}
@@ -138,7 +140,10 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		}
 
 		public KotlinGreeterJUnitTest(JavaPackage javaPackage) {
-			this.source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "GreeterTest.kt", fromResource("kotlin-jni-greeter/GreeterTest.kt").replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
+			this.source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "GreeterTest.kt", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
 		}
+
+		@SourceFileLocation(file = "kotlin-jni-greeter/src/test/kotlin/com/example/greeter/GreeterTest.kt")
+		interface Content {}
 	}
 }
