@@ -1,5 +1,5 @@
 pluginManagement {
-	includeBuild '../../../gradle/plugins/template-plugins/nokeetemplates-plugins'
+	includeBuild '../../../gradle/plugins/template-plugins'
 	repositories {
 		maven { url = 'https://repo.nokee.dev/snapshot' }
 		gradlePluginPortal()
