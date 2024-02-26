@@ -2,6 +2,7 @@ package dev.nokee.platform.nativebase.fixtures;
 
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SwiftSourceFileElement;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 
 public final class SwiftGreeterTest extends SwiftSourceFileElement {
 	private final SourceFile source;
@@ -16,6 +17,7 @@ public final class SwiftGreeterTest extends SwiftSourceFileElement {
 	}
 
 	@Override
+	@SourceFileLocation(file = "swift-greeter-test/src/main/swift/greeter_test.swift")
 	public SourceFile getSourceFile() {
 		return source;
 	}

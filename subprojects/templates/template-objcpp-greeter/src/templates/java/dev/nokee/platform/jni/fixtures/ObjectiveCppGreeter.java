@@ -19,17 +19,20 @@ package dev.nokee.platform.jni.fixtures;
 import dev.gradleplugins.fixtures.sources.NativeLibraryElement;
 import dev.gradleplugins.fixtures.sources.NativeSourceFileElement;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.fromResource;
 import static dev.gradleplugins.fixtures.sources.SourceFileElement.ofFile;
 
 public final class ObjectiveCppGreeter extends NativeSourceFileElement {
 	@Override
+	@SourceFileLocation(file = "objcpp-greeter/src/main/public/greeter.h")
     public SourceFileElement getHeader() {
 		return ofFile(sourceFile("headers", "greeter.h", fromResource("objcpp-greeter/greeter.h")));
 	}
 
 	@Override
+	@SourceFileLocation(file = "objcpp-greeter/src/main/objcpp/greeter_impl.mm")
 	public SourceFileElement getSource() {
 		return ofFile(sourceFile("objcpp", "greeter_impl.mm", fromResource("objcpp-greeter/greeter_impl.mm")));
 	}
@@ -42,6 +45,7 @@ public final class ObjectiveCppGreeter extends NativeSourceFileElement {
 			}
 
 			@Override
+			@SourceFileLocation(file = "objcpp-greeter-with-optional-feature/src/main/objcpp/greeter_impl.mm")
 			public SourceFileElement getSource() {
 				return ofFile(sourceFile("objcpp", "greeter_impl.mm", fromResource("objcpp-greeter-with-optional-feature/greeter_impl.mm")));
 			}

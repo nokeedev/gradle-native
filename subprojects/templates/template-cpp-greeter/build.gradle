@@ -1,31 +1,6 @@
 group = 'dev.nokee.templates'
 version = '1.0'
 
-processTemplatesResources {
-	into('META-INF/templates') {
-		into('cpp-compile-greeter') { from('cpp-compile-greeter/src/main/cpp/greeter.cpp') }
-		into('cpp-greeter') {
-			from('cpp-greeter/src/main/cpp/greeter_impl.cpp')
-			from('cpp-greeter/src/main/public/greeter.h')
-		}
-		into('cpp-greeter-app') { from('cpp-greeter-app/src/main/cpp/main.cpp') }
-		into('cpp-greeter-lib') {
-			from('cpp-greeter-lib/src/main/cpp/greet_alice.cpp')
-			from('cpp-greeter-lib/src/main/public/greet_alice.h')
-		}
-		into('cpp-greeter-test') {
-			from('cpp-greeter-test/src/main/cpp/greeter_test.cpp')
-			from('cpp-greeter_test/src/main/headers/greeter_fixtures.h')
-		}
-		into('cpp-greeter-with-optional-feature') {
-			from('cpp-greeter-with-optional-feature/src/main/cpp/greeter_impl.cpp')
-		}
-		into('google-test-greeter-test') {
-			from('google-test-greeter-test/src/main/cpp/greeter_test.cpp')
-		}
-	}
-}
-
 dependencies {
 	templatesApi 'dev.nokee.templates:template-greeter'
 }

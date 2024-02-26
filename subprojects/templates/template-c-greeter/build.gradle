@@ -1,28 +1,6 @@
 group = 'dev.nokee.templates'
 version = '1.0'
 
-processTemplatesResources {
-	into('META-INF/templates') {
-		into('c-compile-greeter') { from('c-compile-greeter/src/main/c/greeter.c') }
-		into('c-greeter') {
-			from('c-greeter/src/main/c/greeter_impl.c')
-			from('c-greeter/src/main/public/greeter.h')
-		}
-		into('c-greeter-app') { from('c-greeter-app/src/main/c/main.c') }
-		into('c-greeter-lib') {
-			from('c-greeter-lib/src/main/c/greet_alice.c')
-			from('c-greeter-lib/src/main/public/greet_alice.h')
-		}
-		into('c-greeter-test') {
-			from('c-greeter-test/src/main/c/greeter_test.c')
-			from('c-greeter_test/src/main/headers/greeter_fixtures.h')
-		}
-		into('c-greeter-with-optional-feature') {
-			from('c-greeter-with-optional-feature/src/main/c/greeter_impl.c')
-		}
-	}
-}
-
 dependencies {
 	templatesApi 'dev.nokee.templates:template-greeter'
 }

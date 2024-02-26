@@ -1,12 +1,5 @@
-processTemplatesResources {
-	into('META-INF/templates') {
-		into('swift-compile-greeter') { from('swift-compile-greeter/src/main/swift/greeter.swift') }
-		into('swift-greeter') { from('swift-greeter/src/main/swift/greeter.swift') }
-		into('swift-greeter-app') { from('swift-greeter-app/src/main/swift/main.swift') }
-		into('swift-greeter-lib') { from('swift-greeter-lib/src/main/swift/greeter.swift') }
-		into('swift-greeter-test') { from('swift-greeter-test/src/main/swift/greeter_test.swift') }
-	}
-}
+group = 'dev.nokee.templates'
+version = '1.0'
 
 dependencies {
 	templatesApi 'dev.nokee.templates:template-greeter'

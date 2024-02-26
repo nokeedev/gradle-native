@@ -4,6 +4,7 @@ import dev.gradleplugins.fixtures.sources.NativeSourceElement;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter;
 import dev.nokee.platform.jni.fixtures.elements.CppGreeterJniBinding;
@@ -83,6 +84,7 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		private final String resourcePath;
 
 		@Override
+		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/Greeter.kt")
 		public SourceFile getSourceFile() {
 			return source;
 		}
@@ -111,6 +113,7 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		private final SourceFile source;
 
 		@Override
+		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/NativeLoader.kt")
 		public SourceFile getSourceFile() {
 			return source;
 		}
@@ -124,6 +127,7 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		private final SourceFile source;
 
 		@Override
+		@SourceFileLocation(file = "kotlin-jni-greeter/src/test/kotlin/com/example/greeter/GreeterTest.kt")
 		public SourceFile getSourceFile() {
 			return source;
 		}

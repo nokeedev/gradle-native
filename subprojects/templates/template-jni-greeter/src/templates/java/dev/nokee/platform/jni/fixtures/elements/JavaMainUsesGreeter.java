@@ -2,6 +2,7 @@ package dev.nokee.platform.jni.fixtures.elements;
 
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
 
 import static dev.gradleplugins.fixtures.sources.java.JavaPackage.ofPackage;
@@ -10,6 +11,7 @@ public final class JavaMainUsesGreeter extends SourceFileElement implements Gree
 	private final SourceFile source;
 
 	@Override
+	@SourceFileLocation(file = "java-jni-app/src/main/java/com/example/app/Main.java")
 	public SourceFile getSourceFile() {
 		return source;
 	}
