@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
@@ -21,7 +22,17 @@ public final class JavaNativeGreeter extends SourceFileElement {
 		@SourceFileProperty(regex = "^package (com\\.example\\.greeter);$", name = "package"),
 		@SourceFileProperty(regex = "\"(\\$\\{resourcePath\\}\\$\\{sharedLibraryBaseName\\})\"", name = "libName")
 	})
-	interface Content {}
+	static class Content extends RegularFileContent {
+		public Content withPackage(JavaPackage javaPackage) {
+			properties.put("package", javaPackage.getName());
+			return this;
+		}
+
+		public Content withLibName(String s) {
+			properties.put("libName", s);
+			return this;
+		}
+	}
 
 	public JavaNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName) {
 		this(javaPackage, sharedLibraryBaseName, "");
@@ -31,10 +42,7 @@ public final class JavaNativeGreeter extends SourceFileElement {
 		this.javaPackage = javaPackage;
 		this.sharedLibraryBaseName = sharedLibraryBaseName;
 		this.resourcePath = resourcePath;
-		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Greeter.java", fromResource(Content.class, it -> {
-			it.put("package", javaPackage.getName());
-			it.put("libName", resourcePath + sharedLibraryBaseName);
-		}));
+		source = new Content().withPackage(javaPackage).withLibName(resourcePath + sharedLibraryBaseName).withPath("java/" + javaPackage.getDirectoryLayout() + "/Greeter.java").getSourceFile();
 	}
 
 	public JavaNativeGreeter withSharedLibraryBaseName(String sharedLibraryBaseName) {

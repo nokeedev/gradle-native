@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
@@ -19,11 +20,16 @@ public final class JavaMainUsesGreeter extends SourceFileElement implements Gree
 	@SourceFileLocation(file = "java-jni-app/src/main/java/com/example/app/Main.java", properties = {
 		@SourceFileProperty(regex = "^package (com\\.example\\.app);$", name = "package")
 	})
-	interface Content {}
+	static class Content extends RegularFileContent {
+		public Content withPackage(JavaPackage javaPackage) {
+			properties.put("package", javaPackage.getName());
+			return this;
+		}
+	}
 
     public JavaMainUsesGreeter() {
 		JavaPackage javaPackage = ofPackage("com.example.app");
-		this.source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Main.java", fromResource(Content.class, it -> it.put("package", javaPackage.getName())));
+		this.source = new Content().withPackage(javaPackage).withPath("java/" + javaPackage.getDirectoryLayout() + "/Main.java").getSourceFile();
 	}
 
 	@Override

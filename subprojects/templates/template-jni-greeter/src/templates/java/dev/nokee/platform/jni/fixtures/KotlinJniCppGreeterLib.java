@@ -1,6 +1,7 @@
 package dev.nokee.platform.jni.fixtures;
 
 import dev.gradleplugins.fixtures.sources.NativeSourceElement;
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
@@ -126,13 +127,18 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		}
 
 		public KotlinNativeLoader(JavaPackage javaPackage) {
-			source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "NativeLoader.kt", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
+			source = new Content().withPackage(javaPackage).withPath("kotlin/" + javaPackage.getDirectoryLayout() + "/NativeLoader.kt").getSourceFile();
 		}
 
 		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/NativeLoader.kt", properties = {
 			@SourceFileProperty(regex = "^package (com\\.example\\.greeter)$", name = "package"),
 		})
-		interface Content {}
+		static class Content extends RegularFileContent {
+			public Content withPackage(JavaPackage javaPackage) {
+				properties.put("package", javaPackage.getName());
+				return this;
+			}
+		}
 	}
 
 	private static class KotlinGreeterJUnitTest extends SourceFileElement {
@@ -149,12 +155,17 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		}
 
 		public KotlinGreeterJUnitTest(JavaPackage javaPackage) {
-			this.source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "GreeterTest.kt", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
+			this.source = new Content().withPackage(javaPackage).withPath("kotlin/" + javaPackage.getDirectoryLayout() + "/GreeterTest.kt").getSourceFile();
 		}
 
 		@SourceFileLocation(file = "kotlin-jni-greeter/src/test/kotlin/com/example/greeter/GreeterTest.kt", properties = {
 			@SourceFileProperty(regex = "^package (com\\.example\\.greeter)$", name = "package"),
 		})
-		interface Content {}
+		static class Content extends RegularFileContent {
+			public Content withPackage(JavaPackage javaPackage) {
+				properties.put("package", javaPackage.getName());
+				return this;
+			}
+		}
 	}
 }

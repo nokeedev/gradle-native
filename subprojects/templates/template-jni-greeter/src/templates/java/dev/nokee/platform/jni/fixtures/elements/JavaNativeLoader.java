@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
@@ -19,13 +20,18 @@ public final class JavaNativeLoader extends SourceFileElement {
 	@SourceFileLocation(file = "java-jni-greeter/src/main/java/com/example/greeter/NativeLoader.java", properties = {
 		@SourceFileProperty(regex = "^package (com\\.example\\.greeter);$", name = "package")
 	})
-	interface Content {}
+	static class Content extends RegularFileContent {
+		public Content withPackage(JavaPackage javaPackage) {
+			properties.put("package", javaPackage.getName());
+			return this;
+		}
+	}
 
 	public JavaNativeLoader() {
 		this(ofPackage("com.example.greeter"));
 	}
 
 	public JavaNativeLoader(JavaPackage javaPackage) {
-		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "NativeLoader.java", fromResource(Content.class, it -> it.put("package", javaPackage.getName())));
+		source = new Content().withPackage(javaPackage).withPath("java/" + javaPackage.getDirectoryLayout() + "/NativeLoader.java").getSourceFile();
 	}
 }
