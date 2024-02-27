@@ -4,6 +4,7 @@ import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileProperty;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
 import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest;
 import dev.nokee.platform.jni.fixtures.elements.JavaNativeLoader;
@@ -60,7 +61,10 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 			return source;
 		}
 
-		@SourceFileLocation(file = "jni-objc-cocoa/src/main/java/com/example/cocoa/NSSavePanel.java")
+		@SourceFileLocation(file = "jni-objc-cocoa/src/main/java/com/example/cocoa/NSSavePanel.java", properties = {
+			@SourceFileProperty(regex = "^package (com\\.example\\.cocoa);$", name = "package"),
+			@SourceFileProperty(regex = "\"(\\$\\{resourcePath\\}\\$\\{sharedLibraryBaseName\\})\"", name = "libName")
+		})
 		interface Content {}
 
 		public JavaNativeNSSavePanel(JavaPackage javaPackage, String sharedLibraryBaseName) {
@@ -71,7 +75,10 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 			this.javaPackage = javaPackage;
 			this.sharedLibraryBaseName = sharedLibraryBaseName;
 			this.resourcePath = resourcePath;
-			source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "NSSavePanel.java", fromResource(Content.class).replace("package " + ofPackage("com.example.cocoa").getName(), "package " + javaPackage.getName()).replace("${resourcePath}${sharedLibraryBaseName}", resourcePath + sharedLibraryBaseName));
+			source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "NSSavePanel.java", fromResource(Content.class, it -> {
+				it.put("package", javaPackage.getName());
+				it.put("libName", resourcePath + sharedLibraryBaseName);
+			}));
 		}
 
 		public JavaNativeNSSavePanel withSharedLibraryBaseName(String sharedLibraryBaseName) {
@@ -95,7 +102,10 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 			return source;
 		}
 
-		@SourceFileLocation(file = "jni-objc-cocoa/src/main/objc/ns_save_panel.m")
+		@SourceFileLocation(file = "jni-objc-cocoa/src/main/objc/ns_save_panel.m", properties = {
+			@SourceFileProperty(regex = "\\s+(Java_com_example_cocoa_NSSavePanel_saveDialog)\\(", name = "methodName"),
+			@SourceFileProperty(regex = "^#include\\s+\"(com_example_cocoa_NSSavePanel\\.h)\"$", name = "jniHeader")
+		})
 		interface Content {}
 	}
 }
