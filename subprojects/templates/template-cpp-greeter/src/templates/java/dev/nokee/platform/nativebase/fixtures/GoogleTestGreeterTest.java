@@ -16,6 +16,7 @@
 
 package dev.nokee.platform.nativebase.fixtures;
 
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
@@ -28,9 +29,9 @@ public final class GoogleTestGreeterTest extends SourceFileElement {
 
 	@Override
 	public SourceFile getSourceFile() {
-		return sourceFile("cpp", "greeter_test.cpp", fromResource(Source.class));
+		return new Source().withPath("cpp/greeter_test.cpp").getSourceFile();
 	}
 
 	@SourceFileLocation(file = "google-test-greeter-test/src/main/cpp/greeter_test.cpp")
-	interface Source {}
+	static class Source extends RegularFileContent {}
 }

@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.fixtures.elements;
 
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
@@ -19,13 +20,19 @@ public final class JavaGreeter extends SourceFileElement {
 	@SourceFileLocation(file = "java-greeter/src/main/java/com/example/greeter/Greeter.java", properties = {
 		@SourceFileProperty(regex = "^package\\s+(com.example.greeter);$", name = "package")
 	})
-	interface Source {}
+	static class Source extends RegularFileContent {
+		public Source withPackage(JavaPackage javaPackage) {
+			properties.put("package", javaPackage.getName());
+			return this;
+		}
+	}
 
 	public JavaGreeter() {
 		this(ofPackage("com.example.greeter"));
 	}
 
 	public JavaGreeter(JavaPackage javaPackage) {
-		source = sourceFile("java/" + javaPackage.getDirectoryLayout(), "Greeter.java", fromResource(Source.class, it -> it.put("package", javaPackage.getName())));
+		source = new Source().withPackage(javaPackage)
+			.withPath("java/" + javaPackage.getDirectoryLayout() + "/Greeter.java").getSourceFile();
 	}
 }

@@ -16,6 +16,7 @@
 
 package dev.nokee.platform.nativebase.fixtures;
 
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
@@ -23,9 +24,9 @@ import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 public final class CppCompileGreeter extends SourceFileElement {
 	@Override
 	public SourceFile getSourceFile() {
-		return sourceFile("cpp", "greeter.cpp", fromResource(Source.class));
+		return new Source().withPath("cpp/greeter.cpp").getSourceFile();
 	}
 
 	@SourceFileLocation(file = "cpp-compile-greeter/src/main/cpp/greeter.cpp")
-	interface Source {}
+	static class Source extends RegularFileContent {}
 }

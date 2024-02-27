@@ -1,5 +1,6 @@
 package dev.nokee.platform.jni.fixtures;
 
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
@@ -89,25 +90,25 @@ public final class JavaJniObjectiveCGreeterLib extends GreeterImplementationAwar
 
 		@Override
 		public SourceFile getSourceFile() {
-			return sourceFile("objc", "greeter.m", fromResource(Source.class, it -> {
-				it.put("jniHeader", javaPackage.jniHeader("Greeter"));
-				it.put("methodName", javaPackage.jniMethodName("Greeter", "sayHello"));
-			}));
+			return new Source().withPath("objc/greeter.m").getSourceFile();
 		}
 
 		@SourceFileLocation(file = "jni-objc-greeter/src/main/objc/greeter.m", properties = {
 			@SourceFileProperty(regex = "^#include\\s+\"(com_example_greeter_Greeter.h)\"$", name = "jniHeader"),
 			@SourceFileProperty(regex = "\\s+(Java_com_example_greeter_Greeter_sayHello)\\(", name = "methodName")
 		})
-		interface Source {}
+		static class Source extends RegularFileContent {
+			public Source withPackage(JavaPackage javaPackage) {
+				properties.put("jniHeader", javaPackage.jniHeader("Greeter"));
+				properties.put("methodName", javaPackage.jniMethodName("Greeter", "sayHello"));
+				return this;
+			}
+		}
 
 		@Override
 		public SourceFile getJniGeneratedHeaderFile() {
-			return sourceFile("headers", javaPackage.jniHeader("Greeter"), fromResource(GreeterJniHeader.class, it -> {
-				it.put("headerGuard", javaPackage.getName().replace(".", "_"));
-				it.put("className", javaPackage.getName().replace(".", "_"));
-				it.put("methodName", javaPackage.jniMethodName("Greeter", "sayHello"));
-			}));
+			return new GreeterJniHeader().withPackage(javaPackage)
+				.withPath("headers/" + javaPackage.jniHeader("Greeter")).getSourceFile();
 		}
 	}
 }

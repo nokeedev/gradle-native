@@ -1,5 +1,6 @@
 package dev.nokee.platform.nativebase.fixtures;
 
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
@@ -29,10 +30,10 @@ public final class ObjectiveCppGreeterApp extends GreeterImplementationAwareSour
 	private static class ObjectiveCppMainUsesGreeter extends SourceFileElement {
 		@Override
 		public SourceFile getSourceFile() {
-			return sourceFile("objcpp", "main.mm", fromResource(Source.class));
+			return new Source().withPath("objcpp/main.mm").getSourceFile();
 		}
 
 		@SourceFileLocation(file = "objcpp-greeter-app/src/main/objcpp/main.mm")
-		interface Source {}
+		static class Source extends RegularFileContent {}
 	}
 }

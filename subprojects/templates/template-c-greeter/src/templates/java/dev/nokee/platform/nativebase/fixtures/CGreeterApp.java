@@ -1,5 +1,6 @@
 package dev.nokee.platform.nativebase.fixtures;
 
+import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
@@ -13,7 +14,7 @@ import static dev.gradleplugins.fixtures.sources.NativeElements.subproject;
 public final class CGreeterApp extends GreeterImplementationAwareSourceElement {
 	@Override
 	public SourceElement getElementUsingGreeter() {
-		return new CMainUsesGreeter();
+		return new CMainUsesGreeter().withPath("c/main.c");
 	}
 
 	@Override
@@ -29,13 +30,6 @@ public final class CGreeterApp extends GreeterImplementationAwareSourceElement {
 		return ofElements(getElementUsingGreeter(), getGreeter(), new CGreeterTest());
 	}
 
-	private static class CMainUsesGreeter extends SourceFileElement {
-		@Override
-		public SourceFile getSourceFile() {
-			return sourceFile("c", "main.c", fromResource(Source.class));
-		}
-
-		@SourceFileLocation(file = "c-greeter-app/src/main/c/main.c")
-		interface Source {}
-	}
+	@SourceFileLocation(file = "c-greeter-app/src/main/c/main.c")
+	private static class CMainUsesGreeter extends RegularFileContent {}
 }
