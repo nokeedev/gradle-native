@@ -1,5 +1,10 @@
+pluginManagement {
+	includeBuild '../../gradle/plugins/template-plugins'
+}
+
 plugins {
 	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.8'
+	id 'nokeetemplates.source-element' apply false
 }
 
 includeBuild '../../gradle/plugins/template-plugins'
