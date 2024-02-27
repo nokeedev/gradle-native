@@ -3,24 +3,8 @@ version = '1.0'
 
 dependencies {
 	templatesApi 'dev.nokee.templates:template-greeter'
-	templatesImplementation('dev.nokee.templates:template-c-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
-	templatesImplementation('dev.nokee.templates:template-cpp-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
-	templatesImplementation('dev.nokee.templates:template-objc-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
-	templatesImplementation('dev.nokee.templates:template-objcpp-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
+	templatesImplementation templates('dev.nokee.templates:template-c-greeter:1.0')
+	templatesImplementation templates('dev.nokee.templates:template-cpp-greeter:1.0')
+	templatesImplementation templates('dev.nokee.templates:template-objc-greeter:1.0')
+	templatesImplementation templates('dev.nokee.templates:template-objcpp-greeter:1.0')
 }
