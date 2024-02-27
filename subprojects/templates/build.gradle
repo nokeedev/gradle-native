@@ -3,6 +3,7 @@ plugins {
 }
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
+import nokeebuild.TemplateDependencyModifier
 
 group = 'dev.nokee'
 version = '0.1'
@@ -19,36 +20,13 @@ repositories {
 }
 
 dependencies {
-	api('dev.nokee.templates:template-jni-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
-	api('dev.nokee.templates:template-c-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
-	api('dev.nokee.templates:template-cpp-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
-	api('dev.nokee.templates:template-objc-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
-	api('dev.nokee.templates:template-objcpp-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
-	api('dev.nokee.templates:template-swift-greeter:1.0') { dependency ->
-		dependency.capabilities {
-			it.requireCapability("${dependency.group}:${dependency.name}-templates:${dependency.version}")
-		}
-	}
+	def templates = TemplateDependencyModifier.forProject(project)
+	api templates('dev.nokee.templates:template-jni-greeter:1.0')
+	api templates('dev.nokee.templates:template-c-greeter:1.0')
+	api templates('dev.nokee.templates:template-cpp-greeter:1.0')
+	api templates('dev.nokee.templates:template-objc-greeter:1.0')
+	api templates('dev.nokee.templates:template-objcpp-greeter:1.0')
+	api templates('dev.nokee.templates:template-swift-greeter:1.0')
 }
 
 // Configure source-elements capability
