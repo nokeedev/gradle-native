@@ -3,6 +3,7 @@ package dev.nokee.platform.jni.fixtures;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileProperty;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 import dev.nokee.platform.jni.fixtures.elements.GreeterJniHeader;
@@ -88,15 +89,25 @@ public final class JavaJniObjectiveCGreeterLib extends GreeterImplementationAwar
 
 		@Override
 		public SourceFile getSourceFile() {
-			return sourceFile("objc", "greeter.m", fromResource(Source.class).replace(ofPackage("com.example.greeter").jniHeader("Greeter"), javaPackage.jniHeader("Greeter")).replace(ofPackage("com.example.greeter").jniMethodName("Greeter", "sayHello"), javaPackage.jniMethodName("Greeter", "sayHello")));
+			return sourceFile("objc", "greeter.m", fromResource(Source.class, it -> {
+				it.put("jniHeader", javaPackage.jniHeader("Greeter"));
+				it.put("methodName", javaPackage.jniMethodName("Greeter", "sayHello"));
+			}));
 		}
 
-		@SourceFileLocation(file = "jni-objc-greeter/src/main/objc/greeter.m")
+		@SourceFileLocation(file = "jni-objc-greeter/src/main/objc/greeter.m", properties = {
+			@SourceFileProperty(regex = "^#include\\s+\"(com_example_greeter_Greeter.h)\"$", name = "jniHeader"),
+			@SourceFileProperty(regex = "\\s+(Java_com_example_greeter_Greeter_sayHello)\\(", name = "methodName")
+		})
 		interface Source {}
 
 		@Override
 		public SourceFile getJniGeneratedHeaderFile() {
-			return sourceFile("headers", javaPackage.jniHeader("Greeter"), fromResource(GreeterJniHeader.class).replace(ofPackage("com.example.greeter").jniMethodName("Greeter", "sayHello"), javaPackage.jniMethodName("Greeter", "sayHello")));
+			return sourceFile("headers", javaPackage.jniHeader("Greeter"), fromResource(GreeterJniHeader.class, it -> {
+				it.put("headerGuard", javaPackage.getName().replace(".", "_"));
+				it.put("className", javaPackage.getName().replace(".", "_"));
+				it.put("methodName", javaPackage.jniMethodName("Greeter", "sayHello"));
+			}));
 		}
 	}
 }

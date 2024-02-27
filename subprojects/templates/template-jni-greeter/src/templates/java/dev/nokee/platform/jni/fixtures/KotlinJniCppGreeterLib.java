@@ -5,6 +5,7 @@ import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
+import dev.gradleplugins.fixtures.sources.annotations.SourceFileProperty;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
 import dev.nokee.platform.jni.fixtures.elements.CppGreeter;
 import dev.nokee.platform.jni.fixtures.elements.CppGreeterJniBinding;
@@ -87,7 +88,10 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 			return source;
 		}
 
-		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/Greeter.kt")
+		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/Greeter.kt", properties = {
+			@SourceFileProperty(regex = "^package (com\\.example\\.greeter)$", name = "package"),
+			@SourceFileProperty(regex = "\"(\\$\\{resourcePath\\}\\$\\{sharedLibraryBaseName\\})\"", name = "libName")
+		})
 		interface Content {}
 
 		public KotlinNativeGreeter(JavaPackage javaPackage, String sharedLibraryBaseName) {
@@ -98,7 +102,10 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 			this.javaPackage = javaPackage;
 			this.sharedLibraryBaseName = sharedLibraryBaseName;
 			this.resourcePath = resourcePath;
-			source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "Greeter.kt", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()).replace("${resourcePath}${sharedLibraryBaseName}", resourcePath + sharedLibraryBaseName));
+			source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "Greeter.kt", fromResource(Content.class, it -> {
+				it.put("package", javaPackage.getName());
+				it.put("libName", resourcePath + sharedLibraryBaseName);
+			}));
 		}
 
 		public KotlinNativeGreeter withSharedLibraryBaseName(String sharedLibraryBaseName) {
@@ -122,7 +129,9 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 			source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "NativeLoader.kt", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
 		}
 
-		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/NativeLoader.kt")
+		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/NativeLoader.kt", properties = {
+			@SourceFileProperty(regex = "^package (com\\.example\\.greeter)$", name = "package"),
+		})
 		interface Content {}
 	}
 
@@ -143,7 +152,9 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 			this.source = sourceFile("kotlin/" + javaPackage.getDirectoryLayout(), "GreeterTest.kt", fromResource(Content.class).replace("package " + ofPackage("com.example.greeter").getName(), "package " + javaPackage.getName()));
 		}
 
-		@SourceFileLocation(file = "kotlin-jni-greeter/src/test/kotlin/com/example/greeter/GreeterTest.kt")
+		@SourceFileLocation(file = "kotlin-jni-greeter/src/test/kotlin/com/example/greeter/GreeterTest.kt", properties = {
+			@SourceFileProperty(regex = "^package (com\\.example\\.greeter)$", name = "package"),
+		})
 		interface Content {}
 	}
 }

@@ -1,4 +1,4 @@
-#include "com_example_cocoa_NSSavePanel"
+#include "com_example_cocoa_NSSavePanel.h"
 
 #import "JavaNativeFoundation/JavaNativeFoundation.h"
 #import "AppKit/AppKit.h"
