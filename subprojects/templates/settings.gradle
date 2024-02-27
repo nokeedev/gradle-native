@@ -2,6 +2,8 @@ plugins {
 	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.8'
 }
 
+includeBuild '../../gradle/plugins/template-plugins'
+
 gradle.rootProject {
 	def properties = new Properties()
 	file('../../gradle.properties').withInputStream {
