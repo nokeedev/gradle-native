@@ -95,14 +95,3 @@ subproject('testing-base')
 subproject('testing-native')
 subproject('testing-xctest')
 subproject('xcode-ide-kit')
-
-ModuleDependency templates(Object notation) {
-	final ModuleDependency result = (ModuleDependency) buildscript.dependencies.create(notation)
-	result.capabilities { ModuleDependencyCapabilitiesHandler capabilities ->
-		capabilities.requireCapability("dev.nokee:${result.getName()}-templates:1.0")
-	}
-}
-
-gradle.allprojects {
-	project.ext.templates = this.&templates
-}
