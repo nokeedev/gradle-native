@@ -18,10 +18,9 @@ package dev.nokee.fixtures
 import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.file.TestFile
+import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 
-import static dev.gradleplugins.fixtures.sources.NativeLibraryElement.ofPrivateHeaders
-import static dev.gradleplugins.fixtures.sources.NativeLibraryElement.ofPublicHeaders
-import static dev.gradleplugins.fixtures.sources.NativeSourceElement.ofSources
+import static dev.gradleplugins.fixtures.sources.NativeElements.*
 
 abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 
@@ -68,7 +67,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 		expect:
 		succeeds ':assemble'
-		result.assertTasksExecuted(tasks.allToLifecycleAssemble, tasks(':library').allToLinkElements)
+		result.assertTasksExecuted(tasks.allToLifecycleAssemble, libraryTasks)
 	}
 
 	def "can generate sources"() {
@@ -218,7 +217,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 		expect:
 		succeeds(':assemble')
-		result.assertTasksExecuted(tasks.allToAssemble, tasks(':library').allToLinkElements, ':library:generateSources')
+		result.assertTasksExecuted(tasks.allToAssemble, libraryTasks, ':library:generateSources')
 	}
 
 	protected String getComponentUnderTestDsl() {
@@ -232,9 +231,9 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		componentUnderTest.files.each {
 			projectDir.file("src/main/${it.path}/${it.name}") << "broken!"
 		}
-		ofSources(component).writeToSourceDir(projectDir.file('srcs'))
-		ofPublicHeaders(component).writeToSourceDir(projectDir.file('includes'))
-		ofPrivateHeaders(component).writeToSourceDir(projectDir.file('headers'))
+		component.get(sources()).writeToSourceDir(projectDir.file('srcs'))
+		component.get(publicHeaders()).writeToSourceDir(projectDir.file('includes'))
+		component.get(privateHeaders()).writeToSourceDir(projectDir.file('headers'))
 	}
 
 	protected void writeBrokenSourcesAtConventionalLayout() {
@@ -247,7 +246,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		file("src/main/swift/broken.swift") << "broken!"
 	}
 
-	protected abstract SourceElement getComponentUnderTest()
+	protected abstract GreeterImplementationAwareSourceElement getComponentUnderTest()
 
 	protected abstract void makeSingleProject()
 
@@ -338,7 +337,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				sourceSets.main.kotlin.srcDir('srcs')
 			}
 
-			${dsl}.${languageName}Sources.setFrom(files(${ofSources(componentUnderTest).files.collect { "'srcs/${it.name}'" }.join(',')}).asFileTree.matching { exclude('**/*.java', '**/*.groovy', '**/*.kt') })
+			${dsl}.${languageName}Sources.setFrom(files(${componentUnderTest.get(sources()).files.collect { "'srcs/${it.name}'" }.join(',')}).asFileTree.matching { exclude('**/*.java', '**/*.groovy', '**/*.kt') })
 		"""
 
 		if (hasPrivateHeaders) {
@@ -354,5 +353,9 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		}
 
 		return result
+	}
+
+	protected List<String> getLibraryTasks() {
+		return tasks(':library').allToLinkElements
 	}
 }

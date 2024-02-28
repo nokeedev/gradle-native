@@ -19,17 +19,16 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
+import dev.nokee.language.cpp.internal.CppSourceSetSpec;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -47,7 +46,8 @@ class CppSourceSetCompileTaskIntegrationTest extends AbstractPluginTest implemen
 	}
 
 	CppCompileTask createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("gali", CppSourceSetSpec.class)).element("compile", CppCompileTask.class).get();
+		return sources(project).register("gali", CppSourceSetSpec.class)
+			.flatMap(CppSourceSetSpec::getCompileTask).get();
 	}
 
 	@BeforeEach

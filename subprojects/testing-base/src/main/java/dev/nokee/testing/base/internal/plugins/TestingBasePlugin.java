@@ -15,58 +15,93 @@
  */
 package dev.nokee.testing.base.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ModelSpecs;
-import dev.nokee.model.internal.core.NodeRegistrationFactories;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.TypeOf;
-import dev.nokee.platform.base.internal.ViewAdapter;
-import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelMap;
+import dev.nokee.model.internal.ModelMapFactory;
+import dev.nokee.model.internal.ModelObject;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
+import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.model.internal.plugins.ModelBasePlugin;
+import dev.nokee.platform.base.internal.RunnableComponentSpec;
 import dev.nokee.testing.base.TestSuiteComponent;
-import dev.nokee.testing.base.TestSuiteContainer;
-import dev.nokee.testing.base.internal.TestSuiteContainerAdapter;
-import lombok.val;
+import dev.nokee.testing.base.internal.CheckableComponentSpec;
+import dev.nokee.testing.base.internal.HasTestSuiteLifecycleTask;
+import dev.nokee.testing.base.internal.TestSuiteComponentSpec;
+import dev.nokee.testing.base.internal.rules.TestableComponentCapabilityRule;
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.reflect.TypeOf;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
-import static dev.nokee.model.internal.type.ModelType.of;
+import java.util.Collections;
+import java.util.concurrent.Callable;
+
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.tasks;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
+import static dev.nokee.utils.ProviderUtils.ifPresent;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
+import static dev.nokee.utils.TaskUtils.configureVerificationGroup;
+import static dev.nokee.utils.TransformerUtils.to;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public class TestingBasePlugin implements Plugin<Project> {
+	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent>> TEST_SUITE_COMPONENT_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent>>() {};
+
+	public static ModelMap<TestSuiteComponent> testSuites(Project project) {
+		return testSuites(project);
+	}
+
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply(ComponentModelBasePlugin.class);
+		project.getPluginManager().apply(ModelBasePlugin.class);
 
-		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
-		val modelLookup = project.getExtensions().getByType(ModelLookup.class);
+		{
+			final ExtensiblePolymorphicDomainObjectContainer<TestSuiteComponent> container = project.getObjects().polymorphicDomainObjectContainer(TestSuiteComponent.class);
+			project.getExtensions().add(TEST_SUITE_COMPONENT_CONTAINER_TYPE, "testSuites", container);
+			model(project).getExtensions().add("testSuites", model(project).getExtensions().getByType(ModelMapFactory.class).create(TestSuiteComponent.class, container));
+		}
 
-		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
-		val testSuites = modeRegistry.register(ModelRegistration.builder()
-			.withComponent(new ElementNameComponent("testSuites"))
-			.withComponent(new ParentComponent(modelLookup.get(ModelPath.root())))
-			.mergeFrom(elementsPropertyFactory.newProperty()
-				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()))
-				.elementType(of(TestSuiteComponent.class))
-				.build())
-			.withComponent(createdUsing(of(TestSuiteContainer.class), () -> new TestSuiteContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<TestSuiteComponent>>() {})), modeRegistry)))
-			.withComponent(ofInstance(new NodeRegistrationFactories()))
-			.build()
-		);
-		project.getExtensions().add(TestSuiteContainer.class, "testSuites", testSuites.as(TestSuiteContainer.class).get());
+		new TestableComponentCapabilityRule().execute(project);
 
-		project.afterEvaluate(proj -> {
-			// Force realize all test suite... until we solve the differing problem.
-			project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withType(of(TestSuiteComponent.class)))).forEach(ModelStates::realize);
+		// Register test suite's variant lifecycle task
+		variants(project).whenElementKnown(HasTestSuiteLifecycleTask.class, identity -> {
+			final String testSuiteName = identity.getIdentifier().getName().toString();
+			final TaskName lifecycleTaskName = testSuiteName.isEmpty() ? TaskName.lifecycle() : TaskName.of(testSuiteName);
+			final ModelObjectIdentifier lifecycleTaskIdentifier = identity.getIdentifier().getParent().child(lifecycleTaskName);
+			final ModelObject<Task> lifecycleTask = model(project, registryOf(Task.class)).register(lifecycleTaskIdentifier, Task.class);
+			lifecycleTask.configure(configureVerificationGroup());
+			lifecycleTask.configure(task -> task.setDescription(String.format("Runs the test suite ':%s'.", task.getName())));
+			lifecycleTask.configure(configureDependsOn((Callable<?>) () -> {
+				return identity.asProvider().map(to(RunnableComponentSpec.class)).flatMap(it -> it.getRunTask()).map(Collections::singletonList).orElse(Collections.emptyList());
+			}));
 		});
+
+		// Attach test suite's lifecycle tasks to check task
+		testSuites(project).whenElementFinalized(TestSuiteComponentSpec.class, testSuite -> {
+			ifPresent(testSuite.getTestedComponent().map(to(CheckableComponentSpec.class)), component -> {
+				component.checkedBy(new Callable<Object>() {
+					@Override
+					public Object call() throws Exception {
+						return model(project, objects()).get(HasTestSuiteLifecycleTask.class, it -> ModelObjectIdentifiers.descendantOf(it.getIdentifier(), testSuite.getIdentifier()))
+							.map(transformEach(element -> tasks(project).getById(lifecycleTaskOf(element)).asProvider()))
+							.flatMap(toProviderOfIterable(project.getObjects()::listProperty))
+							.orElse(Collections.emptyList());
+					}
+
+					private /*static*/ ModelObjectIdentifier lifecycleTaskOf(ModelElement element) {
+						return element.getIdentifier().child(TaskName.lifecycle());
+					}
+				});
+			});
+		});
+
+		testSuites(project).whenElementFinalized(testSuite -> testSuite.getTestedComponent().disallowChanges());
 	}
 }

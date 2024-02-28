@@ -16,24 +16,20 @@
 package dev.nokee.platform.nativebase.internal.archiving;
 
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
-import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelMap;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.internal.BuildVariantComponent;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
-import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
-import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
-import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
 import org.gradle.nativeplatform.platform.NativePlatform;
-import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import java.util.function.BiConsumer;
 
@@ -41,16 +37,24 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class ConfigureCreateTaskTargetPlatformFromBuildVariantRule extends ModelActionWithInputs.ModelAction2<BuildVariantComponent, NativeArchiveTask> {
-	private final ModelRegistry registry;
+final class ConfigureCreateTaskTargetPlatformFromBuildVariantRule implements Action<Variant> {
+	private final ModelMap<Task> tasks;
 
-	public ConfigureCreateTaskTargetPlatformFromBuildVariantRule(ModelRegistry registry) {
-		this.registry = registry;
+	public ConfigureCreateTaskTargetPlatformFromBuildVariantRule(ModelMap<Task> tasks) {
+		this.tasks = tasks;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BuildVariantComponent buildVariant, NativeArchiveTask createTask) {
-		registry.instantiate(ModelAction.configure(createTask.get().getId(), CreateStaticLibrary.class, configureTargetPlatform(set(fromBuildVariant(buildVariant.get())).andThen(lockProperty()))));
+	public void execute(Variant variant) {
+		ModelElementSupport.safeAsModelElement(variant).map(ModelElement::getIdentifier).ifPresent(variantIdentifier -> {
+			tasks.configureEach(CreateStaticLibraryTask.class, task -> {
+				ModelElementSupport.safeAsModelElement(task).map(ModelElement::getIdentifier).ifPresent(taskIdentifier -> {
+					if (ModelObjectIdentifiers.descendantOf(taskIdentifier, variantIdentifier)) {
+						configureTargetPlatform(set(fromBuildVariant(variant.getBuildVariant())).andThen(lockProperty())).execute(task);
+					}
+				});
+			});
+		});
 	}
 
 	//region Target platform

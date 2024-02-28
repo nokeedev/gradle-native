@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayName;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -25,13 +24,13 @@ import java.util.Objects;
 
 public final class DependencyBucketDescription {
 	private final DisplayName displayName;
-	@Nullable private final DomainObjectIdentifier forOwner;
+	@Nullable private final String forOwner;
 
 	public DependencyBucketDescription(DisplayName displayName) {
 		this(displayName, null);
 	}
 
-	private DependencyBucketDescription(DisplayName displayName, @Nullable DomainObjectIdentifier forOwner) {
+	private DependencyBucketDescription(DisplayName displayName, @Nullable String forOwner) {
 		this.displayName = displayName;
 		this.forOwner = forOwner;
 	}
@@ -40,8 +39,8 @@ public final class DependencyBucketDescription {
 		return new DependencyBucketDescription(Objects.requireNonNull(displayName));
 	}
 
-	public DependencyBucketDescription forOwner(DomainObjectIdentifier identifier) {
-		return new DependencyBucketDescription(displayName, Objects.requireNonNull(identifier));
+	public DependencyBucketDescription forOwner(String ownerDisplayName) {
+		return new DependencyBucketDescription(displayName, Objects.requireNonNull(ownerDisplayName));
 	}
 
 	public String toString() {

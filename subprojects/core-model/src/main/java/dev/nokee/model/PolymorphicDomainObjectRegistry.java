@@ -17,21 +17,9 @@ package dev.nokee.model;
 
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.provider.Provider;
 
 public interface PolymorphicDomainObjectRegistry<T> {
-	/**
-	 * Creates a registry for the specified container.
-	 *
-	 * @param container  a named domain object container, must not be null
-	 * @param <T>  the type of objects to register
-	 * @return a registry adapter for the specified container, never null
-	 */
-	static <T> PolymorphicDomainObjectRegistry<T> of(PolymorphicDomainObjectContainer<T> container) {
-		return PolymorphicDomainObjectContainerRegistryAdapter.newRegistry(container);
-	}
-
 	/**
 	 * Defines a new object, which will be created when it is required.
 	 * An object is 'required' when the object is located using query methods or when {@link Provider#get()} is called on the return value of this method.

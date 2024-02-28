@@ -17,7 +17,6 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.testers.DependencyBucketTester;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.junit.jupiter.api.Nested;
@@ -53,11 +52,6 @@ public abstract class JavaNativeInterfaceNativeComponentDependenciesIntegrationT
 			subject().nativeImplementation(notation, action);
 		}
 
-		@Override
-		public void addDependency(JavaNativeInterfaceNativeComponentDependencies self, Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-			subject().nativeImplementation(notation, closure);
-		}
-
 		@Test
 		void hasConfigurationWithProperName() {
 			assertThat(subject().getNativeImplementation().getAsConfiguration(), named(variantName() + "NativeImplementation"));
@@ -86,11 +80,6 @@ public abstract class JavaNativeInterfaceNativeComponentDependenciesIntegrationT
 			subject().nativeLinkOnly(notation, action);
 		}
 
-		@Override
-		public void addDependency(JavaNativeInterfaceNativeComponentDependencies self, Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-			subject().nativeLinkOnly(notation, closure);
-		}
-
 		@Test
 		void hasConfigurationWithProperName() {
 			assertThat(subject().getNativeLinkOnly().getAsConfiguration(), named(variantName() + "NativeLinkOnly"));
@@ -117,11 +106,6 @@ public abstract class JavaNativeInterfaceNativeComponentDependenciesIntegrationT
 		@Override
 		public void addDependency(JavaNativeInterfaceNativeComponentDependencies self, Object notation, Action<? super ModuleDependency> action) {
 			subject().nativeRuntimeOnly(notation, action);
-		}
-
-		@Override
-		public void addDependency(JavaNativeInterfaceNativeComponentDependencies self, Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-			subject().nativeRuntimeOnly(notation, closure);
 		}
 
 		@Test

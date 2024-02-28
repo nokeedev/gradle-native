@@ -1,0 +1,12 @@
+plugins {
+	id 'java'
+	id 'dev.nokee.jni-library'
+	id 'dev.nokee.c-language'
+}
+
+library {
+	cSources.from '../jni-c-greeter/src/main/c'
+//	dependencies {
+//		nativeImplementation 'dev.nokee.templates:c-greeter'
+//	}
+}

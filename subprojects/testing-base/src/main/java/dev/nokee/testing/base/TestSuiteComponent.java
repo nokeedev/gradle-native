@@ -16,8 +16,11 @@
 package dev.nokee.testing.base;
 
 import dev.nokee.platform.base.Component;
+import org.gradle.api.Named;
+import org.gradle.api.provider.Property;
 
-// FIXME: Don't extends from Component
-public interface TestSuiteComponent extends Component {
+public interface TestSuiteComponent extends Named {
+	Property<Component> getTestedComponent();
+
 	TestSuiteComponent testedComponent(Object component);
 }

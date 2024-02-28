@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.base.internal
 
+
+import dev.nokee.model.internal.ModelObjectIdentifier
 import dev.nokee.model.internal.ProjectIdentifier
 import spock.lang.Specification
 import spock.lang.Subject
@@ -27,15 +29,15 @@ class BaseNameUtilsTest extends Specification {
 		return ProjectIdentifier.of(name)
 	}
 
-	private static ComponentIdentifier componentId(ProjectIdentifier owner) {
+	private static ModelObjectIdentifier componentId(ProjectIdentifier owner) {
 		return ComponentIdentifier.ofMain(owner)
 	}
 
-	private static ComponentIdentifier componentId(String name, ProjectIdentifier owner) {
-		return ComponentIdentifier.of(ComponentName.of(name), owner)
+	private static ModelObjectIdentifier componentId(String name, ProjectIdentifier owner) {
+		return ComponentIdentifier.of(name, owner)
 	}
 
-	private static VariantIdentifier variantId(String name, ComponentIdentifier owner) {
+	private static VariantIdentifier variantId(String name, ModelObjectIdentifier owner) {
 		return VariantIdentifier.of(name, owner)
 	}
 

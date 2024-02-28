@@ -17,18 +17,16 @@ package dev.nokee.ide.visualstudio.internal.plugins;
 
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectExtension;
 import dev.nokee.ide.visualstudio.internal.rules.CreateNativeComponentVisualStudioIdeProject;
-import dev.nokee.model.internal.ModelElementFactory;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 
 public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 	@Override
@@ -42,11 +40,8 @@ public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 		return new Action<ComponentModelBasePlugin>() {
 			@Override
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
-				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 				val action = new CreateNativeComponentVisualStudioIdeProject(extension, project.getLayout(), project.getObjects(), project.getProviders());
-				modelConfigurer.configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(ModelElementFactory.class), (entity, tag, factory) -> {
-					action.execute(factory.createElement(entity));
-				})));
+				components(project).whenElementKnown(action);
 			}
 		};
 	}

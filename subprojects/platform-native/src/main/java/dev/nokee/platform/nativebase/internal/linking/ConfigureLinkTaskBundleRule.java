@@ -15,35 +15,24 @@
  */
 package dev.nokee.platform.nativebase.internal.linking;
 
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
-import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import org.gradle.api.Action;
 
 import java.util.function.BiConsumer;
 
-import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static java.util.Arrays.asList;
 
-final class ConfigureLinkTaskBundleRule extends ModelActionWithInputs.ModelAction2<NativeLinkTask, ModelProjection> {
-	private final ModelRegistry registry;
-
-	public ConfigureLinkTaskBundleRule(ModelRegistry registry) {
-		super(ModelComponentReference.of(NativeLinkTask.class), ModelComponentReference.ofProjection(BundleBinary.class));
-		this.registry = registry;
-	}
-
+final class ConfigureLinkTaskBundleRule implements Action<Artifact> {
 	@Override
-	protected void execute(ModelNode entity, NativeLinkTask linkTask, ModelProjection tag) {
-		registry.instantiate(configure(linkTask.get().getId(), LinkBundleTask.class, configureLinkerArgs(addAll(asList("-Xlinker", "bundle")))));
+	public void execute(Artifact target) {
+		if (target instanceof BundleBinary) {
+			((BundleBinary) target).getLinkTask().configure(configureLinkerArgs(addAll(asList("-Xlinker", "bundle"))));
+		}
 	}
 
 	//region Linker args

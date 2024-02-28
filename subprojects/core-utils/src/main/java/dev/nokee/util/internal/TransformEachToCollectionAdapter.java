@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 @EqualsAndHashCode
-public final class TransformEachToCollectionAdapter<OutputType extends Collection<OutputElementType>, OutputElementType, InputElementType> implements Transformer<OutputType, Iterable<InputElementType>>, Serializable {
+public final class TransformEachToCollectionAdapter<OutputType extends Collection<OutputElementType>, OutputElementType, InputElementType> implements Transformer<OutputType, Iterable<? extends InputElementType>>, Serializable {
 	private final CollectionBuilderFactory<OutputElementType> collectionFactory;
 	private final Transformer<? extends OutputElementType, ? super InputElementType> mapper;
 
@@ -33,7 +33,7 @@ public final class TransformEachToCollectionAdapter<OutputType extends Collectio
 	}
 
 	@Override
-	public OutputType transform(Iterable<InputElementType> elements) {
+	public OutputType transform(Iterable<? extends InputElementType> elements) {
 		CollectionBuilder<OutputElementType> builder = collectionFactory.create();
 		for (InputElementType element : elements) {
 			builder.add(mapper.transform(element));

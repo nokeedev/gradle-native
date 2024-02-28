@@ -29,5 +29,5 @@ public interface HasCreateTask {
 	 *
 	 * @return a provider of {@link CreateStaticLibrary} task, never null.
 	 */
-	TaskProvider<CreateStaticLibrary> getCreateTask();
+	TaskProvider<? extends CreateStaticLibrary> getCreateTask();
 }

@@ -27,7 +27,7 @@ import java.util.Set;
 
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
-enum ToBinariesCompileTasksTransformer implements Transformer<Provider<Set<? extends SourceCompile>>, Variant> {
+public enum ToBinariesCompileTasksTransformer implements Transformer<Provider<Set<? extends SourceCompile>>, Variant> {
 	TO_DEVELOPMENT_BINARY_COMPILE_TASKS;
 
 	@Override

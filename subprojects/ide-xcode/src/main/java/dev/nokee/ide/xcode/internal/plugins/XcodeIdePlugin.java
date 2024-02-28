@@ -20,16 +20,9 @@ import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.XcodeIdeRequest;
 import dev.nokee.ide.xcode.internal.rules.CreateNativeComponentXcodeIdeProject;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
-import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
@@ -45,6 +38,10 @@ import org.gradle.api.file.FileCollection;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 
 public abstract class XcodeIdePlugin implements Plugin<Project> {
 
@@ -119,11 +116,8 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 		return new Action<ComponentModelBasePlugin>() {
 			@Override
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
-				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
-				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project), project.getExtensions().getByType(ModelLookup.class));
-				modelConfigurer.configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(ModelElementFactory.class), (entity, tag, factory) -> {
-					action.execute(factory.createElement(entity));
-				})));
+				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project));
+				components(project).whenElementKnown(action);
 			}
 		};
 	}

@@ -15,109 +15,84 @@
  */
 package dev.nokee.language.base.internal.plugins;
 
-import com.google.common.collect.MoreCollectors;
+import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.HasConfigurableSourceMixInRule;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.SourceSetFactory;
-import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
-import dev.nokee.model.internal.core.DisplayNameComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.language.base.internal.LanguagePropertiesAware;
+import dev.nokee.language.base.internal.LanguageSourcePropertySpec;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.base.internal.PropertySpec;
+import dev.nokee.language.base.internal.SourceProperty;
+import dev.nokee.language.base.internal.SourcePropertyAware;
+import dev.nokee.language.base.internal.rules.RegisterLanguageImplementationRule;
+import dev.nokee.language.base.internal.rules.RegisterSourcePropertyAsGradleExtensionRule;
+import dev.nokee.language.base.internal.rules.RegisterSourcePropertyBasedOnLanguageImplementationRule;
+import dev.nokee.language.base.internal.rules.SourcePropertiesExtendsFromParentRule;
+import dev.nokee.language.base.internal.rules.UseConventionalLayoutRule;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelMap;
+import dev.nokee.model.internal.ModelMapFactory;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
-import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
-import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
-import lombok.val;
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.reflect.TypeOf;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
+import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.ModelElementAction.withElement;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
 
 public class LanguageBasePlugin implements Plugin<Project> {
+	private static final TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>> LANGUAGE_SOURCE_SET_CONTAINER_TYPE = new TypeOf<ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet>>() {};
+
+	public static ModelMap<LanguageSourceSet> sources(Project project) {
+		return model(project, mapOf(LanguageSourceSet.class));
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 
+		{
+			final ExtensiblePolymorphicDomainObjectContainer<LanguageSourceSet> container = project.getObjects().polymorphicDomainObjectContainer(LanguageSourceSet.class);
+			project.getExtensions().add(LANGUAGE_SOURCE_SET_CONTAINER_TYPE, "sources", container);
+			model(project).getExtensions().add("sources", model(project).getExtensions().getByType(ModelMapFactory.class).create(LanguageSourceSet.class, container));
+		}
+
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 
-		project.getExtensions().add("__nokee_sourceSetFactory", new SourceSetFactory(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
+		final Factory<View<LanguageSourceSet>> sourcesFactory = () -> {
+			final ModelObjectIdentifier identifier = ModelElementSupport.nextIdentifier();
+			return instantiator(project).newInstance(ViewAdapter.class, LanguageSourceSet.class, new ModelNodeBackedViewStrategy(model(project, mapOf(LanguageSourceSet.class)), identifier));
+		};
+		model(project).getExtensions().add(new TypeOf<Factory<View<LanguageSourceSet>>>() {}, "__nokee_sourcesFactory", sourcesFactory);
 
-		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
+		model(project, objects()).configureEach(ofType(LanguagePropertiesAware.class, new RegisterSourcePropertyAsGradleExtensionRule()));
+		model(project, objects()).configureEach(ofType(LanguageSupportSpec.class, new RegisterSourcePropertyBasedOnLanguageImplementationRule()));
+		model(project, objects()).configureEach(ofType(LanguagePropertiesAware.class, new SourcePropertiesExtendsFromParentRule()));
+		model(project, objects()).configureEach(ofType(LanguageSupportSpec.class, new RegisterLanguageImplementationRule(instantiator(project))));
 
-		// ComponentFromEntity<DisplayNameComponent> read-only self
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsLanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, ignored2) -> {
-			if (!entity.has(DisplayNameComponent.class)) {
-				entity.addComponent(new DisplayNameComponent("sources"));
-			}
-		}));
-
-		// ComponentFromEntity<ParentComponent> read-only self
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsLanguageSourceSet.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {
-			val parentIdentifier = entity.find(ParentComponent.class).map(parent -> parent.get().get(IdentifierComponent.class).get()).orElse(null);
-			entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedSourceAwareComponentMixIn<? extends ComponentSources, ? extends ComponentSources>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			Class<ComponentSources> type = (Class<ComponentSources>) sourcesType((ModelType<SourceAwareComponent<? extends ComponentSources>>)projection.getType());
-			registry.register(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("sources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(LanguageSourceSet.class)).build())
-				.withComponent(createdUsing(of(type), () -> {
-					try {
-						for (Constructor<?> constructor : type.getConstructors()) {
-							if (constructor.getParameterTypes().length == 1) {
-								if (constructor.getParameterTypes()[0].equals(View.class)) {
-									return ((Constructor<ComponentSources>) constructor).newInstance(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends LanguageSourceSet>>() {})));
-								} else if (constructor.getParameterTypes()[0].equals(ViewAdapter.class)) {
-									return ((Constructor<ComponentSources>) constructor).newInstance(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends LanguageSourceSet>>() {})));
-								}
-							}
-						}
-						throw new UnsupportedOperationException();
-					} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-						throw new RuntimeException(e);
-					}
-				}))
-				.build());
+		model(project).getExtensions().add("$properties", model(project).getExtensions().getByType(ModelMapFactory.class).create(PropertySpec.class, project.getObjects().polymorphicDomainObjectContainer(PropertySpec.class)));
+		model(project, factoryRegistryOf(PropertySpec.class)).registerFactory(SourceProperty.class);
+		model(project, mapOf(PropertySpec.class)).configureEach(LanguageSourcePropertySpec.class, new UseConventionalLayoutRule());
+		model(project, mapOf(LanguageSourceSet.class)).configureEach(ofType(SourcePropertyAware.class, withElement((element, sourceSet, source) -> {
+			source.getSource().from((Callable<?>) () -> {
+				return element.getParents().flatMap(it -> it.safeAs(ExtensionAware.class).map(t -> t.getExtensions().findByName(element.getIdentifier().getName().toString() + "Sources")).map(Stream::of).getOrElse(Stream.empty())).findFirst().map(it -> (Iterable<?>) it).orElse(Collections.emptyList());
+			});
 		})));
 	}
-
-	@SuppressWarnings("unchecked")
-	private static Class<? extends ComponentSources> sourcesType(ModelType<? extends SourceAwareComponent<? extends ComponentSources>> type) {
-		val t = type.getInterfaces().stream().filter(it -> it.getRawType().equals(ModelBackedSourceAwareComponentMixIn.class)).map(it -> (ModelType<ComponentSources>) it).collect(MoreCollectors.onlyElement());
-		val tt = ((ParameterizedType) t.getType()).getActualTypeArguments()[1];
-		if (tt instanceof ParameterizedType) {
-			return (Class<? extends ComponentSources>) ((ParameterizedType) tt).getRawType();
-		} else {
-			return (Class<? extends ComponentSources>) tt;
-		}
-	}
-
 }

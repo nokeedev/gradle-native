@@ -61,7 +61,18 @@ class JniLibraryNativeProjectDependenciesFunctionalTest extends AbstractJniLibra
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').allToLinkElements
+		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').allToRuntimeElements
+	}
+
+	@Override
+	protected List<String> getAllTasksToLinkLibrary() {
+		def libraryBuildFile = file(libraryProjectName, buildFileName)
+		if (libraryBuildFile.text.contains('[linkages.shared]')) {
+			return super.getAllTasksToLinkLibrary() + [tasks(":${libraryProjectName}").syncRuntimeElements]
+		} else if (libraryBuildFile.text.contains('[linkages.static, linkages.shared]')) {
+			return super.getAllTasksToLinkLibrary() + [tasks(":${libraryProjectName}").withLinkage("shared").syncRuntimeElements]
+		}
+		return super.getAllTasksToLinkLibrary()
 	}
 }
 
@@ -146,7 +157,18 @@ class JniLibraryNativeIncludedDependenciesFunctionalTest extends AbstractJniLibr
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').allToLinkElements
+		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').allToRuntimeElements
+	}
+
+	@Override
+	protected List<String> getAllTasksToLinkLibrary() {
+		def libraryBuildFile = file(libraryProjectName, buildFileName)
+		if (libraryBuildFile.text.contains('[linkages.shared]')) {
+			return super.getAllTasksToLinkLibrary() + [tasks(":${libraryProjectName}").syncRuntimeElements]
+		} else if (libraryBuildFile.text.contains('[linkages.static, linkages.shared]')) {
+			return super.getAllTasksToLinkLibrary() + [tasks(":${libraryProjectName}").withLinkage("shared").syncRuntimeElements]
+		}
+		return super.getAllTasksToLinkLibrary()
 	}
 }
 

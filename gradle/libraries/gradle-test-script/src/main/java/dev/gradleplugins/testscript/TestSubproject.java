@@ -16,6 +16,7 @@
 package dev.gradleplugins.testscript;
 
 import dev.gradleplugins.buildscript.blocks.ProjectBlock;
+import dev.gradleplugins.buildscript.io.GradleBuildFile;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -24,13 +25,12 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 public final class TestSubproject implements HasBuildFile {
-	private final ProjectBlock.Builder buildBuilder = ProjectBlock.builder();
-	private final Path projectDirectory;
+	private final GradleBuildFile buildFile;
 	private final TestGradleBuild parent;
 
 	private TestSubproject(TestGradleBuild parent, Path projectDirectory) {
-		this.projectDirectory = projectDirectory;
 		this.parent = parent;
+		this.buildFile = GradleBuildFile.inDirectory(projectDirectory);
 	}
 
 	static TestSubproject newInstance(TestGradleBuild parent, Path projectDirectory) {
@@ -47,17 +47,12 @@ public final class TestSubproject implements HasBuildFile {
 	}
 
 	@Override
-	public void buildFile(Consumer<? super ProjectBlock.Builder> action) {
-		action.accept(buildBuilder);
-		try {
-			buildBuilder.build().writeTo(projectDirectory.resolve("build.gradle"));
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+	public void buildFile(Consumer<? super ProjectBlock> action) {
+		buildFile.configure(action);
 	}
 
 	@Override
-	public BuildScriptFile getBuildFile() {
-		throw new UnsupportedOperationException("Not yet implemented");
+	public GradleBuildFile getBuildFile() {
+		return buildFile;
 	}
 }

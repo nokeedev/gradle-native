@@ -16,8 +16,10 @@
 package dev.nokee.language.cpp;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
+import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.HasHeaders;
+import dev.nokee.language.nativebase.NativeSourceSet;
+import org.gradle.api.tasks.TaskProvider;
 
 /**
  * A set of C++ source files.
@@ -25,4 +27,7 @@ import dev.nokee.language.nativebase.HasHeaders;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface CppSourceSet extends SelfAwareLanguageSourceSet<CppSourceSet> {}
+public interface CppSourceSet extends NativeSourceSet, HasHeaders {
+	@Override
+	TaskProvider<? extends CppCompile> getCompileTask();
+}

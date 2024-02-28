@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.base.testers;
 
-import dev.nokee.language.base.internal.HasCompileTask;
+import dev.nokee.language.base.HasCompileTask;
 import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 

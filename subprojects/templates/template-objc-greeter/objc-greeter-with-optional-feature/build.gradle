@@ -1,0 +1,9 @@
+plugins {
+	id 'dev.nokee.objective-c-library'
+}
+
+library {
+	dependencies {
+		implementation project(':objc-greeter')
+	}
+}

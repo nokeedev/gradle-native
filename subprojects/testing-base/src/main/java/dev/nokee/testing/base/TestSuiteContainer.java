@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 package dev.nokee.testing.base;
 
 import dev.nokee.platform.base.View;
-import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 
-public interface TestSuiteContainer extends View<TestSuiteComponent> {
-	<U extends TestSuiteComponent> NamedDomainObjectProvider<U> register(String name, Class<U> type);
-	<U extends TestSuiteComponent> NamedDomainObjectProvider<U> register(String name, Class<U> type, Action<? super U> action);
-
-	NamedDomainObjectProvider<TestSuiteComponent> named(String name);
+public interface TestSuiteContainer extends ComponentTestSuites, View<TestSuiteComponent> {
+	<T extends TestSuiteComponent> NamedDomainObjectProvider<T> register(String name, Class<T> type);
 }

@@ -16,7 +16,6 @@
 package dev.nokee.language.jvm;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 
@@ -26,6 +25,6 @@ import org.gradle.api.tasks.compile.JavaCompile;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface JavaSourceSet extends SelfAwareLanguageSourceSet<JavaSourceSet> {
+public interface JavaSourceSet extends LanguageSourceSet {
 	TaskProvider<JavaCompile> getCompileTask();
 }

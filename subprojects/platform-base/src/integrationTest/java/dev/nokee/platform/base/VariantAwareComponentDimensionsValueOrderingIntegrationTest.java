@@ -15,24 +15,24 @@
  */
 package dev.nokee.platform.base;
 
+import dev.nokee.internal.Factory;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelProjections;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DefaultVariantDimensions;
+import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantViewFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import lombok.Value;
 import org.gradle.api.Named;
 import org.gradle.api.Project;
+import org.gradle.api.reflect.TypeOf;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.ComponentIdentifier.ofMain;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -46,9 +46,17 @@ class VariantAwareComponentDimensionsValueOrderingIntegrationTest {
 	@BeforeEach
 	void applyPlugins() {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(ofMain(ProjectIdentifier.of(project))))
-			.withComponent(ModelProjections.managed(of(MyComponent.class))).build()).as(MyComponent.class).get();
+		subject = ModelElementSupport.newInstance(new ModelElement() {
+			@Override
+			public ModelObjectIdentifier getIdentifier() {
+				return ProjectIdentifier.of(project).child("foo");
+			}
+
+			@Override
+			public String getName() {
+				return "foo";
+			}
+		}, () -> project.getObjects().newInstance(MyComponent.class, project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(new TypeOf<Factory<DefaultVariantDimensions>>() {})));
 		subject.getDimensions().newAxis(OSFamily.class).value(asList(new OSFamily("windows"), new OSFamily("macOS"), new OSFamily("linux")));
 		subject.getDimensions().newAxis(MyAxis.class, it -> it.onlyIf(OSFamily.class, (a, b) -> !a.isPresent() || b.isWindows())).value(asList(new MyAxis("first"), new MyAxis("second")));
 	}
@@ -61,7 +69,12 @@ class VariantAwareComponentDimensionsValueOrderingIntegrationTest {
 			hasToString("macOS"), hasToString("linux"))));
 	}
 
-	public interface MyComponent extends ModelBackedVariantAwareComponentMixIn<Variant> {}
+	public static abstract class MyComponent extends ModelElementSupport implements VariantAwareComponentMixIn<Variant> {
+		public MyComponent(VariantViewFactory variantsFactory, Factory<DefaultVariantDimensions> dimensionsFactory) {
+			getExtensions().add("variants", variantsFactory.create(Variant.class));
+			getExtensions().add("dimensions", dimensionsFactory.create());
+		}
+	}
 	@Value
 	private static class OSFamily implements Named {
 		String name;

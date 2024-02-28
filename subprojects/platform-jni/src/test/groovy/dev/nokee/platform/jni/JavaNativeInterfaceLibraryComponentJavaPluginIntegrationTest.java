@@ -20,24 +20,15 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.testers.SourceTester;
-import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
-import dev.nokee.language.jvm.HasJavaSourceSet;
+import dev.nokee.language.c.internal.CSourceSetSpec;
+import dev.nokee.language.cpp.internal.CppSourceSetSpec;
 import dev.nokee.language.jvm.JavaSourceSet;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetSpec;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import groovy.lang.Closure;
 import lombok.val;
-import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
@@ -55,6 +46,7 @@ import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -70,10 +62,7 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 
 	@BeforeEach
 	void createSubject() {
-		val identifier = ComponentIdentifier.of("qezu", ProjectIdentifier.ofRootProject());
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		this.subject = registry.register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
+		this.subject = components(project).register("qezu", JniLibraryComponentInternal.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.host()));
 	}
 
@@ -118,29 +107,6 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 		void usesComponentBaseNameAsJarArchiveBaseName() {
 			subject.getBaseName().set("hexu");
 			assertThat(subject().getJarTask().flatMap(Jar::getArchiveBaseName), providerOf("hexu"));
-		}
-	}
-
-	@Nested
-	class JavaComponentSourcesTest implements SourceTester<HasJavaSourceSet, JavaSourceSet> {
-		@Override
-		public HasJavaSourceSet subject() {
-			return subject.getSources();
-		}
-
-		@Override
-		public NamedDomainObjectProvider<? extends LanguageSourceSet> get(HasJavaSourceSet self) {
-			return self.getJava();
-		}
-
-		@Override
-		public void configure(HasJavaSourceSet self, Action<? super JavaSourceSet> action) {
-			self.java(action);
-		}
-
-		@Override
-		public void configure(HasJavaSourceSet self, @SuppressWarnings("rawtypes") Closure closure) {
-			self.java(closure);
 		}
 	}
 

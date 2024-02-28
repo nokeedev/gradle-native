@@ -15,52 +15,42 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.language.swift.internal.plugins.HasSwiftSourcesMixIn;
-import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
+import dev.nokee.language.base.internal.SourceComponentSpec;
+import dev.nokee.language.swift.internal.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
+import dev.nokee.language.swift.internal.SwiftSourcesMixIn;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentMixIn;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.HasDevelopmentVariant;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
+import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
+import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.SwiftIosApplication;
-import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
-import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.utils.TextCaseUtils;
-import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
+import javax.inject.Inject;
+
+import static dev.nokee.model.internal.names.ElementName.ofMain;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
 public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -75,14 +65,16 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
-		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication("main", project)).as(SwiftIosApplication.class);
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultSwiftIosApplication.class);
+
+		final NamedDomainObjectProvider<DefaultSwiftIosApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultSwiftIosApplication.class).asProvider();
 		componentProvider.configure(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))));
-		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, (t, projection) -> projection.getGroupId().set(GroupId.of(project::getGroup))));
+		componentProvider.configure(it -> {
+//			assert it instanceof DefaultIosApplicationComponent;
+//			((DefaultIosApplicationComponent) it).getGroupId().set(GroupId.of(project::getGroup));
+			throw new UnsupportedOperationException("fix me");
+		});
 		project.getExtensions().add(SwiftIosApplication.class, EXTENSION_NAME, componentProvider.get());
-
-		// Other configurations
-		project.afterEvaluate(finalizeModelNodeOf(componentProvider));
-
 
 		// TODO: This should be solve in a better way
 		project.getTasks().withType(CreateIosApplicationBundleTask.class).configureEach(task -> {
@@ -90,37 +82,30 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		});
 	}
 
-	public static ModelRegistration swiftIosApplication(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Swift iOS application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new IosApplicationComponentModelRegistrationFactory(DefaultSwiftIosApplication.class, project).create(identifier).withComponentTag(SupportSwiftSourceSetTag.class).build();
-	}
-
-	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication, ModelNodeAware
-		, ComponentMixIn
+	public static /*final*/ abstract class DefaultSwiftIosApplication extends ModelElementSupport implements SwiftIosApplication
+		, NativeComponentSpec
 		, ExtensionAwareMixIn
-		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
-		, ModelBackedVariantAwareComponentMixIn<IosApplication>
-		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-		, ModelBackedBinaryAwareComponentMixIn
-		, ModelBackedTaskAwareComponentMixIn
-		, ModelBackedHasBaseNameMixIn
-		, HasAssembleTaskMixIn
-		, ModelBackedTargetMachineAwareComponentMixIn
-		, ModelBackedTargetLinkageAwareComponentMixIn
-		, ModelBackedTargetBuildTypeAwareComponentMixIn
-		, HasDevelopmentVariantMixIn<IosApplication>
-		, HasSwiftSourcesMixIn
+		, DependentComponentSpec<NativeComponentDependencies>
+		, VariantAwareComponentMixIn<IosApplication>
+		, SourceComponentSpec
+		, BinaryAwareComponentMixIn
+		, TaskAwareComponentMixIn
+		, AssembleTaskMixIn
+		, HasDevelopmentVariant<IosApplication>
+		, SwiftSourcesMixIn
 	{
-		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-
-		@Override
-		public ModelNode getNode() {
-			return entity;
+		@Inject
+		public DefaultSwiftIosApplication() {
+			getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
 		}
 
 		@Override
-		public String toString() {
-			return "Swift iOS application '" + getName() + "'";
+		@NestedObject
+		public abstract DefaultNativeComponentDependencies getDependencies();
+
+		@Override
+		protected String getTypeName() {
+			return "Swift iOS application";
 		}
 	}
 }

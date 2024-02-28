@@ -15,27 +15,23 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.platform.base.internal.IsDependencyBucket;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.discover.Discover;
 import org.gradle.api.file.FileCollection;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag({IsDependencyBucket.class, ResolvableDependencyBucketTag.class, ConfigurableTag.class})
-public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucket, ModelNodeAware
+@Discover(DependencyBucketConfigurationDiscovery.class)
+public /*final*/ abstract class ResolvableDependencyBucketSpec extends ModelElementSupport implements ResolvableDependencyBucket
 	, DependencyBucketMixIn
 {
-	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final IncomingArtifacts incoming;
 
 	@Inject
-	public ResolvableDependencyBucketSpec() {
-		this.incoming = ModelNodeUtils.get(entity, IncomingArtifacts.class);
+	public ResolvableDependencyBucketSpec(ConfigurationFactory configurations) {
+		getExtensions().add("$configuration", configurations.newResolvable(getIdentifier()));
+
+		this.incoming = new IncomingArtifacts(getAsConfiguration());
 	}
 
 	@Override
@@ -49,12 +45,7 @@ public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucke
 	}
 
 	@Override
-	public ModelNode getNode() {
-		return entity;
-	}
-
-	@Override
-	public String toString() {
-		return "resolvable dependency bucket '" + getName() + "'";
+	protected String getTypeName() {
+		return "resolvable dependency bucket";
 	}
 }

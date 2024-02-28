@@ -15,66 +15,59 @@
  */
 package dev.nokee.testing.xctest.internal;
 
-import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.VariantMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
+import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
-import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
-import org.gradle.api.provider.Property;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ class DefaultXCTestTestSuiteVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
-	, VariantMixIn
-	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
-	, ModelBackedBinaryAwareComponentMixIn
-	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedNamedMixIn
-	, HasDevelopmentBinaryMixIn
-	, HasAssembleTaskMixIn
+public /*final*/ abstract class DefaultXCTestTestSuiteVariant extends BaseVariant implements IosApplication, VariantInternal
+	, NativeVariantSpec
+	, NativeSourcesAware
+	, DependentComponentSpec<NativeComponentDependencies>
+	, BinaryAwareComponentMixIn
+	, TaskAwareComponentMixIn
+	, AssembleTaskMixIn
+	, HasRuntimeElementsDependencyBucket
 {
-	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-
 	@Inject
-	public DefaultXCTestTestSuiteVariant() {
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
+	public DefaultXCTestTestSuiteVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry) {
+		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
+		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 	}
 
 	@Override
-	public NativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
-	}
+	@NestedObject
+	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	@Override
-	public Property<Binary> getDevelopmentBinary() {
-		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
+	public ConsumableDependencyBucketSpec getRuntimeElements() {
+		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
 	}
 
-	@Override
 	@SuppressWarnings("unchecked")
-	public BinaryView<Binary> getBinaries() {
-		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
+	public TaskProvider<Task> getObjectsTask() {
+		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
 
 	@Override
-	public ModelNode getNode() {
-		return node;
+	protected String getTypeName() {
+		return "XCTest test suite";
 	}
 }

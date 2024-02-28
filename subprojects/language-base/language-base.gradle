@@ -25,14 +25,12 @@ gradlePlugin {
 
 	dependencies {
 		api project(':platformBase')
-		compileOnly project(':gradleAnnotation')
+		compileOnly 'dev.gradleplugins:gradle-backport-annotation-ignore-empty-directories'
 		api project(':coreModel')
 		implementation project(':coreUtils')
 		implementation project(':coreScript')
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-		implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
-		annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
 	}
 }
 

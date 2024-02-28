@@ -18,15 +18,10 @@ package dev.nokee.platform.jni;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
-import lombok.val;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +34,9 @@ import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentIntegrationTest.realize;
+import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
@@ -53,13 +50,11 @@ class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest e
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val componentIdentifier = ComponentIdentifier.of("veda", ProjectIdentifier.of(project));
-		subject = registry.register(factory.create(componentIdentifier))
-			.as(JavaNativeInterfaceLibrary.class)
-			.configure(it -> it.getTargetMachines().set(ImmutableSet.of(it.getMachines().getWindows().architecture("x64"), it.getMachines().getLinux().getX86())))
-			.map(it -> it.getVariants().get().iterator().next())
+		subject = components(project).register("veda", JniLibraryComponentInternal.class)
+			.map(it -> {
+				it.getTargetMachines().set(ImmutableSet.of(it.getMachines().getWindows().architecture("x64"), it.getMachines().getLinux().getX86()));
+				return it.getVariants().get().iterator().next();
+			})
 			.get();
 	}
 
@@ -134,17 +129,17 @@ class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest e
 
 		@Test
 		void usesConventionalSourceLocation() {
-			assertThat(subject().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/veda/objectiveC")))));
+			assertThat(sourceDirectories(subject().getSource()), providerOf(hasItem(aFile(withAbsolutePath(endsWith("/src/veda/objectiveC"))))));
 		}
 
 		@Test
 		void usesLegacyConventionalSourceLocation() {
-			assertThat(subject().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/veda/objc")))));
+			assertThat(sourceDirectories(subject().getSource()), providerOf(hasItem(aFile(withAbsolutePath(endsWith("/src/veda/objc"))))));
 		}
 
 		@Test
 		void usesConventionalHeadersLocation() {
-			assertThat(((HasHeaders) subject()).getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/veda/headers")))));
+			assertThat(sourceDirectories(subject().getHeaders()), providerOf(hasItem(aFile(withAbsolutePath(endsWith("/src/veda/headers"))))));
 		}
 	}
 }

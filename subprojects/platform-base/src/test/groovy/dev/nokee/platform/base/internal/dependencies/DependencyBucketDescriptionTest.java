@@ -15,10 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayName;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.names.ElementName;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,7 +35,7 @@ class DependencyBucketDescriptionTest {
 
 	@Test
 	void fullSentenceWithOwner() {
-		assertThat(DependencyBucketDescription.of(DisplayName.of("implementation dependencies")).forOwner(new DefaultDomainObjectIdentifier(ElementName.of("lkel"), null, DisplayName.of("binary"), ModelPath.path("lkel"))),
+		assertThat(DependencyBucketDescription.of(DisplayName.of("implementation dependencies")).forOwner("binary ':lkel'"),
 			hasToString("Implementation dependencies for binary ':lkel'."));
 	}
 }

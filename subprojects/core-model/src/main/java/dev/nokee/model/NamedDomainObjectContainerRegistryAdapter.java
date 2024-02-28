@@ -15,13 +15,14 @@
  */
 package dev.nokee.model;
 
+import dev.nokee.model.internal.SupportedType;
 import dev.nokee.utils.NamedDomainObjectCollectionUtils;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectProvider;
 
 import java.util.Objects;
 
-import static dev.nokee.model.SupportedTypes.instanceOf;
+import static dev.nokee.model.internal.SupportedTypes.instanceOf;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.getElementType;
 
 final class NamedDomainObjectContainerRegistryAdapter<T> implements NamedDomainObjectRegistry<T> {

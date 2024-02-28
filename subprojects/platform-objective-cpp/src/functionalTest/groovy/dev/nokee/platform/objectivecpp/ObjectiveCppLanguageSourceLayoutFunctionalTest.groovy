@@ -20,6 +20,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.fixtures.AbstractNativeLanguageSourceLayoutFunctionalTest
 import dev.nokee.language.objectivecpp.ObjectiveCppTaskNames
+import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterApp
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterLib
 import spock.lang.Requires
@@ -29,7 +30,7 @@ import spock.util.environment.OperatingSystem
 @Requires({!OperatingSystem.current.windows})
 class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements ObjectiveCppTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new ObjectiveCppGreeterApp()
 	}
 
@@ -83,7 +84,7 @@ class ObjectiveCppApplicationNativeLanguageSourceLayoutFunctionalTest extends Ab
 @Requires({!OperatingSystem.current.windows})
 class ObjectiveCppLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements ObjectiveCppTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new ObjectiveCppGreeterLib()
 	}
 

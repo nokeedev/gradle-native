@@ -15,51 +15,19 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ExternalModuleDependency;
-import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.artifacts.ProjectDependency;
 
 /**
  * Represents something that carries a runtime only dependency bucket represented by a {@link Configuration}.
+ * A runtime only dependency is visible to consumers that are running against this component.
  *
  * @since 0.5
  */
 public interface HasRuntimeOnlyDependencyBucket {
 	/**
-	 * Adds a runtime only dependency to this component.
-	 * An runtime only dependency is not visible to consumers that are running against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 */
-	default void runtimeOnly(Object notation) {
-		getRuntimeOnly().addDependency(notation);
-	}
-
-	/**
-	 * Adds a runtime only dependency to this component.
-	 * An runtime only dependency is visible only to consumers that are running against this component.
-	 *
-	 * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
-	 * @param action The action to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
-	 */
-	default void runtimeOnly(Object notation, Action<? super ModuleDependency> action) {
-		getRuntimeOnly().addDependency(notation, action);
-	}
-	default void runtimeOnly(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		runtimeOnly(notation, ConfigureUtils.configureUsing(closure));
-	}
-
-	/**
 	 * Returns the runtime only bucket of dependencies for this component.
 	 *
 	 * @return a {@link DependencyBucket} representing the runtime only bucket of dependencies, never null.
 	 */
-	DependencyBucket getRuntimeOnly();
+	DeclarableDependencyBucket getRuntimeOnly();
 }

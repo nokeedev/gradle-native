@@ -15,24 +15,23 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 
 final class IncomingArtifacts {
-	private final NamedDomainObjectProvider<Configuration> delegate;
+	private final Configuration delegate;
 
-	public IncomingArtifacts(NamedDomainObjectProvider<Configuration> delegate) {
+	public IncomingArtifacts(Configuration delegate) {
 		this.delegate = delegate;
 	}
 
 	public FileCollection get() {
-		return delegate.get().getIncoming().getFiles();
+		return delegate.getIncoming().getFiles();
 	}
 
 	public FileCollection getAsLenient() {
-		return delegate.get().getIncoming().artifactView(this::asLenient).getFiles();
+		return delegate.getIncoming().artifactView(this::asLenient).getFiles();
 	}
 
 	private void asLenient(ArtifactView.ViewConfiguration view) {

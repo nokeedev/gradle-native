@@ -18,9 +18,17 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.*;
-import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.View;
+import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
+import dev.nokee.platform.base.testers.TaskAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
+import dev.nokee.platform.nativebase.internal.NativeApplicationSpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -34,16 +42,16 @@ import java.io.File;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplication;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
 class NativeApplicationComponentTest  implements ComponentTester<NativeApplicationExtension>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeApplicationComponentDependencies>
-	, VariantAwareComponentTester<VariantView<NativeApplication>>
-	, BinaryAwareComponentTester<BinaryView<Binary>>
-	, TaskAwareComponentTester<TaskView<Task>>
+	, VariantAwareComponentTester<View<NativeApplication>>
+	, BinaryAwareComponentTester<View<Binary>>
+	, TaskAwareComponentTester<View<Task>>
 {
 	private NativeApplicationExtension subject;
 	@Getter @TempDir File testDirectory;
@@ -57,7 +65,7 @@ class NativeApplicationComponentTest  implements ComponentTester<NativeApplicati
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		val component = project.getExtensions().getByType(ModelRegistry.class).register(nativeApplication(componentName, project)).as(NativeApplicationExtension.class).get();
+		val component = components(project).register(componentName, NativeApplicationSpec.class).get();
 		return component;
 	}
 
@@ -74,7 +82,7 @@ class NativeApplicationComponentTest  implements ComponentTester<NativeApplicati
 
 	@Nested
 	class ComponentTasksTest {
-		public TaskView<Task> subject() {
+		public View<Task> subject() {
 			return subject.getTasks();
 		}
 

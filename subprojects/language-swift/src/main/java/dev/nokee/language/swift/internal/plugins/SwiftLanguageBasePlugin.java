@@ -15,49 +15,55 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.base.internal.SourcePropertyComponent;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
-import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
-import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
-import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
-import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
-import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import com.google.common.base.Preconditions;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.nativebase.internal.ConfigurationUtilsEx;
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.language.nativebase.internal.plugins.LanguageNativeBasePlugin;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
+import dev.nokee.language.swift.internal.rules.AttachImportModulesToCompileTaskRule;
+import dev.nokee.language.swift.internal.rules.ImportModulesConfigurationRegistrationAction;
+import dev.nokee.language.swift.internal.rules.SwiftCompileTaskDefaultConfigurationRule;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.core.ParentUtils;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
+import dev.nokee.model.internal.KnownModelObject;
+import dev.nokee.model.internal.KnownModelObjectTypeOf;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
+import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ElementExportingSpec;
+import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.scripts.DefaultImporter;
+import dev.nokee.utils.ConfigurationUtils;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.Usage;
+import org.gradle.api.tasks.Sync;
+import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
-import java.util.Collections;
-import java.util.concurrent.Callable;
+import java.util.Iterator;
 
-import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
-import static dev.nokee.model.internal.tags.ModelTags.typeOf;
-import static dev.nokee.utils.Optionals.stream;
-import static dev.nokee.utils.ProviderUtils.disallowChanges;
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
+import static dev.nokee.model.internal.ModelElementAction.withElement;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
+import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
+import static dev.nokee.utils.TransformerUtils.to;
 
 public class SwiftLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -65,81 +71,82 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(SwiftSourceSetSpec.class);
+
 		DefaultImporter.forProject(project).defaultImport(SwiftSourceSet.class);
 
-		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
-		//   but don't depend on this behaviour.
+		sources(project).configureEach(SwiftSourceSetSpec.class, sourceSet -> {
+			sourceSet.getImportModules().extendsFrom(sourceSet.getDependencies().getCompileOnly());
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new ImportModulesConfigurationRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachImportModulesToCompileTaskRule(project.getExtensions().getByType(ModelRegistry.class)));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new SwiftCompileTaskDefaultConfigurationRule(project.getExtensions().getByType(ModelRegistry.class)));
+		sources(project).configureEach(SwiftSourceSetSpec.class, new ImportModulesConfigurationRegistrationAction(project.getObjects()));
+		sources(project).configureEach(SwiftSourceSetSpec.class, new AttachImportModulesToCompileTaskRule());
+		sources(project).configureEach(SwiftSourceSetSpec.class, new SwiftCompileTaskDefaultConfigurationRule(project.getProviders()));
 
-		val registrationFactory = new DefaultSwiftSourceSetRegistrationFactory();
-		project.getExtensions().add("__nokee_defaultSwiftFactory", registrationFactory);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(SwiftSourceSetSpec.Tag.class), (entity, ignored) -> {
-			entity.addComponent(new NativeCompileTypeComponent(SwiftCompileTask.class));
+		project.getTasks().withType(SwiftCompileTask.class).configureEach(withElement((element, task) -> {
+			task.getModuleName().set(project.provider(() -> {
+				return element.getParents()
+					.filter(it -> it.instanceOf(HasBaseName.class))
+					.map(it -> it.safeAs(HasBaseName.class).flatMap(HasBaseName::getBaseName))
+					.findFirst()
+					.orElseGet(() -> project.provider(() -> null));
+			}).flatMap(it -> it).map(TextCaseUtils::toCamelCase));
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportSwiftSourceSetTag.class))).findFirst().ifPresent(ignored -> {
-				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(DefaultSwiftSourceSetRegistrationFactory.class).create(entity));
-				entity.addComponent(new SwiftSourceSetComponent(ModelNodes.of(sourceSet)));
+
+		sources(project).configureEach(SwiftSourceSetSpec.class, sourceSet -> {
+			sourceSet.getParents().filter(it -> it.getIdentifier() instanceof VariantIdentifier).findFirst().map(it -> (VariantIdentifier) it.getIdentifier()).ifPresent(variantIdentifier -> {
+				final Configuration importModules = sourceSet.getImportModules().getAsConfiguration();
+				ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) variantIdentifier.getBuildVariant(), project.getObjects()).execute(importModules);
+				ConfigurationUtilsEx.configureAsGradleDebugCompatible(importModules);
 			});
-		})));
+		});
 
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, swiftSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/swift");
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, swiftSources, parent) -> {
-			((ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(SwiftSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasSwiftSourcesMixIn.Tag.class), (entity, ignored) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
-				.withComponent(new ElementNameComponent("swiftSources"))
-				.withComponent(new ParentComponent(entity))
-				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
-				.build()));
-			entity.addComponent(new SwiftSourcesPropertyComponent(property));
-		})));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(SwiftSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
-			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				ModelStates.finalize(parent.get());
-				return ParentUtils.stream(parent).flatMap(it -> stream(it.find(SwiftSourcesComponent.class))).findFirst()
-					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
-			});
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
-			ModelStates.finalize(swiftSources.get());
-			val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
-			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
-			entity.addComponent(new SwiftSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
-		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, swiftSources, extensions) -> {
-			extensions.get().add(ConfigurableFileCollection.class, "swiftSources", (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get());
-		}));
+		model(project, objects()).whenElementKnown(ofType(new KnownModelObjectTypeOf<>(NativeSourcesAware.class), new Action<KnownModelObject<NativeSourcesAware>>() {
+			@Override
+			public void execute(KnownModelObject<NativeSourcesAware> component) {
+				if (component.getType().isSubtypeOf(ElementExportingSpec.class)) {
+					final String name = ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child(ElementName.of("importModuleElements"))).toString();
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
-			ParentUtils.stream(parent).filter(has(SupportSwiftSourceSetTag.class)).findFirst().ifPresent(__ -> {
-				entity.addComponentTag(SupportSwiftSourceSetTag.class);
-			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportSwiftSourceSetTag.class), (entity, ignored1, ignored2) -> {
-			entity.addComponentTag(HasSwiftSourcesMixIn.Tag.class);
-			entity.addComponentTag(HasPrivateHeadersMixIn.Tag.class);
-		}));
-	}
+					final Configuration apiElements = createIfAbsent(project.getConfigurations(), name);
+					apiElements.setCanBeResolved(false);
+					apiElements.setCanBeConsumed(true);
 
-	static final class DefaultSwiftSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
-		@Override
-		public ModelRegistration create(ModelNode owner) {
-			return DomainObjectEntities.newEntity("swift", SwiftSourceSetSpec.class, it -> it.ownedBy(owner).displayName("Swift sources"));
-		}
+					// FIXME: Not perfect but good enough for now
+					//    Spoiler: it doesn't account if the declarable bucket has prefix (like in JNI library)
+					//    Note: JNI library doesn't export any native elements
+					project.getConfigurations().matching(it -> {
+						return it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child(ElementName.of("api"))).toString()) || it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child(ElementName.of("compileOnlyApi"))).toString());
+					}).all(apiElements::extendsFrom);
+
+
+					ConfigurationUtils.<Configuration>configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))).execute(apiElements);
+					if (component.getIdentifier() instanceof VariantIdentifier) {
+						final VariantIdentifier variantIdentifier = (VariantIdentifier) component.getIdentifier();
+						ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) variantIdentifier.getBuildVariant(), project.getObjects()).execute(apiElements);
+					}
+					ConfigurationUtilsEx.configureAsGradleDebugCompatible(apiElements);
+
+					val syncTask = model(project, registryOf(Task.class)).register(component.getIdentifier().child(TaskName.of("sync", "importModule")), Sync.class);
+					syncTask.configure(task -> {
+						val exportedSwiftModule = project.provider(() -> {
+							return component.asProvider().map(to(BinaryAwareComponent.class)).map(it -> it.getBinaries().withType(NativeBinary.class).map(binary -> {
+								return binary.getCompileTasks().withType(SwiftCompileTask.class).map(SwiftCompile::getModuleFile);
+							}).flatMap(toProviderOfIterable(project.getObjects()::listProperty)).map(this::one));
+						}).flatMap(it -> it);
+						task.from(exportedSwiftModule, spec -> spec.rename(it -> TextCaseUtils.toCamelCase(component.asProvider().map(to(HasBaseName.class)).flatMap(HasBaseName::getBaseName).get()) + ".swiftmodule"));
+						task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
+					});
+					apiElements.getOutgoing().artifact(syncTask.asProvider().map(Sync::getDestinationDir));
+				}
+			}
+
+			private <T> T one(Iterable<T> c) {
+				Iterator<T> iterator = c.iterator();
+				Preconditions.checkArgument(iterator.hasNext(), "collection needs to have one element, was empty");
+				T result = iterator.next();
+				Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
+				return result;
+			}
+		}));
 	}
 }

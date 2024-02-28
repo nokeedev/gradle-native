@@ -28,8 +28,10 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
@@ -218,5 +220,14 @@ public final class TaskUtils {
 
 	private static boolean isJavaLambda(Object obj) {
 		return obj.getClass().getSimpleName().contains("$$Lambda$");
+	}
+
+	public static <T extends Task> Action<T> ifSelectedInTaskGraph(Runnable runnable) {
+		return task -> {
+			task.dependsOn((Callable<?>) () -> {
+				runnable.run();
+				return Collections.emptyList();
+			});
+		};
 	}
 }

@@ -15,18 +15,21 @@
  */
 package dev.nokee.platform.ios;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
-import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.TaskAwareComponent;
+import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 
-@SuppressWarnings("deprecation")
-public interface ObjectiveCIosApplication extends ObjectiveCIosApplicationExtension, Component
+public interface ObjectiveCIosApplication extends Component
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, VariantAwareComponent<IosApplication>
-	, SourceAwareComponent<SourceView<LanguageSourceSet>>
+	, SourceAwareComponent
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, HasObjectiveCSources

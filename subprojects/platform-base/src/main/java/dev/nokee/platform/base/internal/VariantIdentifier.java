@@ -18,6 +18,9 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
+import dev.nokee.model.internal.DefaultModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.core.Coordinate;
@@ -26,6 +29,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -35,32 +39,32 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class VariantIdentifier implements DomainObjectIdentifier, HasName {
+public final class VariantIdentifier implements ModelObjectIdentifier, HasName {
 	@Getter private final String unambiguousName;
-	@Getter private final ComponentIdentifier componentIdentifier;
+	@Getter private final DomainObjectIdentifier ownerIdentifier;
 	@Getter @EqualsAndHashCode.Exclude private final Dimensions ambiguousDimensions;
 	private final Dimensions dimensions;
 	@EqualsAndHashCode.Exclude private final BuildVariant buildVariant;
 	@EqualsAndHashCode.Exclude private final String fullName;
 
-	public VariantIdentifier(ComponentIdentifier componentIdentifier, DefaultBuildVariant buildVariant) {
-		this(buildVariant.getName(), componentIdentifier, buildVariant.getAmbiguousDimensions(), buildVariant.getAllDimensions(), buildVariant, buildVariant.getAllDimensions().getAsLowerCamelCase().get());
+	public VariantIdentifier(DomainObjectIdentifier ownerIdentifier, DefaultBuildVariant buildVariant) {
+		this(buildVariant.getName(), ownerIdentifier, buildVariant.getAmbiguousDimensions(), buildVariant.getAllDimensions(), buildVariant, buildVariant.getAllDimensions().getAsLowerCamelCase().get());
 	}
 
-	public VariantIdentifier(String unambiguousName, ComponentIdentifier componentIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
+	public VariantIdentifier(String unambiguousName, DomainObjectIdentifier ownerIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
 		this.unambiguousName = requireNonNull(unambiguousName);
-		this.componentIdentifier = requireNonNull(componentIdentifier);
+		this.ownerIdentifier = requireNonNull(ownerIdentifier);
 		this.ambiguousDimensions = ambiguousDimensions;
 		this.dimensions = requireNonNull(dimensions);
 		this.buildVariant = buildVariant;
 		this.fullName = fullName;
 	}
 
-	public static VariantIdentifier of(String unambiguousName, ComponentIdentifier identifier) {
+	public static VariantIdentifier of(String unambiguousName, DomainObjectIdentifier identifier) {
 		return new VariantIdentifier(unambiguousName, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
 	}
 
-	public static <T extends Variant> VariantIdentifier of(BuildVariant buildVariant, ComponentIdentifier identifier) {
+	public static <T extends Variant> VariantIdentifier of(BuildVariant buildVariant, DomainObjectIdentifier identifier) {
 		String unambiguousName = createUnambiguousName(buildVariant);
 		Dimensions ambiguousDimensions = Dimensions.of(createAmbiguousDimensionNames(buildVariant));
 		return new VariantIdentifier(unambiguousName, identifier, ambiguousDimensions, Dimensions.empty(), buildVariant, unambiguousName);
@@ -74,8 +78,13 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 		return ((BuildVariantInternal)buildVariant).getDimensions().stream().map(Coordinate::getValue).map(Named.class::cast).map(Named::getName).collect(Collectors.toList());
 	}
 
-	public String getName() {
-		return unambiguousName;
+	public ElementName getName() {
+		return ElementName.of(unambiguousName);
+	}
+
+	@Override
+	public ModelObjectIdentifier child(ElementName name) {
+		return new DefaultModelObjectIdentifier(name, this);
 	}
 
 	public String getFullName() {
@@ -89,7 +98,7 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 	@Override
 	public String toString() {
 		if (unambiguousName.isEmpty()) {
-			return componentIdentifier.getDisplayName() + " '" + toGradlePath(this) + "'";
+			return "default variant '" + toGradlePath(this) + "'";
 		}
 		return "variant '" + toGradlePath(this) + "'";
 	}
@@ -98,16 +107,22 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 		return new Builder<>();
 	}
 
+	@Nullable
+	@Override
+	public ModelObjectIdentifier getParent() {
+		return (ModelObjectIdentifier) ownerIdentifier;
+	}
+
 	@Override
 	public Iterator<Object> iterator() {
 		// TODO: Use identity instead of this
-		return ImmutableList.builder().addAll(componentIdentifier).add(this).build().iterator();
+		return ImmutableList.builder().addAll(ownerIdentifier).add(this).build().iterator();
 	}
 
 	public static class Builder<T extends Variant> {
 		private Dimensions allDimensions = Dimensions.empty();
 		private Dimensions dimensions = Dimensions.empty();
-		private ComponentIdentifier componentIdentifier = null;
+		private DomainObjectIdentifier ownerIdentifier = null;
 		private BuildVariantInternal buildVariant = null;
 
 		@Deprecated // used in tests
@@ -131,20 +146,20 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 			return this;
 		}
 
-		public Builder<T> withComponentIdentifier(ComponentIdentifier componentIdentifier) {
-			this.componentIdentifier = componentIdentifier;
+		public Builder<T> withComponentIdentifier(ModelObjectIdentifier componentIdentifier) {
+			this.ownerIdentifier = componentIdentifier;
 			return this;
 		}
 
 		public VariantIdentifier build() {
 			if (buildVariant instanceof DefaultBuildVariant) {
-				return new VariantIdentifier(componentIdentifier, (DefaultBuildVariant) buildVariant);
+				return new VariantIdentifier(ownerIdentifier, (DefaultBuildVariant) buildVariant);
 			}
 			Dimensions allDimensions = this.allDimensions;
 			if (allDimensions.size() == dimensions.size()) {
 				allDimensions = Dimensions.empty();
 			}
-			return new VariantIdentifier(dimensions.getAsLowerCamelCase().orElse(""), componentIdentifier, dimensions, allDimensions, buildVariant, this.allDimensions.getAsLowerCamelCase().orElse(""));
+			return new VariantIdentifier(dimensions.getAsLowerCamelCase().orElse(""), ownerIdentifier, dimensions, allDimensions, buildVariant, this.allDimensions.getAsLowerCamelCase().orElse(""));
 		}
 	}
 }

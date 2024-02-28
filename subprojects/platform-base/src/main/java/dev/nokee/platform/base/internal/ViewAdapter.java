@@ -15,10 +15,9 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
-import dev.nokee.utils.ClosureWrappedConfigureAction;
-import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
@@ -27,6 +26,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -37,10 +37,11 @@ import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 @EqualsAndHashCode
-public final class ViewAdapter<T> implements View<T> {
+public class ViewAdapter<T> implements View<T> {
 	private final Class<T> elementType;
 	private final Strategy strategy;
 
+	@Inject
 	public ViewAdapter(Class<T> elementType, Strategy strategy) {
 		this.elementType = elementType;
 		this.strategy = strategy;
@@ -53,28 +54,14 @@ public final class ViewAdapter<T> implements View<T> {
 	}
 
 	@Override
-	public void configureEach(@SuppressWarnings("rawtypes") Closure closure) {
-		strategy.configureEach(elementType, new ClosureWrappedConfigureAction<>(closure));
-	}
-
-	@Override
-	public <S extends T> void configureEach(Class<S> type, Action<? super S> action) {
+	public <S> void configureEach(Class<S> type, Action<? super S> action) {
 		strategy.configureEach(type, action);
 	}
 
 	@Override
-	public <S extends T> void configureEach(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		strategy.configureEach(type, new ClosureWrappedConfigureAction<>(closure));
-	}
-
-	@Override
 	public void configureEach(Spec<? super T> spec, Action<? super T> action) {
+		// FIXME(discovery): Make SpecFilteringAction unpackable
 		strategy.configureEach(elementType, new SpecFilteringAction<>(spec, action));
-	}
-
-	@Override
-	public void configureEach(Spec<? super T> spec, @SuppressWarnings("rawtypes") Closure closure) {
-		strategy.configureEach(elementType, new SpecFilteringAction<>(spec, new ClosureWrappedConfigureAction<>(closure)));
 	}
 
 	@Override
@@ -94,12 +81,12 @@ public final class ViewAdapter<T> implements View<T> {
 
 	@Override
 	public <S> Provider<List<S>> map(Transformer<? extends S, ? super T> mapper) {
-		return getElements().map(transformEach(mapper));
+		return getElements().map(transformEach(mapper)).map(ImmutableList::copyOf);
 	}
 
 	@Override
 	public <S> Provider<List<S>> flatMap(Transformer<? extends Iterable<S>, ? super T> mapper) {
-		return getElements().map(flatTransformEach(mapper));
+		return getElements().map(flatTransformEach(mapper)).map(ImmutableList::copyOf);
 	}
 
 	@Override
@@ -111,16 +98,8 @@ public final class ViewAdapter<T> implements View<T> {
 		strategy.whenElementKnown(elementType, action);
 	}
 
-	public void whenElementKnown(@SuppressWarnings("rawtypes") Closure closure) {
-		strategy.whenElementKnown(elementType, new ClosureWrappedConfigureAction<>(closure));
-	}
-
 	public <S extends T> void whenElementKnown(Class<S> type, Action<? super KnownDomainObject<S>> action) {
 		strategy.whenElementKnown(type, action);
-	}
-
-	public <S extends T> void whenElementKnown(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		strategy.whenElementKnown(type, new ClosureWrappedConfigureAction<>(closure));
 	}
 
 	public NamedDomainObjectProvider<T> named(String name) {
@@ -130,12 +109,6 @@ public final class ViewAdapter<T> implements View<T> {
 	public NamedDomainObjectProvider<T> named(String name, Action<? super T> action) {
 		val result = strategy.named(name, elementType);
 		result.configure(action);
-		return result;
-	}
-
-	public NamedDomainObjectProvider<T> named(String name, @SuppressWarnings("rawtypes") Closure closure) {
-		val result = strategy.named(name, elementType);
-		result.configure(new ClosureWrappedConfigureAction<>(closure));
 		return result;
 	}
 
@@ -149,16 +122,11 @@ public final class ViewAdapter<T> implements View<T> {
 		return result;
 	}
 
-	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		val result = strategy.named(name, type);
-		result.configure(new ClosureWrappedConfigureAction<>(closure));
-		return result;
-	}
-
 	public interface Strategy {
 		<T> void configureEach(Class<T> elementType, Action<? super T> action);
 		<T> Provider<Set<T>> getElements(Class<T> elementType);
 		<T> void whenElementKnown(Class<T> elementType, Action<? super KnownDomainObject<T>> action);
+		// FIXME(discovery): Return ModelObject instead to allow discovery of single action
 		<T> NamedDomainObjectProvider<T> named(String name, Class<T> elementType);
 	}
 }

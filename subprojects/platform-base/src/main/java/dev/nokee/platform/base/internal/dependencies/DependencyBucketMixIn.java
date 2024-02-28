@@ -15,41 +15,60 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
-import dev.nokee.utils.ProviderUtils;
-import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderConvertible;
+import org.gradle.api.provider.ProviderFactory;
 
+import javax.inject.Inject;
 import java.util.Set;
 
-import static dev.nokee.model.internal.core.ModelProperties.add;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.assertConfigurableNotation;
+interface DependencyBucketMixIn extends DependencyBucketInternal, ExtensionAware {
+	@Inject
+	ProviderFactory getProviders();
 
-interface DependencyBucketMixIn extends DependencyBucket, ModelBackedNamedMixIn {
-	default void addDependency(Object notation) {
-		val entity = ModelNodes.of(this).get(BucketDependenciesProperty.class).get();
-		add(entity, new DependencyElement(notation));
+	@Inject
+	ObjectFactory getObjects();
+
+	@Override
+	default DependencyBucketInternal extendsFrom(Object... buckets) {
+		for (Object bucket : buckets) {
+			final Configuration parentConfiguration = getConfig(bucket);
+
+			// Avoid cyclic extendsFrom
+			if (!getAsConfiguration().equals(parentConfiguration)) {
+				getAsConfiguration().extendsFrom(parentConfiguration);
+
+				// For discovery
+				getAsConfiguration().getDependencies().addAllLater(getObjects().listProperty(Dependency.class).value(getProviders().provider(() -> parentConfiguration.getDependencies())));
+			}
+		}
+		return this;
 	}
 
-	default void addDependency(Object notation, Action<? super ModuleDependency> action) {
-		val entity = ModelNodes.of(this).get(BucketDependenciesProperty.class).get();
-		add(entity, new DependencyElement(assertConfigurableNotation(notation), action));
+	@SuppressWarnings("unchecked")
+	static Configuration getConfig(Object bucket) {
+		if (bucket instanceof DependencyBucket) {
+			return ((DependencyBucket) bucket).getAsConfiguration();
+		} else if (bucket instanceof ProviderConvertible) {
+			return ((ProviderConvertible<DependencyBucket>) bucket).asProvider().get().getAsConfiguration();
+		} else if (bucket instanceof Provider) {
+			return ((Provider<DependencyBucket>) bucket).get().getAsConfiguration();
+		} else {
+			throw new UnsupportedOperationException("only accept DependencyBucket, ProviderConvertible<DependencyBucket> and Provider<DependencyBucket>");
+		}
 	}
 
 	default Provider<Set<Dependency>> getDependencies() {
-		return ProviderUtils.supplied(() -> ModelStates.finalize(ModelNodes.of(this)).get(BucketDependencies.class).get());
+		return getProviders().provider(() -> getAsConfiguration().getDependencies());
 	}
 
 	@Override
 	default Configuration getAsConfiguration() {
-		return ModelNodeUtils.get(ModelNodes.of(this), Configuration.class);
+		return getExtensions().getByType(Configuration.class);
 	}
 }

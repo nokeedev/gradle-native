@@ -18,28 +18,37 @@ package dev.nokee.ide.xcode.internal.rules;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.ide.xcode.*;
+import dev.nokee.ide.xcode.XcodeIdeBuildConfiguration;
+import dev.nokee.ide.xcode.XcodeIdeGroup;
+import dev.nokee.ide.xcode.XcodeIdeProductType;
+import dev.nokee.ide.xcode.XcodeIdeProductTypes;
+import dev.nokee.ide.xcode.XcodeIdeProject;
+import dev.nokee.ide.xcode.XcodeIdeProjectExtension;
+import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildConfiguration;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeGroup;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeTarget;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
 import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.KnownDomainObject;
+import dev.nokee.language.swift.internal.SwiftLanguageImplementation;
+import dev.nokee.model.internal.KnownModelObject;
+import dev.nokee.model.internal.ModelElement;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelSpecs;
-import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.ios.IosResourceSet;
-import dev.nokee.platform.ios.internal.*;
+import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
+import dev.nokee.platform.ios.internal.DefaultIosApplicationVariant;
+import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
+import dev.nokee.platform.ios.internal.SignedIosApplicationBundle;
+import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
@@ -58,10 +67,15 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
-import org.gradle.api.file.*;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.file.FileVisitDetails;
+import org.gradle.api.file.FileVisitor;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.objectivec.tasks.ObjectiveCCompile;
 
@@ -76,69 +90,65 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
-import static dev.nokee.model.internal.core.ModelNodes.withType;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
+import static dev.nokee.utils.TransformerUtils.to;
 
-public final class CreateNativeComponentXcodeIdeProject implements Action<ModelElement> {
+public final class CreateNativeComponentXcodeIdeProject implements Action<KnownModelObject<Component>> {
 	private final XcodeIdeProjectExtension extension;
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objectFactory;
 	private final ProjectLayout projectLayout;
 	private final TaskContainer taskContainer;
 	private final ProjectIdentifier projectIdentifier;
-	private final ModelLookup modelLookup;
 
-	public CreateNativeComponentXcodeIdeProject(XcodeIdeProjectExtension extension, ProviderFactory providerFactory, ObjectFactory objectFactory, ProjectLayout projectLayout, TaskContainer taskContainer, ProjectIdentifier projectIdentifier, ModelLookup modelLookup) {
+	public CreateNativeComponentXcodeIdeProject(XcodeIdeProjectExtension extension, ProviderFactory providerFactory, ObjectFactory objectFactory, ProjectLayout projectLayout, TaskContainer taskContainer, ProjectIdentifier projectIdentifier) {
 		this.extension = extension;
 		this.providerFactory = providerFactory;
 		this.objectFactory = objectFactory;
 		this.projectLayout = projectLayout;
 		this.taskContainer = taskContainer;
 		this.projectIdentifier = projectIdentifier;
-		this.modelLookup = modelLookup;
 	}
 
 	@Override
-	public void execute(ModelElement knownComponent) {
-		registerXcodeIdeProjectIfAbsent(extension.getProjects(), projectIdentifier.getName()).configure(configureXcodeIdeProject(knownComponent));
+	public void execute(KnownModelObject<Component> knownComponent) {
+		registerXcodeIdeProjectIfAbsent(extension.getProjects(), projectIdentifier.getName().toString()).configure(configureXcodeIdeProject(knownComponent));
 	}
 
-	private NamedDomainObjectProvider<XcodeIdeProject> registerXcodeIdeProjectIfAbsent(NamedDomainObjectContainer<XcodeIdeProject> container, String name) {
+	private static NamedDomainObjectProvider<XcodeIdeProject> registerXcodeIdeProjectIfAbsent(NamedDomainObjectContainer<XcodeIdeProject> container, String name) {
 		if (isXcodeIdeProjectAbsent(container, name)) {
 			return container.register(name);
 		}
 		return container.named(name);
 	}
 
-	private boolean isXcodeIdeProjectAbsent(NamedDomainObjectContainer<XcodeIdeProject> container, String name) {
+	private static boolean isXcodeIdeProjectAbsent(NamedDomainObjectContainer<XcodeIdeProject> container, String name) {
 		return !StreamSupport.stream(container.getCollectionSchema().getElements().spliterator(), false).anyMatch(it -> it.getName().equals(name));
 	}
 
-	private Action<XcodeIdeProject> configureXcodeIdeProject(ModelElement knownComponent) {
+	private Action<XcodeIdeProject> configureXcodeIdeProject(KnownModelObject<Component> knownComponent) {
 		return new Action<XcodeIdeProject>() {
 			@Override
 			public void execute(XcodeIdeProject xcodeProject) {
-				xcodeProject.getTargets().addAllLater(CreateNativeComponentXcodeIdeProject.this.asGradleListProvider(knownComponent.as(ModelType.of(new TypeOf<BaseComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this.toXcodeIdeTargets())));
-				xcodeProject.getGroups().addLater(knownComponent.as(ModelType.of(new TypeOf<BaseComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this::toXcodeIdeGroup));
+				xcodeProject.getTargets().addAllLater(asCollectionProvider(knownComponent.asProvider().map(to(new org.gradle.api.reflect.TypeOf<VariantAwareComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this.toXcodeIdeTargets())));
+				xcodeProject.getGroups().addLater(knownComponent.asProvider().map(to(new TypeOf<VariantAwareComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this::toXcodeIdeGroup));
 			}
 		};
 	}
 
-	private Provider<List<XcodeIdeTarget>> asGradleListProvider(Provider<List<? extends XcodeIdeTarget>> xcodeIdeTargets) {
-		val result = objectFactory.listProperty(XcodeIdeTarget.class);
-		result.set(xcodeIdeTargets);
-		return result;
+	@SuppressWarnings("unchecked")
+	private <T> Provider<? extends Iterable<T>> asCollectionProvider(Provider<? extends Iterable<? extends T>> collectionProvider) {
+		// TODO: Only on early Gradle
+		return (Provider<? extends Iterable<T>>) objectFactory.listProperty(Object.class).value(collectionProvider);
 	}
 
-	private Provider<XcodeIdeGroup> toXcodeIdeGroup(BaseComponent<?> component) {
+	private Provider<XcodeIdeGroup> toXcodeIdeGroup(VariantAwareComponent<?> component) {
 		return providerFactory.provider(new Callable<XcodeIdeGroup>() {
 			@Override
 			public XcodeIdeGroup call() throws Exception {
-				val result = new DefaultXcodeIdeGroup(component.getBaseName().get(), objectFactory);
+				val result = new DefaultXcodeIdeGroup(((HasBaseName) component).getBaseName().get(), objectFactory);
 				result.getSources().from(sourceViewOf(component).flatMap(CreateNativeComponentXcodeIdeProject.this::toSource));
 				return result;
 			}
@@ -148,11 +158,11 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 	private FileCollection toSource(LanguageSourceSet sourceSet) {
 		if (sourceSet instanceof IosResourceSet) {
 			return objectFactory.fileCollection()
-				.from(sourceSet.getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")))
-				.from(sourceSet.getAsFileTree().matching(it -> it.exclude("*.lproj", "*.xcassets/**")))
+				.from(((IosResourceSet) sourceSet).getSources().getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")))
+				.from(((IosResourceSet) sourceSet).getSources().getAsFileTree().matching(it -> it.exclude("*.lproj", "*.xcassets/**")))
 				.from((Callable<List<File>>)() -> {
 					List<File> result = new ArrayList<>();
-					sourceSet.getAsFileTree().visit(new FileVisitor() {
+					((IosResourceSet) sourceSet).getSources().getAsFileTree().visit(new FileVisitor() {
 						@Override
 						public void visitDir(FileVisitDetails details) {
 							if (details.getName().endsWith(".xcassets")) {
@@ -168,16 +178,17 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 					return result;
 				});
 		} else if (sourceSet instanceof HasHeaders) {
-			return sourceSet.getAsFileTree().plus(((HasHeaders) sourceSet).getHeaders().getAsFileTree());
+			return ((HasSource) sourceSet).getSource().getAsFileTree().plus(((HasHeaders) sourceSet).getHeaders().getAsFileTree());
 		}
-		// TODO: Should fetch the source property
-		return sourceSet.getAsFileTree();
+
+		// TODO: We should just ignore the source set.
+		throw new UnsupportedOperationException();
 	}
 
-	private Transformer<Provider<List<XcodeIdeTarget>>, BaseComponent<?>> toXcodeIdeTargets() {
-		return new Transformer<Provider<List<XcodeIdeTarget>>, BaseComponent<?>>() {
+	private Transformer<Provider<List<XcodeIdeTarget>>, VariantAwareComponent<?>> toXcodeIdeTargets() {
+		return new Transformer<Provider<List<XcodeIdeTarget>>, VariantAwareComponent<?>>() {
 			@Override
-			public Provider<List<XcodeIdeTarget>> transform(BaseComponent<?> component) {
+			public Provider<List<XcodeIdeTarget>> transform(VariantAwareComponent<?> component) {
 				return component.getVariants().getElements().flatMap(new ToXcodeIdeTargets(component));
 			}
 		};
@@ -185,9 +196,9 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 
 	private class ToXcodeIdeTargets implements Transformer<Provider<List<XcodeIdeTarget>>, Set<? extends Variant>> {
 		private final boolean hasMultipleLinkages;
-		private final BaseComponent<?> component;
+		private final VariantAwareComponent<?> component;
 
-		ToXcodeIdeTargets(BaseComponent<?> component) {
+		ToXcodeIdeTargets(VariantAwareComponent<?> component) {
 			this.component = component;
 			this.hasMultipleLinkages = component.getBuildVariants().get().stream().map(buildVariant -> ((BuildVariantInternal) buildVariant).getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)).distinct().count() > 1;
 		}
@@ -259,7 +270,8 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 						.put("FRAMEWORK_SEARCH_PATHS", binaries.getElements().flatMap(toFrameworkSearchPaths()))
 						.put("COMPILER_INDEX_STORE_ENABLE", "YES")
 						.put("USE_HEADERMAP", "NO")
-						.put("GRADLE_IDE_PROJECT_NAME", component.getIdentifier().getName().get());
+						// TODO: We shouldn't need toString?
+						.put("GRADLE_IDE_PROJECT_NAME", ((ModelElement) component).getIdentifier().getName().toString());
 
 					if (variantInternal instanceof DefaultIosApplicationVariant) {
 						xcodeConfiguration.getBuildSettings()
@@ -331,7 +343,10 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 				}
 
 				private boolean hasSwiftCapability() {
-					return modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(component.getNode())).and(withType(of(SwiftSourceSet.class)))));
+					if (variantInternal instanceof LanguageSupportSpec) {
+						return ((LanguageSupportSpec) variantInternal).getLanguageImplementations().stream().anyMatch(SwiftLanguageImplementation.class::isInstance);
+					}
+					return false;
 				}
 
 				public Transformer<Provider<? extends FileSystemLocation>, Binary> toProductLocation() {
@@ -455,8 +470,8 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 					target.getProductReference().set(((DefaultUiTestXCTestTestSuiteComponent)component).getModuleName().map(it -> it + ".xctest"));
 					target.getProductType().set(XcodeIdeProductTypes.UI_TEST);
 				} else {
-					target.getProductName().set(component.getBaseName());
-					target.getProductReference().set(component.getBaseName().map(toProductReference(osOperations, linkage)));
+					target.getProductName().set(((HasBaseName) component).getBaseName());
+					target.getProductReference().set(((HasBaseName) component).getBaseName().map(toProductReference(osOperations, linkage)));
 					target.getProductType().set(toProductType(linkage));
 				}
 
@@ -492,11 +507,11 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 			return new IllegalArgumentException(String.format("Unsupported linkage '%s'.", linkage));
 		}
 
-		private String targetName(BaseComponent<?> component, BinaryLinkage linkage) {
+		private String targetName(VariantAwareComponent<?> component, BinaryLinkage linkage) {
 			if (hasMultipleLinkages) {
-				return component.getBaseName().get() + StringUtils.capitalize(linkage.getName());
+				return ((HasBaseName) component).getBaseName().get() + StringUtils.capitalize(linkage.getName());
 			}
-			return component.getBaseName().get();
+			return ((HasBaseName) component).getBaseName().get();
 		}
 	}
 }

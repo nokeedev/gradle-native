@@ -27,16 +27,10 @@ import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
@@ -46,14 +40,12 @@ import dev.nokee.platform.base.testers.HasDevelopmentVariantTester;
 import dev.nokee.platform.base.testers.TaskAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
-import groovy.lang.Closure;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -85,6 +77,7 @@ import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.host;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static java.util.stream.Collectors.toList;
@@ -106,9 +99,9 @@ import static org.hamcrest.Matchers.startsWith;
 @PluginRequirement.Require(type = JvmLanguageBasePlugin.class)
 class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginTest implements ComponentTester<JavaNativeInterfaceLibrary>
 	, DependencyAwareComponentTester<JavaNativeInterfaceLibraryComponentDependencies>
-	, VariantAwareComponentTester<VariantView<NativeLibrary>>
-	, BinaryAwareComponentTester<BinaryView<Binary>>
-	, TaskAwareComponentTester<TaskView<Task>>
+	, VariantAwareComponentTester<View<NativeLibrary>>
+	, BinaryAwareComponentTester<View<Binary>>
+	, TaskAwareComponentTester<View<Task>>
 	, TargetMachineAwareComponentTester
 	, HasBaseNameTester
 	, HasDevelopmentVariantTester
@@ -117,9 +110,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val identifier = ComponentIdentifier.builder().name(ComponentName.of("quzu")).withProjectIdentifier(ProjectIdentifier.of(project)).displayName("JNI library component").build();
-		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
+		this.subject = components(project).register("quzu", JniLibraryComponentInternal.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(host()));
 	}
 
@@ -182,7 +173,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 	@Nested
 	class ComponentTasksTest {
-		public TaskView<Task> subject() {
+		public View<Task> subject() {
 			return subject.getTasks();
 		}
 
@@ -226,11 +217,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				subject().api(notation, action);
 			}
 
-			@Override
-			public void addDependency(JavaNativeInterfaceLibraryComponentDependencies self, Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-				subject().api(notation, closure);
-			}
-
 			@Test
 			void hasConfigurationWithProperName() {
 				assertThat(subject().getApi().getAsConfiguration(), named(variantName() + "Api"));
@@ -257,11 +243,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			@Override
 			public void addDependency(JavaNativeInterfaceLibraryComponentDependencies self, Object notation, Action<? super ModuleDependency> action) {
 				subject().jvmImplementation(notation, action);
-			}
-
-			@Override
-			public void addDependency(JavaNativeInterfaceLibraryComponentDependencies self, Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-				subject().jvmImplementation(notation, closure);
 			}
 
 			@Test
@@ -292,11 +273,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				subject().jvmRuntimeOnly(notation, action);
 			}
 
-			@Override
-			public void addDependency(JavaNativeInterfaceLibraryComponentDependencies self, Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-				subject().jvmRuntimeOnly(notation, closure);
-			}
-
 			@Test
 			void hasConfigurationWithProperName() {
 				assertThat(subject().getJvmRuntimeOnly().getAsConfiguration(), named(variantName() + "JvmRuntimeOnly"));
@@ -305,7 +281,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	}
 
 	public String displayName() {
-		return "JNI library component ':quzu'";
+		return "JNI library 'quzu'";
 	}
 
 	@Nested
@@ -829,7 +805,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 		@Nested
 		class ComponentComponentBinaries {
-			public BinaryView<Binary> subject() {
+			public View<Binary> subject() {
 				return subject.getBinaries();
 			}
 

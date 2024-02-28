@@ -17,7 +17,8 @@ package dev.gradleplugins.testscript;
 
 import dev.gradleplugins.buildscript.blocks.ProjectBlock;
 import dev.gradleplugins.buildscript.blocks.SettingsBlock;
-import dev.gradleplugins.buildscript.statements.Statement;
+import dev.gradleplugins.buildscript.io.GradleBuildFile;
+import dev.gradleplugins.buildscript.io.GradleSettingsFile;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -28,82 +29,43 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static dev.gradleplugins.buildscript.ast.expressions.MethodCallExpression.call;
+import static dev.gradleplugins.buildscript.syntax.Syntax.string;
+
 abstract class AbstractTestGradleBuild<SELF extends TestGradleBuild> implements TestGradleBuild {
-	private final SettingsBlock.Builder settingsBuilder = SettingsBlock.builder();
-	private final ProjectBlock.Builder buildBuilder = ProjectBlock.builder();
+	private final GradleSettingsFile settingsFile;
+	private final GradleBuildFile buildFile;
 	private final Path location;
 	private final Map<String, TestIncludedBuild> includedBuilds = new LinkedHashMap<>();
 	private final Map<String, TestSubproject> subprojects = new LinkedHashMap<>();
 	private TestBuildSrc buildSrcBuild = null;
-	private String buildFileName = "build.gradle";
 
 	protected AbstractTestGradleBuild(Path location) {
 		this.location = location;
+		this.settingsFile = GradleSettingsFile.inDirectory(location);
+		this.buildFile = GradleBuildFile.inDirectory(location);
 	}
 
 	public Path getLocation() {
 		return location;
 	}
 
-	public void buildFile(Consumer<? super ProjectBlock.Builder> action) {
-		action.accept(buildBuilder);
-		try {
-			buildBuilder.build().writeTo(location.resolve(buildFileName));
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+	public void buildFile(Consumer<? super ProjectBlock> action) {
+		buildFile.configure(action);
 	}
 
 	@Override
-	public BuildScriptFile getBuildFile() {
-		return new BuildScriptFile() {
-			@Override
-			public BuildScriptFile useKotlinDsl() {
-				if (!buildFileName.endsWith(".gradle.kts")) {
-					try {
-						if (Files.exists(location.resolve(buildFileName))) {
-							Files.delete(location.resolve(buildFileName));
-						}
-						buildFileName = "build.gradle.kts";
-						buildBuilder.build().writeTo(location.resolve(buildFileName));
-					} catch (IOException e) {
-						throw new UncheckedIOException(e);
-					}
-				}
-				return this;
-			}
-
-			@Override
-			public BuildScriptFile useGroovyDsl() {
-				if (!buildFileName.endsWith(".gradle")) {
-					try {
-						if (Files.exists(location.resolve(buildFileName))) {
-							Files.delete(location.resolve(buildFileName));
-						}
-						buildFileName = "build.gradle";
-						buildBuilder.build().writeTo(location.resolve(buildFileName));
-					} catch (IOException e) {
-						throw new UncheckedIOException(e);
-					}
-				}
-				return this;
-			}
-
-			@Override
-			public BuildScriptFile append(Statement statement) {
-				buildFile(it -> it.add(statement));
-				return this;
-			}
-		};
+	public GradleBuildFile getBuildFile() {
+		return buildFile;
 	}
 
-	public void settingsFile(Consumer<? super SettingsBlock.Builder> action) {
-		action.accept(settingsBuilder);
-		try {
-			settingsBuilder.build().writeTo(location.resolve("settings.gradle"));
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+	public void settingsFile(Consumer<? super SettingsBlock> action) {
+		settingsFile.configure(action);
+	}
+
+	@Override
+	public GradleSettingsFile getSettingsFile() {
+		return settingsFile;
 	}
 
 	@Override
@@ -113,17 +75,13 @@ abstract class AbstractTestGradleBuild<SELF extends TestGradleBuild> implements 
 
 	@Override
 	public void subproject(String path, Consumer<? super TestSubproject> action) {
-		try {
-			settingsBuilder.include(path.replace('/', ':')).build().writeTo(location.resolve("settings.gradle"));
-			TestSubproject subproject = subprojects.get(path);
-			if (subproject == null) {
-				subproject = TestSubproject.newInstance(this, location.resolve(path));
-				subprojects.put(path, subproject);
-			}
-			action.accept(subproject);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
+		settingsFile.append(call("include", string(path.replace('/', ':'))));
+		TestSubproject subproject = subprojects.get(path);
+		if (subproject == null) {
+			subproject = TestSubproject.newInstance(this, location.resolve(path));
+			subprojects.put(path, subproject);
 		}
+		action.accept(subproject);
 	}
 
 	@Override
@@ -140,17 +98,13 @@ abstract class AbstractTestGradleBuild<SELF extends TestGradleBuild> implements 
 
 	@Override
 	public SELF includeBuild(String path, Consumer<? super TestIncludedBuild> action) {
-		try {
-			settingsBuilder.includeBuild(path).build().writeTo(location.resolve("settings.gradle"));
-			TestIncludedBuild includedBuild = includedBuilds.get(path);
-			if (includedBuild == null) {
-				includedBuild = TestIncludedBuild.newInstance(this, path);
-				includedBuilds.put(path, includedBuild);
-			}
-			action.accept(includedBuild);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
+		settingsFile.append(call("includeBuild", string(path)));
+		TestIncludedBuild includedBuild = includedBuilds.get(path);
+		if (includedBuild == null) {
+			includedBuild = TestIncludedBuild.newInstance(this, path);
+			includedBuilds.put(path, includedBuild);
 		}
+		action.accept(includedBuild);
 
 		@SuppressWarnings("unchecked")
 		SELF result = (SELF) this;
@@ -159,17 +113,13 @@ abstract class AbstractTestGradleBuild<SELF extends TestGradleBuild> implements 
 
 	@Override
 	public SELF pluginBuild(String path, Consumer<? super TestIncludedBuild> action) {
-		try {
-			settingsBuilder.pluginManagement(it -> it.includeBuild(path)).build().writeTo(location.resolve("settings.gradle"));
-			TestIncludedBuild includedBuild = includedBuilds.get(path);
-			if (includedBuild == null) {
-				includedBuild = TestIncludedBuild.newInstance(this, path);
-				includedBuilds.put(path, includedBuild);
-			}
-			action.accept(includedBuild);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
+		settingsFile.pluginManagement(it -> it.add(call("includeBuild", string(path))));
+		TestIncludedBuild includedBuild = includedBuilds.get(path);
+		if (includedBuild == null) {
+			includedBuild = TestIncludedBuild.newInstance(this, path);
+			includedBuilds.put(path, includedBuild);
 		}
+		action.accept(includedBuild);
 
 		@SuppressWarnings("unchecked")
 		SELF result = (SELF) this;

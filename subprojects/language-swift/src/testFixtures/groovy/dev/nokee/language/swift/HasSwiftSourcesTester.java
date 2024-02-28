@@ -31,7 +31,6 @@ public interface HasSwiftSourcesTester {
 	@Test
 	default void canConfigureSwiftSources() {
 		ConfigureMethodTester.of(subject(), HasSwiftSources::getSwiftSources)
-			.testAction(HasSwiftSources::swiftSources)
-			.testClosure(HasSwiftSources::swiftSources);
+			.testAction((a, b) -> a.swiftSources(b));
 	}
 }

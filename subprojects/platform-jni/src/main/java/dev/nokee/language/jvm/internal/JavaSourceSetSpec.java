@@ -15,46 +15,45 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.jvm.JavaSourceSet;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
+import org.gradle.api.NamedDomainObjectCollection;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Task;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
-import org.gradle.api.tasks.util.PatternFilterable;
 
-@DomainObjectEntities.Tag({JavaSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public /*final*/ class JavaSourceSetSpec implements JavaSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet>, HasConfigurableSourceMixIn {
+import javax.inject.Inject;
+
+import static dev.nokee.model.internal.ModelObjectIdentifiers.asFullyQualifiedName;
+import static java.util.Objects.requireNonNull;
+
+public /*final*/ abstract class JavaSourceSetSpec extends ModelElementSupport implements JavaSourceSet
+	, HasSource {
+	@Inject
+	public JavaSourceSetSpec(NamedDomainObjectCollection<SourceSet> sourceSets, ModelObjectRegistry<Task> taskRegistry) {
+		final NamedDomainObjectProvider<SourceSet> sourceSetProvider = sourceSets.named(asFullyQualifiedName(requireNonNull(getIdentifier().getParent())).toString());
+		getSource().from(sourceSetProvider.map(JavaSourceSetSpec::asSourceDirectorySet));
+		getSource().disallowChanges();
+
+		getExtensions().add("compileTask", taskRegistry.register(getIdentifier().child(TaskName.of("compile")), JavaCompile.class).asProvider());
+	}
+
+	private static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+		return sourceSet.getJava();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public TaskProvider<JavaCompile> getCompileTask() {
-		return (TaskProvider<JavaCompile>) ModelElements.of(this).element("compile", JavaCompile.class).asProvider();
-	}
-
-	@Override
-	public JavaSourceSet from(Object... paths) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setFrom(Object... paths) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public PatternFilterable getFilter() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public JavaSourceSet convention(Object... path) {
-		throw new UnsupportedOperationException();
+		return (TaskProvider<JavaCompile>) getExtensions().getByName("compileTask");
 	}
 
 	@Override
@@ -63,9 +62,7 @@ public /*final*/ class JavaSourceSetSpec implements JavaSourceSet, HasPublicType
 	}
 
 	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(JavaSourceSet.class);
+	protected String getTypeName() {
+		return "Java sources";
 	}
-
-	public interface Tag extends ModelTag {}
 }

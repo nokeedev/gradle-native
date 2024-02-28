@@ -15,24 +15,32 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
-import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
+import dev.nokee.language.swift.internal.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.SwiftLanguageImplementation;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
-public class SwiftLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
+
+public class SwiftLanguagePlugin implements Plugin<Project>, NativeLanguageSupportPlugin {
+	private Instantiator instantiator;
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponentTag(SupportSwiftSourceSetTag.class);
+
+		project.getExtensions().create("$swiftSupport", SupportSwiftSourceSetTag.class);
+
+		this.instantiator = instantiator(project);
 	}
 
 	@Override
-	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
-		return SwiftLanguageBasePlugin.DefaultSwiftSourceSetRegistrationFactory.class;
+	public void registerImplementation(LanguageSupportSpec target) {
+		target.getLanguageImplementations().add(instantiator.newInstance(SwiftLanguageImplementation.class));
 	}
 }

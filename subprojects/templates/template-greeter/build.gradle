@@ -1,0 +1,15 @@
+plugins {
+	id 'java-library'
+}
+
+group = 'dev.nokee.templates'
+version = '1.0'
+
+dependencies {
+	api 'dev.gradleplugins:gradle-fixtures-source-elements'
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}

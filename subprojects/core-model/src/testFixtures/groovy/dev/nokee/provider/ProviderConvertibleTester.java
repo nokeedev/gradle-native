@@ -15,8 +15,8 @@
  */
 package dev.nokee.provider;
 
-import dev.nokee.provider.ProviderConvertible;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderConvertible;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;

@@ -15,11 +15,15 @@
  */
 package dev.nokee.platform.jni;
 
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.platform.base.*;
+import dev.nokee.language.base.SourceAwareComponent;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.HasDevelopmentVariant;
+import dev.nokee.platform.base.TaskAwareComponent;
+import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import dev.nokee.runtime.nativebase.TargetMachine;
-import org.gradle.api.provider.SetProperty;
 
 /**
  * Configuration for a Java Native Interface (JNI) library, defining the dependencies that make up the library plus other settings.
@@ -28,11 +32,10 @@ import org.gradle.api.provider.SetProperty;
  *
  * @since 0.1
  */
-@SuppressWarnings("deprecation")
-public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Component
+public interface JavaNativeInterfaceLibrary extends Component
 	, DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponent<JniLibrary>
-	, SourceAwareComponent<JavaNativeInterfaceLibrarySources>
+	, SourceAwareComponent
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, TargetMachineAwareComponent

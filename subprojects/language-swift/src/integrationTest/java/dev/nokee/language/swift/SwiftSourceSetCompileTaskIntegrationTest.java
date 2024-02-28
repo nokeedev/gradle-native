@@ -21,9 +21,8 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
+import dev.nokee.language.swift.internal.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,8 +35,8 @@ import static dev.nokee.internal.testing.FileSystemMatchers.parentFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sources;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -58,7 +57,8 @@ class SwiftSourceSetCompileTaskIntegrationTest extends AbstractPluginTest implem
 
 	SwiftCompileTask createSubject() {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("rubi", SwiftSourceSetSpec.class)).element("compile", SwiftCompileTask.class).get();
+		return sources(project).register("rubi", SwiftSourceSetSpec.class)
+			.flatMap(SwiftSourceSetSpec::getCompileTask).get();
 	}
 
 	@BeforeEach

@@ -15,8 +15,8 @@
  */
 package dev.nokee.language.nativebase;
 
+import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import lombok.val;
 import org.gradle.api.Project;
@@ -31,10 +31,18 @@ import java.nio.file.Files;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.internal.testing.util.ProjectTestUtils.*;
-import static dev.nokee.utils.ConfigurationUtils.*;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProject;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
+import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
+import static dev.nokee.utils.ConfigurationUtils.forUsage;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInRelativeOrder;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
 
 public interface LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<T extends LanguageSourceSet & HasCompileTask> {
 	T subject();

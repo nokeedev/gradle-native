@@ -18,13 +18,9 @@ package dev.nokee.platform.jni;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryIdentity;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
+import dev.nokee.platform.jni.internal.JvmJarBinarySpec;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.bundling.Jar;
@@ -39,6 +35,8 @@ import static dev.nokee.internal.testing.FileSystemMatchers.parentFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.description;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
@@ -50,11 +48,8 @@ class JvmJarBinaryIntegrationTest extends AbstractPluginTest {
 
 	@BeforeEach
 	void createSubject() {
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("rina", ProjectIdentifier.of(project));
-		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
-		val factory = project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class);
-		subject = registry.register(factory.create(BinaryIdentifier.of(componentIdentifier, BinaryIdentity.of("wuke", "FASI binary"))).build()).as(JvmJarBinary.class).get();
+		subject = model(project, registryOf(Artifact.class)).register(componentIdentifier.child("wuke"), JvmJarBinarySpec.class).get();
 	}
 
 	@Nested

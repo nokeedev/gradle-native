@@ -22,13 +22,10 @@ import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.val;
@@ -58,6 +55,8 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.presentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.nativebase.NativePlatformTestUtils.macosPlatform;
 import static dev.nokee.platform.nativebase.NativePlatformTestUtils.nixPlatform;
 import static dev.nokee.platform.nativebase.NativePlatformTestUtils.windowsPlatform;
@@ -87,14 +86,10 @@ class SharedLibraryBinarySpecLinkTaskIntegrationTest {
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
 		val componentIdentifier = ComponentIdentifier.of("qame", projectIdentifier);
-		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
 		val variantIdentifier = VariantIdentifier.of("sopu", componentIdentifier);
-		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(variantIdentifier)).build());
-		binary = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, "tota"))).as(SharedLibraryBinary.class).get();
+		binary = model(project, registryOf(Artifact.class)).register(variantIdentifier.child("tota"), NativeSharedLibraryBinarySpec.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkSharedLibraryTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkSharedLibraryTask) binary.getLinkTask().get();

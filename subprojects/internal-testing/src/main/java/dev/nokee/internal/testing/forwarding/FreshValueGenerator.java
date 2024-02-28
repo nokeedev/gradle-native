@@ -379,7 +379,7 @@ class FreshValueGenerator {
 
   @Generates
   Integer generateInteger() {
-    return new Integer(generateInt());
+    return generateInt();
   }
 
   @Generates
@@ -389,7 +389,7 @@ class FreshValueGenerator {
 
   @Generates
   Long generateLongObject() {
-    return new Long(generateLong());
+    return generateLong();
   }
 
   @Generates
@@ -399,7 +399,7 @@ class FreshValueGenerator {
 
   @Generates
   Float generateFloatObject() {
-    return new Float(generateFloat());
+    return generateFloat();
   }
 
   @Generates
@@ -409,7 +409,7 @@ class FreshValueGenerator {
 
   @Generates
   Double generateDoubleObject() {
-    return new Double(generateDouble());
+    return generateDouble();
   }
 
   @Generates
@@ -419,7 +419,7 @@ class FreshValueGenerator {
 
   @Generates
   Short generateShortObject() {
-    return new Short(generateShort());
+    return generateShort();
   }
 
   @Generates
@@ -429,7 +429,7 @@ class FreshValueGenerator {
 
   @Generates
   Byte generateByteObject() {
-    return new Byte(generateByte());
+    return generateByte();
   }
 
   @Generates
@@ -439,7 +439,7 @@ class FreshValueGenerator {
 
   @Generates
   Character generateCharacter() {
-    return new Character(generateChar());
+    return generateChar();
   }
 
   @Generates
@@ -449,7 +449,7 @@ class FreshValueGenerator {
 
   @Generates
   Boolean generateBooleanObject() {
-    return new Boolean(generateBoolean());
+    return generateBoolean();
   }
 
   @Generates

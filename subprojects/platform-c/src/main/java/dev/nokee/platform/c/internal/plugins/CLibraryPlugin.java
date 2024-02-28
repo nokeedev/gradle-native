@@ -15,114 +15,29 @@
  */
 package dev.nokee.platform.c.internal.plugins;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.language.c.internal.HasCSourcesMixIn;
+import dev.nokee.language.c.internal.CLanguageImplementation;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
-import dev.nokee.language.nativebase.internal.HasPublicHeadersMixIn;
+import dev.nokee.language.nativebase.internal.PublicHeadersLanguageImplementation;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentMixIn;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
-import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
-import dev.nokee.platform.c.CLibrary;
-import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.val;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibrary;
+import dev.nokee.platform.nativebase.internal.plugins.NativePlatformPluginSupport;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.model.ObjectFactory;
-
-import javax.inject.Inject;
 
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
 public class CLibraryPlugin implements Plugin<Project> {
-	private static final String EXTENSION_NAME = "library";
-	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
-
-	@Inject
-	public CLibraryPlugin(ObjectFactory objects) {
-		this.objects = objects;
-	}
-
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		// Create the component
-		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(cLibrary("main", project)).as(CLibrary.class);
-		componentProvider.configure(baseName(convention(project.getName())));
-		val extension = componentProvider.get();
-
-		// Other configurations
-		project.afterEvaluate(finalizeModelNodeOf(componentProvider));
-
-		project.getExtensions().add(CLibrary.class, EXTENSION_NAME, extension);
-	}
-
-	public static ModelRegistration cLibrary(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeLibraryComponentModelRegistrationFactory(DefaultCLibrary.class, project).create(identifier).withComponentTag(SupportCSourceSetTag.class).build();
-	}
-
-	public static abstract class DefaultCLibrary implements CLibrary, ModelNodeAware
-		, ComponentMixIn
-		, ExtensionAwareMixIn
-		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
-		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
-		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-		, ModelBackedBinaryAwareComponentMixIn
-		, ModelBackedTaskAwareComponentMixIn
-		, HasDevelopmentVariantMixIn<NativeLibrary>
-		, ModelBackedTargetMachineAwareComponentMixIn
-		, ModelBackedTargetBuildTypeAwareComponentMixIn
-		, ModelBackedTargetLinkageAwareComponentMixIn
-		, ModelBackedHasBaseNameMixIn
-		, HasAssembleTaskMixIn
-		, HasPrivateHeadersMixIn
-		, HasPublicHeadersMixIn
-		, HasCSourcesMixIn
-	{
-		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-
-		@Override
-		public ModelNode getNode() {
-			return entity;
-		}
-
-		@Override
-		public String toString() {
-			return "C library '" + getName() + "'";
-		}
+		new NativePlatformPluginSupport<>()
+			.useLanguagePlugin(CLanguageBasePlugin.class)
+			.registerLanguages(CLanguageImplementation.class, PublicHeadersLanguageImplementation.class)
+			.componentType(DefaultNativeLibrary.class)
+			.registerAsMainComponent(baseName(convention(project.getName())))
+			.mountAsExtension()
+			.execute(project);
 	}
 }

@@ -15,14 +15,12 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.Streams;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import lombok.val;
+import dev.nokee.model.internal.names.MainName;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class OutputDirectoryPath {
 	private final String value;
@@ -31,21 +29,41 @@ public final class OutputDirectoryPath {
 		this.value = value;
 	}
 
-	public static OutputDirectoryPath fromIdentifier(DomainObjectIdentifier identifier) {
-		val result = Streams.stream(identifier)
-			.flatMap(it -> {
-				if (it instanceof ProjectIdentifier) {
-					return Stream.empty();
-				} else if (it instanceof BinaryIdentity) {
-					return Stream.of((BinaryIdentity) it).filter(t -> !t.isMain()).map(t -> t.getName().get());
-				} else if (it instanceof HasName) {
-					return Stream.of(((HasName) it).getName().toString()).filter(s -> !s.isEmpty());
-				} else {
-					throw new UnsupportedOperationException();
+	public static OutputDirectoryPath forBinary(ModelObjectIdentifier identifier) {
+		final List<String> result = new ArrayList<>();
+		if (!(identifier.getName() instanceof MainName)) {
+			result.add(0, identifier.getName().toString());
+		}
+
+		while ((identifier = identifier.getParent()) != null) {
+			if (identifier instanceof ProjectIdentifier) {
+				// ignore
+			} else {
+				final String name = identifier.getName().toString();
+				if (!name.isEmpty()) {
+					result.add(0, name);
 				}
-			})
-			.collect(Collectors.joining("/"));
-		return new OutputDirectoryPath(result);
+			}
+		}
+
+		return new OutputDirectoryPath(String.join("/", result));
+	}
+
+	public static OutputDirectoryPath forIdentifier(ModelObjectIdentifier identifier) {
+		final List<String> result = new ArrayList<>();
+
+		do {
+			if (identifier instanceof ProjectIdentifier) {
+				// ignore
+			} else {
+				final String name = identifier.getName().toString();
+				if (!name.isEmpty()) {
+					result.add(0, name);
+				}
+			}
+		} while ((identifier = identifier.getParent()) != null);
+
+		return new OutputDirectoryPath(String.join("/", result));
 	}
 
 	@Override

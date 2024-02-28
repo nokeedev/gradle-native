@@ -17,116 +17,60 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
+import dev.nokee.language.base.HasCompileTask;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
-import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
-import dev.nokee.language.jvm.GroovySourceSet;
-import dev.nokee.language.jvm.JavaSourceSet;
-import dev.nokee.language.jvm.KotlinSourceSet;
-import dev.nokee.language.jvm.internal.CompileTaskComponent;
-import dev.nokee.language.jvm.internal.GroovyLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.GroovySourceSetSpec;
-import dev.nokee.language.jvm.internal.JavaLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.JavaSourceSetSpec;
-import dev.nokee.language.jvm.internal.JvmSourceSetTag;
-import dev.nokee.language.jvm.internal.KotlinLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
-import dev.nokee.language.jvm.internal.SourceSetComponent;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
-import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
-import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
+import dev.nokee.language.nativebase.NativeSourceSetComponentDependencies;
+import dev.nokee.language.nativebase.internal.HasHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
-import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
-import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
-import dev.nokee.model.capabilities.variants.IsVariant;
-import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
-import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
-import dev.nokee.model.internal.ModelElementFactory;
-import dev.nokee.model.internal.buffers.ModelBuffers;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelProperty;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.core.ParentUtils;
-import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.Binary;
+import dev.nokee.model.internal.KnownModelObject;
+import dev.nokee.model.internal.ModelObject;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
+import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryIdentity;
-import dev.nokee.platform.base.internal.BuildVariantComponent;
+import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.assembletask.AssembleTaskComponent;
-import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
-import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryPropertyComponent;
-import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
+import dev.nokee.platform.base.internal.dependencies.ConfigurationFactory;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketInternal;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
-import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
-import dev.nokee.platform.jni.JniJarBinary;
+import dev.nokee.platform.jni.JarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JvmJarBinary;
-import dev.nokee.platform.jni.internal.ApiElementsConfiguration;
 import dev.nokee.platform.jni.internal.ConfigureJniHeaderDirectoryOnJavaCompileAction;
-import dev.nokee.platform.jni.internal.GeneratedJniHeadersComponent;
-import dev.nokee.platform.jni.internal.JarTaskComponent;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
-import dev.nokee.platform.jni.internal.JniJarArtifactComponent;
-import dev.nokee.platform.jni.internal.JniJarArtifactTag;
-import dev.nokee.platform.jni.internal.JniJarBinaryRegistrationFactory;
+import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceLibraryComponentDependencies;
+import dev.nokee.platform.jni.internal.DefaultJavaNativeInterfaceNativeComponentDependencies;
+import dev.nokee.platform.jni.internal.JniJarBinarySpec;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
-import dev.nokee.platform.jni.internal.JniLibraryComponentTag;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
-import dev.nokee.platform.jni.internal.JniLibraryVariantTag;
-import dev.nokee.platform.jni.internal.JvmJarArtifactComponent;
-import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
-import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
-import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
-import dev.nokee.platform.jni.internal.MultiVariantTag;
-import dev.nokee.platform.jni.internal.RuntimeElementsConfiguration;
-import dev.nokee.platform.jni.internal.actions.OnceAction;
+import dev.nokee.platform.jni.internal.JvmJarBinarySpec;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
-import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.DependentRuntimeLibraries;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
+import dev.nokee.platform.nativebase.internal.HasRuntimeLibrariesDependencyBucket;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkAction;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.TargetedNativeComponentDimensionsRule;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
-import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import dev.nokee.util.internal.LazyPublishArtifact;
+import dev.nokee.util.provider.ZipProviderBuilder;
+import dev.nokee.utils.ConfigurationUtils;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -134,7 +78,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -142,7 +85,8 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
@@ -156,20 +100,17 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
-import static dev.nokee.model.internal.actions.ModelAction.configure;
-import static dev.nokee.model.internal.actions.ModelAction.configureEach;
-import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
-import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
-import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
-import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
-import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.state.ModelStates.realize;
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
-import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.model.internal.ModelElementAction.withElement;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.objects;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
@@ -177,11 +118,15 @@ import static dev.nokee.platform.jni.internal.actions.WhenPlugin.any;
 import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
 import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
-import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
+import static dev.nokee.util.ProviderOfIterableTransformer.toProviderOfIterable;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
+import static dev.nokee.utils.FileCollectionUtils.elementsOf;
+import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
+import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
+import static dev.nokee.utils.TransformerUtils.onlyElement;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.Collections.emptyList;
 
@@ -195,368 +140,398 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		project.getExtensions().add("__nokee_jniJarBinaryFactory", new JniJarBinaryRegistrationFactory());
-		project.getExtensions().add("__nokee_jvmJarBinaryFactory", new JvmJarBinaryRegistrationFactory());
-		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory());
-		project.getExtensions().add("__nokee_jniLibraryVariantFactory", new JavaNativeInterfaceLibraryVariantRegistrationFactory(project.getObjects()));
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JniJarBinarySpec.class);
+		model(project, factoryRegistryOf(Artifact.class)).registerFactory(JvmJarBinarySpec.class);
 
-		// Component rules
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+		components(project).whenElementFinalized(JniLibraryComponentInternal.class, knownComponent -> {
+			final Configuration apiElements = model(project).getExtensions().getByType(ConfigurationFactory.class).newConsumable(knownComponent.getIdentifier().child("apiElements"));
 
-			val api = registry.register(newEntity("api", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			val implementation = registry.register(newEntity("jvmImplementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			val runtimeOnly = registry.register(newEntity("jvmRuntimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
-				private boolean alreadyExecuted = false;
+			ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(apiElements);
 
-				@Override
-				public void execute(NativeLanguagePlugin appliedPlugin) {
-					if (!alreadyExecuted) {
-						alreadyExecuted = true;
-						val nativeCompileOnly = registry.register(newEntity("nativeCompileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(nativeCompileOnly)));
+			project.getConfigurations().matching(it -> it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("api")).toString())).all(it -> {
+				apiElements.extendsFrom(it);
+			});
+		});
+
+		components(project).whenElementFinalized(JniLibraryComponentInternal.class, component -> {
+			final Configuration runtimeElements = model(project).getExtensions().getByType(ConfigurationFactory.class).newConsumable(component.getIdentifier().child("runtimeElements"));
+
+			ConfigurationUtils.<Configuration>configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))).execute(runtimeElements);
+
+			project.getConfigurations().matching(it -> it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child("api")).toString()) || it.getName().equals(ModelObjectIdentifiers.asFullyQualifiedName(component.getIdentifier().child("jvmRuntimeOnly")).toString())).all(it -> {
+				runtimeElements.extendsFrom(it);
+			});
+
+			// Attach Jni JARs
+			if (component.getBuildVariants().get().size() > 1 || (!project.getPluginManager().hasPlugin("java") && !project.getPluginManager().hasPlugin("groovy") && !project.getPluginManager().hasPlugin("org.jetbrains.kotlin.jvm"))) {
+				val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
+				// TODO: should be able to query KnownModelObject from the ModelMap
+				final Set<KnownModelObject<JniLibraryInternal>> allBuildableVariants = model(project, objects()).getElements(JniLibraryInternal.class, obj -> {
+					if (obj.getType().isSubtypeOf(JniLibraryInternal.class) && ModelObjectIdentifiers.descendantOf(obj.getIdentifier(), component.getIdentifier())) {
+						if (ModelObjectIdentifiers.asFullyQualifiedName(obj.getIdentifier()).toString().contains("*")) {
+							return true; // discovering elements
+						} else {
+							final VariantIdentifier variantIdentifier = (VariantIdentifier) obj.getIdentifier();
+							return toolChainSelector.canBuild(((BuildVariantInternal) variantIdentifier.getBuildVariant()).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
+						}
 					}
+					return false;
+				}).get();
+
+				final ModelObject<Sync> syncTask = model(project, registryOf(Task.class)).register(component.getIdentifier().child(TaskName.of("sync", "jniJars")), Sync.class);
+				syncTask.configure(task -> {
+					task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
+				});
+				for (KnownModelObject<JniLibraryInternal> buildableVariant : allBuildableVariants) {
+					final Provider<String> artifactFileName = component.getBaseName().map(baseName -> baseName + ((VariantIdentifier) buildableVariant.getIdentifier()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("")).map(it -> it + ".jar");
+
+					syncTask.configure(task -> {
+						task.from(buildableVariant.asProvider().flatMap(it -> it.getJavaNativeInterfaceJar().getJarTask()), spec -> spec.rename(__ -> artifactFileName.get()));
+					});
+
+					final Provider<File> artifactFile = ZipProviderBuilder.newBuilder(project.getObjects())
+						.value(syncTask.asProvider().flatMap(it -> project.provider(() -> it.getDestinationDir())))
+						.value(artifactFileName)
+						.zip((destinationDirectory, fileName) -> new File(destinationDirectory, fileName));
+
+					runtimeElements.getOutgoing().artifact(artifactFile, it -> it.builtBy(syncTask));
+				}
+			}
+
+			if ((project.getPluginManager().hasPlugin("java") || project.getPluginManager().hasPlugin("groovy") || project.getPluginManager().hasPlugin("org.jetbrains.kotlin.jvm")) && component.getBuildVariants().get().size() == 1) {
+				project.getTasks().named(project.getExtensions().getByType(SourceSetContainer.class).getByName(component.getName()).getJarTaskName(), configureDependsOn((Callable<?>) () -> {
+					val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
+					return model(project, objects()).getElements(JniLibraryInternal.class, obj -> {
+						if (obj.getType().isSubtypeOf(JniLibraryInternal.class) && ModelObjectIdentifiers.descendantOf(obj.getIdentifier(), component.getIdentifier())) {
+							if (ModelObjectIdentifiers.asFullyQualifiedName(obj.getIdentifier()).toString().contains("*")) {
+								return true; // discovering elements
+							} else {
+								final VariantIdentifier variantIdentifier = (VariantIdentifier) obj.getIdentifier();
+								return toolChainSelector.canBuild(((BuildVariantInternal) variantIdentifier.getBuildVariant()).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
+							}
+						}
+						return false;
+					}).map(transformEach(it -> it.asProvider().flatMap(elementsOf(JniLibraryInternal::getNativeRuntimeFiles)))).map(toProviderOfIterable(project.getObjects()::listProperty));
+					// TODO: Should be same as bottom configuration
+//					return component.getVariants().get().stream().map(it -> it.getNativeRuntimeFiles()).collect(Collectors.toList()); // realize variant
+//					return Collections.emptyList();
+				}));
+			}
+		});
+
+		// Attach JVM Jar binary
+		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), __ -> {
+			components(project).whenElementKnown(JniLibraryComponentInternal.class, knownComponent -> {
+				// Note: If it's not a main component, then we need to handle outgoing element that would normally be added by JVM plugins
+				if (!knownComponent.getIdentifier().getName().equals(ElementName.ofMain())) {
+					final Configuration apiElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("apiElements")).toString());
+					final Configuration runtimeElements = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("runtimeElements")).toString());
+
+					final ModelObject<Sync> syncTask = model(project, registryOf(Task.class)).register(knownComponent.getIdentifier().child(TaskName.of("sync", "jvmJar")), Sync.class);
+					syncTask.configure(task -> {
+						task.from(knownComponent.asProvider().flatMap(it -> it.getBinaries().withType(JvmJarBinary.class).getElements()).map(onlyElement()).flatMap(JarBinary::getJarTask));
+						task.setDestinationDir(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task)).get().getAsFile());
+					});
+
+					final Provider<File> artifactFile = ZipProviderBuilder.newBuilder(project.getObjects())
+						.value(syncTask.asProvider().map(Sync::getDestinationDir))
+						.value(knownComponent.asProvider().flatMap(HasBaseName::getBaseName))
+						.zip((destinationDirectory, baseName) -> new File(destinationDirectory, baseName + ".jar"));
+
+					apiElements.getOutgoing().artifact(artifactFile);
+					runtimeElements.getOutgoing().artifact(artifactFile);
 				}
 			});
-			val nativeImplementation = registry.register(newEntity("nativeImplementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val nativeLinkOnly = registry.register(newEntity("nativeLinkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val nativeRuntimeOnly = registry.register(newEntity("nativeRuntimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			implementation.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
+		}).execute(project);
 
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(nativeImplementation)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(nativeRuntimeOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(nativeLinkOnly)));
-
-			val apiElements = registry.register(newEntity("apiElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			apiElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
-			apiElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
-			entity.addComponent(new ApiElementsConfiguration(ModelNodes.of(apiElements)));
-			val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			runtimeElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
-			runtimeElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
-			entity.addComponent(new RuntimeElementsConfiguration(ModelNodes.of(runtimeElements)));
-
-			// TODO: This is an external dependency meaning we should go through the component dependencies.
-			//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
-			//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
-			registry.instantiate(configureEach(descendantOf(entity.getId()), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
-
-			project.getPluginManager().withPlugin("groovy", ignored -> {
-				val sourceSet = registry.register(newEntity("groovy", GroovySourceSetSpec.class, it -> it.ownedBy(entity)));
-				entity.addComponent(new GroovyLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
+		project.getPluginManager().withPlugin("java", appliedPlugin -> {
+			components(project).whenElementKnown(JniLibraryComponentInternal.class, knownComponent -> {
+				if (knownComponent.getIdentifier().getName().equals(ElementName.ofMain())) {
+					project.getConfigurations().getByName("implementation", configureExtendsFrom(createIfAbsent(project.getConfigurations(), "jvmImplementation")));
+					project.getConfigurations().getByName("runtimeOnly", configureExtendsFrom(createIfAbsent(project.getConfigurations(), "jvmRuntimeOnly")));
+				}
 			});
-			project.getPluginManager().withPlugin("java", ignored -> {
-				val sourceSet = registry.register(newEntity("java", JavaSourceSetSpec.class, it -> it.ownedBy(entity)));
+		});
 
-				sourceSet.as(JavaSourceSet.class).configure(it -> {
-					it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(identifier.get(), project.getLayout()));
+		components(project).whenElementKnown(JniLibraryComponentInternal.class, knownComponent -> {
+			final Configuration jvmImplementation = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("jvmImplementation")).toString());
+			final Configuration jvmRuntimeOnly = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("jvmRuntimeOnly")).toString());
+			final Configuration api = createIfAbsent(project.getConfigurations(), ModelObjectIdentifiers.asFullyQualifiedName(knownComponent.getIdentifier().child("api")).toString());
+
+			ConfigurationUtils.configureAsDeclarable().execute(jvmImplementation);
+			ConfigurationUtils.configureAsDeclarable().execute(jvmRuntimeOnly);
+
+			jvmImplementation.extendsFrom(api);
+		});
+
+		components(project).configureEach(JniLibraryComponentInternal.class, new TargetedNativeComponentDimensionsRule(project.getObjects().newInstance(ToolChainSelectorInternal.class)));
+		components(project).configureEach(JniLibraryComponentInternal.class, new Action<JniLibraryComponentInternal>() {
+			@Override
+			public void execute(JniLibraryComponentInternal component) {
+				final DefaultJavaNativeInterfaceLibraryComponentDependencies dependencies = component.getDependencies();
+				configureFrameworkAwareness(dependencies.getNative());
+				extendsFromImplementation(dependencies.getNative());
+
+				// Propagate to variants
+				component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
+					final DefaultJavaNativeInterfaceNativeComponentDependencies variantDependencies = variant.getDependencies();
+
+					extendsFromParent(variantDependencies.getNative(), dependencies.getNative());
+					extendsFromImplementation(variantDependencies.getNative());
+
+					variant.getSources().configureEach(extendsFromParentCompileOnly(variantDependencies.getNative().getCompileOnly()));
+
+					variant.getBinaries().configureEach(withElement((element, binary) -> {
+						if (binary instanceof HasLinkLibrariesDependencyBucket) {
+							((HasLinkLibrariesDependencyBucket) binary).getLinkLibraries().extendsFrom(variantDependencies.getNativeImplementation(), variantDependencies.getNativeLinkOnly());
+						}
+						if (binary instanceof HasRuntimeLibrariesDependencyBucket) {
+							((HasRuntimeLibrariesDependencyBucket) binary).getRuntimeLibraries().extendsFrom(variantDependencies.getNativeImplementation(), variantDependencies.getNativeRuntimeOnly());
+						}
+					}));
 				});
 
-				entity.addComponent(new GeneratedJniHeadersComponent(project.getObjects().fileCollection().from((Callable<?>) () -> {
-					return sourceSet.as(JavaSourceSet.class).flatMap(ss -> ss.getCompileTask().flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
-				})));
-				entity.addComponent(new JavaLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
-			});
-			project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
-				val sourceSet = registry.register(newEntity("kotlin", KotlinSourceSetSpec.class, it -> it.ownedBy(entity)));
-				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
-			});
+//			project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(appliedPlugin -> {
+//				// TODO: configure child headerSearchPaths to extends from nativeCompileOnly
+//			}));
+			}
 
-			project.getPluginManager().withPlugin("java", appliedPlugin -> {
-				registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class)));
-				registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
-					.configure(Configuration.class, configureExtendsFrom(runtimeOnly.as(Configuration.class)));
+			private void configureFrameworkAwareness(DefaultNativeComponentDependencies dependencies) {
+				dependencies.getCompileOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+				dependencies.getImplementation().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+				dependencies.getLinkOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+				dependencies.getRuntimeOnly().getDefaultDependencyAction().set(new RequestFrameworkAction(project.getObjects()));
+			}
+
+			private void extendsFromParent(DefaultNativeComponentDependencies variantDependencies, DefaultNativeComponentDependencies parentDependencies) {
+				variantDependencies.getImplementation().extendsFrom(parentDependencies.getImplementation());
+				variantDependencies.getCompileOnly().extendsFrom(parentDependencies.getCompileOnly());
+				variantDependencies.getLinkOnly().extendsFrom(parentDependencies.getLinkOnly());
+				variantDependencies.getRuntimeOnly().extendsFrom(parentDependencies.getRuntimeOnly());
+			}
+
+			private void extendsFromImplementation(DefaultNativeComponentDependencies dependencies) {
+				dependencies.getCompileOnly().extendsFrom(dependencies.getImplementation());
+				dependencies.getLinkOnly().extendsFrom(dependencies.getImplementation());
+				dependencies.getRuntimeOnly().extendsFrom(dependencies.getImplementation());
+			}
+
+			private Action<LanguageSourceSet> extendsFromParentCompileOnly(DependencyBucket parentCompileOnly) {
+				return sourceSet -> {
+					if (sourceSet instanceof HasHeaderSearchPaths) {
+						((DependencyBucketInternal) ((DependencyAwareComponent<NativeSourceSetComponentDependencies>) sourceSet).getDependencies().getCompileOnly()).extendsFrom(parentCompileOnly);
+					}
+				};
+			}
+		});
+
+		// Component rules
+		project.getPluginManager().withPlugin("java", ignored -> {
+			components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+				component.getSources().configureEach(JavaSourceSetSpec.class, sourceSet -> {
+					sourceSet.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(component.getIdentifier(), project.getLayout()));
+				});
+				component.getSources().configureEach(HasHeaders.class, sourceSet -> {
+					sourceSet.getHeaders().from((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).getElements().map(it -> {
+						final ConfigurableFileCollection result = project.getObjects().fileCollection();
+						for (JavaSourceSetSpec spec : it) {
+							result.from(spec.getCompileTask().flatMap(t -> t.getOptions().getHeaderOutputDirectory()));
+						}
+						return result;
+					})::get);
+				});
 			});
-		})));
-		// TODO: When discovery will be a real feature, we shouldn't need this anymore
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, ignored) -> {
-			project.getPluginManager().withPlugin("dev.nokee.c-language", __ -> entity.addComponentTag(SupportCSourceSetTag.class));
-			project.getPluginManager().withPlugin("dev.nokee.cpp-language", __ -> entity.addComponentTag(SupportCppSourceSetTag.class));
-			project.getPluginManager().withPlugin("dev.nokee.objective-c-language", __ -> entity.addComponentTag(SupportObjectiveCSourceSetTag.class));
-			project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", __ -> entity.addComponentTag(SupportObjectiveCppSourceSetTag.class));
-		})));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(JniLibraryComponentTag.class), (entity, developmentVariant, ignored1) -> {
-			((Property<JniLibrary>) developmentVariant.get().get(GradlePropertyComponent.class).get())
-				.convention((Provider<? extends JniLibrary>) project.provider(new BuildableDevelopmentVariantConvention(() -> ModelElements.of(entity).property("variants").as(of(VariantView.class)).as(VariantView.class).flatMap(VariantView::getElements).get())));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(JvmSourceSetTag.class), ModelComponentReference.of(SourceSetComponent.class), ModelComponentReference.of(CompileTaskComponent.class), (entity, ignored1, sourceSet, compileTask) -> {
-			sourceSet.get().configure(it -> {
-				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(compileTask.get().getId(), Task.class, configureDependsOn((Callable<?>) () -> DependencyBuckets.finalize(project.getConfigurations().getByName(it.getCompileClasspathConfigurationName())))));
+		});
+
+		// TODO: This is an external dependency meaning we should go through the component dependencies.
+		//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
+		//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
+		variants(project).configureEach(JniLibraryInternal.class, variant -> {
+			variant.getSources().configureEach(HasCompileTask.class, sourceSet -> {
+				sourceSet.getCompileTask().configure(includeRoots(from(jvmIncludes())));
 			});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, jvmJar, apiElements) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(configure(apiElements.get().getId(), Configuration.class, configuration -> {
-				configuration.getOutgoing().artifact(jvmJar.getJarTask());
-			}));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, jvmJar, runtimeElements) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(configure(runtimeElements.get().getId(), Configuration.class, configuration -> {
-				configuration.getOutgoing().artifact(jvmJar.getJarTask());
-			}));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(AssembleTaskComponent.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class), (entity, assembleTask, projection) -> {
-			val component = project.provider(() -> ModelNodeUtils.get(entity, of(JavaNativeInterfaceLibrary.class)));
-			Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> v.getSharedLibrary().isBuildable()));
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn(component.flatMap(JavaNativeInterfaceLibrary::getDevelopmentVariant).map(JniLibrary::getJavaNativeInterfaceJar).map(Collections::singletonList).orElse(Collections.emptyList()))));
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(assembleTask.get().getId(), Task.class, task -> {
+		});
+
+		project.getPluginManager().withPlugin("groovy", ignored -> {
+			components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("groovy"), GroovySourceSetSpec.class).get(); // force realize to avoid out-of-order
+			});
+		});
+		project.getPluginManager().withPlugin("java", ignored -> {
+			components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("java"), JavaSourceSetSpec.class).get(); // force realize to avoid out-of-order
+			});
+		});
+		project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
+			components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+				model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("kotlin"), KotlinSourceSetSpec.class).get(); // force realize to avoid out-of-order
+			});
+		});
+		components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+			Provider<? extends List<? extends JniLibrary>> allBuildableVariants = component.getVariants().filter(v -> v.getSharedLibrary().isBuildable());
+			component.getAssembleTask().configure(configureDependsOn(component.getDevelopmentVariant().map(JniLibrary::getJavaNativeInterfaceJar).map(Collections::singletonList).orElse(Collections.emptyList())));
+			component.getAssembleTask().configure(task -> {
 				task.dependsOn((Callable<Object>) () -> {
-					val buildVariants = component.get().getBuildVariants().get();
+					val buildVariants = component.getBuildVariants().get();
 					val firstBuildVariant = Iterables.getFirst(buildVariants, null);
 					if (buildVariants.size() == 1 && allBuildableVariants.get().isEmpty() && firstBuildVariant.hasAxisOf(TargetMachines.host().getOperatingSystemFamily())) {
 						throw new RuntimeException(String.format("No tool chain is available to build for platform '%s'", platformNameFor(((BuildVariantInternal) firstBuildVariant).getAxisValue(TARGET_MACHINE_COORDINATE_AXIS))));
 					}
 					return ImmutableList.of();
 				});
-			}));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(RuntimeElementsConfiguration.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class), (entity, runtimeElements, projection) -> {
-			val component = project.provider(() -> projection.get(of(JavaNativeInterfaceLibrary.class)));
-			val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
-			val values = project.getObjects().listProperty(PublishArtifact.class);
-			Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine())));
-			Provider<Iterable<JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
-			val allArtifacts = project.getObjects().listProperty(PublishArtifact.class);
-			allArtifacts.set(allJniJars.flatMap(binaries -> {
-				val result = project.getObjects().listProperty(PublishArtifact.class);
-				for (JniJarBinary binary : binaries) {
-					result.add(new LazyPublishArtifact(binary.getJarTask()));
-				}
-				return result;
-			}));
-			allArtifacts.finalizeValueOnRead();
-			values.addAll(allArtifacts);
-			runtimeElements.addAll(values);
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, identifier, elementName, projection, variants) -> {
-			val variantFactory = new JavaNativeInterfaceLibraryVariantRegistrationFactory(project.getObjects());
-			val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
+			});
+		});
 
-			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
-				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-				variantFactory.create(variantIdentifier).getComponents().forEach(variant::addComponent);
-				ModelStates.register(variant);
-
+		// TODO: We should discover the variant instead of gating them
+		project.afterEvaluate(__ -> {
+			components(project).configureEach(JniLibraryComponentInternal.class, component -> {
 				// See https://github.com/nokeedev/gradle-native/issues/543
 				if (component.getBuildVariants().get().size() > 1) {
-					project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(variant.getId(), JniLibrary.class, it -> {
+					component.getVariants().configureEach(JniLibraryInternal.class, it -> {
 						it.getJavaNativeInterfaceJar().getJarTask().configure(task -> {
-							task.getDestinationDirectory().set(project.getLayout().getBuildDirectory().dir("libs/" + elementName.get()));
+							task.getDestinationDirectory().set(project.getLayout().getBuildDirectory().dir("libs/" + component.getIdentifier().getName()));
 						});
-					}));
+					});
 				}
+			});
+		});
+		components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
+				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(JavaSourceSetSpec.class).map(it -> it.getCompileTask().get())::get));
+			});
+		});
+		components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
+				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(GroovySourceSetSpec.class).map(it -> it.getCompileTask().get())::get));
+			});
+		});
+		components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
+				binary.getJarTask().configure(configureDependsOn((Callable<Object>) component.getSources().withType(KotlinSourceSetSpec.class).map(it -> it.getCompileTask().get())::get));
+			});
+		});
 
-				return null;
-			}).forEach(it -> {});
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(JavaLanguageSourceSetComponent.class), (entity, jvmJar, javaSourceSet) -> {
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
-				binary.getJarTask().configure(configureDependsOn(entity.get(ModelElementFactory.class).createObject(javaSourceSet.get(), of(JavaSourceSet.class)).flatMap(JavaSourceSet::getCompileTask)));
-			}));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(GroovyLanguageSourceSetComponent.class), (entity, jvmJar, groovySourceSet) -> {
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
-				binary.getJarTask().configure(configureDependsOn(entity.get(ModelElementFactory.class).createObject(groovySourceSet.get(), of(GroovySourceSet.class)).flatMap(GroovySourceSet::getCompileTask)));
-			}));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(KotlinLanguageSourceSetComponent.class), (entity, jvmJar, kotlinSourceSet) -> {
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
-				binary.getJarTask().configure(configureDependsOn(entity.get(ModelElementFactory.class).createObject(kotlinSourceSet.get(), of(KotlinSourceSet.class)).flatMap(KotlinSourceSet::getCompileTask)));
-			}));
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJniJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(ElementNameComponent.class), (entity, projection, identifier, tag, elementName) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val jarTask = registry.instantiate(newEntity("jar", Jar.class, it -> it.ownedBy(entity)));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, configureBuildGroup()));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
-				task.getDestinationDirectory().convention(task.getProject().getLayout().getBuildDirectory().dir("libs"));
-			}));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
-				task.getArchiveBaseName().convention(elementName.get().toString());
-			}));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
+		artifacts(project).configureEach(JniJarBinarySpec.class, binary -> {
+			binary.getJarTask().configure(configureBuildGroup());
+			binary.getJarTask().configure(task -> {
+				task.getDestinationDirectory().convention(project.getLayout().getBuildDirectory().dir("libs"));
+			});
+			binary.getJarTask().configure(task -> {
+				task.getArchiveBaseName().convention(binary.getIdentifier().getName().toString());
+			});
+			binary.getJarTask().configure(task -> {
 				if (task.getDescription() == null) {
-					task.setDescription(String.format("Assembles a JAR archive containing the shared library for %s.", identifier.get()));
+					task.setDescription(String.format("Assembles a JAR archive containing the shared library for %s.", binary));
 				}
-			}));
-			ModelStates.register(jarTask);
-			entity.addComponent(new JarTaskComponent(jarTask));
-		})));
+			});
+		});
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJvmJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.of(ElementNameComponent.class), (entity, projection, identifier, tag, elementName) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val jarTask = registry.instantiate(newEntity("jar", Jar.class, it -> it.ownedBy(entity)));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, configureBuildGroup()));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
-				task.getDestinationDirectory().convention(task.getProject().getLayout().getBuildDirectory().dir("libs"));
-			}));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> task.getArchiveBaseName().convention(elementName.get().toString())));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
+		artifacts(project).configureEach(JvmJarBinarySpec.class, binary -> {
+			binary.getJarTask().configure(configureBuildGroup());
+			binary.getJarTask().configure(task -> {
+				task.getDestinationDirectory().convention(project.getLayout().getBuildDirectory().dir("libs"));
+			});
+			binary.getJarTask().configure(task -> {
+				task.getArchiveBaseName().convention(binary.getIdentifier().getName().toString());
+			});
+			binary.getJarTask().configure(task -> {
 				if (task.getDescription() == null) {
-					task.setDescription(String.format("Assembles a JAR archive containing the classes for %s.", identifier.get()));
+					task.setDescription(String.format("Assembles a JAR archive containing the classes for %s.", binary));
 				}
-			}));
-			ModelStates.register(jarTask);
-			entity.addComponent(new JarTaskComponent(jarTask));
-		})));
+			});
+		});
 
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelBuffers.referenceOf(KnownVariantInformationElement.class), ModelComponentReference.of(JvmJarArtifactComponent.class), (entity, variants, jvmJar) -> {
-			if (Iterables.size(variants) == 1) {
-				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
-					binary.getJarTask().configure(configureDescription("Assembles a JAR archive containing the classes and shared library for %s.", ModelNodes.of(binary).get(IdentifierComponent.class).get()));
-				}));
-			}
-		}));
+		components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
+				binary.getJarTask().configure(task -> {
+					if (component.getBuildVariants().get().size() == 1) {
+						task.setDescription(String.format("Assembles a JAR archive containing the classes and shared library for %s.", binary));
+					}
+				});
+			});
+		});
 
+		components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+			component.getBinaries().configureEach(JvmJarBinarySpec.class, binary -> {
+				binary.getJarTask().configure(task -> task.getArchiveBaseName().set(component.getBaseName()));
+			});
+		});
 		val registerJvmJarBinaryAction = new Action<AppliedPlugin>() {
 			@Override
 			public void execute(AppliedPlugin ignored) {
-				project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"));
-					val jvmJar = registry.instantiate(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(binaryIdentifier)
-						.withComponent(new ParentComponent(entity))
-						.withComponentTag(ExcludeFromQualifyingNameTag.class)
-						.build());
-					registry.instantiate(configure(jvmJar.getId(), JvmJarBinary.class, binary -> {
-						binary.getJarTask().configure(task -> task.getArchiveBaseName().set(project.provider(() -> {
-							return ModelProperties.getProperty(entity, "baseName").as(String.class).get();
-						})));
-					}));
-					ModelStates.register(jvmJar);
-					entity.addComponent(new JvmJarArtifactComponent(jvmJar));
-				})));
+				components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+					model(project, registryOf(Artifact.class)).register(component.getIdentifier().child(ElementName.ofMain("jvmJar")), JvmJarBinarySpec.class);
+				});
 			}
 		};
 		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), registerJvmJarBinaryAction).execute(project);
 
 		// Assemble task configuration
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(AssembleTaskComponent.class), (entity, jvmJar, assembleTask) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(jvmJar.get(), JvmJarBinary.class))));
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of( ModelComponentReference.of(JniJarArtifactComponent.class), ModelComponentReference.of(AssembleTaskComponent.class), ModelTags.referenceOf(MultiVariantTag.class), (entity, jniJar, assembleTask, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(jniJar.get(), JniJarBinary.class))));
-		}));
+		components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+			component.getAssembleTask().configure(configureDependsOn((Callable<Object>) component.getBinaries().filter(it -> it instanceof JvmJarBinarySpec)::get));
+		});
+		variants(project).configureEach(JniLibraryInternal.class, variant -> {
+			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
+				variant.getAssembleTask().configure(configureDependsOn(variant.getJavaNativeInterfaceJar()));
+			}
+		});
 
 		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), ignored -> {
-			// ComponentFromEntity<JvmJarArtifactComponent.class> read-only from ParentComponent
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(JniJarArtifactComponent.class), ModelComponentReference.of(AssembleTaskComponent.class), (entity, parent, jniJar, assembleTask) -> {
-				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(parent.get().get(JvmJarArtifactComponent.class).get(), JvmJarBinary.class))));
-			}));
+			components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+				component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
+					variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) component.getBinaries().filter(it -> it instanceof JvmJarBinarySpec)::get));
+				});
+			});
 		}).execute(project);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.SHARED));
-		}));
+		components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.SHARED));
+		});
 
 		// Variant rules
-		// TODO: We should limit to JNILibrary variant
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, id, tag) -> {
-			val identifier = (VariantIdentifier) id.get();
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			if (!((VariantIdentifier) id.get()).getUnambiguousName().isEmpty()) {
-				entity.addComponentTag(MultiVariantTag.class);
-			}
-
-			val implementation = registry.register(newEntity("nativeImplementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val linkOnly = registry.register(newEntity("nativeLinkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val runtimeOnly = registry.register(newEntity("nativeRuntimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
-			val resourcePathProperty = registry.register(builder().withComponent(new ElementNameComponent("resourcePath")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(String.class)).build());
-			((ModelProperty<String>) resourcePathProperty).asProperty(property(of(String.class))).convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse(""));
-
-			val sharedLibrary = registry.register(newEntity("sharedLibrary", SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
-				.displayName("shared library binary")
-				.withComponent(new IdentifierComponent(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("sharedLibrary", "shared library binary"))))
-				.withComponent(new BuildVariantComponent(identifier.getBuildVariant()))
-				.withTag(ExcludeFromQualifyingNameTag.class)
-			));
-			val sharedLibraryTask = registry.register(newEntity("sharedLibrary", Task.class, it -> it.ownedBy(entity)));
-			sharedLibraryTask.configure(Task.class, configureBuildGroup());
-			sharedLibraryTask.configure(Task.class, configureDescription("Assembles the shared library binary of %s.", identifier));
-			sharedLibraryTask.configure(Task.class, configureDependsOn(sharedLibrary.as(SharedLibraryBinary.class)));
-
-			sharedLibrary.configure(SharedLibraryBinary.class, binary -> {
-				binary.getCompileTasks().configureEach(configureTargetPlatform(set(fromBuildVariant(identifier.getBuildVariant()))));
+		variants(project).configureEach(JniLibraryInternal.class, variant -> {
+			variant.getResourcePath().convention(variant.getIdentifier().getAmbiguousDimensions().getAsKebabCase().orElse(""));
+		});
+		variants(project).configureEach(JniLibraryInternal.class, variant -> {
+			variant.getSharedLibraryTask().configure(configureBuildGroup());
+			variant.getSharedLibraryTask().configure(configureDescription("Assembles the shared library binary of %s.", variant));
+			variant.getSharedLibraryTask().configure(configureDependsOn(variant.getSharedLibrary()));
+		});
+		variants(project).configureEach(JniLibraryInternal.class, variant -> {
+			variant.sharedLibrary(binary -> {
+				binary.getCompileTasks().configureEach(configureTargetPlatform(set(fromBuildVariant(variant.getIdentifier().getBuildVariant()))));
 			});
-
-			val objectsTask = registry.register(newEntity("objects", Task.class, it -> it.ownedBy(entity)));
-			objectsTask.configure(Task.class, configureDependsOn(sharedLibrary.as(SharedLibraryBinary.class).flatMap(binary -> binary.getCompileTasks().filter(it -> it instanceof HasObjectFiles))));
-			objectsTask.configure(Task.class, configureBuildGroup());
-			objectsTask.configure(Task.class, configureDescription("Assembles the object files of %s.", identifier));
-
-			val nativeRuntimeFiles = registry.register(builder().withComponent(new ElementNameComponent("nativeRuntimeFiles")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createFileCollectionProperty()).build());
-			((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from(sharedLibrary.as(SharedLibraryBinary.class).flatMap(SharedLibraryBinary::getLinkTask).flatMap(LinkSharedLibrary::getLinkedFile));
-			((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from((Callable<Object>) () -> ModelNodes.of(sharedLibrary).get(DependentRuntimeLibraries.class));
-
-			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
-		})));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentBinaryPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentBinaryPropertyComponent.class), ModelComponentReference.of(JniJarArtifactComponent.class), ModelTags.referenceOf(JniLibraryVariantTag.class), (entity, developmentBinary, jniJarArtifact , ignored1) -> {
-			((Property<Binary>) developmentBinary.get().get(GradlePropertyComponent.class).get()).convention(project.provider(() -> ModelNodeUtils.get(realize(jniJarArtifact.get()), JniJarBinary.class)));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, projection, identifier, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
-			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
-				.withComponent(new ParentComponent(entity))
-				.withComponentTag(JniJarArtifactTag.class)
-				.withComponentTag(ExcludeFromQualifyingNameTag.class)
-				.build());
-			entity.addComponent(new JniJarArtifactComponent(jniJar));
-			ModelStates.register(jniJar);
-			registry.instantiate(configure(jniJar.getId(), JniJarBinary.class, binary -> {
-				binary.getJarTask().configure(task -> {
-					task.getArchiveBaseName().set(project.provider(() -> {
-						val baseName = ModelProperties.getProperty(entity, "baseName").as(String.class).get();
-						return baseName + ((VariantIdentifier) identifier.get()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
-					}));
-				});
-			}));
-		})));
+		});
+		variants(project).configureEach(JniLibraryInternal.class, variant -> {
+			variant.getObjectsTask().configure(configureDependsOn(variant.getSharedLibrary().getCompileTasks().filter(it -> it instanceof HasObjectFiles)));
+			variant.getObjectsTask().configure(configureBuildGroup());
+			variant.getObjectsTask().configure(configureDescription("Assembles the object files of %s.", variant));
+		});
+		variants(project).configureEach(JniLibraryInternal.class, variant -> {
+			variant.getNativeRuntimeFiles().from(variant.getSharedLibrary().getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile));
+			variant.getNativeRuntimeFiles().from((Callable<Object>) () -> variant.getSharedLibrary().getRuntimeLibraries().getAsConfiguration().getIncoming().getFiles());
+		});
+		variants(project).configureEach(JniLibraryInternal.class, variant -> {
+			variant.getDevelopmentBinary().convention(variant.getJavaNativeInterfaceJar());
+		});
+		variants(project).configureEach(JniLibraryInternal.class, variant -> {
+			variant.getBinaries().configureEach(JniJarBinarySpec.class, binary -> {
+				binary.getJarTask().configure(task -> task.getArchiveBaseName()
+					.set(variant.getBaseName().map(baseName -> baseName + variant.getIdentifier().getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse(""))));
+			});
+		});
 
 		val unbuildableWarningService = (Provider<UnbuildableWarningService>) project.getGradle().getSharedServices().getRegistrations().getByName(UnbuildableWarningService.class.getSimpleName()).getService();
 
-		// ComponentFromEntity<IdentifierComponent> read-only
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JarTaskComponent.class), ModelTags.referenceOf(JniJarArtifactTag.class), ModelComponentReference.of(ParentComponent.class), (entity, jarTask, tag, parent) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			val identifier = (VariantIdentifier) parent.get().get(IdentifierComponent.class).get();
-			registry.instantiate(configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableWarningService.map(it -> {
-				it.warn(identifier.getComponentIdentifier());
-				return null;
-			}))));
-		}));
-
-		project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(ignored -> {
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val compileOnly = registry.register(newEntity("nativeCompileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			})));
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {
-			// Attach generated JNI headers
-			// FIXME shoul not stream parent in a callable...
-			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).filter(it -> it.has(GeneratedJniHeadersComponent.class)).map(it -> it.get(GeneratedJniHeadersComponent.class).get()).collect(Collectors.toList());
+		components(project).configureEach(JniLibraryComponentInternal.class, component -> {
+			component.getVariants().configureEach(JniLibraryInternal.class, variant -> {
+				variant.getJavaNativeInterfaceJar().getJarTask().configure(configureJarTaskUsing(project.provider(() -> variant), unbuildableWarningService.map(it -> {
+					it.warn(component.getIdentifier());
+					return null;
+				})));
 			});
-		}));
+		});
 	}
 
 	// NOTE(daniel): I added the diagnostic because I lost about 2 hours debugging missing files from the generated JAR file.

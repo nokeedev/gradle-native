@@ -16,7 +16,7 @@
 package dev.nokee.model.internal;
 
 import com.google.common.collect.Iterators;
-import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Project;
 import org.gradle.util.Path;
@@ -24,7 +24,7 @@ import org.gradle.util.Path;
 import java.util.Iterator;
 
 @EqualsAndHashCode(doNotUseGetters = true)
-public final class ProjectIdentifier implements DomainObjectIdentifier {
+public final class ProjectIdentifier implements ModelObjectIdentifier {
 	private final Path projectPath;
 	private final String projectName;
 
@@ -33,12 +33,22 @@ public final class ProjectIdentifier implements DomainObjectIdentifier {
 		this.projectName = projectName;
 	}
 
-	public String getName() {
-		return projectName;
+	public ElementName getName() {
+		return ElementName.of(projectName);
+	}
+
+	@Override
+	public ModelObjectIdentifier child(ElementName name) {
+		return new DefaultModelObjectIdentifier(name, this);
 	}
 
 	public Path getPath() {
 		return projectPath;
+	}
+
+	@Override
+	public ModelObjectIdentifier getParent() {
+		return null;
 	}
 
 	public static ProjectIdentifier of(String name) {

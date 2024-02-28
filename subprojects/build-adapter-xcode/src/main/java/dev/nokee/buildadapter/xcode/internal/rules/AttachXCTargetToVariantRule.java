@@ -15,16 +15,12 @@
  */
 package dev.nokee.buildadapter.xcode.internal.rules;
 
-import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
-import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.buildadapter.xcode.internal.plugins.XCProjectAdapterSpec;
+import org.gradle.api.Action;
 
-public final class AttachXCTargetToVariantRule extends ModelActionWithInputs.ModelAction2<XCTargetComponent, LinkedVariantsComponent> {
+public final class AttachXCTargetToVariantRule implements Action<XCProjectAdapterSpec> {
 	@Override
-	protected void execute(ModelNode entity, XCTargetComponent target, LinkedVariantsComponent variants) {
-		for (ModelNode variant : variants) {
-			variant.addComponent(target);
-		}
+	public void execute(XCProjectAdapterSpec spec) {
+		spec.getVariants().configureEach(it -> it.getTarget().set(spec.getTarget()));
 	}
 }

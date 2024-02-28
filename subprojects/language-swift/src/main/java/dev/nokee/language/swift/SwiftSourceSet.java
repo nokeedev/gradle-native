@@ -16,7 +16,9 @@
 package dev.nokee.language.swift;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
+import dev.nokee.language.nativebase.NativeSourceSet;
+import dev.nokee.language.swift.tasks.SwiftCompile;
+import org.gradle.api.tasks.TaskProvider;
 
 /**
  * A set of Swift source files.
@@ -24,4 +26,7 @@ import dev.nokee.language.base.SelfAwareLanguageSourceSet;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface SwiftSourceSet extends SelfAwareLanguageSourceSet<SwiftSourceSet> {}
+public interface SwiftSourceSet extends NativeSourceSet {
+	@Override
+	TaskProvider<? extends SwiftCompile> getCompileTask();
+}

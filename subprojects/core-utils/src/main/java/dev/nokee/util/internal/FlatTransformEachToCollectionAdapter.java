@@ -24,17 +24,17 @@ import java.util.Collection;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class FlatTransformEachToCollectionAdapter<OutputType extends Collection<OutputElementType>, OutputElementType, InputElementType> implements Transformer<OutputType, Iterable<InputElementType>>, Serializable {
+public final class FlatTransformEachToCollectionAdapter<OutputType extends Collection<OutputElementType>, OutputElementType, InputElementType> implements Transformer<OutputType, Iterable<? extends InputElementType>>, Serializable {
 	private final CollectionBuilderFactory<OutputElementType> collectionFactory;
 	private final Transformer<? extends Iterable<OutputElementType>, ? super InputElementType> mapper;
 
-	public FlatTransformEachToCollectionAdapter(CollectionBuilderFactory<OutputElementType> collectionFactory, Transformer<? extends Iterable<OutputElementType>, ? super InputElementType> mapper) {
+	public FlatTransformEachToCollectionAdapter(CollectionBuilderFactory<OutputElementType> collectionFactory, Transformer<? extends Iterable<OutputElementType>, InputElementType> mapper) {
 		this.mapper = requireNonNull(mapper);
 		this.collectionFactory = collectionFactory;
 	}
 
 	@Override
-	public OutputType transform(Iterable<InputElementType> elements) {
+	public OutputType transform(Iterable<? extends InputElementType> elements) {
 		CollectionBuilder<OutputElementType> builder = collectionFactory.create();
 		for (InputElementType element : elements) {
 			builder.addAll(mapper.transform(element));

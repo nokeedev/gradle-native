@@ -15,47 +15,33 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
-import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
+import dev.nokee.language.base.internal.SourceComponentSpec;
+import dev.nokee.language.nativebase.internal.PrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.language.objectivec.internal.HasObjectiveCSourcesMixIn;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
+import dev.nokee.language.objectivec.internal.SupportObjectiveCSourceSetTag;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentMixIn;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
+import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.HasDevelopmentVariant;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
+import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
+import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.mixins.VariantAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
-import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
-import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.NativeComponentSpec;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.utils.TextCaseUtils;
-import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.model.Mutate;
@@ -67,11 +53,13 @@ import org.gradle.nativeplatform.toolchain.internal.gcc.DefaultGccPlatformToolCh
 import java.util.Arrays;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
+import static dev.nokee.model.internal.names.ElementName.ofMain;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 
 public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -87,13 +75,16 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
-		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication("main", project)).as(ObjectiveCIosApplication.class);
-		componentProvider.configure(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))));
-		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, (t, projection) -> projection.getGroupId().set(GroupId.of(project::getGroup))));
-		project.getExtensions().add(ObjectiveCIosApplication.class, EXTENSION_NAME, componentProvider.get());
+		model(project, factoryRegistryOf(Component.class)).registerFactory(DefaultObjectiveCIosApplication.class);
 
-		// Other configurations
-		project.afterEvaluate(finalizeModelNodeOf(componentProvider));
+		final NamedDomainObjectProvider<DefaultObjectiveCIosApplication> componentProvider = model(project, registryOf(Component.class)).register(ProjectIdentifier.of(project).child(ofMain()), DefaultObjectiveCIosApplication.class).asProvider();
+		componentProvider.configure(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))));
+		componentProvider.configure(it -> {
+//			assert it instanceof DefaultIosApplicationComponent;
+//			((DefaultIosApplicationComponent) it).getGroupId().set(GroupId.of(project::getGroup));
+			throw new UnsupportedOperationException("fix me");
+		});
+		project.getExtensions().add(ObjectiveCIosApplication.class, EXTENSION_NAME, componentProvider.get());
 	}
 
 	public static class ToolChainMetadataRules extends RuleSource {
@@ -112,38 +103,30 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		}
 	}
 
-	public static ModelRegistration objectiveCIosApplication(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C iOS application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).withComponentTag(SupportObjectiveCSourceSetTag.class).build();
-	}
-
-	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication, ModelNodeAware
-		, ComponentMixIn
+	public static /*final*/ abstract class DefaultObjectiveCIosApplication extends ModelElementSupport implements ObjectiveCIosApplication
+		, NativeComponentSpec
 		, ExtensionAwareMixIn
-		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
-		, ModelBackedVariantAwareComponentMixIn<IosApplication>
-		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
-		, ModelBackedBinaryAwareComponentMixIn
-		, ModelBackedTaskAwareComponentMixIn
-		, ModelBackedHasBaseNameMixIn
-		, HasAssembleTaskMixIn
-		, ModelBackedTargetMachineAwareComponentMixIn
-		, ModelBackedTargetLinkageAwareComponentMixIn
-		, ModelBackedTargetBuildTypeAwareComponentMixIn
-		, HasDevelopmentVariantMixIn<IosApplication>
-		, HasObjectiveCSourcesMixIn
-		, HasPrivateHeadersMixIn
+		, DependentComponentSpec<NativeComponentDependencies>
+		, VariantAwareComponentMixIn<IosApplication>
+		, SourceComponentSpec
+		, BinaryAwareComponentMixIn
+		, TaskAwareComponentMixIn
+		, AssembleTaskMixIn
+		, HasDevelopmentVariant<IosApplication>
+		, ObjectiveCSourcesMixIn
+		, PrivateHeadersMixIn
 	{
-		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-
-		@Override
-		public ModelNode getNode() {
-			return entity;
+		public DefaultObjectiveCIosApplication() {
+			getExtensions().create("$objectiveCSupport", SupportObjectiveCSourceSetTag.class);
 		}
 
 		@Override
-		public String toString() {
-			return "Objective-C iOS application '" + getName() + "'";
+		@NestedObject
+		public abstract DefaultNativeComponentDependencies getDependencies();
+
+		@Override
+		protected String getTypeName() {
+			return "Objective-C iOS application";
 		}
 	}
 }

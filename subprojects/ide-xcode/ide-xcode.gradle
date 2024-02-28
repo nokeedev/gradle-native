@@ -39,6 +39,7 @@ gradlePlugin {
 		implementation project(':languageObjectiveC') // for UTType of each language
 		implementation project(':languageObjectiveCpp') // for UTType of each language
 		implementation project(':languageSwift') // for UTType of each language
+		compileOnly "dev.gradleplugins:gradle-backport-annotation-untracked-task"
 		implementation project(':xcodeIdeKit')
 		compileOnly project(':runtimeNative') // for TargetMachine && OperatingSystemFamily
 		compileOnlyApi gradleApi(minimumGradleVersion)

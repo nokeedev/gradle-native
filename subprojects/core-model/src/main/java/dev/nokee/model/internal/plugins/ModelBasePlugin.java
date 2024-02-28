@@ -15,31 +15,51 @@
  */
 package dev.nokee.model.internal.plugins;
 
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.reflect.DefaultInstantiator;
+import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.internal.services.ContextualModelObjectIdentifierAwareServiceLookup;
+import dev.nokee.internal.services.ExtensionBackedServiceLookup;
+import dev.nokee.internal.services.ServiceLookup;
+import dev.nokee.model.internal.DefaultModelElementFinalizer;
+import dev.nokee.model.internal.DefaultModelObjects;
+import dev.nokee.model.internal.DiscoveredElements;
+import dev.nokee.model.internal.DiscoveryService;
+import dev.nokee.model.internal.ManagedNamedDomainObjectFactoryProvider;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelExtension;
+import dev.nokee.model.internal.ModelMap;
+import dev.nokee.model.internal.ModelMapAdapters;
+import dev.nokee.model.internal.ModelMapFactory;
+import dev.nokee.model.internal.ModelObjectFactoryRegistry;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifierFactory;
+import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.ModelObjects;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.actions.ModelActionSystem;
-import dev.nokee.model.internal.ancestors.AncestryCapabilityPlugin;
-import dev.nokee.model.internal.core.DisplayNameComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
-import dev.nokee.model.internal.names.NamesCapabilityPlugin;
-import dev.nokee.model.internal.properties.ModelPropertiesCapabilityPlugin;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.tasks.ModelReportTask;
+import dev.nokee.model.internal.SetProviderFactory;
+import dev.nokee.model.internal.decorators.DeriveNameFromPropertyNameNamer;
+import dev.nokee.model.internal.decorators.NestedObjectNamer;
+import dev.nokee.model.internal.decorators.ReflectiveDomainObjectNamer;
+import dev.nokee.model.internal.discover.CachedDiscoveryService;
 import dev.nokee.utils.ActionUtils;
-import dev.nokee.utils.TaskUtils;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.HelpTasksPlugin;
 import org.gradle.api.plugins.PluginAware;
+import org.gradle.api.reflect.TypeOf;
 
 import javax.inject.Inject;
+import java.util.stream.Stream;
+
+import static dev.nokee.utils.TaskUtils.ifSelectedInTaskGraph;
 
 public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
 	private final PluginTargetSupport pluginScopes = PluginTargetSupport.builder()
@@ -60,22 +80,15 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 	}
 
 	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
-		val modelRegistry = new DefaultModelRegistry(objects::newInstance);
-		target.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
-		target.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
-		target.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
-		target.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory());
+		target.getExtensions().create("model", ModelExtension.class);
+		final ServiceLookup services = new ContextualModelObjectIdentifierAwareServiceLookup(new ExtensionBackedServiceLookup(model(target).getExtensions()));
 
-		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
-		target.getPluginManager().apply(ModelPropertiesCapabilityPlugin.class);
-		target.getPluginManager().apply(ModelActionSystem.class);
-		modelRegistry.configure(new GenerateModelPathFromParents());
-		modelRegistry.configure(new GenerateModelPathFromIdentifier());
+		// Required to instantiate final classes
+		model(target).getExtensions().add("__gradle_objectFactory", objects);
 
-		target.getPluginManager().apply(AncestryCapabilityPlugin.class);
-		target.getPluginManager().apply(NamesCapabilityPlugin.class);
-
-		modelRegistry.get(ModelPath.root()).addComponent(new DisplayNameComponent(target.toString()));
+		model(target).getExtensions().add("__nokee_instantiator", new DefaultInstantiator(objects, services));
+		model(target).getExtensions().add("__nokee_managedFactoryProvider", instantiator(target).newInstance(ManagedNamedDomainObjectFactoryProvider.class));
+		model(target).getExtensions().add("__nokee_objectNamer", new ReflectiveDomainObjectNamer(model(target).getExtensions().getByType(Instantiator.class), new NestedObjectNamer(new DeriveNameFromPropertyNameNamer())));
 	}
 
 	private void applyToSettings(Settings settings) {
@@ -87,8 +100,70 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		applyToAllTarget(project);
 
-		project.getTasks().register("nokeeModel", ModelReportTask.class, TaskUtils.configureDescription("Displays the configuration model of %s.", project));
+		// Required to instantiate final classes
+		model(project).getExtensions().add("__gradle_providerFactory", project.getProviders());
 
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new IdentifierComponent(ProjectIdentifier.of(project)));
+		model(project).getExtensions().add("__nokee_setProviders", SetProviderFactory.forProject(project));
+		model(project).getExtensions().add("__nokee_discoveredElements", new DiscoveredElements(new CachedDiscoveryService(new DiscoveryService(model(project).getExtensions().getByType(Instantiator.class))), ProjectIdentifier.of(project)));
+
+		model(project).getExtensions().add("__nokee_baseIdentifier", new ModelObjectIdentifierFactory(ProjectIdentifier.of(project)));
+		model(project).getExtensions().add("__nokee_elementFinalizer", new DefaultModelElementFinalizer(project));
+		model(project).getExtensions().add("$objects", instantiator(project).newInstance(DefaultModelObjects.class));
+		model(project).getExtensions().add("__nokee_parentElements", new ModelMapAdapters.ModelElementParents() {
+			@Override
+			public Stream<ModelElement> parentOf(ModelObjectIdentifier identifier) {
+				return model(project).getExtensions().getByType(ModelObjects.class).parentsOf(identifier).map(it -> it.asProvider().map(ModelElementSupport::asModelElement).get());
+			}
+		});
+		model(project).getExtensions().add("__nokee_modelMapFactory", instantiator(project).newInstance(ModelMapFactory.class, project));
+
+		model(project).getExtensions().add("$configuration", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getConfigurations()));
+		model(project).getExtensions().add("$tasks", model(project).getExtensions().getByType(ModelMapFactory.class).create(project.getTasks()));
+
+		project.getTasks().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(Task.class));
+		project.getPlugins().withType(HelpTasksPlugin.class, __ -> {
+			project.getTasks().named("tasks", ifSelectedInTaskGraph(() -> {
+				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Task.class);
+			}));
+			project.getTasks().named("dependencies", ifSelectedInTaskGraph(() -> {
+				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Configuration.class);
+			}));
+			project.getTasks().named("outgoingVariants", ifSelectedInTaskGraph(() -> {
+				model(project).getExtensions().getByType(DiscoveredElements.class).discoverAll(Configuration.class);
+			}));
+		});
+		project.getConfigurations().addRule(model(project).getExtensions().getByType(DiscoveredElements.class).ruleFor(Configuration.class));
+	}
+
+	public static ModelExtension model(ExtensionAware target) {
+		return target.getExtensions().getByType(ModelExtension.class);
+	}
+
+	public static <S> S model(ExtensionAware target, TypeOf<S> type) {
+		return model(target).getExtensions().getByType(type);
+	}
+
+	public static TypeOf<ModelObjects> objects() {
+		return TypeOf.typeOf(ModelObjects.class);
+	}
+
+	public static <S> TypeOf<ModelObjectRegistry<S>> registryOf(Class<S> type) {
+		return TypeOf.typeOf(new TypeToken<ModelObjectRegistry<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
+	}
+
+	public static <S> TypeOf<ModelObjectFactoryRegistry<S>> factoryRegistryOf(Class<S> type) {
+		return TypeOf.typeOf(new TypeToken<ModelObjectFactoryRegistry<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
+	}
+
+	public static <S> TypeOf<ModelMap<S>> mapOf(Class<S> type) {
+		return TypeOf.typeOf(new TypeToken<ModelMap<S>>() {}.where(new TypeParameter<S>() {}, type).getType());
+	}
+
+	public static <S extends ExtensionAware & PluginAware> Instantiator instantiator(S target) {
+		return model(target).getExtensions().getByType(Instantiator.class);
+	}
+
+	public static ModelMap<Task> tasks(Project project) {
+		return model(project, mapOf(Task.class));
 	}
 }

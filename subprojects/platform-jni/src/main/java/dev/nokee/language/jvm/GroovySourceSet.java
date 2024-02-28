@@ -16,7 +16,6 @@
 package dev.nokee.language.jvm;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.GroovyCompile;
 
@@ -26,6 +25,6 @@ import org.gradle.api.tasks.compile.GroovyCompile;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface GroovySourceSet extends SelfAwareLanguageSourceSet<GroovySourceSet> {
+public interface GroovySourceSet extends LanguageSourceSet {
 	TaskProvider<GroovyCompile> getCompileTask();
 }

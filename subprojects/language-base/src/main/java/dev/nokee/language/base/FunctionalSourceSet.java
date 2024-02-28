@@ -17,9 +17,6 @@ package dev.nokee.language.base;
 
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 
@@ -38,15 +35,6 @@ public interface FunctionalSourceSet extends View<LanguageSourceSet> {
 	void configure(String name, Action<? super LanguageSourceSet> action);
 
 	/**
-	 * Configures an element of the specified name.
-	 *
-	 * @param name  the name of the element to configure.
-	 * @param closure  the configuration closure.
-	 */
-	default void configure(String name, @DelegatesTo(value = LanguageSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-	}
-
-	/**
 	 * Configures an element of the specified name and type.
 	 *
 	 * @param name  the name of the element to configure.
@@ -55,18 +43,6 @@ public interface FunctionalSourceSet extends View<LanguageSourceSet> {
 	 * @param <S>  the type of the element to configure.
 	 */
 	<S extends LanguageSourceSet> void configure(String name, Class<S> type, Action<? super S> action);
-
-	/**
-	 * Configures an element of the specified name and type.
-	 *
-	 * @param name The name of the element to configure.
-	 * @param type The type of element to configure.
-	 * @param closure The configuration closure.
-	 * @param <S> The type of the element to configure.
-	 */
-	default <S extends LanguageSourceSet> void configure(String name, Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		configure(name, type, ConfigureUtils.configureUsing(closure));
-	}
 
 	<S extends LanguageSourceSet> NamedDomainObjectProvider<S> named(String name, Class<S> type);
 
@@ -83,13 +59,6 @@ public interface FunctionalSourceSet extends View<LanguageSourceSet> {
 	void whenElementKnown(Action<? super KnownDomainObject<LanguageSourceSet>> action);
 
 	/**
-	 * Executes given closure when an element becomes known to the view of the specified type.
-	 *
-	 * @param closure  the closure to execute for each known element of this view
-	 */
-	void whenElementKnown(@DelegatesTo(value = KnownDomainObject.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
-
-	/**
 	 * Executes given action when an element becomes known to the view of the specified type.
 	 *
 	 * @param type  the element type to match
@@ -97,13 +66,4 @@ public interface FunctionalSourceSet extends View<LanguageSourceSet> {
 	 * @param <S>  the element type to match
 	 */
 	<S extends LanguageSourceSet> void whenElementKnown(Class<S> type, Action<? super KnownDomainObject<S>> action);
-
-	/**
-	 * Executes given closure when an element becomes known to the view of the specified type.
-	 *
-	 * @param type  the element type to match
-	 * @param closure  the closure to execute for each known element of this view
-	 * @param <S>  the element type to match
-	 */
-	<S extends LanguageSourceSet> void whenElementKnown(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

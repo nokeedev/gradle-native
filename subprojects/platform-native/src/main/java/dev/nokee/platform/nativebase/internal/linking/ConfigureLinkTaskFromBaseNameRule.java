@@ -16,18 +16,15 @@
 package dev.nokee.platform.nativebase.internal.linking;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
+import dev.nokee.platform.base.Artifact;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
+import dev.nokee.platform.nativebase.HasLinkTask;
+import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.utils.TextCaseUtils;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
@@ -47,31 +44,25 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.model.internal.actions.ModelAction.configure;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-// ComponentFromEntity<GradlePropertyComponent>
-final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction2<BaseNamePropertyComponent, NativeLinkTask> {
-	private final ModelRegistry registry;
-
-	public ConfigureLinkTaskFromBaseNameRule(ModelRegistry registry) {
-		this.registry = registry;
-	}
-
+final class ConfigureLinkTaskFromBaseNameRule implements Action<Artifact> {
 	@Override
-	protected void execute(ModelNode entity, BaseNamePropertyComponent baseNameProperty, NativeLinkTask linkTask) {
-		@SuppressWarnings("unchecked")
-		val baseName = (Provider<String>) baseNameProperty.get().get(GradlePropertyComponent.class).get();
-		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName)))));
-		if (ModelNodeUtils.canBeViewedAs(entity, of(ExecutableBinary.class))) {
-			registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asExecutableFile(baseName)))));
-		} else if (ModelNodeUtils.canBeViewedAs(entity, of(BundleBinary.class))) {
-				registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asBundleFile(baseName)))));
-		} else {
-			registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asSharedLibraryFile(baseName)))));
+	public void execute(Artifact target) {
+		if (target instanceof HasBaseName) {
+			final Provider<String> baseName = ((HasBaseName) target).getBaseName();
+			if (target instanceof NativeBinary && target instanceof HasLinkTask) {
+				((HasLinkTask<?>) target).getLinkTask().configure(configureLinkerArgs(addAll(forSwiftModuleName(baseName))));
+				if (target instanceof ExecutableBinary) {
+					((ExecutableBinary) target).getLinkTask().configure(configureLinkedFile(convention(asExecutableFile(baseName))));
+				} else if (target instanceof BundleBinary) {
+					((BundleBinary) target).getLinkTask().configure(configureLinkedFile(convention(asBundleFile(baseName))));
+				} else {
+					((HasLinkTask<?>) target).getLinkTask().configure(configureLinkedFile(convention(asSharedLibraryFile(baseName))));
+				}
+			}
 		}
 	}
 

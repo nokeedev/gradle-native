@@ -15,8 +15,6 @@
  */
 package dev.nokee.language.objectivecpp;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -42,5 +40,4 @@ public interface HasObjectiveCppSources {
 	 * @see #getObjectiveCppSources()
 	 */
 	void objectiveCppSources(Action<? super ConfigurableFileCollection> action);
-	void objectiveCppSources(@DelegatesTo(value = ConfigurableFileCollection.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

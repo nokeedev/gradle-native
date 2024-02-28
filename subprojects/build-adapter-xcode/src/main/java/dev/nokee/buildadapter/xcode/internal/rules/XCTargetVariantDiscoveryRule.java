@@ -15,20 +15,18 @@
  */
 package dev.nokee.buildadapter.xcode.internal.rules;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import dev.nokee.buildadapter.xcode.internal.XcodeConfigurationParameter;
-import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
-import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
-import dev.nokee.model.internal.buffers.ModelBuffers;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.buildadapter.xcode.internal.plugins.XCProjectAdapterSpec;
 import dev.nokee.xcode.XCLoader;
 import dev.nokee.xcode.XCTargetReference;
 import lombok.val;
+import org.gradle.api.Action;
 
-public final class XCTargetVariantDiscoveryRule extends ModelActionWithInputs.ModelAction2<ModelComponentTag<IsComponent>, XCTargetComponent> {
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public final class XCTargetVariantDiscoveryRule implements Action<XCProjectAdapterSpec> {
 	private final XCLoader<Iterable<String>, XCTargetReference> loader;
 	private final XcodeConfigurationParameter configurationParameter;
 
@@ -38,14 +36,14 @@ public final class XCTargetVariantDiscoveryRule extends ModelActionWithInputs.Mo
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelComponentTag<IsComponent> ignored1, XCTargetComponent target) {
-		val builder = ImmutableSet.<KnownVariantInformationElement>builder();
+	public void execute(XCProjectAdapterSpec component) {
 		val requestedConfiguration = configurationParameter.get();
-		target.get().load(loader).forEach(configuration -> {
+		component.getConfigurations().convention(component.getTarget().map(it -> Streams.stream(it.load(loader)).flatMap(configuration -> {
 			if (requestedConfiguration == null || configuration.equals(requestedConfiguration)) {
-				builder.add(new KnownVariantInformationElement(configuration));
+				return Stream.of(configuration);
+			} else {
+				return Stream.empty();
 			}
-		});
-		entity.addComponent(ModelBuffers.of(KnownVariantInformationElement.class, builder.build()));
+		}).collect(Collectors.toList())));
 	}
 }

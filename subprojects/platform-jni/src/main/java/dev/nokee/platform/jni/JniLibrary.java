@@ -15,19 +15,14 @@
  */
 package dev.nokee.platform.jni;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasBaseName;
-import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.utils.ConfigureUtils;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Property;
@@ -41,7 +36,7 @@ public interface JniLibrary extends Variant
 	, DependencyAwareComponent<JavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponent
 	, TaskAwareComponent
-	, SourceAwareComponent<SourceView<LanguageSourceSet>>
+	, SourceAwareComponent
 	, HasBaseName
 {
 	/**
@@ -73,16 +68,6 @@ public interface JniLibrary extends Variant
 	 * @since 0.3
 	 */
 	void sharedLibrary(Action<? super SharedLibraryBinary> action);
-
-	/**
-	 * Configure the shared library binary for this variant.
-	 *
-	 * @param closure configuration closure for {@link SharedLibraryBinary}.
-	 * @since 0.3
-	 */
-	default void sharedLibrary(@DelegatesTo(value = SharedLibraryBinary.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		sharedLibrary(ConfigureUtils.configureUsing(closure));
-	}
 
 	JniJarBinary getJavaNativeInterfaceJar();
 

@@ -69,6 +69,16 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 		return (MockitoBuilder<R>) this;
 	}
 
+	public TestDouble<T> spiesOn(T spiedInstance) {
+		this.settings = settings.defaultAnswer(new Answer<Object>() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				return invocation.getMethod().invoke(spiedInstance, invocation.getArguments());
+			}
+		});
+		return this;
+	}
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	public TestDouble<T> alwaysThrows() {
@@ -202,7 +212,7 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T, R extends T> TestDouble<R> newMock(Class<T> classToMock) {
+	public static <T, R extends T> MockitoBuilder<R> newMock(Class<T> classToMock) {
 		return new MockitoBuilder<>((Class<R>) classToMock, false);
 	}
 

@@ -1,0 +1,9 @@
+plugins {
+	id 'dev.nokee.c-application'
+}
+
+application {
+	dependencies {
+		implementation project(':c-greeter')
+	}
+}

@@ -15,8 +15,13 @@
  */
 package dev.nokee.model;
 
+import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.FileCollectionDependency;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.file.FileCollection;
 
 import java.util.Objects;
 
@@ -31,5 +36,20 @@ final class DefaultDependencyFactory implements DependencyFactory {
 	public Dependency create(Object notation) {
 		Objects.requireNonNull(notation);
 		return dependencies.create(notation);
+	}
+
+	@Override
+	public FileCollectionDependency create(FileCollection fileCollection) {
+		return (FileCollectionDependency) dependencies.create(fileCollection);
+	}
+
+	@Override
+	public ExternalModuleDependency create(CharSequence notation) {
+		return (ExternalModuleDependency) dependencies.create(notation);
+	}
+
+	@Override
+	public ProjectDependency create(Project project) {
+		return (ProjectDependency) dependencies.create(project);
 	}
 }

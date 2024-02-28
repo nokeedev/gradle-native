@@ -20,20 +20,14 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinarySpec;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import lombok.val;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.file.RegularFile;
-import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.platform.base.ToolChain;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +39,9 @@ import java.io.UncheckedIOException;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.artifacts;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -55,15 +52,12 @@ import static org.hamcrest.Matchers.emptyIterable;
 @SuppressWarnings("unchecked")
 class ExecutableBinarySpecLinkTaskObjectFilesIntegrationTest {
 	@GradleProject Project project;
-	ExecutableBinary binary;
+	NativeExecutableBinarySpec binary;
 	LinkExecutableTask subject;
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(ExecutableBinaryRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val projectIdentifier = ProjectIdentifier.of(project);
-		binary = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "liku"))).as(ExecutableBinary.class).get();
+		binary = artifacts(project).register("liku", NativeExecutableBinarySpec.class).get();
 
 		binary.getLinkTask().configure(task -> ((LinkExecutableTask) task).getTargetPlatform().set(create(of("macos-x64"))));
 		subject = (LinkExecutableTask) binary.getLinkTask().get();
@@ -76,7 +70,7 @@ class ExecutableBinarySpecLinkTaskObjectFilesIntegrationTest {
 
 	@Test
 	void includesNativeSourceCompileTaskAsLinkTaskSources() throws IOException {
-		val compileTask = project.getTasks().register("suti", MyNativeSourceCompileTask.class, task -> {
+		model(project, registryOf(Task.class)).register(binary.getIdentifier().child("suti"), MyNativeSourceCompileTask.class).configure(task -> {
 			try {
 				task.getObjectFiles().from(createFile(project.getLayout().getProjectDirectory().file("foo.o")));
 				task.getObjectFiles().from(createFile(project.getLayout().getProjectDirectory().file("foo.obj")));
@@ -84,15 +78,13 @@ class ExecutableBinarySpecLinkTaskObjectFilesIntegrationTest {
 				throw new UncheckedIOException(e);
 			}
 		});
-		val compileTasks = ModelProperties.getProperty(binary, "compileTasks");
-		((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("suti", compileTask);
 
 		assertThat(subject.getSource(), contains(aFileNamed("foo.o"), aFileNamed("foo.obj")));
 	}
 
 	@Test
 	void includesSourceCompileTaskWithObjectFilesAsLinkTaskSources() throws IOException {
-		val compileTask = project.getTasks().register("kedi", MySourceCompileWithObjectFilesTask.class, task -> {
+		model(project, registryOf(Task.class)).register(binary.getIdentifier().child("kedi"), MySourceCompileWithObjectFilesTask.class).configure(task -> {
 			try {
 				task.getObjectFiles().from(createFile(project.getLayout().getProjectDirectory().file("bar.o")));
 				task.getObjectFiles().from(createFile(project.getLayout().getProjectDirectory().file("bar.obj")));
@@ -100,17 +92,13 @@ class ExecutableBinarySpecLinkTaskObjectFilesIntegrationTest {
 				throw new UncheckedIOException(e);
 			}
 		});
-		val compileTasks = ModelProperties.getProperty(binary, "compileTasks");
-		((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("kedi", compileTask);
 
 		assertThat(subject.getSource(), contains(aFileNamed("bar.o"), aFileNamed("bar.obj")));
 	}
 
 	@Test
 	void doesNotThrowExceptionWhenResolvingSourcesWithCompileTasksWithoutObjectFiles() {
-		val compileTask = project.getTasks().register("xuvi", MySourceCompileTask.class);
-		val compileTasks = ModelProperties.getProperty(binary, "compileTasks");
-		((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("xuvi", compileTask);
+		model(project, registryOf(Task.class)).register(binary.getIdentifier().child("xuvi"), MySourceCompileTask.class);
 		assertThat(subject.getSource(), emptyIterable());
 	}
 

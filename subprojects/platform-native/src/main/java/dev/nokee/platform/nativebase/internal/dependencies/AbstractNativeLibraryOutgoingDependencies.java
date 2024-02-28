@@ -15,47 +15,100 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
-import com.google.common.collect.ImmutableList;
+import dev.nokee.language.nativebase.internal.NativePlatformFactory;
+import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
+import dev.nokee.model.internal.ModelObject;
+import dev.nokee.model.internal.names.TaskName;
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.HasOutputFile;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinarySpec;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
-import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.util.internal.LazyPublishArtifact;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
+import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.TaskUtils;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.internal.provider.Providers;
-import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Sync;
+
+import java.io.File;
+
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public abstract class AbstractNativeLibraryOutgoingDependencies {
-	@Getter private final DirectoryProperty exportedHeaders;
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
 	private final Configuration linkElements;
 	private final Configuration runtimeElements;
 
-	protected AbstractNativeLibraryOutgoingDependencies(Configuration linkElements, Configuration runtimeElements, ObjectFactory objects) {
-		this.exportedHeaders = objects.directoryProperty();
-		this.exportedSwiftModule = objects.fileProperty();
-		this.exportedBinary = objects.property(Binary.class);
+	protected AbstractNativeLibraryOutgoingDependencies(VariantIdentifier variantIdentifier, Configuration linkElements, Configuration runtimeElements, Project project, Provider<String> exportBaseName) {
+		this.exportedSwiftModule = project.getObjects().fileProperty();
+		this.exportedBinary = project.getObjects().property(Binary.class);
 		this.linkElements = linkElements;
 		this.runtimeElements = runtimeElements;
 
-		val linkArtifacts = objects.listProperty(PublishArtifact.class);
-		linkArtifacts.addAll(getExportedBinary().flatMap(this::getOutgoingLinkLibrary));
-		linkElements.getOutgoing().getArtifacts().addAllLater(linkArtifacts);
+		final BuildVariantInternal buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
+		final ModelObject<Sync> syncLinkLibraryTask = model(project, registryOf(Task.class)).register(variantIdentifier.child(TaskName.of("sync", "linkLibrary")), Sync.class);
+		val linkLibraryName = finalizeValueOnRead(project.getObjects().property(String.class).value(project.provider(() -> {
+			val toolChainSelector = new ToolChainSelectorInternal(((ProjectInternal) project).getModelRegistry());
+			val platform = NativePlatformFactory.create(buildVariant.getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
+			val toolchain = toolChainSelector.select(platform);
+			val toolProvider = toolchain.select(platform);
+			val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+			val baseName = exportBaseName.get();
+			if (linkage.isStatic()) {
+				return toolProvider.getStaticLibraryName(baseName);
+			} else if (linkage.isShared()) {
+				if (toolProvider.producesImportLibrary()) {
+					return toolProvider.getImportLibraryName(baseName);
+				} else {
+					return toolProvider.getSharedLibraryLinkFileName(baseName);
+				}
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		})));
+		syncLinkLibraryTask.configure(task -> {
+			task.from(getExportedBinary().flatMap(this::getOutgoingLinkLibrary), spec -> spec.rename(it -> linkLibraryName.get()));
+			task.setDestinationDir(project.getLayout().getBuildDirectory().dir(TaskUtils.temporaryDirectoryPath(task)).get().getAsFile());
+		});
+		linkElements.getOutgoing().artifact(syncLinkLibraryTask.asProvider().map(it -> new File(it.getDestinationDir(), linkLibraryName.get())));
 
-		val runtimeArtifacts = objects.listProperty(PublishArtifact.class);
-		runtimeArtifacts.addAll(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
-		runtimeElements.getOutgoing().getArtifacts().addAllLater(runtimeArtifacts);
+
+		final ModelObject<Sync> syncRuntimeLibraryTask = model(project, registryOf(Task.class)).register(variantIdentifier.child(TaskName.of("sync", "runtimeLibrary")), Sync.class);
+		if (!buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS).isStatic()) {
+			val runtimeLibraryName = finalizeValueOnRead(project.getObjects().property(String.class).value(project.provider(() -> {
+				val toolChainSelector = new ToolChainSelectorInternal(((ProjectInternal) project).getModelRegistry());
+				val platform = NativePlatformFactory.create(buildVariant.getAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
+				val toolchain = toolChainSelector.select(platform);
+				val toolProvider = toolchain.select(platform);
+				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+				val baseName = exportBaseName.get();
+				if (linkage.isShared()) {
+					return toolProvider.getSharedLibraryName(baseName);
+				} else {
+					throw new UnsupportedOperationException();
+				}
+			})));
+			syncRuntimeLibraryTask.configure(task -> {
+				task.from(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary), spec -> spec.rename(it -> runtimeLibraryName.get()));
+				task.setDestinationDir(project.getLayout().getBuildDirectory().dir(TaskUtils.temporaryDirectoryPath(task)).get().getAsFile());
+			});
+			runtimeElements.getOutgoing().artifact(syncRuntimeLibraryTask.asProvider().map(it -> new File(it.getDestinationDir(), runtimeLibraryName.get())));
+		}
 	}
 
 	public Configuration getLinkElements() {
@@ -66,24 +119,24 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 		return runtimeElements;
 	}
 
-	private Provider<Iterable<PublishArtifact>> getOutgoingLinkLibrary(Binary binary) {
-		if (binary instanceof SharedLibraryBinaryInternal) {
-			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(it -> ((LinkSharedLibraryTask) it).getImportLibrary().orElse(((LinkSharedLibraryTask) it).getLinkedFile())))));
+	private Provider<RegularFile> getOutgoingLinkLibrary(Binary binary) {
+		if (binary instanceof NativeSharedLibraryBinarySpec) {
+			return ((NativeSharedLibraryBinarySpec) binary).getLinkTask().flatMap(it -> it.getImportLibrary().orElse(it.getLinkedFile()));
 		} else if (binary instanceof StaticLibraryBinary) {
-			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((StaticLibraryBinary) binary).getCreateTask().flatMap(CreateStaticLibrary::getOutputFile))));
+			return ((StaticLibraryBinary) binary).getCreateTask().flatMap(CreateStaticLibrary::getOutputFile);
 		} else if (binary instanceof HasOutputFile) {
-			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((HasOutputFile) binary).getOutputFile())));
+			return ((HasOutputFile) binary).getOutputFile();
 		}
 		throw new IllegalArgumentException("Unsupported binary to export");
 	}
 
-	private Provider<Iterable<PublishArtifact>> getOutgoingRuntimeLibrary(Binary binary) {
-		if (binary instanceof SharedLibraryBinaryInternal) {
-			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile))));
+	private Provider<RegularFile> getOutgoingRuntimeLibrary(Binary binary) {
+		if (binary instanceof NativeSharedLibraryBinarySpec) {
+			return ((NativeSharedLibraryBinarySpec) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile);
 		} else if (binary instanceof StaticLibraryBinary) {
-			return Providers.of(ImmutableList.of());
+			throw new UnsupportedOperationException();
 		} else if (binary instanceof HasOutputFile) {
-			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((HasOutputFile) binary).getOutputFile())));
+			return ((HasOutputFile) binary).getOutputFile();
 		}
 		throw new IllegalArgumentException("Unsupported binary to export");
 	}

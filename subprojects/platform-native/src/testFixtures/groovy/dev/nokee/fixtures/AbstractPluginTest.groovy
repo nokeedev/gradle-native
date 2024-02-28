@@ -93,7 +93,7 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 		extensionUnderTest instanceof VariantAwareComponent
 
 		and: 'variant getter is of the expected type'
-		extensionUnderTest.variants instanceof VariantView
+		extensionUnderTest.variants instanceof View
 	}
 
 	def "extensions has binary view"() {
@@ -104,7 +104,7 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 		extensionUnderTest instanceof BinaryAwareComponent
 
 		and: 'variant getter is of the expected type'
-		extensionUnderTest.binaries instanceof BinaryView
+		extensionUnderTest.binaries instanceof View
 	}
 
 	def "variants has dependencies dsl"() {
@@ -139,7 +139,7 @@ abstract class AbstractPluginTest extends Specification implements ProjectTestFi
 		variants.every { it instanceof BinaryAwareComponent }
 
 		and: 'dependency getter is of the expected type'
-		variants.every { it.binaries instanceof BinaryView }
+		variants.every { it.binaries instanceof View }
 	}
 }
 

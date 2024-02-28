@@ -127,10 +127,20 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 	@Override
 	String getSyncApiElements() {
 		if (languageTaskSuffix == 'Swift') {
-			throw new UnsupportedOperationException('No supported for Swift yet.')
+			return withProject(withVariant('sync')) + 'ImportModule'
 		}
 
 		return withProject(withVariant('sync')) + 'PublicHeaders'
+	}
+
+	@Override
+	String getSyncLinkElements() {
+		return withProject(withVariant('sync')) + 'LinkLibrary'
+	}
+
+	@Override
+	String getSyncRuntimeElements() {
+		return withProject(withVariant('sync')) + 'RuntimeLibrary'
 	}
 
 	List<String> getAllToObjects() {
@@ -153,8 +163,16 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 		return [compile, linkOrCreate]
 	}
 
+	List<String> getAllToApiElements() {
+		return [compile, syncApiElements]
+	}
+
 	List<String> getAllToLinkElements() {
-		return allToLinkOrCreate + (languageTaskSuffix != 'Swift' ? [syncApiElements] : [])
+		return allToLinkOrCreate + [syncApiElements, syncLinkElements]
+	}
+
+	List<String> getAllToRuntimeElements() {
+		return allToLinkElements + [syncRuntimeElements]
 	}
 
 	List<String> getAllToInstall() {

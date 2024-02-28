@@ -1,0 +1,25 @@
+pluginManagement {
+	includeBuild '../../../gradle/libraries/source-elements'
+	repositories {
+		maven { url = 'https://repo.nokee.dev/snapshot' }
+		gradlePluginPortal()
+	}
+}
+
+plugins {
+	id 'nokeetemplates.source-element'
+	id 'dev.nokee.c-application' version '0.4.3129-202303171612.d413fb13' apply false
+}
+
+includeBuild '../../../gradle/libraries/source-elements'
+
+include 'c-compile-greeter'
+include 'c-greeter'
+include 'c-greeter-app'
+include 'c-greeter-lib'
+include 'c-greeter-test'
+include 'c-greeter-with-optional-feature'
+
+gradle.allprojects {
+	group = 'dev.nokee.templates'
+}

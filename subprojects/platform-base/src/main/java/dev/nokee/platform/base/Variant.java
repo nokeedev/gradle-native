@@ -16,7 +16,6 @@
 package dev.nokee.platform.base;
 
 import org.gradle.api.Named;
-import org.gradle.api.provider.Provider;
 
 /**
  * A variant realization of a component.
@@ -28,10 +27,10 @@ public interface Variant extends Named, BinaryAwareComponent, HasDevelopmentBina
 	 * Configure the binaries of this variant.
 	 * The view contains only the binaries participating to this variant.
 	 *
-	 * @return a {@link BinaryView} for configuring each binary, never null.
+	 * @return a {@link View} for configuring each binary, never null.
 	 * @since 0.4
 	 */
-	BinaryView<Binary> getBinaries();
+	View<Binary> getBinaries();
 
 	/**
 	 * Returns the build variant information of this variant.

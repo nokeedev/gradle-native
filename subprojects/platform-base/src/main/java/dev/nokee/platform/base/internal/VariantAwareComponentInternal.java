@@ -15,10 +15,11 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 
 public interface VariantAwareComponentInternal<T extends Variant> extends VariantAwareComponent<T>, HasDevelopmentVariant<T> {
-	ComponentIdentifier getIdentifier();
+	ModelObjectIdentifier getIdentifier();
 }

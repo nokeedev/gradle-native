@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,47 +15,21 @@
  */
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.model.internal.ModelElementSupport;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantView;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 import java.util.Set;
 
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
-import static dev.nokee.model.internal.type.ModelType.of;
+@Deprecated
+public abstract class BaseComponent<T extends Variant> extends ModelElementSupport implements Component {
+	public abstract Property<String> getBaseName();
 
-public abstract class BaseComponent<T extends Variant> implements Component, ModelNodeAware {
-	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-
-	public Property<String> getBaseName() {
-		return ModelProperties.getProperty(this, "baseName").asProperty(property(of(String.class)));
-	}
-
-	public ComponentIdentifier getIdentifier() {
-		return (ComponentIdentifier) node.get(IdentifierComponent.class).get();
-	}
-
-	public abstract Provider<T> getDevelopmentVariant();
-
-	public abstract BinaryView<Binary> getBinaries();
-
-	public abstract VariantView<T> getVariants();
+	public abstract Provider<? extends T> getDevelopmentVariant();
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
 	public abstract Provider<Set<BuildVariant>> getBuildVariants();
-
-	@Override
-	public ModelNode getNode() {
-		return node;
-	}
 }

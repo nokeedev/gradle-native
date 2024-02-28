@@ -1,6 +1,13 @@
+pluginManagement {
+	includeBuild '../../gradle/libraries/source-elements'
+}
+
 plugins {
 	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.8'
+	id 'nokeetemplates.source-element' apply false
 }
+
+includeBuild '../../gradle/libraries/source-elements'
 
 gradle.rootProject {
 	def properties = new Properties()

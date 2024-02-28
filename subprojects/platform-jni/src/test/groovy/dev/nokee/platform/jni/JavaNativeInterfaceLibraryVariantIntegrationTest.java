@@ -21,16 +21,13 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
+import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
@@ -62,6 +59,8 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
 import static dev.nokee.internal.testing.TaskMatchers.group;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
@@ -80,12 +79,9 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 	@BeforeEach
 	void createSubject() {
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("reqi", ProjectIdentifier.of(project));
-		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
 		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(TargetMachines.of("windows-x86")), componentIdentifier);
-		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();
+		subject = model(project, registryOf(Variant.class)).register(variantIdentifier, JniLibraryInternal.class).get();
 	}
 
 	@Override
@@ -117,7 +113,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 	@Nested
 	class ComponentTasksTest {
-		public TaskView<Task> subject() {
+		public View<Task> subject() {
 			return subject.getTasks();
 		}
 
@@ -151,7 +147,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 	@Nested
 	class ComponentBinariesTest {
-		public BinaryView<Binary> subject() {
+		public View<Binary> subject() {
 			return subject.getBinaries();
 		}
 

@@ -16,35 +16,20 @@
 package dev.nokee.platform.nativebase.internal.linking;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.MoreCollectors;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
-import dev.nokee.platform.nativebase.tasks.LinkBundle;
-import dev.nokee.platform.nativebase.tasks.LinkExecutable;
-import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
+import dev.nokee.platform.nativebase.HasLinkTask;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
-import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
-import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.utils.TextCaseUtils;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
@@ -62,62 +47,37 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.model.internal.ModelElementSupport.safeAsModelElement;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.CollectionProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelProjection> {
-	private final ModelRegistry registry;
+final class NativeLinkTaskRegistrationRule implements Action<Artifact> {
 	private final NativeToolChainSelector toolChainSelector;
 
-	public NativeLinkTaskRegistrationRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasLinkTaskMixIn.class));
-		this.registry = registry;
+	public NativeLinkTaskRegistrationRule(NativeToolChainSelector toolChainSelector) {
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelProjection projection) {
-		@SuppressWarnings("unchecked")
-		val implementationType = implementationType(taskType((ModelType<? extends HasLinkTaskMixIn<? extends ObjectLink>>) projection.getType()));
-
-		val linkTask = registry.register(newEntity("link", implementationType, it -> it.ownedBy(entity)));
-		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
-		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
-		if (ModelNodeUtils.canBeViewedAs(entity, of(ExecutableBinary.class))) {
-			linkTask.configure(implementationType, configureDestinationDirectory(convention(forExecutable(identifier.get()))));
-		} else if (ModelNodeUtils.canBeViewedAs(entity, of(BundleBinary.class))) {
-			linkTask.configure(implementationType, configureDestinationDirectory(convention(forBundle(identifier.get()))));
-		} else {
-			linkTask.configure(implementationType, configureDestinationDirectory(convention(forLibrary(identifier.get()))));
-		}
-		entity.addComponent(new NativeLinkTask(ModelNodes.of(linkTask)));
-	}
-
-	@SuppressWarnings("unchecked")
-	private static Class<? extends ObjectLink> taskType(ModelType<? extends HasLinkTaskMixIn<? extends ObjectLink>> type) {
-		val t = type.getInterfaces().stream().filter(it -> it.getRawType().equals(HasLinkTaskMixIn.class)).map(it -> (ModelType<Task>) it).collect(MoreCollectors.onlyElement());
-		return (Class<? extends ObjectLink>) ((ParameterizedType) t.getType()).getActualTypeArguments()[0];
-	}
-
-	private static Class<? extends ObjectLink> implementationType(Class<? extends ObjectLink> type) {
-		if (LinkExecutable.class.isAssignableFrom(type)) {
-			return LinkExecutableTask.class;
-		} else if (LinkSharedLibrary.class.isAssignableFrom(type)) {
-			return LinkSharedLibraryTask.class;
-		} else if (LinkBundle.class.isAssignableFrom(type)) {
-			return LinkBundleTask.class;
-		} else {
-			throw new UnsupportedOperationException();
+	public void execute(Artifact target) {
+		if (target instanceof HasLinkTask) {
+			((HasLinkTask<?>) target).getLinkTask().configure(configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
+			((HasLinkTask<?>) target).getLinkTask().configure(configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
+			final ModelObjectIdentifier identifier = safeAsModelElement(target).map(ModelElement::getIdentifier).orElseThrow(RuntimeException::new);
+			if (target instanceof ExecutableBinary) {
+				((ExecutableBinary) target).getLinkTask().configure(configureDestinationDirectory(convention(forExecutable(identifier))));
+			} else if (target instanceof BundleBinary) {
+				((BundleBinary) target).getLinkTask().configure(configureDestinationDirectory(convention(forBundle(identifier))));
+			} else {
+				((HasLinkTask<?>) target).getLinkTask().configure(configureDestinationDirectory(convention(forLibrary(identifier))));
+			}
 		}
 	}
 
@@ -127,15 +87,15 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 	}
 
 	private static Function<Task, Provider<Directory>> forLibrary(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.fromIdentifier(identifier));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.forBinary((ModelObjectIdentifier) identifier));
 	}
 
 	private static Function<Task, Provider<Directory>> forExecutable(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir("exes/" + OutputDirectoryPath.fromIdentifier(identifier));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("exes/" + OutputDirectoryPath.forBinary((ModelObjectIdentifier) identifier));
 	}
 
 	private static Function<Task, Provider<Directory>> forBundle(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.fromIdentifier(identifier));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.forBinary((ModelObjectIdentifier) identifier));
 	}
 	//endregion
 
@@ -176,20 +136,6 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 				return ImmutableList.of();
 			}
 		}).orElse(ImmutableList.of());
-	}
-
-	private static Function<ObjectLink, Object> forSwiftModuleName(DomainObjectProvider<String> baseName) {
-		return task -> ((AbstractLinkTask) task).getToolChain().map(it -> {
-			if (it instanceof Swiftc) {
-				return ImmutableList.of("-module-name", baseName.map(toModuleName()).get());
-			} else {
-				return ImmutableList.of();
-			}
-		});
-	}
-
-	private static Transformer<String, String> toModuleName() {
-		return TextCaseUtils::toCamelCase;
 	}
 	//endregion
 

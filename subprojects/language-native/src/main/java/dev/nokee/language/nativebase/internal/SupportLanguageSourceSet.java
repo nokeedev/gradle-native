@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,13 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.model.internal.ModelElement;
+import org.gradle.api.plugins.ExtensionAware;
 
 import java.util.function.Predicate;
 
-import static dev.nokee.model.internal.tags.ModelTags.typeOf;
-
 public interface SupportLanguageSourceSet {
-	static <T extends SupportLanguageSourceSet & ModelTag> Predicate<ModelNode> has(Class<T> type) {
-		return it -> it.hasComponent(typeOf(type));
+	static Predicate<ModelElement> hasLanguageSupport(Class<? extends SupportLanguageSourceSet> supportType) {
+		return element -> element.instanceOf(supportType) || element.safeAs(ExtensionAware.class).map(it -> it.getExtensions().findByType(supportType) != null).getOrElse(false);
 	}
 }

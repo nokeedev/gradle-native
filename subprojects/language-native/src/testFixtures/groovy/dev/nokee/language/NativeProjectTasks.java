@@ -36,6 +36,10 @@ public interface NativeProjectTasks {
 
 	String getSyncApiElements();
 
+	String getSyncLinkElements();
+
+	String getSyncRuntimeElements();
+
 	List<String> getAllToObjects();
 
 	List<String> getAllToLifecycleObjects();
@@ -44,7 +48,11 @@ public interface NativeProjectTasks {
 
 	List<String> getAllToLink();
 
+	List<String> getAllToApiElements();
+
 	List<String> getAllToLinkElements();
+
+	List<String> getAllToRuntimeElements();
 
 	List<String> getAllToLinkOrCreate();
 

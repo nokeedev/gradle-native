@@ -15,174 +15,100 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import com.google.common.collect.Streams;
-import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelComponentType;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.internal.BuildVariantComponent;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
-import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryPropertyComponent;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationVariant;
-import dev.nokee.platform.ios.internal.IosApplicationComponentTag;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.ios.internal.IosResourceSetSpec;
-import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.NativeVariantTag;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyComponent;
-import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
-import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyComponent;
-import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependenciesComponent;
-import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
+import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.platform.nativebase.internal.rules.ToBinariesCompileTasksTransformer;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.attributes.Usage;
-import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 
 import java.util.Collections;
+import java.util.concurrent.Callable;
 
-import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
-import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
-import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.tags.ModelTags.typeOf;
-import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
-import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
-import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.factoryRegistryOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.mapOf;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.variants;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class IosComponentBasePlugin implements Plugin<Project> {
 	@Override
-	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, identifier, tag, fullyQualifiedName) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+		model(project, factoryRegistryOf(LanguageSourceSet.class)).registerFactory(IosResourceSetSpec.class);
+		model(project, factoryRegistryOf(Variant.class)).registerFactory(DefaultIosApplicationVariant.class);
 
-			registry.register(newEntity("resources", IosResourceSetSpec.class, it -> it.ownedBy(entity))).configure(IosResourceSet.class, sourceSet -> sourceSet.from("src/" + fullyQualifiedName.get() + "/resources"));
-
-			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			if (!parent.get().hasComponent(typeOf(IosApplicationComponentTag.class))) {
-				return;
-			}
-
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-			val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
-
-			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
-			val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			runtimeElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
-				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
-				.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects())));
-			val outgoing = entity.addComponent(new NativeOutgoingDependenciesComponent(new IosApplicationOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(runtimeElements), Configuration.class), project.getObjects())));
-			entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(ModelProperties.getProperty(entity, "dependencies").as(NativeComponentDependencies.class)::get, outgoing.get()));
-
-			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
-		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, tag, variants) -> {
-			val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
-
-			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
-				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-
-				iosApplicationVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
-				variant.addComponent(new BuildVariantComponent(buildVariant));
-				ModelStates.register(variant);
-
-				onEachVariantDependencies(variant, variant.getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)), project.getProviders());
-				return null;
-			}).forEach(it -> {});
-
-			component.finalizeValue();
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(TargetMachinesPropertyComponent.class), (entity, tag, targetMachines) -> {
-			((SetProperty<TargetMachine>) targetMachines.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
-			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
-		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IosApplicationComponentTag.class), ModelComponentReference.of(TargetBuildTypesPropertyComponent.class), (entity, tag, targetBuildTypes) -> {
-			((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetBuildTypes.named("Default")));
-		}));
-	}
-
-	@SuppressWarnings("unchecked")
-	private static void onEachVariantDependencies(ModelNode variant, VariantComponentDependencies<?> dependencies, ProviderFactory providers) {
-		dependencies.getOutgoing().getExportedBinary().convention(providers.provider(() -> (Provider<Binary>) ModelStates.finalize(variant).get(DevelopmentBinaryPropertyComponent.class).get().get(GradlePropertyComponent.class).get()).flatMap(it -> it));
-	}
-
-	private static ModelRegistration iosApplicationVariant(VariantIdentifier identifier, DefaultIosApplicationComponent component, Project project) {
-		return ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
-			.withComponentTag(ConfigurableTag.class)
-			.withComponentTag(NativeVariantTag.class)
-			.mergeFrom(tagsOf(DefaultIosApplicationVariant.class))
-			.withComponent(createdUsing(of(DefaultIosApplicationVariant.class), () -> {
-				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class);
+		components(project).configureEach(DefaultIosApplicationComponent.class, component -> {
+			component.getVariants().configureEach(DefaultIosApplicationVariant.class, variant -> {
 				variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
-				return variant;
-			}))
-			.build()
-			;
+			});
+		});
+
+		variants(project).configureEach(DefaultIosApplicationVariant.class, variant -> {
+			variant.getDevelopmentBinary().convention(variant.getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
+		});
+		variants(project).configureEach(DefaultIosApplicationVariant.class, variant -> {
+			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
+				variant.getAssembleTask().configure(configureDependsOn((Callable<Object>) variant.getDevelopmentBinary()::get));
+			}
+		});
+		variants(project).configureEach(DefaultIosApplicationVariant.class, variant -> {
+			if (!variant.getIdentifier().getUnambiguousName().isEmpty()) {
+				variant.getObjectsTask().configure(configureDependsOn(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS.transform(variant)));
+			}
+		});
+
+		components(project).configureEach(DefaultIosApplicationComponent.class, component -> {
+			model(project, registryOf(LanguageSourceSet.class)).register(component.getIdentifier().child("resources"), IosResourceSetSpec.class).configure(sourceSet -> sourceSet.from("src/" + component.getName() + "/resources"));
+		});
+		project.afterEvaluate(__ -> {
+			components(project).configureEach(DefaultIosApplicationComponent.class, component -> {
+				for (BuildVariant it : component.getBuildVariants().get()) {
+					final BuildVariantInternal buildVariant = (BuildVariantInternal) it;
+					final VariantIdentifier variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).build();
+					model(project, registryOf(Variant.class)).register(variantIdentifier, DefaultIosApplicationVariant.class);
+				}
+
+				component.finalizeValue();
+			});
+		});
+
+		components(project).configureEach(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class, component -> {
+			component.getTargetMachines().convention(Collections.singletonList(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
+		});
+		components(project).configureEach(SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class, component -> {
+			component.getTargetMachines().convention(Collections.singletonList(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
+		});
+		components(project).configureEach(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class, component -> {
+			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
+		});
+		components(project).configureEach(SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class, component -> {
+			component.getTargetLinkages().convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
+		});
+		components(project).configureEach(ObjectiveCIosApplicationPlugin.DefaultObjectiveCIosApplication.class, component -> {
+			component.getTargetBuildTypes().convention(Collections.singletonList(TargetBuildTypes.named("Default")));
+		});
+		components(project).configureEach(SwiftIosApplicationPlugin.DefaultSwiftIosApplication.class, component -> {
+			component.getTargetBuildTypes().convention(Collections.singletonList(TargetBuildTypes.named("Default")));
+		});
+		variants(project).configureEach(DefaultIosApplicationVariant.class, variant -> {
+			final IosApplicationOutgoingDependencies outgoing = new IosApplicationOutgoingDependencies(variant.getRuntimeElements().getAsConfiguration(), project.getObjects());
+			outgoing.getExportedBinary().convention(variant.getDevelopmentBinary());
+		});
 	}
 }

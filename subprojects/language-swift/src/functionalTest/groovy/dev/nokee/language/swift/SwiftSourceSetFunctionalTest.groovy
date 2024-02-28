@@ -19,10 +19,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec
-import dev.nokee.platform.base.internal.DomainObjectEntities
-import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.model.internal.registry.ModelRegistry
+import dev.nokee.language.swift.internal.SwiftSourceSetSpec
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
 import dev.nokee.runtime.nativebase.internal.TargetMachines
 
@@ -37,16 +34,11 @@ class SwiftSourceSetFunctionalTest extends AbstractInstalledToolChainIntegration
 				id 'dev.nokee.native-runtime-base'
 			}
 
-			import ${DomainObjectEntities.canonicalName}
-			import ${ProjectIdentifier.canonicalName}
 			import ${NativePlatformFactory.canonicalName}
 			import ${TargetMachines.canonicalName}
-			import ${SwiftSourceSet.canonicalName}
 			import ${SwiftSourceSetSpec.canonicalName}
-			import ${ModelRegistry.canonicalName}
 
-			def registry = extensions.getByType(ModelRegistry)
-			def sourceSet = registry.register(DomainObjectEntities.newEntity("pihe", SwiftSourceSetSpec)).as(SwiftSourceSet).get()
+			def sourceSet = sources.register("pihe", SwiftSourceSetSpec).get()
 			tasks.compilePihe.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

@@ -18,20 +18,19 @@ package dev.nokee.platform.jni;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
+import dev.nokee.platform.jni.internal.JniLibraryInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.val;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.model;
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.registryOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
@@ -40,12 +39,9 @@ class JavaNativeInterfaceLibraryVariantToStringIntegrationTest extends AbstractP
 
 	@BeforeEach
 	void createSubject() {
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val componentIdentifier = ComponentIdentifier.builder().name(ComponentName.of("zagi")).withProjectIdentifier(ProjectIdentifier.of(project)).displayName("my JNI library").build();
-		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
+		val componentIdentifier = ProjectIdentifier.of(project).child(ElementName.of("zagi"));
 		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(TargetMachines.of("macos-x64")), componentIdentifier);
-		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();
+		subject = model(project, registryOf(Variant.class)).register(variantIdentifier, JniLibraryInternal.class).get();
 
 	}
 

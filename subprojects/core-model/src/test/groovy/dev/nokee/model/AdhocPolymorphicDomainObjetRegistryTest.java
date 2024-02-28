@@ -44,7 +44,7 @@ class AdhocPolymorphicDomainObjetRegistryTest implements PolymorphicDomainObject
 		container.registerFactory(MyType.C.class, MyType.C::new);
 		container.registerFactory(MyType.D.class, MyType.D::new);
 
-		subject =  PolymorphicDomainObjectRegistry.of(container);
+		subject =  new ExtensiblePolymorphicDomainObjectContainerRegistry<>(container);
 		e0 = container.register("a", MyType.A.class);
 		e1 = container.register("b", MyType.B.class);
 		e2 = container.register("c", MyType.C.class);

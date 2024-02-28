@@ -15,8 +15,6 @@
  */
 package dev.nokee.language.nativebase;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 
@@ -42,5 +40,4 @@ public interface HasPublicHeaders {
 	 * @see #getPublicHeaders()
 	 */
 	void publicHeaders(Action<? super ConfigurableFileCollection> action);
-	void publicHeaders(@DelegatesTo(value = ConfigurableFileCollection.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

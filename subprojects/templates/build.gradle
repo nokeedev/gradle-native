@@ -1,9 +1,9 @@
 plugins {
-	id 'groovy'
 	id 'java-library'
 }
 
 import static dev.gradleplugins.GradleRuntimeCompatibility.*
+import nokeebuild.TemplateDependencyModifier
 
 group = 'dev.nokee'
 version = '0.1'
@@ -20,39 +20,25 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.codehaus.groovy:groovy-all:2.5.8'
-	api 'dev.gradleplugins:gradle-fixtures-source-elements:latest.release'
-	implementation 'dev.gradleplugins:gradle-fixtures-file-system:latest.release'
-	implementation 'com.google.guava:guava:28.2-jre'
+	def templates = TemplateDependencyModifier.forProject(project)
+	api templates('dev.nokee.templates:template-jni-greeter:1.0')
+	api templates('dev.nokee.templates:template-c-greeter:1.0')
+	api templates('dev.nokee.templates:template-cpp-greeter:1.0')
+	api templates('dev.nokee.templates:template-objc-greeter:1.0')
+	api templates('dev.nokee.templates:template-objcpp-greeter:1.0')
+	api templates('dev.nokee.templates:template-swift-greeter:1.0')
 }
 
-tasks.named("processResources", ProcessResources) { task ->
-	def receipt = [
-		'xcode-swift-application': [],
-		'xcode-custom-file-reference': [],
-	]
-	task.from('xcode-swift-application') {
-		into('xcode-swift-application')
-		exclude("**/*.xcuserdatad/**")
-		includeEmptyDirs(false)
-	}
+// Configure source-elements capability
+sourceSets.main { SourceSet sourceSet ->
+	dependencies.add(sourceSet.apiConfigurationName, 'dev.gradleplugins:gradle-fixtures-source-elements:latest.release')
+}
 
-	task.from('xcode-custom-file-reference') {
-		into('xcode-custom-file-reference')
-		exclude("**/*.xcuserdatad/**")
-		includeEmptyDirs(false)
-	}
+// Configure source-elements annotation processor
+sourceSets.main { SourceSet sourceSet ->
+	dependencies.add(sourceSet.annotationProcessorConfigurationName, 'dev.gradleplugins:source-elements-annotation-processor:latest.release')
 
-	task.eachFile {
-		receipt.computeIfPresent(it.relativePath.segments[0]) { key, value ->
-			value.add(it.relativePath.toString())
-			return value
-		}
-	}
-
-	task.doLast {
-		receipt.each { k, v ->
-			new File(task.getDestinationDir(), "${k}.sample").text = v.join('\n')
-		}
+	tasks.named(sourceSet.compileJavaTaskName, JavaCompile) { task ->
+		task.options.compilerArgs.add("-AbasePath=" + project.getProjectDir())
 	}
 }

@@ -18,18 +18,14 @@ package dev.nokee.platform.jni;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.internal.testing.TaskMatchers;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
+import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.TaskMatchers.description;
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -41,10 +37,7 @@ class JavaNativeInterfaceComponentJarTaskDescriptionIntegrationTest extends Abst
 
 	@BeforeEach
 	void createSubject() {
-		val identifier = ComponentIdentifier.of("qoba", ProjectIdentifier.ofRootProject());
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		this.subject = registry.register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
+		this.subject = components(project).register("qoba", JniLibraryComponentInternal.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.host()));
 	}
 

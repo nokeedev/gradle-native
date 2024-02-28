@@ -15,5 +15,12 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-public interface HasRuntimeLibrariesDependencyBucket {
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
+import org.gradle.api.plugins.ExtensionAware;
+
+// TODO: Convert into MixIn interface
+public interface HasRuntimeLibrariesDependencyBucket extends ExtensionAware {
+	default ResolvableDependencyBucketSpec getRuntimeLibraries() {
+		return (ResolvableDependencyBucketSpec) getExtensions().getByName("runtimeLibraries");
+	}
 }

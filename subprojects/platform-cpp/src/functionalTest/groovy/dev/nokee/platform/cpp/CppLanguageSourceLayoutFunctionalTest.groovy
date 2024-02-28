@@ -15,15 +15,16 @@
  */
 package dev.nokee.platform.cpp
 
-import dev.gradleplugins.fixtures.sources.SourceElement
+
 import dev.nokee.fixtures.AbstractNativeLanguageSourceLayoutFunctionalTest
 import dev.nokee.language.cpp.CppTaskNames
+import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
 
 class CppApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements CppTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new CppGreeterApp()
 	}
 
@@ -63,7 +64,7 @@ class CppApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNat
 
 class CppLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements CppTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new CppGreeterLib()
 	}
 

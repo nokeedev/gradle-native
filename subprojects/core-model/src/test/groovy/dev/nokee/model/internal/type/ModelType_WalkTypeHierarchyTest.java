@@ -25,11 +25,10 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static org.mockito.Mockito.*;
 
 class ModelType_WalkTypeHierarchyTest {
-	private final ModelType.Visitor<?> visitor = mock(ModelType.Visitor.class);
+	private final ModelTypeHierarchy.Visitor visitor = mock(ModelTypeHierarchy.Visitor.class);
 
-	@SuppressWarnings("unchecked")
-	private <T> ModelType.Visitor<T> visitor() {
-		return (ModelType.Visitor<T>) visitor;
+	private ModelTypeHierarchy.Visitor visitor() {
+		return visitor;
 	}
 
 	@AfterEach
@@ -39,7 +38,7 @@ class ModelType_WalkTypeHierarchyTest {
 
 	@Test
 	void walkingTypeHierarchyHappensBreadthFirst() {
-		ModelType.Visitor<Child> visitor = visitor();
+		ModelTypeHierarchy.Visitor visitor = visitor();
 		of(Child.class).walkTypeHierarchy(visitor);
 
 		val inOrder = inOrder(visitor);
@@ -61,21 +60,21 @@ class ModelType_WalkTypeHierarchyTest {
 
 	@Test
 	void canVisitClassWithoutHierarchy() {
-		ModelType.Visitor<Base> visitor = visitor();
+		ModelTypeHierarchy.Visitor visitor = visitor();
 		of(Base.class).walkTypeHierarchy(visitor);
 		verify(visitor, times(1)).visitType(of(Base.class));
 	}
 
 	@Test
 	void canVisitInterfaceWithoutHierarchy() {
-		ModelType.Visitor<Iface> visitor = visitor();
+		ModelTypeHierarchy.Visitor visitor = visitor();
 		of(Iface.class).walkTypeHierarchy(visitor);
 		verify(visitor, times(1)).visitType(of(Iface.class));
 	}
 
 	@Test
 	void canVisitClassImplementingInterface() {
-		ModelType.Visitor<SerializableBase> visitor = visitor();
+		ModelTypeHierarchy.Visitor visitor = visitor();
 		of(SerializableBase.class).walkTypeHierarchy(visitor);
 		verify(visitor, times(1)).visitType(of(SerializableBase.class));
 		verify(visitor, times(1)).visitType(of(Serializable.class));
@@ -85,7 +84,7 @@ class ModelType_WalkTypeHierarchyTest {
 
 	@Test
 	void canVisitDeepParameterizedType() {
-		ModelType.Visitor<ConcreteView> visitor = visitor();
+		ModelTypeHierarchy.Visitor visitor = visitor();
 		of(ConcreteView.class).walkTypeHierarchy(visitor);
 
 		val inOrder = inOrder(visitor);
@@ -100,7 +99,7 @@ class ModelType_WalkTypeHierarchyTest {
 
 	@Test
 	void doesNotVisitObjectClass() {
-		ModelType.Visitor<Object> visitor = visitor();
+		ModelTypeHierarchy.Visitor visitor = visitor();
 		of(Object.class).walkTypeHierarchy(visitor);
 	}
 }

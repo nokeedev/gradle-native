@@ -15,8 +15,8 @@
  */
 package dev.nokee.internal.provider;
 
-import dev.nokee.provider.ProviderConvertible;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderConvertible;
 
 import java.util.concurrent.Callable;
 

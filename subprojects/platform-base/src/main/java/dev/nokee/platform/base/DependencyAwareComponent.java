@@ -15,8 +15,6 @@
  */
 package dev.nokee.platform.base;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 
 /**
@@ -39,6 +37,5 @@ public interface DependencyAwareComponent<T extends ComponentDependencies> {
 	 * @param action configuration action for {@link ComponentDependencies}.
 	 */
 	void dependencies(Action<? super T> action);
-	void dependencies(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }
 

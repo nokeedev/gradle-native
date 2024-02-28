@@ -36,21 +36,17 @@ gradlePlugin {
 	}
 
 	dependencies {
+		api project(':testingBase')
 		implementation project(':coreUtils')
 		api project(':platformBase')
 		api project(':runtimeNative')
-		implementation project(':languageC')
-		implementation project(':languageCpp')
-		implementation project(':languageObjectiveC')
-		implementation project(':languageObjectiveCpp')
-		implementation project(':languageSwift')
+		implementation project(':languageC') // because of NativeApplicationPlugin/NativeLibraryPlugin
+		implementation project(':languageNative')
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 		implementation project(':coreExec')
 		implementation project(':runtimeDarwin')
-		implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
-		annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
 	}
 }
 
@@ -58,7 +54,6 @@ test {
 	dependencies {
 		implementation testFixtures(project(':platformBase'))
 		implementation testFixtures(project(':coreModel'))
-		implementation project(':gradleApi')
 		implementation gradleTestKit(minimumGradleVersion)
 	}
 }

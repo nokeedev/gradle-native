@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal.tasks
 
 import dev.nokee.model.internal.names.QualifyingName
+import dev.nokee.model.internal.names.TaskName
 import spock.lang.Specification
 import spock.lang.Subject
 

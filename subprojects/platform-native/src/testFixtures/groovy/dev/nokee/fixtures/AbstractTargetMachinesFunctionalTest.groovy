@@ -27,6 +27,7 @@ import org.junit.Assume
 import spock.lang.Unroll
 
 import static org.hamcrest.Matchers.containsString
+import static org.hamcrest.Matchers.endsWith
 
 // See https://github.com/gradle/gradle-native/issues/982 for the distinction between unknown, unsupported and unbuildable.
 abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
@@ -219,7 +220,7 @@ abstract class AbstractTargetMachinesFunctionalTest extends AbstractInstalledToo
 
 		expect:
 		fails('modifyTargetMachines')
-		failure.assertHasCause("The value for property 'targetMachines' is final and cannot be changed any further.")
+		failure.assertThatCause(endsWith("property 'targetMachines' is final and cannot be changed any further."))
 	}
 
 	def "can specify unbuildable architecture as a component target machine"() {

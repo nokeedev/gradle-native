@@ -17,13 +17,13 @@ package dev.nokee.platform.nativebase.internal.plugins.testers;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.ComponentContainer;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
+import static dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin.components;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
@@ -40,7 +40,7 @@ public abstract class MainComponentPluginTester {
 
 	@Test
 	void createMainComponent() {
-		Component mainComponent = project.getExtensions().getByType(ComponentContainer.class).named("main").get();
+		Component mainComponent = components(project).named("main").get();
 
 		assertThat(mainComponent, isA(getComponentType()));
 	}

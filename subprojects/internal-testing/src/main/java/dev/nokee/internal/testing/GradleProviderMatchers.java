@@ -24,6 +24,7 @@ import org.gradle.api.provider.Provider;
 import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.jupiter.api.Assertions;
 
@@ -151,6 +152,10 @@ public final class GradleProviderMatchers {
 	@SuppressWarnings("UnstableApiUsage")
 	public static Matcher<HasConfigurableValue> changesDisallowed() {
 		return new ProviderChangesDisallowedMatcher();
+	}
+
+	public static Matcher<HasConfigurableValue> changesAllowed() {
+		return Matchers.not(new ProviderChangesDisallowedMatcher());
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
@@ -289,5 +294,15 @@ public final class GradleProviderMatchers {
 
 	private enum ProviderState {
 		present, absent
+	}
+
+	// WARNING: This matcher will mutate the property
+	public static <T> Matcher<Property<T>> conventionOf(Matcher<? super T> matcher) {
+		return new FeatureMatcher<Property<T>, T>(matcher, "", "") {
+			@Override
+			protected T featureValueOf(Property<T> actual) {
+				return actual.value((T) null).getOrNull();
+			}
+		};
 	}
 }

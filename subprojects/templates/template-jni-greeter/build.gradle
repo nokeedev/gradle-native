@@ -1,0 +1,10 @@
+group = 'dev.nokee.templates'
+version = '1.0'
+
+dependencies {
+	templatesApi 'dev.nokee.templates:template-greeter'
+	templatesImplementation templates('dev.nokee.templates:template-c-greeter:1.0')
+	templatesImplementation templates('dev.nokee.templates:template-cpp-greeter:1.0')
+	templatesImplementation templates('dev.nokee.templates:template-objc-greeter:1.0')
+	templatesImplementation templates('dev.nokee.templates:template-objcpp-greeter:1.0')
+}

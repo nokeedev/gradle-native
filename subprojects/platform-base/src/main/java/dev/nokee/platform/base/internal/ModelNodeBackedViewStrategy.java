@@ -15,128 +15,71 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.ImmutableSet;
-import dev.nokee.gradle.NamedDomainObjectProviderFactory;
-import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.actions.ModelSpec;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.names.RelativeName;
-import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
-import dev.nokee.platform.base.internal.elements.ComponentElementsFilterComponent;
-import lombok.val;
+import dev.nokee.model.internal.ModelMap;
+import dev.nokee.model.internal.ModelObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifiers;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 
 import java.util.Set;
 
-import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
-import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
-import static dev.nokee.utils.TransformerUtils.noOpTransformer;
+import static dev.nokee.model.internal.IdentifierFilteringAction.descendantOf;
+import static dev.nokee.model.internal.TypeFilteringAction.ofType;
 
 public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
-	private static final Runnable NO_OP_REALIZE = () -> {};
-	private final Runnable realize;
-	private final ModelNode entity;
-	private final ProviderFactory providerFactory;
+	private final ModelMap<?> collection;
+	private final ModelObjectIdentifier baseIdentifier;
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory) {
-		this.providerFactory = providerFactory;
-		this.entity = ModelNodeContext.getCurrentModelNode();
-		this.realize = NO_OP_REALIZE;
-	}
-
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize) {
-		this(providerFactory, realize, ModelNodeContext.getCurrentModelNode());
-	}
-
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize, ModelNode entity) {
-		this.providerFactory = providerFactory;
-		this.realize = new RunOnceRunnable(realize);
-		this.entity = entity;
+	public ModelNodeBackedViewStrategy(ModelMap<?> collection, ModelObjectIdentifier baseIdentifier) {
+		this.collection = collection;
+		this.baseIdentifier = baseIdentifier;
 	}
 
 	@Override
 	public <T> void configureEach(Class<T> elementType, Action<? super T> action) {
-		val descendantOfSpec = descendantOf(entity.get(ViewConfigurationBaseComponent.class).get().getId());
-		if (entity.has(BaseModelSpecComponent.class)) {
-			instantiate(entity, ModelAction.configureEach(entity.get(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
-		} else {
-			instantiate(entity, ModelAction.configureEach(descendantOfSpec, elementType, action));
-		}
+		collection.configureEach(descendantOf(baseIdentifier, ofType(elementType, action)));
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
-		return providerFactory.provider(() -> {
-			realize.run(); // TODO: Should move to some provider source or something
-
-			// FIXME: We should accumulate the elements in another component so can put ad-hoc View element
-			if (entity.get(ComponentElementTypeComponent.class).get().getType().equals(elementType)) {
-				return ((MapProperty<String, T>) entity.get(GradlePropertyComponent.class).get())
-					.map(it -> ImmutableSet.copyOf(it.values()));
+		return collection.getElements(elementType, knownElement -> {
+			if (knownElement.getType().isSubtypeOf(elementType)) {
+				return ModelObjectIdentifiers.descendantOf(knownElement.getIdentifier(), baseIdentifier);
 			}
-			return entity.get(ComponentElementsFilterComponent.class).get(elementType);
-		}).flatMap(noOpTransformer());
+			return false;
+		});
 	}
 
 	@Override
 	public <T> void whenElementKnown(Class<T> elementType, Action<? super KnownDomainObject<T>> action) {
-		val descendantOfSpec = descendantOf(entity.get(ViewConfigurationBaseComponent.class).get().getId());
-		if (entity.has(BaseModelSpecComponent.class)) {
-			instantiate(entity, ModelAction.whenElementKnown(entity.get(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
-		} else {
-			instantiate(entity, ModelAction.whenElementKnown(descendantOfSpec, elementType, action));
-		}
+		throw new UnsupportedOperationException("not supported for now");
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T> NamedDomainObjectProvider<T> named(String name, Class<T> elementType) {
-		if (!((MapProperty<String, Object>) entity.get(GradlePropertyComponent.class).get()).get().containsKey(name)) {
-			throw new RuntimeException();
-		}
-		return (NamedDomainObjectProvider<T>) new NamedDomainObjectProviderFactory().create(NamedDomainObjectProviderSpec.builder().named(name)
-			.typedAs(elementType)
-			.configureUsing(action -> {
-				val relativeNameSpec = ModelSpec.has(RelativeName.of(entity.get(ViewConfigurationBaseComponent.class).get().getId(), name));
-				if (entity.has(BaseModelSpecComponent.class)) {
-					instantiate(entity, ModelAction.configureEach(entity.get(BaseModelSpecComponent.class).get().and(relativeNameSpec), elementType, action));
-				} else {
-					instantiate(entity, ModelAction.configureEach(relativeNameSpec, elementType, action));
-				}
-			})
-			.delegateTo(providerFactory.provider(() -> {
-					realize.run();
-					return new Object();
-				})
-				.flatMap(it -> {
-					return ((MapProperty<String, Object>) entity.get(GradlePropertyComponent.class).get()).getting(name);
-				}))
-			.build());
-	}
-
-	private static final class RunOnceRunnable implements Runnable {
-		private Runnable delegate;
-
-		public RunOnceRunnable(Runnable delegate) {
-			this.delegate = delegate;
-		}
-
-		@Override
-		public void run() {
-			if (delegate != null) {
-				val runnable = delegate;
-				delegate = null;
-				runnable.run();
-			}
-		}
+		throw new UnsupportedOperationException("not supported for now");
+//		if (!((MapProperty<String, Object>) entity.get(GradlePropertyComponent.class).get()).get().containsKey(name)) {
+//			throw new RuntimeException();
+//		}
+//		return (NamedDomainObjectProvider<T>) new NamedDomainObjectProviderFactory().create(NamedDomainObjectProviderSpec.builder().named(name)
+//			.typedAs(elementType)
+//			.configureUsing(action -> {
+//				val relativeNameSpec = ModelSpec.has(RelativeName.of(entity.get(ViewConfigurationBaseComponent.class).get().getId(), name));
+//				if (entity.has(BaseModelSpecComponent.class)) {
+//					instantiate(entity, ModelAction.configureEach(entity.get(BaseModelSpecComponent.class).get().and(relativeNameSpec), elementType, action));
+//				} else {
+//					instantiate(entity, ModelAction.configureEach(relativeNameSpec, elementType, action));
+//				}
+//			})
+//			.delegateTo(providerFactory.provider(() -> {
+//					realize.run();
+//					return new Object();
+//				})
+//				.flatMap(it -> {
+//					return ((MapProperty<String, Object>) entity.get(GradlePropertyComponent.class).get()).getting(name);
+//				}))
+//			.build());
 	}
 }

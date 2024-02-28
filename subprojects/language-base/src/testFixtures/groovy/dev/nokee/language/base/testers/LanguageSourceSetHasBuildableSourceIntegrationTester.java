@@ -15,8 +15,8 @@
  */
 package dev.nokee.language.base.testers;
 
+import dev.nokee.language.base.HasSource;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.HasConfigurableSource;
 import lombok.val;
 import org.gradle.api.Buildable;
 import org.gradle.api.Task;
@@ -29,7 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.mock;
 
-public interface LanguageSourceSetHasBuildableSourceIntegrationTester<T extends LanguageSourceSet & Buildable & HasConfigurableSource> {
+public interface LanguageSourceSetHasBuildableSourceIntegrationTester<T extends LanguageSourceSet & Buildable & HasSource> {
 	T subject();
 
 	@Test

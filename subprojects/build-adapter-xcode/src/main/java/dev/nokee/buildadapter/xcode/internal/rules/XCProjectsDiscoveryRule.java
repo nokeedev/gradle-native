@@ -15,34 +15,91 @@
  */
 package dev.nokee.buildadapter.xcode.internal.rules;
 
-import dev.nokee.buildadapter.xcode.internal.components.GradleProjectTag;
-import dev.nokee.buildadapter.xcode.internal.components.GradleSettingsTag;
-import dev.nokee.buildadapter.xcode.internal.components.SettingsDirectoryComponent;
-import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import dev.nokee.buildadapter.xcode.internal.plugins.DefaultXCProjectLocator;
+import dev.nokee.buildadapter.xcode.internal.plugins.DefaultXCWorkspaceLocator;
+import dev.nokee.buildadapter.xcode.internal.plugins.SelectSingleXCWorkspaceTransformer;
+import dev.nokee.buildadapter.xcode.internal.plugins.UnpackCrossProjectReferencesTransformer;
+import dev.nokee.buildadapter.xcode.internal.plugins.WarnOnMissingXCProjectsTransformer;
 import dev.nokee.buildadapter.xcode.internal.plugins.XCProjectLocator;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.tags.ModelComponentTag;
-import lombok.val;
+import dev.nokee.buildadapter.xcode.internal.plugins.XCWorkspaceLocator;
+import dev.nokee.buildadapter.xcode.internal.plugins.XcodeBuildAdapterExtension;
+import dev.nokee.utils.ProviderUtils;
+import dev.nokee.xcode.XCLoaders;
+import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.XCWorkspaceReference;
+import org.gradle.api.Action;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.initialization.Settings;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.ValueSource;
+import org.gradle.api.provider.ValueSourceParameters;
 
-public final class XCProjectsDiscoveryRule extends ModelActionWithInputs.ModelAction2<SettingsDirectoryComponent, ModelComponentTag<GradleSettingsTag>> {
-	private final ModelRegistry registry;
-	private final XCProjectLocator locator;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-	public XCProjectsDiscoveryRule(ModelRegistry registry, XCProjectLocator locator) {
-		this.registry = registry;
-		this.locator = locator;
+import static dev.nokee.utils.TransformerUtils.transformEach;
+
+public final class XCProjectsDiscoveryRule implements Action<Settings> {
+	private final ProviderFactory providers;
+	private final ObjectFactory objects;
+
+	public XCProjectsDiscoveryRule(ProviderFactory providers, ObjectFactory objects) {
+		this.providers = providers;
+		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, SettingsDirectoryComponent settingsDirectory, ModelComponentTag<GradleSettingsTag> ignored) {
-		val actualProjects = locator.findProjects(settingsDirectory.get());
+	public void execute(Settings settings) {
+		final XcodeBuildAdapterExtension extension = settings.getExtensions().getByType(XcodeBuildAdapterExtension.class);
 
-		actualProjects.forEach(project -> {
-			registry.instantiate(ModelRegistration.builder().withComponent(new ParentComponent(entity)).withComponentTag(GradleProjectTag.class).withComponent(new XCProjectComponent(project)).build());
-		});
+		final Provider<List<XCWorkspaceReference>> foundWorkspaces = ProviderUtils.forUseAtConfigurationTime(providers.of(WorkspaceReferencesValueSource.class, spec -> spec.parameters(it -> it.getBaseDirectory().fileValue(settings.getSettingsDir()))));
+		final Provider<XCWorkspaceReference> selectedWorkspace = foundWorkspaces.map(new SelectSingleXCWorkspaceTransformer());
+		extension.getWorkspaceLocation().convention(selectedWorkspace);
+
+		final Provider<List<XCProjectReference>> foundProjects = ProviderUtils.forUseAtConfigurationTime(providers.of(ProjectReferencesValueSource.class, spec -> spec.parameters(it -> it.getBaseDirectory().fileValue(settings.getSettingsDir()))));
+		final Provider<List<XCProjectReference>> selectedProjects = extension.getWorkspaceLocation().map(XCLoaders.workspaceProjectReferencesLoader()::load).map(it -> (List<XCProjectReference>) ImmutableList.copyOf(it)).orElse(foundProjects);
+		final Provider<Set<XCProjectReference>> allProjects = selectedProjects.map(ImmutableSet::copyOf).map(new UnpackCrossProjectReferencesTransformer());
+		extension.getProjects().addAllLater(objects.setProperty(XcodeBuildAdapterExtension.XCProjectExtension.class).value(allProjects.orElse(providers.provider(() -> {
+			new WarnOnMissingXCProjectsTransformer(settings.getSettingsDir().toPath());
+			return Collections.emptySet();
+		})).map(transformEach(it -> {
+			final XcodeBuildAdapterExtension.XCProjectExtension result = objects.newInstance(XcodeBuildAdapterExtension.XCProjectExtension.class);
+			result.getProjectLocation().value(it).disallowChanges();
+			return result;
+		}))));
+	}
+
+	public static abstract class WorkspaceReferencesValueSource implements ValueSource<List<XCWorkspaceReference>, WorkspaceReferencesValueSource.Parameters> {
+		public interface Parameters extends ValueSourceParameters {
+			DirectoryProperty getBaseDirectory();
+		}
+
+		private final XCWorkspaceLocator locator = new DefaultXCWorkspaceLocator();
+
+		@Nullable
+		@Override
+		public List<XCWorkspaceReference> obtain() {
+			return locator.findWorkspaces(getParameters().getBaseDirectory().get().getAsFile().toPath());
+		}
+	}
+
+	public static abstract class ProjectReferencesValueSource implements ValueSource<List<XCProjectReference>, ProjectReferencesValueSource.Parameters> {
+		public interface Parameters extends ValueSourceParameters {
+			DirectoryProperty getBaseDirectory();
+		}
+
+		private final XCProjectLocator locator = new DefaultXCProjectLocator();
+
+		@Nullable
+		@Override
+		public List<XCProjectReference> obtain() {
+			return locator.findProjects(getParameters().getBaseDirectory().get().getAsFile().toPath());
+		}
 	}
 }

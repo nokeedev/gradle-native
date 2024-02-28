@@ -23,6 +23,9 @@ subprojects {
 }
 
 // Configure publishing to Nokee
+tasks.register('publishToMavenLocal') {
+	dependsOn(gradle.includedBuild('gradle-backport').task(':gradle-backport-provider-convertible:publishToMavenLocal'))
+}
 subprojects { prj ->
 	if (prj in [project(':docs'), project(':nokeeVersionManagement')]) {
 		return // ignore this configuration

@@ -15,20 +15,14 @@
  */
 package dev.nokee.platform.base;
 
-import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.provider.Provider;
 
 import java.util.Set;
 
 public interface DependencyBucket extends Named {
-	void addDependency(Object notation);
-
-	void addDependency(Object notation, Action<? super ModuleDependency> action);
-
 	Provider<Set<Dependency>> getDependencies();
 
 	Configuration getAsConfiguration();

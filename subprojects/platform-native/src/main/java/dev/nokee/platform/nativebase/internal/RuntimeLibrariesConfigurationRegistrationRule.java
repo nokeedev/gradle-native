@@ -15,42 +15,44 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
-import lombok.val;
+import dev.nokee.model.internal.ModelElement;
+import dev.nokee.model.internal.ModelElementSupport;
+import dev.nokee.model.internal.ModelObjects;
+import dev.nokee.platform.base.Artifact;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 
-public final class RuntimeLibrariesConfigurationRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, ModelComponentTag<IsBinary>, ModelProjection> {
-	private final ModelRegistry registry;
+public final class RuntimeLibrariesConfigurationRegistrationRule implements Action<Artifact> {
+	private final ModelObjects objs;
 	private final ObjectFactory objects;
 
-	public RuntimeLibrariesConfigurationRegistrationRule(ModelRegistry registry, ObjectFactory objects) {
-		super(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.ofProjection(HasRuntimeLibrariesDependencyBucket.class));
-		this.registry = registry;
+	public RuntimeLibrariesConfigurationRegistrationRule(ModelObjects objs, ObjectFactory objects) {
+		this.objs = objs;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> ignored, ModelProjection projection) {
-		val runtimeLibraries = registry.register(newEntity("runtimeLibraries", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(RuntimeLibrariesDependencyBucketTag.class)));
-		runtimeLibraries.configure(Configuration.class, forNativeRuntimeUsage());
-		entity.addComponent(new RuntimeLibrariesConfiguration(ModelNodes.of(runtimeLibraries)));
-		entity.addComponent(new DependentRuntimeLibraries(runtimeLibraries.as(Configuration.class).flatMap(it -> it.getIncoming().getFiles().getElements())));
+	public void execute(Artifact target) {
+		if (target instanceof HasRuntimeLibrariesDependencyBucket) {
+			final Configuration runtimeLibraries = ((HasRuntimeLibrariesDependencyBucket) target).getRuntimeLibraries().getAsConfiguration();
+			forNativeRuntimeUsage().execute(runtimeLibraries);
+
+			// TODO: Try to replace LinkLibrariesExtendsFromParentDependencyBucketAction when binaries are created by variant
+//			ModelElementSupport.safeAsModelElement(target).map(ModelElement::getIdentifier).ifPresent(identifier -> {
+//				objs.parentsOf(identifier).filter(it -> {
+//					return it.instanceOf(DependencyAwareComponent.class) && it.asModelObject(DependencyAwareComponent.class).get().getDependencies() instanceof NativeComponentDependencies;
+//				}).map(it -> (NativeComponentDependencies) it.asModelObject(DependencyAwareComponent.class).get()).findFirst().ifPresent(dependencies -> {
+//					((HasLinkLibrariesDependencyBucket) target).getLinkLibraries().extendsFrom(dependencies.getImplementation(), dependencies.getRuntimeOnly());
+//				});
+//			});
+		}
 	}
 
 	private Action<Configuration> forNativeRuntimeUsage() {

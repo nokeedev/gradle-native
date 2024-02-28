@@ -15,66 +15,65 @@
  */
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
+import dev.nokee.language.nativebase.internal.HasRuntimeElementsDependencyBucket;
+import dev.nokee.language.nativebase.internal.NativeSourcesAware;
+import dev.nokee.model.internal.ModelObjectRegistry;
+import dev.nokee.model.internal.decorators.NestedObject;
+import dev.nokee.model.internal.names.TaskName;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.BaseVariant;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
-import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
-import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.VariantMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
-import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskMixIn;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.mixins.BinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.DependentComponentSpec;
+import dev.nokee.platform.base.internal.mixins.TaskAwareComponentMixIn;
 import dev.nokee.platform.ios.IosApplication;
-import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.NativeVariantSpec;
+import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import lombok.Getter;
+import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
-@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-public /*final*/ class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
-	, VariantMixIn
-	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
-	, ModelBackedBinaryAwareComponentMixIn
-	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedNamedMixIn
-	, HasDevelopmentBinaryMixIn
-	, HasAssembleTaskMixIn
+public /*final*/ abstract class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal
+	, NativeVariantSpec
+	, NativeSourcesAware
+	, DependentComponentSpec<NativeComponentDependencies>
+	, BinaryAwareComponentMixIn
+	, TaskAwareComponentMixIn
+	, AssembleTaskMixIn
+	, HasRuntimeElementsDependencyBucket
 {
-	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
-	public DefaultIosApplicationVariant(ObjectFactory objects) {
+	public DefaultIosApplicationVariant(ModelObjectRegistry<DependencyBucket> bucketRegistry, ModelObjectRegistry<Task> taskRegistry, ObjectFactory objects) {
+		getExtensions().add("runtimeElements", bucketRegistry.register(getIdentifier().child("runtimeElements"), ConsumableDependencyBucketSpec.class).get());
+		getExtensions().add("objectsTask", taskRegistry.register(getIdentifier().child(TaskName.of("objects")), Task.class).asProvider());
 		this.productBundleIdentifier = objects.property(String.class);
-
-		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}
 
 	@Override
-	public Property<Binary> getDevelopmentBinary() {
-		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
-	}
+	@NestedObject
+	public abstract DefaultNativeComponentDependencies getDependencies();
 
 	@Override
+	public ConsumableDependencyBucketSpec getRuntimeElements() {
+		return (ConsumableDependencyBucketSpec) getExtensions().getByName("runtimeElements");
+	}
+
 	@SuppressWarnings("unchecked")
-	public BinaryView<Binary> getBinaries() {
-		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
+	public TaskProvider<Task> getObjectsTask() {
+		return (TaskProvider<Task>) getExtensions().getByName("objectsTask");
 	}
 
 	@Override
-	public ModelNode getNode() {
-		return node;
+	protected String getTypeName() {
+		return "iOS application";
 	}
 }

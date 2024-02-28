@@ -31,7 +31,6 @@ public interface HasPrivateHeadersTester {
 	@Test
 	default void canConfigurePrivateHeaders() {
 		ConfigureMethodTester.of(subject(), HasPrivateHeaders::getPrivateHeaders)
-			.testAction(HasPrivateHeaders::privateHeaders)
-			.testClosure(HasPrivateHeaders::privateHeaders);
+			.testAction((a, b) -> a.privateHeaders(b));
 	}
 }

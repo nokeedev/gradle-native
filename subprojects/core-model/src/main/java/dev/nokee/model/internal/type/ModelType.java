@@ -22,10 +22,8 @@ import lombok.val;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +42,6 @@ public final class ModelType<T> {
 		return type.getRawType();
 	}
 	private static final ModelType<Object> UNTYPED = ModelType.of(Object.class);
-	private static final Collection<ModelType<?>> OBJECT_TYPE = ImmutableList.of(of(Object.class));
 	private final TypeToken<T> type;
 
 	private ModelType(TypeToken<T> type) {
@@ -195,24 +192,23 @@ public final class ModelType<T> {
 	 *
 	 * @param visitor  the visitor to call for each type in the hierarchy.
 	 */
-	public void walkTypeHierarchy(Visitor<? extends T> visitor) {
-		val seenInterfaces = new HashSet<ModelType<?>>();
-		val queue = new ArrayDeque<ModelType<? super T>>();
-		queue.add(this);
-		ModelType<? super T> walkingType;
-		while ((walkingType = queue.poll()) != null) {
-			if (OBJECT_TYPE.contains(walkingType)) {
-				continue;
-			}
-
-			visitor.visitType(walkingType);
-
-			walkingType.getSupertype().ifPresent(queue::add);
-			walkingType.getInterfaces().stream().filter(seenInterfaces::add).forEach(queue::add);
-		}
+	public void walkTypeHierarchy(ModelTypeHierarchy.Visitor visitor) {
+		ModelTypeHierarchy.siblingFirst(new NotObjectVisitor(visitor)).walk(this);
 	}
 
-	public interface Visitor<T> {
-		void visitType(ModelType<? super T> type);
+	private static final class NotObjectVisitor implements ModelTypeHierarchy.Visitor {
+		private static final Collection<ModelType<?>> OBJECT_TYPE = ImmutableList.of(of(Object.class));
+		private final ModelTypeHierarchy.Visitor delegate;
+
+		private NotObjectVisitor(ModelTypeHierarchy.Visitor delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public void visitType(ModelType<?> type) {
+			if (!OBJECT_TYPE.contains(type)) {
+				delegate.visitType(type);
+			}
+		}
 	}
 }

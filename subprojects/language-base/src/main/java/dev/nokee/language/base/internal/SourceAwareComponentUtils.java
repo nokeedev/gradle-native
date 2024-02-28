@@ -17,13 +17,10 @@ package dev.nokee.language.base.internal;
 
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.SourceAwareComponent;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
-import groovy.lang.Closure;
+import dev.nokee.platform.base.internal.ViewAdapter;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -35,32 +32,24 @@ import java.util.List;
 import java.util.Set;
 
 public class SourceAwareComponentUtils {
-	@SuppressWarnings("unchecked")
 	public static FunctionalSourceSet sourceViewOf(Object target) {
 		if (target instanceof SourceAwareComponent) {
-			val sources = ((SourceAwareComponent<?>) target).getSources();
+			val sources = ((SourceAwareComponent) target).getSources();
 			if (sources instanceof FunctionalSourceSet) {
 				return (FunctionalSourceSet) sources;
-			} else if (sources instanceof SourceView) {
-				return new FunctionalSourceSetAdapter((SourceView<LanguageSourceSet>) sources);
 			} else {
-				throw new UnsupportedOperationException(String.format("Unknown source type '%s'.", sources.getClass().getSimpleName()));
+				return new FunctionalSourceSetAdapter(sources);
 			}
 		} else if (target instanceof FunctionalSourceSet) {
 			return (FunctionalSourceSet) target;
-		} else {
-			val node = ModelNodes.of(target);
-			if (ModelNodeUtils.hasDescendant(node, "sources")) {
-				return ModelNodeUtils.get(ModelNodeUtils.getDescendant(node, "sources"), FunctionalSourceSet.class);
-			}
 		}
 		throw new UnsupportedOperationException("Target '" + target + "' is not source aware or a language source set view itself.");
 	}
 
 	private static final class FunctionalSourceSetAdapter implements FunctionalSourceSet {
-		private final SourceView<LanguageSourceSet> delegate;
+		private final View<LanguageSourceSet> delegate;
 
-		private FunctionalSourceSetAdapter(SourceView<LanguageSourceSet> delegate) {
+		private FunctionalSourceSetAdapter(View<LanguageSourceSet> delegate) {
 			this.delegate = delegate;
 		}
 
@@ -76,7 +65,7 @@ public class SourceAwareComponentUtils {
 
 		@Override
 		public <S extends LanguageSourceSet> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
-			return ((SourceViewAdapter<LanguageSourceSet>) delegate).named(name, type);
+			return ((ViewAdapter<LanguageSourceSet>) delegate).named(name, type);
 		}
 
 		@Override
@@ -85,7 +74,7 @@ public class SourceAwareComponentUtils {
 		}
 
 		@Override
-		public <S extends LanguageSourceSet> void configureEach(Class<S> type, Action<? super S> action) {
+		public <S> void configureEach(Class<S> type, Action<? super S> action) {
 			delegate.configureEach(type, action);
 		}
 
@@ -130,17 +119,7 @@ public class SourceAwareComponentUtils {
 		}
 
 		@Override
-		public void whenElementKnown(@SuppressWarnings("rawtypes") Closure closure) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
 		public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, Action<? super KnownDomainObject<S>> action) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 			throw new UnsupportedOperationException();
 		}
 	}

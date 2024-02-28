@@ -15,8 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal.services;
 
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -28,14 +27,14 @@ import java.util.Set;
 
 public abstract class UnbuildableWarningService implements BuildService<BuildServiceParameters.None> {
 	private static final Logger LOGGER = Logging.getLogger(WarnUnbuildableLogger.class);
-	private final Set<ComponentIdentifier> identifiers = new HashSet<>();
+	private final Set<ModelObjectIdentifier> identifiers = new HashSet<>();
 	private final Object lock = new Object();
 
-	public void warn(ComponentIdentifier identifier) {
+	public void warn(ModelObjectIdentifier identifier) {
 		if (!identifiers.contains(identifier)) {
 			synchronized (lock) {
 				if (identifiers.add(identifier)) {
-					LOGGER.warn(String.format("'%s' component in %s cannot build on this machine.", identifier.getName(), identifier.getProjectIdentifier()));
+					LOGGER.warn(String.format("'%s' component in %s cannot build on this machine.", identifier.getName(), identifier.getParent()));
 				}
 			}
 		}

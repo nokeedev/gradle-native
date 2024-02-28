@@ -4,7 +4,7 @@ pluginManagement {
 	includeBuild 'gradle/plugins/documentation-kit-plugins'
 	includeBuild 'gradle/plugins/nokeebuild-plugins'
 	includeBuild 'gradle/plugins/nokeedocs-plugins'
-	includeBuild 'gradle/plugins/sample-kit-plugins'
+	includeBuild 'gradle/libraries/source-elements'
 }
 
 plugins {
@@ -15,10 +15,19 @@ plugins {
 rootProject.name = 'gradle-native'
 
 includeBuild 'subprojects/templates'
+includeBuild 'subprojects/templates/template-greeter'
+includeBuild 'subprojects/templates/template-c-greeter'
+includeBuild 'subprojects/templates/template-cpp-greeter'
+includeBuild 'subprojects/templates/template-swift-greeter'
+includeBuild 'subprojects/templates/template-jni-greeter'
+includeBuild 'subprojects/templates/template-objc-greeter'
+includeBuild 'subprojects/templates/template-objcpp-greeter'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 includeBuild 'gradle/libraries/nokeetest-libraries'
 includeBuild 'gradle/libraries/gradle-build-script'
 includeBuild 'gradle/libraries/gradle-test-script'
+
+includeBuild 'subprojects/gradle-backport'
 
 /**
  * Adds specified subproject path to this Gradle build.
@@ -54,10 +63,7 @@ subproject('docs')
 subproject('docs/exemplar-kit') {
 	buildFileName = 'exemplar-kit.gradle'
 }
-subproject('gradle-annotation')
-subproject('gradle-api')
 subproject('gradle-repository-shim')
-subproject('gradle-shim')
 subproject('ide-base')
 subproject('ide-visual-studio')
 subproject('ide-xcode')
@@ -89,16 +95,3 @@ subproject('testing-base')
 subproject('testing-native')
 subproject('testing-xctest')
 subproject('xcode-ide-kit')
-
-subproject('universal-model-capability-variants')
-
-ModuleDependency templates(Object notation) {
-	final ModuleDependency result = (ModuleDependency) buildscript.dependencies.create(notation)
-	result.capabilities { ModuleDependencyCapabilitiesHandler capabilities ->
-		capabilities.requireCapability("dev.nokee:${result.getName()}-templates:1.0")
-	}
-}
-
-gradle.allprojects {
-	project.ext.templates = this.&templates
-}

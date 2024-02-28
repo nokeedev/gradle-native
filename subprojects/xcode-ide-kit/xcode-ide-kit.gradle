@@ -5,7 +5,7 @@ plugins {
 	id 'antlr'
 	id 'maven-publish'
 	id 'java-test-fixtures'
-	id 'nokeedocs.sample-templates'
+	id 'nokeetemplates.source-element'
 }
 
 dependencies {
@@ -30,11 +30,8 @@ dependencies {
 	integrationTestImplementation(templates(project))
 }
 
-tasks.named(sourceSets.templates.generateSourcesTaskName) { task ->
-	task.packageName = 'dev.nokee.samples.xcode'
-}
-
-tasks.named(sourceSets.templates.processSamplesTaskName, Sync) { task ->
-	exclude("**/*.xcuserdatad/**")
-	includeEmptyDirs(false)
+sourceSets.templates {
+	tasks.named(compileJavaTaskName, JavaCompile) {
+		options.compilerArgs.add("-AbasePath=" + file('src/templates'));
+	}
 }

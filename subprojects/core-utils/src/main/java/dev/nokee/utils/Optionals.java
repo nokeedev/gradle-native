@@ -15,9 +15,12 @@
  */
 package dev.nokee.utils;
 
+import org.gradle.api.reflect.TypeOf;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -49,4 +52,24 @@ public final class Optionals {
 			return Objects.requireNonNull(result);
 		}
     }
+
+	public static <T> Function<Object, T> safeAs(Class<T> type) {
+		return obj -> {
+			if (type.isInstance(obj)) {
+				return type.cast(obj);
+			} else {
+				return null;
+			}
+		};
+	}
+
+	public static <T> Function<Object, T> safeAs(TypeOf<T> type) {
+		return obj -> {
+			if (type.getConcreteClass().isInstance(obj)) {
+				return type.getConcreteClass().cast(obj);
+			} else {
+				return null;
+			}
+		};
+	}
 }

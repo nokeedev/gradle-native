@@ -22,6 +22,7 @@ import dev.nokee.fixtures.AbstractNativeLanguageSourceLayoutFunctionalTest
 import dev.nokee.language.swift.SwiftTaskNames
 import dev.nokee.platform.ios.fixtures.IosTaskNames
 import dev.nokee.platform.ios.fixtures.SwiftIosApp
+import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement
 import org.junit.Assume
 import spock.lang.Ignore
 import spock.lang.Requires
@@ -31,7 +32,7 @@ import spock.lang.Requires
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftIosApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements SwiftTaskNames, IosTaskNames {
 	@Override
-	protected SourceElement getComponentUnderTest() {
+	protected GreeterImplementationAwareSourceElement getComponentUnderTest() {
 		return new SwiftIosApp()
 	}
 

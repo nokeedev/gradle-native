@@ -1,0 +1,26 @@
+pluginManagement {
+	includeBuild '../../../gradle/libraries/source-elements'
+	repositories {
+		maven { url = 'https://repo.nokee.dev/snapshot' }
+		gradlePluginPortal()
+	}
+}
+
+plugins {
+	id 'nokeetemplates.source-element'
+	id 'dev.nokee.swift-application' version '0.4.3129-202303171612.d413fb13' apply false
+}
+
+includeBuild '../../../gradle/libraries/source-elements'
+includeBuild '../template-greeter'
+
+include 'swift-compile-greeter'
+include 'swift-greeter'
+include 'swift-greeter-app'
+include 'swift-greeter-lib'
+include 'swift-greeter-test'
+
+gradle.allprojects {
+	group = 'dev.nokee.templates'
+	version = '1.0'
+}

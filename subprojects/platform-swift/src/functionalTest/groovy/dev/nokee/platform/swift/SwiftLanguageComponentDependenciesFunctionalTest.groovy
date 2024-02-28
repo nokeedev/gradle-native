@@ -97,7 +97,7 @@ class SwiftLibraryComponentWithStaticLinkageProjectDependenciesFunctionalTest ex
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return [tasks(":${libraryProjectName}").compile]
+		return tasks(":${libraryProjectName}").allToApiElements
 	}
 
 	@Override
@@ -216,7 +216,7 @@ class SwiftLibraryComponentWithStaticLinkageIncludedBuildDependenciesFunctionalT
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return [tasks(":${libraryProjectName}").compile]
+		return tasks(":${libraryProjectName}").allToApiElements
 	}
 
 	@Override

@@ -1,0 +1,6 @@
+group = 'dev.nokee.templates'
+version = '1.0'
+
+dependencies {
+	templatesApi 'dev.nokee.templates:template-greeter'
+}

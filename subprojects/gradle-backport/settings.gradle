@@ -1,0 +1,22 @@
+include 'gradle-backport-provider-convertible'
+include 'gradle-backport-annotation-ignore-empty-directories'
+include 'gradle-backport-annotation-untracked-task'
+
+dependencyResolutionManagement {
+	repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+	repositories {
+		mavenCentral()
+	}
+}
+
+gradle.allprojects {
+	group = 'dev.gradleplugins'
+	version = '1.0'
+
+	pluginManager.withPlugin('java-base') {
+		java {
+			sourceCompatibility = JavaVersion.VERSION_1_8
+			targetCompatibility = JavaVersion.VERSION_1_8
+		}
+	}
+}

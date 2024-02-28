@@ -21,6 +21,9 @@ import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.platform.nativebase.ExecutableBinary
 import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
 import dev.nokee.platform.nativebase.fixtures.CppGreeterLib
+import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent
+
+// TODO: Add embedded test suite test case, aka test suite registered on testable component
 
 class CppTestSuiteLibraryFunctionalTest extends AbstractTestSuiteComponentFunctionalTest implements CppTaskNames {
 	@Override
@@ -31,11 +34,11 @@ class CppTestSuiteLibraryFunctionalTest extends AbstractTestSuiteComponentFuncti
 				id 'dev.nokee.native-unit-testing'
 			}
 
-			import ${NativeTestSuite.canonicalName}
+			import ${DefaultNativeTestSuiteComponent.canonicalName}
 			import ${ExecutableBinary.canonicalName}
 
 			testSuites {
-				test(${NativeTestSuite.simpleName}) {
+				test(${DefaultNativeTestSuiteComponent.simpleName}) {
 					testedComponent library
 				}
 			}
@@ -62,11 +65,11 @@ class CppTestSuiteApplicationFunctionalTest extends AbstractTestSuiteComponentFu
 				id 'dev.nokee.native-unit-testing'
 			}
 
-			import ${NativeTestSuite.canonicalName}
+			import ${DefaultNativeTestSuiteComponent.canonicalName}
 			import ${ExecutableBinary.canonicalName}
 
 			testSuites {
-				test(${NativeTestSuite.simpleName}) {
+				test(${DefaultNativeTestSuiteComponent.simpleName}) {
 					testedComponent application
 				}
 			}

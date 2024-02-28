@@ -15,25 +15,32 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
-import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
-import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
+import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.c.internal.CLanguageImplementation;
+import dev.nokee.language.c.internal.SupportCSourceSetTag;
+import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.registry.ModelLookup;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
+
+public class CLanguagePlugin implements Plugin<Project>, NativeLanguageSupportPlugin {
+	private Instantiator instantiator;
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponentTag(SupportCSourceSetTag.class);
+		project.getExtensions().create("$cSupport", SupportCSourceSetTag.class);
+
+		this.instantiator = instantiator(project);
 	}
 
 	@Override
-	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
-		return CLanguageBasePlugin.DefaultCSourceSetRegistrationFactory.class;
+	public void registerImplementation(LanguageSupportSpec target) {
+		target.getLanguageImplementations().add(instantiator.newInstance(CLanguageImplementation.class));
 	}
 }

@@ -1,0 +1,23 @@
+plugins {
+	id 'java-library'
+	id 'maven-publish'
+}
+
+description = 'ProviderConvertible was introduced in Gradle v7.3'
+
+dependencies {
+	compileOnly "dev.gradleplugins:gradle-api:6.2.1"
+}
+
+def distributionRepository = rootProject.file('../distributions/build/repository')
+def publishToDistribution = tasks.register('publishToDistribution')
+publishing {
+	publications.create('library', MavenPublication) {
+		from components.java
+	}
+	repositories.maven {
+		name = 'distribution'
+		url = distributionRepository
+	}
+}
+publishToDistribution.configure { dependsOn('publishAllPublicationsToDistributionRepository') }

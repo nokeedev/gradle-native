@@ -15,10 +15,6 @@
  */
 package dev.nokee.platform.base;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
 import org.gradle.api.Action;
 import org.gradle.api.provider.SetProperty;
 
@@ -58,5 +54,4 @@ public interface VariantDimensions {
 	 * @return a set property to configure the axis values, never null
 	 */
 	<T> SetProperty<T> newAxis(Class<T> axisType, Action<? super VariantDimensionBuilder<T>> action);
-	<T> SetProperty<T> newAxis(Class<T> axisType, @ClosureParams(value = SimpleType.class, options = "dev.nokee.platform.base.VariantDimensionBuilder") @DelegatesTo(value = VariantDimensionBuilder.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

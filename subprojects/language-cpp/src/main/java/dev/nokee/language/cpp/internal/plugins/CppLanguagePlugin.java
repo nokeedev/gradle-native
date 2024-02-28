@@ -15,25 +15,32 @@
  */
 package dev.nokee.language.cpp.internal.plugins;
 
-import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
-import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
+import dev.nokee.internal.reflect.Instantiator;
+import dev.nokee.language.base.internal.LanguageSupportSpec;
+import dev.nokee.language.cpp.internal.CppLanguageImplementation;
+import dev.nokee.language.cpp.internal.SupportCppSourceSetTag;
+import dev.nokee.language.nativebase.internal.NativeLanguageSupportPlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.registry.ModelLookup;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-public class CppLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
+import static dev.nokee.model.internal.plugins.ModelBasePlugin.instantiator;
+
+public class CppLanguagePlugin implements Plugin<Project>, NativeLanguageSupportPlugin {
+	private Instantiator instantiator;
+
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponentTag(SupportCppSourceSetTag.class);
+		project.getExtensions().create("$cppSupport", SupportCppSourceSetTag.class);
+
+		this.instantiator = instantiator(project);
 	}
 
 	@Override
-	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
-		return CppLanguageBasePlugin.DefaultCppSourceSetRegistrationFactory.class;
+	public void registerImplementation(LanguageSupportSpec target) {
+		target.getLanguageImplementations().add(instantiator.newInstance(CppLanguageImplementation.class));
 	}
 }

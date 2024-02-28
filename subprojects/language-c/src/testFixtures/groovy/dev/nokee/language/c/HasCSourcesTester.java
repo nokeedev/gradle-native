@@ -16,7 +16,6 @@
 package dev.nokee.language.c;
 
 import dev.nokee.internal.testing.testers.ConfigureMethodTester;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,8 +32,7 @@ public interface HasCSourcesTester {
 	@Test
 	default void canConfigureCSources() {
 		ConfigureMethodTester.of(subject(), HasCSources::getCSources)
-			.testAction(HasCSources::cSources)
-			.testClosure(HasCSources::cSources);
+			.testAction((a, b) -> a.cSources(b));
 	}
 
 	@Test

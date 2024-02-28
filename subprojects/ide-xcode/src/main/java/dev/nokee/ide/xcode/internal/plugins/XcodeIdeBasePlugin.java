@@ -15,10 +15,19 @@
  */
 package dev.nokee.ide.xcode.internal.plugins;
 
-import dev.nokee.ide.base.internal.*;
+import dev.nokee.ide.base.internal.BaseIdeCleanMetadata;
+import dev.nokee.ide.base.internal.BaseIdeProjectReference;
+import dev.nokee.ide.base.internal.IdeProjectExtension;
+import dev.nokee.ide.base.internal.IdeProjectInternal;
+import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
 import dev.nokee.ide.base.internal.plugins.AbstractIdePlugin;
 import dev.nokee.ide.xcode.XcodeIdeProject;
-import dev.nokee.ide.xcode.internal.*;
+import dev.nokee.ide.xcode.internal.DefaultXcodeIdeProject;
+import dev.nokee.ide.xcode.internal.DefaultXcodeIdeProjectExtension;
+import dev.nokee.ide.xcode.internal.DefaultXcodeIdeProjectReference;
+import dev.nokee.ide.xcode.internal.DefaultXcodeIdeWorkspaceExtension;
+import dev.nokee.ide.xcode.internal.XcodeIdeBridge;
+import dev.nokee.ide.xcode.internal.XcodeIdeCleanMetadata;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.ide.xcode.internal.tasks.GenerateXcodeIdeWorkspaceTask;
 import org.gradle.api.Rule;

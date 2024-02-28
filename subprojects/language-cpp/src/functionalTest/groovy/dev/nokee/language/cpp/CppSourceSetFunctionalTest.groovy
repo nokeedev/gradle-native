@@ -16,13 +16,13 @@
 package dev.nokee.language.cpp
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec
+import dev.nokee.language.cpp.internal.CppSourceSetSpec
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
-import dev.nokee.platform.base.internal.DomainObjectEntities
-import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.model.internal.registry.ModelRegistry
 import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
 import dev.nokee.runtime.nativebase.internal.TargetMachines
+
+import static dev.gradleplugins.fixtures.sources.NativeElements.headers
+import static dev.gradleplugins.fixtures.sources.NativeElements.sources
 
 class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
 	private final CppGreeterApp fixture = new CppGreeterApp()
@@ -34,16 +34,11 @@ class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSp
 				id 'dev.nokee.native-runtime-base'
 			}
 
-			import ${DomainObjectEntities.canonicalName}
-			import ${ProjectIdentifier.canonicalName}
 			import ${NativePlatformFactory.canonicalName}
 			import ${TargetMachines.canonicalName}
-			import ${CppSourceSet.canonicalName}
 			import ${CppSourceSetSpec.canonicalName}
-			import ${ModelRegistry.canonicalName}
 
-			def registry = extensions.getByType(ModelRegistry)
-			def sourceSet = registry.register(DomainObjectEntities.newEntity("qise", CppSourceSetSpec)).as(CppSourceSet).get()
+			def sourceSet = sources.register("qise", CppSourceSetSpec).get()
 			tasks.compileQise.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}
@@ -57,7 +52,7 @@ class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSp
 
 		expect:
 		succeeds('compileQise')
-		objectFiles(fixture.sources, "build/objs/qise")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/qise")*.assertExists()
 	}
 
 	def "resolves compile dependencies from headerSearchPaths configuration"() {
@@ -71,12 +66,12 @@ class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSp
 
 		expect:
 		succeeds('compileQise')
-		objectFiles(fixture.sources, "build/objs/qise")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/qise")*.assertExists()
 	}
 
 	def "can compile generated C++ sources"() {
-		fixture.sources.writeToSourceDir(file('srcs'))
-		fixture.headers.writeToProject(testDirectory)
+		fixture.get(sources()).writeToSourceDir(file('srcs'))
+		fixture.get(headers()).writeToProject(testDirectory)
 		buildFile << '''
 			def generatorTask = tasks.register('generateSources', Sync) {
 				from('srcs')
@@ -90,12 +85,12 @@ class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSp
 		expect:
 		def result = succeeds('compileQise')
 		result.assertTaskNotSkipped(':generateSources')
-		objectFiles(fixture.sources, "build/objs/qise")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/qise")*.assertExists()
 	}
 
 	def "can compile with generated C++ headers"() {
-		fixture.sources.writeToProject(testDirectory)
-		fixture.headers.writeToSourceDir(file('hdrs'))
+		fixture.get(sources()).writeToProject(testDirectory)
+		fixture.get(headers()).writeToSourceDir(file('hdrs'))
 		buildFile << '''
 			def generatorTask = tasks.register('generateHeaders', Sync) {
 				from('hdrs')
@@ -109,12 +104,12 @@ class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSp
 		expect:
 		def result = succeeds('compileQise')
 		result.assertTaskNotSkipped(':generateHeaders')
-		objectFiles(fixture.sources, "build/objs/qise")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/qise")*.assertExists()
 	}
 
 	def "can consume generated headers from headerSearchPaths configuration"() {
-		fixture.sources.writeToProject(testDirectory)
-		fixture.headers.writeToSourceDir(file('hdrs'))
+		fixture.get(sources()).writeToProject(testDirectory)
+		fixture.get(headers()).writeToSourceDir(file('hdrs'))
 		buildFile << '''
 			def generatorTask = tasks.register('generateHeaders', Sync) {
 				from('hdrs')
@@ -130,6 +125,6 @@ class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSp
 		expect:
 		def result = succeeds('compileQise')
 		result.assertTaskNotSkipped(':generateHeaders')
-		objectFiles(fixture.sources, "build/objs/qise")*.assertExists()
+		objectFiles(fixture.get(sources()), "build/objs/qise")*.assertExists()
 	}
 }

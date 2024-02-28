@@ -16,14 +16,10 @@
 package dev.nokee.platform.base.internal.extensionaware;
 
 import com.google.common.collect.ImmutableMap;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import groovy.lang.GroovyRuntimeException;
 import lombok.val;
 import org.gradle.api.internal.provider.PropertyInternal;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.plugins.ExtensionsSchema;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
@@ -35,13 +31,7 @@ import org.gradle.internal.metaobject.PropertyMixIn;
 
 import java.util.Map;
 
-@DomainObjectEntities.Tag(ExtensionAwareMixIn.Tag.class)
 public interface ExtensionAwareMixIn extends ExtensionAware, PropertyMixIn {
-	@Override
-	default ExtensionContainer getExtensions() {
-		return ModelNodes.of(this).get(ExtensionAwareComponent.class).get();
-	}
-
 	@Override
 	default PropertyAccess getAdditionalProperties() {
 		return new PropertyAccess() {
@@ -91,6 +81,4 @@ public interface ExtensionAwareMixIn extends ExtensionAware, PropertyMixIn {
 			}
 		};
 	}
-
-	interface Tag extends ModelTag {}
 }

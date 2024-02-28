@@ -15,9 +15,9 @@
  */
 package dev.nokee.language.nativebase;
 
+import dev.nokee.language.base.HasCompileTask;
 import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.base.tasks.SourceCompile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

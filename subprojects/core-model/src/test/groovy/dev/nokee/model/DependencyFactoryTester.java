@@ -19,8 +19,10 @@ import com.google.common.collect.ImmutableMap;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
+import org.gradle.api.Project;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ProjectDependency;
+import org.gradle.api.file.FileCollection;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
@@ -54,6 +56,9 @@ public interface DependencyFactoryTester {
 
 	@Test
 	default void throwsExceptionIfNotationIsNull() {
-		assertThrows(NullPointerException.class, () -> subject().create(null));
+		assertThrows(NullPointerException.class, () -> subject().create((CharSequence) null));
+		assertThrows(NullPointerException.class, () -> subject().create((FileCollection) null));
+		assertThrows(NullPointerException.class, () -> subject().create((Project) null));
+		assertThrows(NullPointerException.class, () -> subject().create((Object) null));
 	}
 }

@@ -17,14 +17,9 @@ package dev.nokee.platform.ios.tasks
 
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.nokee.core.exec.CommandLineTool
-import dev.nokee.fixtures.tasks.WellBehavingTaskAssertion
-import dev.nokee.fixtures.tasks.WellBehavingTaskProperty
-import dev.nokee.fixtures.tasks.WellBehavingTaskPropertyValue
-import dev.nokee.fixtures.tasks.WellBehavingTaskSpec
-import dev.nokee.fixtures.tasks.WellBehavingTaskTest
-import dev.nokee.fixtures.tasks.WellBehavingTaskTransform
+import dev.nokee.fixtures.tasks.*
+import dev.nokee.platform.ios.fixtures.ObjectiveCIosApp
 import dev.nokee.platform.ios.fixtures.elements.GenericStoryboard
-import dev.nokee.platform.ios.fixtures.elements.NokeeAppBaseLanguage
 import dev.nokee.platform.ios.tasks.internal.StoryboardCompileTask
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Task
@@ -128,7 +123,7 @@ class StoryboardCompileWellBehavingTaskTest extends WellBehavingTaskTest {
 	@Override
 	protected void makeSingleProject() {
 		super.makeSingleProject()
-		new NokeeAppBaseLanguage().writeToProject(testDirectory)
+		new ObjectiveCIosApp().baseLang().writeToProject(testDirectory)
 
 		// TODO: Maybe we should just move the initial value here and remove all the Mutator and Value modeling...
 		buildFile << """

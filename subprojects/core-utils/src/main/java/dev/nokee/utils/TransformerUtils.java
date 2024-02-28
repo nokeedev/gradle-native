@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.util.internal.FlatTransformEachToCollectionAdapter;
@@ -25,11 +26,14 @@ import dev.nokee.util.lambdas.internal.SerializableTransformerAdapter;
 import dev.nokee.utils.internal.WrappedTransformer;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.specs.Spec;
 import org.gradle.internal.Transformers;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -59,6 +63,18 @@ public final class TransformerUtils {
 
 	public static <T> Transformer<T, T> peek(Consumer<? super T> action) {
 		return ofTransformer(new PeekTransformer<>(action));
+	}
+
+	public static <T> Transformer<T, Iterable<T>> onlyElement() {
+		return ofTransformer(TransformerUtils::one);
+	}
+
+	private static <T> T one(Iterable<T> c) {
+		Iterator<T> iterator = c.iterator();
+		Preconditions.checkArgument(iterator.hasNext(), "collection needs to have one element, was empty");
+		T result = iterator.next();
+		Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
+		return result;
 	}
 
 	public static <OUT, IN extends OUT> Transformer<OUT, IN> noOpTransformer() {
@@ -228,8 +244,18 @@ public final class TransformerUtils {
 	 * @param <InputElementType>  input element type to transform
 	 * @return a {@link Transformer} instance to flat transform each the element of an iterable, never null.
 	 */
-	public static <OutputElementType, InputElementType> Transformer<List<OutputElementType>, Iterable<InputElementType>> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OutputElementType>, ? super InputElementType> mapper) {
+	public static <OutputElementType, InputElementType> Transformer<Iterable<? extends OutputElementType>, Iterable<? extends InputElementType>> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OutputElementType>, InputElementType> mapper) {
 		return ofTransformer(new FlatTransformEachToCollectionAdapter<>(listFactory(), mapper));
+	}
+
+	public static <ElementType> Transformer<Iterable<? extends ElementType>, Iterable<? extends Iterable<? extends ElementType>>> flatten() {
+		return ofTransformer(it -> {
+			final ImmutableList.Builder<ElementType> result = ImmutableList.builder();
+			for (Iterable<? extends ElementType> elements : it) {
+				result.addAll(elements);
+			}
+			return result.build();
+		});
 	}
 
 	/**
@@ -241,11 +267,41 @@ public final class TransformerUtils {
 	 * @param <InputElementType>  input element type to transform
 	 * @return a {@link Transformer} instance to transform each the element of an iterable, never null.
 	 */
-	public static <OutputElementType, InputElementType> Transformer<List<OutputElementType>, Iterable<InputElementType>> transformEach(org.gradle.api.Transformer<? extends OutputElementType, ? super InputElementType> mapper) {
+	public static <OutputElementType, InputElementType> Transformer<Iterable<? extends OutputElementType>, Iterable<? extends InputElementType>> transformEach(org.gradle.api.Transformer<? extends OutputElementType, InputElementType> mapper) {
 		if (isNoOpTransformer(mapper)) {
 			return NoOpTransformer.INSTANCE.withNarrowTypes();
 		}
 		return ofTransformer(new TransformEachToCollectionAdapter<>(listFactory(), mapper));
+	}
+
+	public static <ElementType> Transformer<ElementType, ElementType> filter(Spec<? super ElementType> spec) {
+		return it -> {
+			if (spec.isSatisfiedBy(it)) {
+				return it;
+			} else {
+				return nullSafeValue();
+			}
+		};
+	}
+
+	public static <OutputElementType, InputElementType> Transformer<OutputElementType, InputElementType> to(Class<OutputElementType> type) {
+		return it -> {
+			if (type.isInstance(it)) {
+				return type.cast(it);
+			} else {
+				return nullSafeValue();
+			}
+		};
+	}
+
+	public static <OutputElementType, InputElementType> Transformer<OutputElementType, InputElementType> to(TypeOf<OutputElementType> type) {
+		return it -> {
+			if (type.getConcreteClass().isInstance(it)) {
+				return type.getConcreteClass().cast(it);
+			} else {
+				return nullSafeValue();
+			}
+		};
 	}
 
 	public static <A, B, C> Transformer<C, A> compose(org.gradle.api.Transformer<C, B> g, org.gradle.api.Transformer<? extends B, A> f) {
@@ -499,6 +555,14 @@ public final class TransformerUtils {
 		public String toString() {
 			return "TransformerUtils.stream(" + mapper + ")";
 		}
+	}
+
+	public static <OUT> OUT nullSafeValue() {
+		return null;
+	}
+
+	public static <OUT> Provider<OUT> nullSafeProvider() {
+		return null;
 	}
 
 	public static <OUT, IN> Transformer<OUT, IN> ofTransformer(org.gradle.api.Transformer<? extends OUT, ? super IN> transformer) {

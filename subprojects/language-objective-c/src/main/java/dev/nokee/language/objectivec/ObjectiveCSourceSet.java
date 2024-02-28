@@ -16,8 +16,10 @@
 package dev.nokee.language.objectivec;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 import dev.nokee.language.nativebase.HasHeaders;
+import dev.nokee.language.nativebase.NativeSourceSet;
+import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
+import org.gradle.api.tasks.TaskProvider;
 
 /**
  * A set of Objective-C source files.
@@ -25,4 +27,7 @@ import dev.nokee.language.nativebase.HasHeaders;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface ObjectiveCSourceSet extends SelfAwareLanguageSourceSet<ObjectiveCSourceSet> {}
+public interface ObjectiveCSourceSet extends NativeSourceSet, HasHeaders {
+	@Override
+	TaskProvider<? extends ObjectiveCCompile> getCompileTask();
+}

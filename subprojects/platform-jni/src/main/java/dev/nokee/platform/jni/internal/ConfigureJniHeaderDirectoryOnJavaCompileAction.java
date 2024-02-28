@@ -16,6 +16,7 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.ModelObjectIdentifier;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import org.gradle.api.Action;
 import org.gradle.api.file.ProjectLayout;
@@ -33,7 +34,7 @@ public final class ConfigureJniHeaderDirectoryOnJavaCompileAction implements Act
 
 	@Override
 	public void execute(JavaCompile task) {
-		task.getOptions().getHeaderOutputDirectory().convention(layout.getBuildDirectory().dir("generated/jni-headers/" + OutputDirectoryPath.fromIdentifier(identifier)));
+		task.getOptions().getHeaderOutputDirectory().convention(layout.getBuildDirectory().dir("generated/jni-headers/" + OutputDirectoryPath.forIdentifier((ModelObjectIdentifier) identifier)));
 
 		// The nested output is not marked automatically as an output of the task regarding task dependencies.
 		// So we mark it manually here.
