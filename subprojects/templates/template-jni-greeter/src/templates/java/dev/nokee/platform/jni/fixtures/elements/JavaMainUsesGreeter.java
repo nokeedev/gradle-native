@@ -29,7 +29,7 @@ public final class JavaMainUsesGreeter extends SourceFileElement implements Gree
 
     public JavaMainUsesGreeter() {
 		JavaPackage javaPackage = ofPackage("com.example.app");
-		this.source = new Content().withPackage(javaPackage).withPath("java/" + javaPackage.getDirectoryLayout() + "/Main.java").getSourceFile();
+		this.source = new Content().withPackage(javaPackage).withPath("java/" + javaPackage.getDirectoryLayout()).getSourceFile();
 	}
 
 	@Override

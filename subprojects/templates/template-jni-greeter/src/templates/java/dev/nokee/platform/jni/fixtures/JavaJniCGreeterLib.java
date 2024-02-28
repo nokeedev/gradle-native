@@ -86,7 +86,7 @@ public final class JavaJniCGreeterLib extends GreeterImplementationAwareSourceEl
 
 		@Override
 		public SourceFile getSourceFile() {
-			return new Source().withPackage(javaPackage).withPath("c/greeter.c").getSourceFile();
+			return new Source().withPackage(javaPackage).withPath("c").getSourceFile();
 		}
 
 		@SourceFileLocation(file = "jni-c-greeter/src/main/c/greeter.c", properties = {
@@ -104,7 +104,7 @@ public final class JavaJniCGreeterLib extends GreeterImplementationAwareSourceEl
 		@Override
 		public SourceFile getJniGeneratedHeaderFile() {
 			return new GreeterJniHeader().withPackage(javaPackage)
-				.withPath("headers/" + javaPackage.jniHeader("Greeter")).getSourceFile();
+				.withPath("headers", javaPackage.jniHeader("Greeter")).getSourceFile();
 		}
 	}
 }

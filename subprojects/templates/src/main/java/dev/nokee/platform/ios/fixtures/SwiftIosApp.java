@@ -29,11 +29,11 @@ public final class SwiftIosApp extends SourceElement {
 		@Override
 		public List<SourceFile> getFiles() {
 			return ofElements(
-				new SwiftAppDelegate().withPath("swift/AppDelegate.swift"),
-				new SwiftSceneDelegate().withPath("swift/SceneDelegate.swift"),
-				new SwiftViewController().withPath("swift/ViewController.swift"),
+				new SwiftAppDelegate().withPath("swift"),
+				new SwiftSceneDelegate().withPath("swift"),
+				new SwiftViewController().withPath("swift"),
 				new NokeeAppBaseLanguage().withPath("resources/Base.lproj"),
-				new NokeeAppInfoPlist().withPath("resources/Info.plist"),
+				new NokeeAppInfoPlist().withPath("resources"),
 				new NokeeAppAssets().withPath("resources/Assets.xcassets")
 			).getFiles();
 		}

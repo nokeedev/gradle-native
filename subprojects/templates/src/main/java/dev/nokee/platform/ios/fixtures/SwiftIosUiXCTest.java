@@ -15,8 +15,8 @@ public final class SwiftIosUiXCTest extends SourceElements {
 		@Override
 		public List<SourceFile> getFiles() {
 			return ofElements(
-				new SwiftUiTest().withPath("swift/ApplicationUITests.swift"),
-				new NokeeAppUiXCTestInfoPlist().withPath("resources/Info.plist")
+				new SwiftUiTest().withPath("swift"),
+				new NokeeAppUiXCTestInfoPlist().withPath("resources", "Info.plist")
 			).getFiles();
 		}
 

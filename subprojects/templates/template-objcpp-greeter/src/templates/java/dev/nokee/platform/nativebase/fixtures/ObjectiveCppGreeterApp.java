@@ -30,7 +30,7 @@ public final class ObjectiveCppGreeterApp extends GreeterImplementationAwareSour
 	private static class ObjectiveCppMainUsesGreeter extends SourceFileElement {
 		@Override
 		public SourceFile getSourceFile() {
-			return new Source().withPath("objcpp/main.mm").getSourceFile();
+			return new Source().withPath("objcpp").getSourceFile();
 		}
 
 		@SourceFileLocation(file = "objcpp-greeter-app/src/main/objcpp/main.mm")

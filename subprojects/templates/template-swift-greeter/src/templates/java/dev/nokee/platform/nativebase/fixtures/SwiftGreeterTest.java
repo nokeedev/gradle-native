@@ -11,7 +11,7 @@ public final class SwiftGreeterTest extends SwiftSourceFileElement {
 
 	public SwiftGreeterTest(String testedModuleName) {
 		this.source = new Source().withTestedModuleName(testedModuleName)
-			.withPath("swift/greeter_test.swift").getSourceFile();
+			.withPath("swift").getSourceFile();
 	}
 
 	@Override

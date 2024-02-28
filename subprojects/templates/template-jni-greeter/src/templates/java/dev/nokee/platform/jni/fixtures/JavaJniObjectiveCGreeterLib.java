@@ -90,7 +90,7 @@ public final class JavaJniObjectiveCGreeterLib extends GreeterImplementationAwar
 
 		@Override
 		public SourceFile getSourceFile() {
-			return new Source().withPath("objc/greeter.m").getSourceFile();
+			return new Source().withPath("objc").getSourceFile();
 		}
 
 		@SourceFileLocation(file = "jni-objc-greeter/src/main/objc/greeter.m", properties = {
@@ -108,7 +108,7 @@ public final class JavaJniObjectiveCGreeterLib extends GreeterImplementationAwar
 		@Override
 		public SourceFile getJniGeneratedHeaderFile() {
 			return new GreeterJniHeader().withPackage(javaPackage)
-				.withPath("headers/" + javaPackage.jniHeader("Greeter")).getSourceFile();
+				.withPath("headers", javaPackage.jniHeader("Greeter")).getSourceFile();
 		}
 	}
 }

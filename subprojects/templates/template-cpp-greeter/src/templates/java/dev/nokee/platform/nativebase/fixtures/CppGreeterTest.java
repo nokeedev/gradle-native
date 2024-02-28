@@ -29,7 +29,7 @@ public final class CppGreeterTest extends NativeSourceFileElement {
 
 	@Override
 	public SourceFileElement getHeader() {
-		return new Header().withPath("headers/greeter_fixtures.h");
+		return new Header().withPath("headers");
 	}
 
 	@SourceFileLocation(file = "cpp-greeter-test/src/main/headers/greeter_fixtures.h")
@@ -37,7 +37,7 @@ public final class CppGreeterTest extends NativeSourceFileElement {
 
 	@Override
 	public SourceFileElement getSource() {
-		return new Source().withPath("cpp/greeter_test.cpp");
+		return new Source().withPath("cpp");
 	}
 
 	@SourceFileLocation(file = "cpp-greeter-test/src/main/cpp/greeter_test.cpp")

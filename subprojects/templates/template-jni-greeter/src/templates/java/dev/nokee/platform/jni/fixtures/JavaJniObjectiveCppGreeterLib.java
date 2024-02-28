@@ -85,7 +85,7 @@ public final class JavaJniObjectiveCppGreeterLib  extends GreeterImplementationA
 
 		@Override
 		public SourceFile getSourceFile() {
-			return new Content().withPackage(javaPackage).withPath("objcpp/greeter.mm").getSourceFile();
+			return new Content().withPackage(javaPackage).withPath("objcpp").getSourceFile();
 		}
 
 		@SourceFileLocation(file = "jni-objcpp-greeter/src/main/objcpp/greeter.mm", properties = {
@@ -103,7 +103,7 @@ public final class JavaJniObjectiveCppGreeterLib  extends GreeterImplementationA
 		@Override
 		public SourceFile getJniGeneratedHeaderFile() {
 			return new GreeterJniHeader().withPackage(javaPackage)
-				.withPath("headers/" + javaPackage.jniHeader("Greeter")).getSourceFile();
+				.withPath("headers", javaPackage.jniHeader("Greeter")).getSourceFile();
 		}
 	}
 }

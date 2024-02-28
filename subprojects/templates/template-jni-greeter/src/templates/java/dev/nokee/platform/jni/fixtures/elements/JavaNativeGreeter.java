@@ -42,7 +42,7 @@ public final class JavaNativeGreeter extends SourceFileElement {
 		this.javaPackage = javaPackage;
 		this.sharedLibraryBaseName = sharedLibraryBaseName;
 		this.resourcePath = resourcePath;
-		source = new Content().withPackage(javaPackage).withLibName(resourcePath + sharedLibraryBaseName).withPath("java/" + javaPackage.getDirectoryLayout() + "/Greeter.java").getSourceFile();
+		source = new Content().withPackage(javaPackage).withLibName(resourcePath + sharedLibraryBaseName).withPath("java/" + javaPackage.getDirectoryLayout()).getSourceFile();
 	}
 
 	public JavaNativeGreeter withSharedLibraryBaseName(String sharedLibraryBaseName) {

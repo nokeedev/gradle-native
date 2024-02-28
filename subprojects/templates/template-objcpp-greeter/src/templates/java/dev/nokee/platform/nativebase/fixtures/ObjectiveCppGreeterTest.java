@@ -13,7 +13,7 @@ public final class ObjectiveCppGreeterTest extends NativeSourceFileElement {
 
 	@Override
 	public SourceFileElement getHeader() {
-		return new Header().withPath("headers/greeter_fixtures.h");
+		return new Header().withPath("headers");
 	}
 
 	@SourceFileLocation(file = "objcpp-greeter-test/src/main/headers/greeter_fixtures.h")
@@ -21,7 +21,7 @@ public final class ObjectiveCppGreeterTest extends NativeSourceFileElement {
 
 	@Override
 	public SourceFileElement getSource() {
-		return new Source().withPath("objcpp/greeter_test.mm");
+		return new Source().withPath("objcpp");
 	}
 
 	@SourceFileLocation(file = "objcpp-greeter-test/src/main/objcpp/greeter_test.mm")
