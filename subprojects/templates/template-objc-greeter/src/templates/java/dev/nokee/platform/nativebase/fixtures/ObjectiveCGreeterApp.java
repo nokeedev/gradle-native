@@ -12,7 +12,7 @@ import static dev.gradleplugins.fixtures.sources.NativeElements.subproject;
 public final class ObjectiveCGreeterApp extends GreeterImplementationAwareSourceElement {
 	@Override
 	public SourceElement getElementUsingGreeter() {
-		return new ObjectiveCMainUsesGreeter().withPath("objc/main.m");
+		return new ObjectiveCMainUsesGreeter().withPath("objc");
 	}
 
 	@Override

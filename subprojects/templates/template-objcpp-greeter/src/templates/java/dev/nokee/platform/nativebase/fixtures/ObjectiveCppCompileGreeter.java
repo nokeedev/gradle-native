@@ -8,7 +8,7 @@ import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 public final class ObjectiveCppCompileGreeter extends SourceFileElement {
 	@Override
 	public SourceFile getSourceFile() {
-		return new Source().withPath("objcpp/greeter.mm").getSourceFile();
+		return new Source().withPath("objcpp").getSourceFile();
 	}
 
 	@SourceFileLocation(file = "objcpp-compile-greeter/src/main/objcpp/greeter.mm")

@@ -13,7 +13,7 @@ public final class CGreeterTest extends NativeSourceFileElement {
 
 	@Override
 	public SourceFileElement getHeader() {
-		return new Header().withPath("headers/greeter_fixtures.h");
+		return new Header().withPath("headers");
 	}
 
 	@SourceFileLocation(file = "c-greeter-test/src/main/headers/greeter_fixtures.h")
@@ -21,7 +21,7 @@ public final class CGreeterTest extends NativeSourceFileElement {
 
 	@Override
 	public SourceFileElement getSource() {
-		return new Source().withPath("c/greeter_test.c");
+		return new Source().withPath("c");
 	}
 
 	@SourceFileLocation(file = "c-greeter-test/src/main/c/greeter_test.c")

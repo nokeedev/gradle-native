@@ -127,7 +127,7 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		}
 
 		public KotlinNativeLoader(JavaPackage javaPackage) {
-			source = new Content().withPackage(javaPackage).withPath("kotlin/" + javaPackage.getDirectoryLayout() + "/NativeLoader.kt").getSourceFile();
+			source = new Content().withPackage(javaPackage).withPath("kotlin/" + javaPackage.getDirectoryLayout()).getSourceFile();
 		}
 
 		@SourceFileLocation(file = "kotlin-jni-greeter/src/main/kotlin/com/example/greeter/NativeLoader.kt", properties = {
@@ -155,7 +155,7 @@ public final class KotlinJniCppGreeterLib extends GreeterImplementationAwareSour
 		}
 
 		public KotlinGreeterJUnitTest(JavaPackage javaPackage) {
-			this.source = new Content().withPackage(javaPackage).withPath("kotlin/" + javaPackage.getDirectoryLayout() + "/GreeterTest.kt").getSourceFile();
+			this.source = new Content().withPackage(javaPackage).withPath("kotlin/" + javaPackage.getDirectoryLayout()).getSourceFile();
 		}
 
 		@SourceFileLocation(file = "kotlin-jni-greeter/src/test/kotlin/com/example/greeter/GreeterTest.kt", properties = {

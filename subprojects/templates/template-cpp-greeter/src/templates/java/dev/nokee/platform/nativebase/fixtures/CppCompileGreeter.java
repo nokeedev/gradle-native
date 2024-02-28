@@ -24,7 +24,7 @@ import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 public final class CppCompileGreeter extends SourceFileElement {
 	@Override
 	public SourceFile getSourceFile() {
-		return new Source().withPath("cpp/greeter.cpp").getSourceFile();
+		return new Source().withPath("cpp").getSourceFile();
 	}
 
 	@SourceFileLocation(file = "cpp-compile-greeter/src/main/cpp/greeter.cpp")

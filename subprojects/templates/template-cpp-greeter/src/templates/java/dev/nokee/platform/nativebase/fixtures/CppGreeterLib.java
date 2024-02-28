@@ -33,7 +33,7 @@ public final class CppGreeterLib extends GreeterImplementationAwareSourceElement
 	private static class CppGreetUsingGreeter extends NativeSourceFileElement {
 		@Override
 		public SourceFileElement getHeader() {
-			return new Header().withPath("headers/greet_alice.h");
+			return new Header().withPath("headers");
 		}
 
 		@SourceFileLocation(file = "cpp-greeter-lib/src/main/public/greet_alice.h")
@@ -41,7 +41,7 @@ public final class CppGreeterLib extends GreeterImplementationAwareSourceElement
 
 		@Override
 		public SourceFileElement getSource() {
-			return new Source().withPath("cpp/greet_alice.cpp");
+			return new Source().withPath("cpp");
 		}
 
 		@SourceFileLocation(file = "cpp-greeter-lib/src/main/cpp/greet_alice.cpp")

@@ -28,7 +28,7 @@ import static dev.gradleplugins.fixtures.sources.NativeElements.subproject;
 public final class CppGreeterApp extends GreeterImplementationAwareSourceElement {
 	@Override
 	public SourceElement getElementUsingGreeter() {
-		return new CppMainUsesGreeter().withPath("cpp/main.cpp");
+		return new CppMainUsesGreeter().withPath("cpp");
 	}
 
 	@Override

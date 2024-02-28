@@ -86,7 +86,7 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 			this.javaPackage = javaPackage;
 			this.sharedLibraryBaseName = sharedLibraryBaseName;
 			this.resourcePath = resourcePath;
-			source = new Content().withPackage(javaPackage).withLibName(resourcePath + sharedLibraryBaseName).withPath("java/" + javaPackage.getDirectoryLayout() + "/NSSavePanel.java").getSourceFile();
+			source = new Content().withPackage(javaPackage).withLibName(resourcePath + sharedLibraryBaseName).withPath("java/" + javaPackage.getDirectoryLayout()).getSourceFile();
 		}
 
 		public JavaNativeNSSavePanel withSharedLibraryBaseName(String sharedLibraryBaseName) {
@@ -102,7 +102,7 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 		private final SourceFile source;
 
 		public ObjectiveCNSSavePanelJniBinding(JavaPackage javaPackage) {
-			source = new Content().withPackage(javaPackage).withPath("objc/ns_save_panel.m").getSourceFile();
+			source = new Content().withPackage(javaPackage).withPath("objc").getSourceFile();
 		}
 
 		@Override

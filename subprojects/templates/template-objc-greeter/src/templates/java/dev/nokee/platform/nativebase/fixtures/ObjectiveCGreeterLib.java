@@ -29,7 +29,7 @@ public final class ObjectiveCGreeterLib extends GreeterImplementationAwareSource
 	private static class ObjectiveCGreetUsesGreeter extends NativeSourceFileElement {
 		@Override
 		public SourceFileElement getHeader() {
-			return new Header().withPath("headers/greet_alice.h");
+			return new Header().withPath("headers");
 		}
 
 		@SourceFileLocation(file = "objc-greeter-lib/src/main/public/greet_alice.h")
@@ -37,7 +37,7 @@ public final class ObjectiveCGreeterLib extends GreeterImplementationAwareSource
 
 		@Override
 		public SourceFileElement getSource() {
-			return new Source().withPath("objc/greet_alice_impl.m");
+			return new Source().withPath("objc");
 		}
 
 		@SourceFileLocation(file = "objc-greeter-lib/src/main/objc/greet_alice_impl.m")

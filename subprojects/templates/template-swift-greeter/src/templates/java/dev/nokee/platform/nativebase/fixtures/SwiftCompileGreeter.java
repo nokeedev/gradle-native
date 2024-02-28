@@ -8,7 +8,7 @@ import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 public final class SwiftCompileGreeter extends SwiftSourceFileElement {
 	@Override
 	public SourceFile getSourceFile() {
-		return new Source().withPath("swift/greeter.swift").getSourceFile();
+		return new Source().withPath("swift").getSourceFile();
 	}
 
 	@SourceFileLocation(file = "swift-compile-greeter/src/main/swift/greeter.swift")

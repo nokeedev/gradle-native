@@ -32,9 +32,9 @@ public final class ObjectiveCIosApp extends SourceElement {
 		public List<SourceFile> getFiles() {
 			return ofElements(
 				new ObjectiveCAppDelegate(), new ObjectiveCSceneDelegate(), new ObjectiveCViewController(),
-				new ObjectiveCMain().withPath("objc/main.m"),
+				new ObjectiveCMain().withPath("objc"),
 				new NokeeAppBaseLanguage().withPath("resources/Base.lproj"),
-				new NokeeAppInfoPlist().withPath("resources/Info.plist"),
+				new NokeeAppInfoPlist().withPath("resources"),
 				new NokeeAppAssets().withPath("resources/Assets.xcassets")
 			).getFiles();
 		}
@@ -65,7 +65,7 @@ public final class ObjectiveCIosApp extends SourceElement {
 	private static class ObjectiveCAppDelegate extends NativeSourceFileElement {
 		@Override
 		public SourceFileElement getHeader() {
-			return new Header().withPath("headers/AppDelegate.h");
+			return new Header().withPath("headers");
 		}
 
 		@SourceFileLocation(file = "ios-objc-app/Application/AppDelegate.h")
@@ -74,7 +74,7 @@ public final class ObjectiveCIosApp extends SourceElement {
 
 		@Override
 		public SourceFileElement getSource() {
-			return new Source().withPath("objc/AppDelegate.m");
+			return new Source().withPath("objc");
 		}
 
 		@SourceFileLocation(file = "ios-objc-app/Application/AppDelegate.m")
@@ -85,7 +85,7 @@ public final class ObjectiveCIosApp extends SourceElement {
 	private static class ObjectiveCSceneDelegate extends NativeSourceFileElement {
 		@Override
 		public SourceFileElement getHeader() {
-			return new Header().withPath("headers/SceneDelegate.h");
+			return new Header().withPath("headers");
 		}
 
 		@SourceFileLocation(file = "ios-objc-app/Application/SceneDelegate.h")
@@ -94,7 +94,7 @@ public final class ObjectiveCIosApp extends SourceElement {
 
 		@Override
 		public SourceFileElement getSource() {
-			return new Source().withPath("objc/SceneDelegate.m");
+			return new Source().withPath("objc");
 		}
 
 		@SourceFileLocation(file = "ios-objc-app/Application/SceneDelegate.m")
@@ -105,7 +105,7 @@ public final class ObjectiveCIosApp extends SourceElement {
 	private static class ObjectiveCViewController extends NativeSourceFileElement {
 		@Override
 		public SourceFileElement getHeader() {
-			return new Header().withPath("headers/ViewController.h");
+			return new Header().withPath("headers");
 		}
 
 		@SourceFileLocation(file = "ios-objc-app/Application/ViewController.h")
@@ -114,7 +114,7 @@ public final class ObjectiveCIosApp extends SourceElement {
 
 		@Override
 		public SourceFileElement getSource() {
-			return new Source().withPath("objc/ViewController.m");
+			return new Source().withPath("objc");
 		}
 
 		@SourceFileLocation(file = "ios-objc-app/Application/ViewController.m")

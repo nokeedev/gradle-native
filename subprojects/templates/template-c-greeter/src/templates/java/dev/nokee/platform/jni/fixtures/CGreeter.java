@@ -25,7 +25,7 @@ import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 public final class CGreeter extends NativeSourceFileElement {
 	@Override
     public SourceFileElement getHeader() {
-		return new Header().withPath("headers/greeter.h");
+		return new Header().withPath("headers");
 	}
 
 	@SourceFileLocation(file = "c-greeter/src/main/public/greeter.h")
@@ -33,7 +33,7 @@ public final class CGreeter extends NativeSourceFileElement {
 
 	@Override
 	public SourceFileElement getSource() {
-		return new Source().withPath("c/greeter_impl.c");
+		return new Source().withPath("c");
 	}
 
 	@SourceFileLocation(file = "c-greeter/src/main/c/greeter_impl.c")
@@ -48,7 +48,7 @@ public final class CGreeter extends NativeSourceFileElement {
 
 			@Override
 			public SourceFileElement getSource() {
-				return new WithOptionalFeatureSource().withPath("c/greeter_impl.c");
+				return new WithOptionalFeatureSource().withPath("c");
 			}
 		};
 	}

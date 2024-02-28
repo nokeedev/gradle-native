@@ -12,7 +12,7 @@ import static dev.gradleplugins.fixtures.sources.NativeElements.subproject;
 public final class SwiftGreeterLib extends GreeterImplementationAwareSourceElement {
 	@Override
 	public SwiftSourceFileElement getElementUsingGreeter() {
-		return SwiftSourceFileElement.forFile(new SwiftGreetUsesGreeter().withPath("swift/greeter.swift"));
+		return SwiftSourceFileElement.forFile(new SwiftGreetUsesGreeter().withPath("swift"));
 	}
 
 	@Override

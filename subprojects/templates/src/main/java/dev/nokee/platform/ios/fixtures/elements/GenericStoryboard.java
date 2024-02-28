@@ -29,7 +29,7 @@ public final class GenericStoryboard extends SourceFileElement {
 	private final SourceFile source;
 
 	public GenericStoryboard(String name) {
-		this.source = new Content().withPath("resources/Base.lproj/" + name + ".storyboard").getSourceFile();
+		this.source = new Content().withPath("resources/Base.lproj", name + ".storyboard").getSourceFile();
 
 	}
 	@Override

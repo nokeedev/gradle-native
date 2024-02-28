@@ -38,6 +38,6 @@ public final class JavaGreeterJUnitTest extends SourceFileElement {
 
 	public JavaGreeterJUnitTest(JavaPackage javaPackage) {
 		source = new Source().withPackage(javaPackage)
-			.withPath("java/" + javaPackage.getDirectoryLayout() + "/GreeterTest.java").getSourceFile();
+			.withPath("java/" + javaPackage.getDirectoryLayout()).getSourceFile();
 	}
 }

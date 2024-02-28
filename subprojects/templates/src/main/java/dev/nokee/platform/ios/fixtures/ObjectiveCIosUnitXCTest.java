@@ -15,8 +15,8 @@ public final class ObjectiveCIosUnitXCTest extends SourceElements {
 		@Override
 		public List<SourceFile> getFiles() {
 			return ofElements(
-				new ObjectiveCUnitTest().withPath("objc/ApplicationTests.m"),
-				new NokeeAppUnitXCTestInfoPlist().withPath("resources/Info.plist")
+				new ObjectiveCUnitTest().withPath("objc"),
+				new NokeeAppUnitXCTestInfoPlist().withPath("resources", "Info.plist")
 			).getFiles();
 		}
 

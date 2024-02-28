@@ -25,7 +25,7 @@ import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 public final class ObjectiveCGreeter extends NativeSourceFileElement {
 	@Override
     public SourceFileElement getHeader() {
-		return new Header().withPath("headers/greeter.h");
+		return new Header().withPath("headers");
 	}
 
 	@SourceFileLocation(file = "objc-greeter/src/main/public/greeter.h")
@@ -33,7 +33,7 @@ public final class ObjectiveCGreeter extends NativeSourceFileElement {
 
 	@Override
 	public SourceFileElement getSource() {
-		return new Source().withPath("objc/greeter_impl.m");
+		return new Source().withPath("objc");
 	}
 
 	@SourceFileLocation(file = "objc-greeter/src/main/objc/greeter_impl.m")
@@ -48,7 +48,7 @@ public final class ObjectiveCGreeter extends NativeSourceFileElement {
 
 			@Override
 			public SourceFileElement getSource() {
-				return new WithFoundationFrameworkSource().withPath("objc/greeter_impl.m");
+				return new WithFoundationFrameworkSource().withPath("objc");
 			}
 		};
 	}
@@ -65,7 +65,7 @@ public final class ObjectiveCGreeter extends NativeSourceFileElement {
 
 			@Override
 			public SourceFileElement getSource() {
-				return new WithOptionalFeatureSource().withPath("objc/greeter_impl.m");
+				return new WithOptionalFeatureSource().withPath("objc");
 			}
 		};
 	}

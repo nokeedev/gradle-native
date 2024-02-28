@@ -32,6 +32,6 @@ public final class JavaNativeLoader extends SourceFileElement {
 	}
 
 	public JavaNativeLoader(JavaPackage javaPackage) {
-		source = new Content().withPackage(javaPackage).withPath("java/" + javaPackage.getDirectoryLayout() + "/NativeLoader.java").getSourceFile();
+		source = new Content().withPackage(javaPackage).withPath("java/" + javaPackage.getDirectoryLayout()).getSourceFile();
 	}
 }

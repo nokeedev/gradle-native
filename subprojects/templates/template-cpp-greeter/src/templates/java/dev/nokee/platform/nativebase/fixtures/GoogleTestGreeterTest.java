@@ -29,7 +29,7 @@ public final class GoogleTestGreeterTest extends SourceFileElement {
 
 	@Override
 	public SourceFile getSourceFile() {
-		return new Source().withPath("cpp/greeter_test.cpp").getSourceFile();
+		return new Source().withPath("cpp").getSourceFile();
 	}
 
 	@SourceFileLocation(file = "google-test-greeter-test/src/main/cpp/greeter_test.cpp")

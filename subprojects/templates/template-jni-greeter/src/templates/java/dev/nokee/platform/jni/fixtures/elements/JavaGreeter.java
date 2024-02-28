@@ -33,6 +33,6 @@ public final class JavaGreeter extends SourceFileElement {
 
 	public JavaGreeter(JavaPackage javaPackage) {
 		source = new Source().withPackage(javaPackage)
-			.withPath("java/" + javaPackage.getDirectoryLayout() + "/Greeter.java").getSourceFile();
+			.withPath("java/" + javaPackage.getDirectoryLayout()).getSourceFile();
 	}
 }

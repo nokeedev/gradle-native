@@ -32,7 +32,7 @@ public final class SwiftGreeterApp extends GreeterImplementationAwareSourceEleme
 	private static class SwiftMainUsesGreeter extends SwiftSourceFileElement {
 		@Override
 		public SourceFile getSourceFile() {
-			return new Source().withPath("swift/main.swift").getSourceFile();
+			return new Source().withPath("swift").getSourceFile();
 		}
 
 		@SourceFileLocation(file = "swift-greeter-app/src/main/swift/main.swift")
