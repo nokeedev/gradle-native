@@ -4,3 +4,6 @@
 [submodule "gradle/libraries/gradle-build-script"]
 	path = gradle/libraries/gradle-build-script
 	url = git@github.com:gradle-plugins/gradle-build-script.git
+[submodule "gradle/libraries/source-elements"]
+	path = gradle/libraries/source-elements
+	url = git@github.com:gradle-plugins/source-elements.git
