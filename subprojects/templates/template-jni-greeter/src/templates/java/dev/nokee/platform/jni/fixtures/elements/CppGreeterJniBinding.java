@@ -36,7 +36,6 @@ public final class CppGreeterJniBinding extends JniBindingElement {
 
 	@Override
 	public SourceFile getJniGeneratedHeaderFile() {
-		return new GreeterJniHeader().withPackage(javaPackage)
-			.withPath("headers", javaPackage.jniHeader("Greeter")).getSourceFile();
+		return new GreeterJniHeader().withPackage(javaPackage).getSourceFile();
 	}
 }
