@@ -19,3 +19,7 @@ include 'c-greeter-app'
 include 'c-greeter-lib'
 include 'c-greeter-test'
 include 'c-greeter-with-optional-feature'
+
+gradle.allprojects {
+	group = 'dev.nokee.templates'
+}
