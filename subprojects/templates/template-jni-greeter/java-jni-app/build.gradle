@@ -2,6 +2,10 @@ plugins {
 	id 'application'
 }
 
-dependencies {
-	implementation project(':java-jni-greeter')
+application {
+	mainClass = 'com.example.app.Main'
+
+	dependencies {
+		implementation project(':java-jni-greeter')
+	}
 }
