@@ -1,11 +1,11 @@
 package dev.nokee.platform.jni.fixtures;
 
-import dev.gradleplugins.fixtures.sources.RegularFileContent;
 import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileProperty;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
+import dev.gradleplugins.fixtures.sources.nativebase.ObjCppFileElement;
 import dev.nokee.platform.jni.fixtures.elements.GreeterImplementationAwareSourceElement;
 import dev.nokee.platform.jni.fixtures.elements.GreeterJniHeader;
 import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest;
@@ -85,14 +85,14 @@ public final class JavaJniObjectiveCppGreeterLib  extends GreeterImplementationA
 
 		@Override
 		public SourceFile getSourceFile() {
-			return new Content().withPackage(javaPackage).withPath("objcpp").getSourceFile();
+			return new Content().withPackage(javaPackage).getSourceFile();
 		}
 
 		@SourceFileLocation(file = "jni-objcpp-greeter/src/main/objcpp/greeter.mm", properties = {
 			@SourceFileProperty(regex = "^#include \"(com_example_greeter_Greeter.h)\"$", name = "jniHeader"),
 			@SourceFileProperty(regex = "\\s+(Java_com_example_greeter_Greeter_sayHello)\\(", name = "methodName")
 		})
-		static class Content extends RegularFileContent {
+		static class Content extends ObjCppFileElement {
 			public Content withPackage(JavaPackage javaPackage) {
 				properties.put("jniHeader", javaPackage.jniHeader("Greeter"));
 				properties.put("methodName", javaPackage.jniMethodName("Greeter", "sayHello"));
@@ -102,8 +102,7 @@ public final class JavaJniObjectiveCppGreeterLib  extends GreeterImplementationA
 
 		@Override
 		public SourceFile getJniGeneratedHeaderFile() {
-			return new GreeterJniHeader().withPackage(javaPackage)
-				.withPath("headers", javaPackage.jniHeader("Greeter")).getSourceFile();
+			return new GreeterJniHeader().withPackage(javaPackage).getSourceFile();
 		}
 	}
 }

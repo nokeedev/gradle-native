@@ -7,6 +7,7 @@ import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileProperty;
 import dev.gradleplugins.fixtures.sources.java.JavaPackage;
+import dev.gradleplugins.fixtures.sources.nativebase.ObjCFileElement;
 import dev.nokee.platform.jni.fixtures.elements.JavaGreeterJUnitTest;
 import dev.nokee.platform.jni.fixtures.elements.JavaNativeLoader;
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement;
@@ -102,7 +103,7 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 		private final SourceFile source;
 
 		public ObjectiveCNSSavePanelJniBinding(JavaPackage javaPackage) {
-			source = new Content().withPackage(javaPackage).withPath("objc").getSourceFile();
+			source = new Content().withPackage(javaPackage).getSourceFile();
 		}
 
 		@Override
@@ -114,7 +115,7 @@ public final class JavaJniObjectiveCNSSavePanelLib extends SourceElement impleme
 			@SourceFileProperty(regex = "\\s+(Java_com_example_cocoa_NSSavePanel_saveDialog)\\(", name = "methodName"),
 			@SourceFileProperty(regex = "^#include\\s+\"(com_example_cocoa_NSSavePanel\\.h)\"$", name = "jniHeader")
 		})
-		static class Content extends RegularFileContent {
+		static class Content extends ObjCFileElement {
 			public Content withPackage(JavaPackage javaPackage) {
 				properties.put("methodName", javaPackage.jniMethodName("NSSavePanel", "saveDialog"));
 				properties.put("jniHeader", javaPackage.jniHeader("NSSavePanel"));

@@ -16,22 +16,13 @@
 
 package dev.nokee.platform.nativebase.fixtures;
 
-import dev.gradleplugins.fixtures.sources.RegularFileContent;
-import dev.gradleplugins.fixtures.sources.SourceFile;
-import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
+import dev.gradleplugins.fixtures.sources.nativebase.CppFileElement;
 
-public final class GoogleTestGreeterTest extends SourceFileElement {
+@SourceFileLocation(file = "google-test-greeter-test/src/main/cpp/greeter_test.cpp")
+public final class GoogleTestGreeterTest extends CppFileElement {
 	@Override
 	public String getSourceSetName() {
 		return "test";
 	}
-
-	@Override
-	public SourceFile getSourceFile() {
-		return new Source().withPath("cpp").getSourceFile();
-	}
-
-	@SourceFileLocation(file = "google-test-greeter-test/src/main/cpp/greeter_test.cpp")
-	static class Source extends RegularFileContent {}
 }

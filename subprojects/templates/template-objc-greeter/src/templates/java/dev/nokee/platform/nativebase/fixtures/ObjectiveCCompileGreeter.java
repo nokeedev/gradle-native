@@ -1,16 +1,7 @@
 package dev.nokee.platform.nativebase.fixtures;
 
-import dev.gradleplugins.fixtures.sources.RegularFileContent;
-import dev.gradleplugins.fixtures.sources.SourceFile;
-import dev.gradleplugins.fixtures.sources.SourceFileElement;
 import dev.gradleplugins.fixtures.sources.annotations.SourceFileLocation;
+import dev.gradleplugins.fixtures.sources.nativebase.ObjCFileElement;
 
-public final class ObjectiveCCompileGreeter extends SourceFileElement {
-	@Override
-	public SourceFile getSourceFile() {
-		return new Source().withPath("objc").getSourceFile();
-	}
-
-	@SourceFileLocation(file = "objc-compile-greeter/src/main/objc/greeter.m")
-	static class Source extends RegularFileContent {}
-}
+@SourceFileLocation(file = "objc-compile-greeter/src/main/objc/greeter.m")
+public final class ObjectiveCCompileGreeter extends ObjCFileElement {}
