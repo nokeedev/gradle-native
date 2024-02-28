@@ -19,7 +19,6 @@ import dev.nokee.xcode.AsciiPropertyListWriter;
 import dev.nokee.xcode.JavaPropertyListWriter;
 import dev.nokee.xcode.PropertyListVersion;
 import dev.nokee.xcode.XmlPropertyListWriter;
-import lombok.val;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,13 +26,13 @@ import java.nio.file.Path;
 
 public final class PropertyListTestUtils {
 	public static void writeXmlPlistTo(Object o, Path path) throws IOException {
-		try (val writer = new JavaPropertyListWriter(new XmlPropertyListWriter(Files.newBufferedWriter(path)))) {
+		try (final JavaPropertyListWriter writer = new JavaPropertyListWriter(new XmlPropertyListWriter(Files.newBufferedWriter(path)))) {
 			writer.writeDocument(PropertyListVersion.VERSION_10, it -> it.writeObject(o));
 		}
 	}
 
 	public static void writeAsciiPlistTo(Object o, Path path) throws IOException {
-		try (val writer = new JavaPropertyListWriter(new AsciiPropertyListWriter(Files.newBufferedWriter(path)))) {
+		try (final  JavaPropertyListWriter writer = new JavaPropertyListWriter(new AsciiPropertyListWriter(Files.newBufferedWriter(path)))) {
 			writer.writeDocument(PropertyListVersion.VERSION_00, it -> it.writeObject(o));
 		}
 	}
