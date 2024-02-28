@@ -4,7 +4,7 @@ pluginManagement {
 	includeBuild 'gradle/plugins/documentation-kit-plugins'
 	includeBuild 'gradle/plugins/nokeebuild-plugins'
 	includeBuild 'gradle/plugins/nokeedocs-plugins'
-	includeBuild 'gradle/plugins/template-plugins'
+	includeBuild 'gradle/libraries/source-elements'
 }
 
 plugins {

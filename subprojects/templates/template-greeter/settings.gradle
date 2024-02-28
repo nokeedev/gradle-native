@@ -1,2 +1,2 @@
-includeBuild '../../../gradle/plugins/template-plugins'
+includeBuild '../../../gradle/libraries/source-elements'
 

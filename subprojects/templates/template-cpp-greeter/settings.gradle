@@ -1,5 +1,5 @@
 pluginManagement {
-	includeBuild '../../../gradle/plugins/template-plugins'
+	includeBuild '../../../gradle/libraries/source-elements'
 	repositories {
 		maven { url = 'https://repo.nokee.dev/snapshot' }
 		gradlePluginPortal()
@@ -11,7 +11,7 @@ plugins {
 	id 'dev.nokee.cpp-application' version '0.4.3129-202303171612.d413fb13' apply false
 }
 
-includeBuild '../../../gradle/plugins/template-plugins'
+includeBuild '../../../gradle/libraries/source-elements'
 includeBuild '../template-greeter'
 
 include 'cpp-greeter'

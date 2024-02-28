@@ -1,5 +1,5 @@
 pluginManagement {
-	includeBuild '../../gradle/plugins/template-plugins'
+	includeBuild '../../gradle/libraries/source-elements'
 }
 
 plugins {
@@ -7,7 +7,7 @@ plugins {
 	id 'nokeetemplates.source-element' apply false
 }
 
-includeBuild '../../gradle/plugins/template-plugins'
+includeBuild '../../gradle/libraries/source-elements'
 
 gradle.rootProject {
 	def properties = new Properties()
