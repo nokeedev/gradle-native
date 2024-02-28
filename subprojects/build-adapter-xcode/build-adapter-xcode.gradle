@@ -6,7 +6,7 @@ plugins {
 	id 'nokeebuild.gradle-plugin-smoke-test'
 	id 'maven-publish'
 	id 'dev.gradleplugins.documentation.api-reference-module'
-	id 'nokeedocs.sample-templates'
+	id 'nokeetemplates.source-element'
 	id 'antlr'
 	id 'java-test-fixtures'
 }
@@ -95,5 +95,11 @@ smokeTest {
 	dependencies {
 		implementation gradleTestKit(minimumGradleVersion)
 		implementation project(':coreExec')
+	}
+}
+
+sourceSets.templates {
+	tasks.named(compileJavaTaskName, JavaCompile) {
+		options.compilerArgs.add("-AbasePath=" + file('src/templates'));
 	}
 }
