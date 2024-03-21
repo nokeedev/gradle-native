@@ -351,6 +351,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
 							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
 						});
+						configuration.getDependencies().addAll(derivedData.get().getDependencies());
 					})
 					.configure(configuration -> {
 						configuration.outgoing(outgoing -> {

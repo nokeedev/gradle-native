@@ -24,7 +24,9 @@ import dev.nokee.core.exec.LoggingEngine;
 import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingLiteral;
+import dev.nokee.xcode.XCBuildSettingNull;
 import dev.nokee.xcode.XCTargetReference;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
@@ -48,10 +50,11 @@ import static dev.nokee.util.provider.ZipProviderBuilder.newBuilder;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
+@EqualsAndHashCode
 public final class XcodebuildBuildSettingLayer implements XCBuildSettingLayer {
 	private static final Logger LOGGER = Logging.getLogger(XcodebuildBuildSettingLayer.class);
-	private final Provider<Map<String, XCBuildSetting>> buildSettings;
-	private final Set<String> queriedBuildSettings = new HashSet<>();
+	@EqualsAndHashCode.Exclude private final Provider<Map<String, XCBuildSetting>> buildSettings;
+	@EqualsAndHashCode.Exclude private final Set<String> queriedBuildSettings = new HashSet<>();
 
 	public XcodebuildBuildSettingLayer(Provider<Map<String, XCBuildSetting>> buildSettings) {
 		this.buildSettings = buildSettings;
@@ -63,7 +66,11 @@ public final class XcodebuildBuildSettingLayer implements XCBuildSettingLayer {
 		if (queriedBuildSettings.add(context.getName())) {
 			LOGGER.info("Unknown build setting '" + context.getName() + "' requiring xcodebuild query to find value '" + result + "'");
 		}
-		return result;
+		if (result == null) {
+			return new XCBuildSettingNull(context.getName());
+		} else {
+			return result;
+		}
 	}
 
 	@Override

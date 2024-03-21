@@ -16,7 +16,6 @@
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.BuildSettings;
@@ -103,7 +102,7 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, keyOf("buildConfigurationList", object(XCConfigurationList.class))));
 			add(arguments(CodeablePBXAggregateTarget.CodingKeys.buildPhases, keyOf("buildPhases", listOf(object(PBXBuildPhase.class)))));
 
-			add(arguments(CodeablePBXBuildFile.CodingKeys.fileRef, keyOf("fileRef", inputLocation(resolvableFileReference()))));
+			add(arguments(CodeablePBXBuildFile.CodingKeys.fileRef, ignore()));
 			add(arguments(CodeablePBXBuildFile.CodingKeys.productRef, ignore()));
 			add(arguments(CodeablePBXBuildFile.CodingKeys.settings, keyOf("settings", inputOf(asIs()))));
 
@@ -173,10 +172,10 @@ class XCBuildSpecCodingKeyCodersTests {
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.name, ignore()));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, keyOf("shellPath", inputOf(string()))));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, keyOf("shellScript", inputOf(string()))));
-			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, keyOf("inputPaths", inputLocation(setOfResolvablePaths()))));
-			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, ignore())); // TODO: implement support
+			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, ignore()));
+			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, ignore()));
 			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, ignore()));
-			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, ignore())); // TODO: implement support
+			add(arguments(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, ignore()));
 
 			add(arguments(CodeablePBXResourcesBuildPhase.CodingKeys.files, keyOf("files", listOf(object(PBXBuildFile.class)))));
 
@@ -252,14 +251,6 @@ class XCBuildSpecCodingKeyCodersTests {
 		return emptyOptional();
 	}
 
-	private static ValueEncoder<XCBuildSpec, ?> resolvableFileReference() {
-		return new FileSystemLocationEncoder<>(new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>()));
-	}
-
-	private static ValueEncoder<XCBuildSpec, ?> inputLocation(ValueEncoder<XCBuildSpec, ?> encoder) {
-		return new AtInputFilesEncoder<>(encoder);
-	}
-
 	private static <T> ValueEncoder<XCBuildSpec, ?> object(Class<T> type) {
 		return Select.newInstance() //
 			.forCase(PBXBuildFile.class, new AtNestedMapEncoder<>(new NoOpEncoder<>())) //
@@ -272,10 +263,6 @@ class XCBuildSpecCodingKeyCodersTests {
 
 	public static <E> ValueEncoder<XCBuildSpec, List<E>> listOf(ValueEncoder<XCBuildSpec, E> elementEncoder) {
 		return new AtNestedCollectionEncoder<>(ImmutableList.toImmutableList(), new ListEncoder<>(elementEncoder));
-	}
-
-	public static ValueEncoder<XCBuildSpec, List<String>> setOfResolvablePaths() {
-		return new IgnoreEmptyStringEncoder<>(new AtNestedCollectionEncoder<>(ImmutableSet.toImmutableSet(), new ListEncoder<>(new FileSystemLocationEncoder<>(new NormalizeStringAsPBXReferenceEncoder<>(new ThrowingValueEncoder<>())))));
 	}
 
 	public static <IN> ValueEncoder<XCBuildSpec, IN> inputOf(ValueEncoder<?, IN> encoder) {

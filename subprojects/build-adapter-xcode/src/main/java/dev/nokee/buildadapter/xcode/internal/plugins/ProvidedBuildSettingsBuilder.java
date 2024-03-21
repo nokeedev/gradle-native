@@ -22,6 +22,7 @@ import dev.nokee.xcode.XCBuildSetting;
 import dev.nokee.xcode.XCBuildSettingLayer;
 import dev.nokee.xcode.XCBuildSettingLiteral;
 import dev.nokee.xcode.XCTargetReference;
+import lombok.EqualsAndHashCode;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Provider;
@@ -35,8 +36,9 @@ import java.util.function.Function;
 import static java.util.stream.Collectors.toMap;
 
 @SuppressWarnings("UnstableApiUsage")
+@EqualsAndHashCode
 public final class ProvidedBuildSettingsBuilder {
-	private final MapProperty<String, String> buildSettings;
+	@EqualsAndHashCode.Exclude private final MapProperty<String, String> buildSettings;
 
 	public ProvidedBuildSettingsBuilder(ObjectFactory objects) {
 		assert objects != null : "'objects' must not be null";

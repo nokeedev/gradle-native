@@ -15,8 +15,6 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import dev.nokee.xcode.PropertyListReader;
-import dev.nokee.xcode.XmlPropertyListReader;
 import lombok.val;
 
 import java.io.IOException;
@@ -29,13 +27,17 @@ public final class XcodeVersionPropertyListFinder implements XcodeVersionFinder 
 	public String find(Path developerDir) {
 		// version.plist is located side-by-side with Developer directory
 		final Path versionPlist = developerDir.getParent().resolve("version.plist");
-		try (val reader = new XmlPropertyListReader(Files.newBufferedReader(versionPlist))) {
-			while (reader.hasNext()) {
-				if (PropertyListReader.Event.DICTIONARY_KEY.equals(reader.next()) && reader.readDictionaryKey().equals("CFBundleShortVersionString")) {
-					if (!reader.hasNext() || !reader.next().equals(PropertyListReader.Event.STRING)) {
-						throw new IllegalStateException("Expecting string value to 'CFBundleShortVersionString'");
-					}
-					return reader.readString();
+
+		// NOTE: We don't use our XMLPropertyListReader because there seems to be a 100 to 600ms performance hit on initialization
+		//   We should revisit when we have more time to debug this particular performance issue.
+		try (val reader = Files.newBufferedReader(versionPlist)) {
+			String line = null;
+			boolean shortVersionFound = false;
+			while ((line = reader.readLine()) != null) {
+				if (shortVersionFound) {
+					return line.replace("<string>", "").replace("</string>", "").trim();
+				} else if (line.contains("CFBundleShortVersionString")) {
+					shortVersionFound = true;
 				}
 			}
 		} catch (IOException e) {
